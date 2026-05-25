@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Mengatasi background putih pada autofill browser */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+    /* Menjaga teks tetap berwarna putih */
+    -webkit-text-fill-color: white !important;
+    
+    /* Menahan perubahan warna background selama 5000 detik (trik agar tetap transparan) */
+    transition: background-color 5000s ease-in-out 0s;
+}
