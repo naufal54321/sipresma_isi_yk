@@ -113,6 +113,38 @@
 
         </div>
 
+        @if(session('success'))
+
+<script>
+
+    Swal.fire({
+        icon: 'success',
+        title: 'Berhasil',
+        text: '{{ session('success') }}',
+        confirmButtonColor: '#2563eb',
+        timer: 2500,
+        showConfirmButton: false
+    });
+
+</script>
+
+@endif
+
+@if(session('error'))
+
+<script>
+
+    Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: '{{ session('error') }}',
+        confirmButtonColor: '#dc2626',
+    });
+
+</script>
+
+@endif
+
     </body>
 
 </html>

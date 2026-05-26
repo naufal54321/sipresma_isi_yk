@@ -4,12 +4,34 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserRoleController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
+
+Route::middleware(['auth', 'role:Admin'])->group(function () {
+
+    Route::get('/users/{user}/edit',
+        [UserController::class, 'edit'])
+        ->name('users.edit');
+
+    Route::patch('/users/{user}',
+        [UserController::class, 'update'])
+        ->name('users.update');
+
+        Route::delete('/users/{user}',
+    [UserController::class, 'destroy'])
+    ->name('users.destroy');
+
+    Route::get('/users/create',
+    [UserController::class, 'create'])
+    ->name('users.create');
+
+Route::post('/users',
+    [UserController::class, 'store'])
+    ->name('users.store');
+
+});
 
 use App\Models\User;
 
-Route::patch('/users/{user}/role', [UserRoleController::class, 'update'])
-    ->middleware(['auth', 'role:Admin'])
-    ->name('users.role');
 
 Route::get('/', function () {
     return view('welcome');
