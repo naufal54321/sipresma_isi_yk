@@ -22,6 +22,38 @@
             <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
+<div>
+    <x-input-label for="nim" :value="__('NIM')" />
+
+    <x-text-input
+        id="nim"
+        name="nim"
+        type="text"
+        class="mt-1 block w-full"
+        :value="old('nim', $user->nim)"
+        required
+        autocomplete="nim"
+    />
+
+    <x-input-error class="mt-2" :messages="$errors->get('nim')" />
+</div>
+
+<div>
+    <x-input-label for="prodi" :value="__('Program Studi')" />
+
+    <x-text-input
+        id="prodi"
+        name="prodi"
+        type="text"
+        class="mt-1 block w-full"
+        :value="old('prodi', $user->prodi)"
+        required
+        autocomplete="prodi"
+    />
+
+    <x-input-error class="mt-2" :messages="$errors->get('prodi')" />
+</div>
+
 
         <div>
             <x-input-label for="email" :value="__('Email')" />
