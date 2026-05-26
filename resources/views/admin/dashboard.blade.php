@@ -1,21 +1,14 @@
 <x-app-layout>
 
-    <div class="py-12">
+    <div class="py-1">
 
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-
-            <div class="bg-white p-8 rounded-2xl shadow">
-
-                <h1 class="text-3xl font-bold text-red-600">
+                <h1 class="text-3xl font-bold text-black-600">
                     Dashboard Admin
                 </h1>
-
-                <p class="mt-4 text-gray-600">
-                    Selamat datang Admin SIPRESMA
-                </p>
-
+                <br
             </div>
-            
+
 <!-- Card Table -->
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-2xl">
 
@@ -42,7 +35,7 @@
 
                     <table class="w-full table-auto text-sm text-left text-gray-600">
 
-                        <thead class="bg-blue-600 text-white uppercase text-xs tracking-wider">
+                        <thead class="bg-white-600 text-black uppercase text-xs tracking-wider">
 
                             <tr>
 
