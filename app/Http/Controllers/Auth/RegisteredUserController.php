@@ -46,6 +46,8 @@ $user = User::create([
     'password' => Hash::make($request->password),
 ]);
 
+$user->assignRole('Mahasiswa');
+
         event(new Registered($user));
 
         Auth::login($user);
