@@ -5,92 +5,104 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
-
 
 class UserController extends Controller
 {
-
-public function create()
-{
-    return view('admin.users.create');
-}
-
-public function store(Request $request)
-{
-    $request->validate([
-        'name' => 'required',
-        'nim' => 'required|unique:users,nim',
-        'prodi' => 'required',
-        'email' => 'required|email|unique:users,email',
-        'password' => 'required|min:6',
-        'role' => 'required',
-    ]);
-
-    $user = User::create([
-        'name' => $request->name,
-        'nim' => $request->nim,
-        'prodi' => $request->prodi,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-    ]);
-
-    $user->assignRole($request->role);
-
-    return redirect()
-        ->route('admin.dashboard')
-        ->with('success', 'Pengguna berhasil ditambahkan');
-}
-    /**
-     * Form edit pengguna
-     */
-    public function edit(User $user)
+    /*
+    |-----------------------------------
+    | CREATE (TIDAK DIPAKAI AJAX)
+    |-----------------------------------
+    */
+    public function create()
     {
-        return view('admin.users.edit', compact('user'));
+        return view('admin.users.create');
     }
 
-    /**
-     * Update data pengguna
-     */
+    /*
+    |-----------------------------------
+    | STORE AJAX
+    |-----------------------------------
+    */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'nim' => 'required|unique:users,nim',
+            'prodi' => 'required',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6',
+            'role' => 'required',
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'nim' => $request->nim,
+            'prodi' => $request->prodi,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        $user->assignRole($request->role);
+
+        return response()->json([
+            'message' => 'success',
+            'user' => $user->load('roles')
+        ]);
+    }
+
+    /*
+    |-----------------------------------
+    | SHOW AJAX (EDIT DATA)
+    |-----------------------------------
+    */
+    public function show(User $user)
+    {
+        return response()->json(
+            $user->load('roles')
+        );
+    }
+
+    /*
+    |-----------------------------------
+    | UPDATE AJAX
+    |-----------------------------------
+    */
     public function update(Request $request, User $user)
-{
-    $request->validate([
-        'name' => 'required',
-        'nim' => 'required',
-        'prodi' => 'required',
-        'email' => 'required|email',
-        'role' => 'required',
-    ]);
+    {
+        $request->validate([
+            'name' => 'required',
+            'nim' => 'required',
+            'prodi' => 'required',
+            'email' => 'required|email',
+            'role' => 'required',
+        ]);
 
-    $user->update([
-        'name' => $request->name,
-        'nim' => $request->nim,
-        'prodi' => $request->prodi,
-        'email' => $request->email,
-    ]);
+        $user->update([
+            'name' => $request->name,
+            'nim' => $request->nim,
+            'prodi' => $request->prodi,
+            'email' => $request->email,
+        ]);
 
-    // Update role
-    $user->syncRoles([$request->role]);
+        $user->syncRoles([$request->role]);
 
-    return redirect()
-        ->route('admin.dashboard')
-        ->with('success', 'Data pengguna berhasil diperbarui');
-}
-
-public function destroy(User $user)
-{
-    // Mencegah admin menghapus akun sendiri
-    if ($user->id == Auth::id()) {
-
-        return redirect()
-            ->back()
-            ->with('error', 'Anda tidak bisa menghapus akun sendiri');
+        return response()->json([
+            'message' => 'updated',
+            'user' => $user->load('roles')
+        ]);
     }
 
-    $user->delete();
+    /*
+    |-----------------------------------
+    | DELETE AJAX
+    |-----------------------------------
+    */
+    public function destroy(User $user)
+    {
+        $user->delete();
 
-    return redirect()
-        ->route('admin.dashboard')
-        ->with('success', 'Pengguna berhasil dihapus');
-}
+        return response()->json([
+            'message' => 'deleted'
+        ]);
+    }
 }

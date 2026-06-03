@@ -91,6 +91,90 @@
 
         @endrole
 
+        @role('Dosen')
+<div x-data="{ open: false }" class="px-6">
+
+    <!-- Tombol Dropdown -->
+    <button @click="open = !open"
+            class="flex items-center justify-between w-full py-3 hover:bg-blue-700 transition px-3 rounded">
+
+        <div class="flex items-center gap-3">
+            <!-- Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="w-5 h-5"
+                 fill="none"
+                 viewBox="0 0 24 24"
+                 stroke="currentColor">
+
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+
+            </svg>
+
+            <span>Validasi</span>
+        </div>
+
+        <!-- Arrow -->
+        <svg xmlns="http://www.w3.org/2000/svg"
+             class="w-4 h-4 transform transition"
+             :class="open ? 'rotate-180' : ''"
+             fill="none"
+             viewBox="0 0 24 24"
+             stroke="currentColor">
+
+            <path stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7" />
+
+        </svg>
+
+    </button>
+
+    <!-- Dropdown Menu -->
+    <div x-show="open" class="ml-8 mt-2 space-y-2">
+
+        <!-- RPK -->
+        <a href="{{ route('dosen.kegiatan.index') }}"
+           class="block py-2 px-3 rounded hover:bg-blue-700 transition">
+            📄 RPK
+        </a>
+
+        <!-- SPK -->
+        <a href="#"
+           class="block py-2 px-3 rounded hover:bg-blue-700 transition">
+            📊 SPK
+        </a>
+
+    </div>
+
+</div>
+@endrole
+
+        @role('Mahasiswa')
+<a href="{{ route('rpks.index') }}"
+   class="flex items-center gap-3 px-6 py-3 hover:bg-blue-700 transition">
+
+    <svg xmlns="http://www.w3.org/2000/svg"
+         class="w-5 h-5"
+         fill="none"
+         viewBox="0 0 24 24"
+         stroke="currentColor">
+
+        <path stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+
+    </svg>
+
+    <span>RPK</span>
+
+</a>
+@endrole
+
         <!-- Profile -->
         <a href="{{ route('profile.edit') }}"
            class="flex items-center gap-3 px-6 py-3 hover:bg-blue-700 transition">

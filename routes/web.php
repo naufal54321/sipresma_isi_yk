@@ -1,45 +1,42 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\UserRoleController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
-
-Route::middleware(['auth', 'role:Admin'])->group(function () {
-
-    Route::get('/users/{user}/edit',
-        [UserController::class, 'edit'])
-        ->name('users.edit');
-
-    Route::patch('/users/{user}',
-        [UserController::class, 'update'])
-        ->name('users.update');
-
-        Route::delete('/users/{user}',
-    [UserController::class, 'destroy'])
-    ->name('users.destroy');
-
-    Route::get('/users/create',
-    [UserController::class, 'create'])
-    ->name('users.create');
-
-Route::post('/users',
-    [UserController::class, 'store'])
-    ->name('users.store');
-
-});
-
+use App\Http\Controllers\UserRoleController;
+use App\Http\Controllers\RpkController;
+use App\Http\Controllers\KegiatanController;
+use App\Http\Controllers\DosenKegiatanController;
 use App\Models\User;
 
+/*
+|--------------------------------------------------------------------------
+| PUBLIC ROUTE
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/', function () {
     return view('welcome');
 });
 
+/*
+|--------------------------------------------------------------------------
+| AUTH DASHBOARD
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
+
+/*
+|--------------------------------------------------------------------------
+| PROFILE USER
+|--------------------------------------------------------------------------
+*/
 
 Route::middleware('auth')->group(function () {
 
@@ -56,12 +53,15 @@ Route::middleware('auth')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| ADMIN ONLY
+| ADMIN ONLY (FULL AJAX SIPRESMA)
 |--------------------------------------------------------------------------
 */
 
 Route::middleware(['auth', 'role:Admin'])->group(function () {
 
+    /*
+    | Dashboard Admin
+    */
     Route::get('/admin', function () {
 
         $users = User::latest()->get();
@@ -70,6 +70,59 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
 
     })->name('admin.dashboard');
 
+
+    /*
+    | USERS CRUD (FULL REST API - AJAX READY)
+    */
+    Route::resource('users', UserController::class);
+
+
+    /*
+    | ROLE MANAGEMENT
+    */
+    Route::post('/users/{user}/role', [UserRoleController::class, 'update'])
+        ->name('users.role.update');
+
 });
+
+Route::middleware(['auth', 'role:Mahasiswa'])
+->group(function () {
+
+    Route::resource('rpks', RpkController::class);
+
+    Route::get('/rpks/{rpk}/kegiatans',
+    [KegiatanController::class, 'index'])
+    ->name('kegiatans.index');
+
+Route::get('/rpks/{rpk}/kegiatans/create',
+    [KegiatanController::class, 'create'])
+    ->name('kegiatans.create');
+
+Route::post('/rpks/{rpk}/kegiatans',
+    [KegiatanController::class, 'store'])
+    ->name('kegiatans.store');
+
+});
+
+Route::middleware(['auth', 'role:Dosen'])->group(function () {
+
+    Route::get('/dosen/kegiatan', [DosenKegiatanController::class, 'index'])
+        ->name('dosen.kegiatan.index');
+
+    Route::put('/dosen/kegiatan/{kegiatan}/approve',
+        [DosenKegiatanController::class, 'approve'])
+        ->name('dosen.kegiatan.approve');
+
+    Route::put('/dosen/kegiatan/{kegiatan}/reject',
+        [DosenKegiatanController::class, 'reject'])
+        ->name('dosen.kegiatan.reject');
+
+});
+
+/*
+|--------------------------------------------------------------------------
+| AUTH ROUTES
+|--------------------------------------------------------------------------
+*/
 
 require __DIR__.'/auth.php';

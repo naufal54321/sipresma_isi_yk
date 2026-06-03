@@ -50,4 +50,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function rpks()
+{
+    return $this->hasMany(Rpk::class);
+}
+
 }
