@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
+
 class UserController extends Controller
 {
     /*
@@ -105,4 +106,31 @@ class UserController extends Controller
             'message' => 'deleted'
         ]);
     }
+
+    public function pembimbingIndex()
+{
+    $mahasiswa = User::role('Mahasiswa')->get();
+    $dosen = User::role('Dosen')->get();
+
+    return view('admin.pembimbing.index', compact('mahasiswa', 'dosen'));
+}
+
+public function setPembimbing(Request $request)
+{
+    $request->validate([
+        'mahasiswa_id' => 'required',
+        'dosen_id' => 'required',
+    ]);
+
+    $mahasiswa = \App\Models\User::find($request->mahasiswa_id);
+
+    if (!$mahasiswa) {
+        return back()->with('error', 'Mahasiswa tidak ditemukan');
+    }
+
+    $mahasiswa->dosen_pembimbing_id = $request->dosen_id;
+    $mahasiswa->save();
+
+    return back()->with('success', 'Berhasil assign dosen');
+}
 }

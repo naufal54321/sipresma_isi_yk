@@ -25,6 +25,7 @@
                     <tr>
                         <th class="px-6 py-4">No</th>
                         <th class="px-6 py-4">Mahasiswa</th>
+                        <th class="px-6 py-4">NIM</th>
                         <th class="px-6 py-4">Kegiatan</th>
                         <th class="px-6 py-4">Jenis</th>
                         <th class="px-6 py-4">Tingkat</th>
@@ -45,7 +46,11 @@
                         </td>
 
                         <td class="px-6 py-4">
-                             {{ $kegiatan->user->name ?? '-' }}
+                             {{ $kegiatan->rpk->user->name ?? '-' }}
+                        </td>
+
+                        <td class="px-6 py-4">
+                             {{ $kegiatan->rpk->user->nim ?? '-' }}
                         </td>
 
                         <td class="px-6 py-4">

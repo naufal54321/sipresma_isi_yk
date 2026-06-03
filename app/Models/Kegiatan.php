@@ -27,4 +27,9 @@ public function user()
 {
     return $this->belongsTo(User::class, 'user_id');
 }
+
+public function spks()
+{
+    return $this->hasMany(Spk::class);
+}
 }

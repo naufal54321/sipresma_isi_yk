@@ -66,7 +66,7 @@
                             <th class="px-4 py-4 text-center">No</th>
                             <th class="px-4 py-4">Nama</th>
                             <th class="px-4 py-4">NIM</th>
-                            <th class="px-4 py-4">Program Studi</th>
+                            <th class="px-4 py-4">Program Studi / Fakultas</th>
                             <th class="px-4 py-4">Email</th>
                             <th class="px-4 py-4 text-center">Role</th>
                             <th class="px-4 py-4">Tanggal Daftar</th>

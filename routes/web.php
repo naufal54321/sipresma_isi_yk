@@ -10,7 +10,23 @@ use App\Http\Controllers\UserRoleController;
 use App\Http\Controllers\RpkController;
 use App\Http\Controllers\KegiatanController;
 use App\Http\Controllers\DosenKegiatanController;
+use App\Http\Controllers\DosenSpkController;
+use App\Http\Controllers\SpkController;
 use App\Models\User;
+use App\Http\Controllers\DosenMahasiswaController;
+
+Route::middleware(['auth', 'role:Dosen'])->group(function () {
+
+    Route::get('/dosen/mahasiswa', [DosenMahasiswaController::class, 'index'])
+        ->name('dosen.mahasiswa.index');
+
+});
+
+
+
+
+
+Route::resource('spks', SpkController::class);
 
 /*
 |--------------------------------------------------------------------------
@@ -71,6 +87,15 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     })->name('admin.dashboard');
 
 
+     Route::get('/admin/pembimbing', [UserController::class, 'pembimbingIndex'])
+        ->name('admin.pembimbing.index');
+
+    Route::post('/admin/pembimbing/set', [UserController::class, 'setPembimbing'])
+        ->name('admin.pembimbing.set');
+
+
+
+
     /*
     | USERS CRUD (FULL REST API - AJAX READY)
     */
@@ -118,6 +143,28 @@ Route::middleware(['auth', 'role:Dosen'])->group(function () {
         ->name('dosen.kegiatan.reject');
 
 });
+
+Route::middleware(['auth', 'role:Mahasiswa'])->group(function () {
+    Route::resource('spks', SpkController::class);
+});
+
+Route::middleware(['auth','role:Dosen'])
+    ->prefix('dosen')
+    ->name('dosen.')
+    ->group(function () {
+
+        Route::get('/spk', [DosenSpkController::class, 'index'])
+            ->name('spk.index');
+
+        Route::put('/spk/{spk}/approve', [DosenSpkController::class, 'approve'])
+            ->name('spk.approve');
+
+        Route::put('/spk/{spk}/reject', [DosenSpkController::class, 'reject'])
+            ->name('spk.reject');
+    });
+
+    Route::get('/spk/{spk}', [DosenSpkController::class, 'show'])
+    ->name('dosen.spk.show');
 
 /*
 |--------------------------------------------------------------------------

@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 class KegiatanController extends Controller
 {
 
+
+
 public function verifikasi()
 {
     $kegiatans = Kegiatan::with('rpk.user')->latest()->get();

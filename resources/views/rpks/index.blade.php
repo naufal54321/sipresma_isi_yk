@@ -100,13 +100,7 @@
 
 </a>
 
-                                <a href="{{ route('rpks.edit', $rpk->id) }}"
-                                   class="bg-yellow-500 hover:bg-yellow-400 text-white px-4 py-2 rounded-lg text-sm">
-
-                                    Edit
-
-                                </a>
-
+                                
                                 <form action="{{ route('rpks.destroy', $rpk->id) }}"
                                       method="POST">
 
