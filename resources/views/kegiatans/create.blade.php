@@ -16,63 +16,61 @@
                 @csrf
 
                 <!-- Kegiatan -->
-                <div class="mb-5">
+                <div class="mb-4">
 
-                    <label class="block mb-2 font-semibold text-gray-700">
-                        Nama Kegiatan
-                    </label>
+    <label class="font-semibold">
+        Nama Kegiatan *
+    </label>
 
-                    <input type="text"
-                           name="kegiatan"
-                           class="w-full border rounded-xl px-4 py-3">
+    <select name="master_kegiatan_id"
+            id="master_kegiatan_id"
+            class="w-full border rounded-lg p-2">
 
-                </div>
+        <option value="">
+            Pilih Kegiatan
+        </option>
 
-                <!-- Jenis -->
-                <div class="mb-5">
+        @foreach($masterKegiatans as $item)
 
-                    <label class="block mb-2 font-semibold text-gray-700">
-                        Jenis
-                    </label>
+        <option value="{{ $item->id }}"
+                data-jenis="{{ $item->jenis }}"
+                data-tingkat="{{ $item->tingkat }}"
+                data-hasil="{{ $item->hasil }}"
+                data-poin="{{ $item->poin }}">
 
-                    <input type="text"
-                           name="jenis"
-                           class="w-full border rounded-xl px-4 py-3">
+            {{ $item->nama_kegiatan }}
 
-                </div>
+        </option>
 
-                <!-- Tingkat -->
-                <div class="mb-5">
+        @endforeach
 
-                    <label class="block mb-2 font-semibold text-gray-700">
-                        Tingkat
-                    </label>
+    </select>
 
-                    <select name="tingkat"
-                            class="w-full border rounded-xl px-4 py-3">
+</div>
 
-                        <option value="">Pilih Tingkat</option>
-                        <option value="Universitas">Universitas</option>
-                        <option value="Regional">Regional</option>
-                        <option value="Nasional">Nasional</option>
-                        <option value="Internasional">Internasional</option>
+<div class="mb-4">
+    <label>Jenis</label>
+    <input type="text" id="jenis" name="jenis"
+           class="w-full border rounded-lg p-2" readonly>
+</div>
 
-                    </select>
+<div class="mb-4">
+    <label>Tingkat</label>
+    <input type="text" id="tingkat" name="tingkat"
+           class="w-full border rounded-lg p-2" readonly>
+</div>
 
-                </div>
+<div class="mb-4">
+    <label>Hasil</label>
+    <input type="text" id="hasil" name="hasil"
+           class="w-full border rounded-lg p-2" readonly>
+</div>
 
-                <!-- Hasil -->
-                <div class="mb-5">
-
-                    <label class="block mb-2 font-semibold text-gray-700">
-                        Hasil
-                    </label>
-
-                    <input type="text"
-                           name="hasil"
-                           class="w-full border rounded-xl px-4 py-3">
-
-                </div>
+<div class="mb-4">
+    <label>Poin</label>
+    <input type="text" id="poin"
+           class="w-full border rounded-lg p-2" readonly>
+</div>
 
                 <!-- Tanggal -->
                 <div class="mb-5">
@@ -167,6 +165,24 @@ document.getElementById('peran')
 
 });
 
+document.getElementById('master_kegiatan_id')
+.addEventListener('change', function() {
+
+    let selected =
+        this.options[this.selectedIndex];
+
+    document.getElementById('jenis').value =
+        selected.dataset.jenis || '';
+
+    document.getElementById('tingkat').value =
+        selected.dataset.tingkat || '';
+
+    document.getElementById('hasil').value =
+        selected.dataset.hasil || '';
+
+    document.getElementById('poin').value =
+        selected.dataset.poin || '';
+});
 </script>
 
 </x-app-layout>

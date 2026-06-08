@@ -47,23 +47,7 @@
 
                 </div>
 
-                <!-- Kategori -->
-                <div class="mb-6">
-
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">
-                        Kategori
-                    </label>
-
-                    <select name="kategori"
-                            class="w-full border rounded-xl px-4 py-3 focus:ring focus:ring-blue-200">
-
-                        <option value="">Pilih Kategori</option>
-                        <option value="Individu">Individu</option>
-                        <option value="Kelompok">Kelompok</option>
-
-                    </select>
-
-                </div>
+                
 
                 <!-- Tombol -->
                 <div class="flex items-center gap-3">

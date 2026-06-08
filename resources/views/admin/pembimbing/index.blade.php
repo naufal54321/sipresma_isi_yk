@@ -1,10 +1,11 @@
 <x-app-layout>
 
-<div class="py-6 max-w-7xl mx-auto">
+ <div class="max-w-8xl mx-auto py-6">
 
-    <h1 class="text-2xl font-bold mb-6">
-        Penentuan Dosen Pembimbing
-    </h1>
+    <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Ploting Dosen Pembimbing</h1>
+        </div>
+
 
     <!-- FORM ASSIGN -->
     <div class="bg-white p-6 rounded-xl shadow mb-6">
@@ -17,6 +18,9 @@
                 <div>
                     <label class="text-sm font-medium">Mahasiswa</label>
                     <select name="mahasiswa_id" class="w-full border rounded p-2 mt-1">
+                        <option value="">
+                         -- Pilih Mahasiswa --
+                        </option>
                         @foreach($mahasiswa as $mhs)
                             <option value="{{ $mhs->id }}">
                                 {{ $mhs->name }} - {{ $mhs->nim }}
@@ -28,12 +32,19 @@
                 <div>
                     <label class="text-sm font-medium">Dosen Pembimbing</label>
                     <select name="dosen_id" class="w-full border rounded p-2 mt-1">
-                        @foreach($dosen as $dsn)
-                            <option value="{{ $dsn->id }}">
-                                {{ $dsn->name }}
-                            </option>
-                        @endforeach
-                    </select>
+
+    <option value="">
+        -- Pilih Dosen Pembimbing --
+    </option>
+
+    @foreach($dosen as $dsn)
+        <option value="{{ $dsn->id }}"
+            {{ old('dosen_id') == $dsn->id ? 'selected' : '' }}>
+            {{ $dsn->name }}
+        </option>
+    @endforeach
+
+</select>
                 </div>
 
             </div>

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Rpk;
 use App\Models\Kegiatan;
 use Illuminate\Http\Request;
+use App\Models\MasterKegiatan;
+
 
 
 class KegiatanController extends Controller
@@ -52,43 +54,48 @@ public function tolak(Kegiatan $kegiatan)
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Rpk $rpk)
-    {
-        return view('kegiatans.create', compact('rpk'));
-    }
+
+public function create(Rpk $rpk)
+{
+    $masterKegiatans = MasterKegiatan::where(
+        'status',
+        'aktif'
+    )->get();
+
+    return view('kegiatans.create', compact(
+        'rpk',
+        'masterKegiatans'
+    ));
+}
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, Rpk $rpk)
-    {
-        $request->validate([
-            'kegiatan' => 'required',
-            'jenis' => 'required',
-            'tingkat' => 'required',
-            'hasil' => 'required',
-            'tanggal' => 'required|date',
-            'peran' => 'required',
-            'jumlah_anggota' =>
-                'nullable|required_if:peran,Ketua|integer'
-        ]);
 
-        Kegiatan::create([
-            'rpk_id' => $rpk->id,
-            'kegiatan' => $request->kegiatan,
-            'jenis' => $request->jenis,
-            'tingkat' => $request->tingkat,
-            'hasil' => $request->hasil,
-            'tanggal' => $request->tanggal,
-            'peran' => $request->peran,
-            'jumlah_anggota' => $request->jumlah_anggota,
-            'status' => 'draft'
-        ]);
+public function store(Request $request, Rpk $rpk)
+{
+    $master = MasterKegiatan::findOrFail(
+        $request->master_kegiatan_id
+    );
 
-        return redirect()
-            ->route('kegiatans.index', $rpk->id)
-            ->with('success', 'Kegiatan berhasil ditambahkan');
-    }
+    Kegiatan::create([
+        'rpk_id' => $rpk->id,
+        'master_kegiatan_id' => $master->id,
+
+        'kegiatan' => $master->nama_kegiatan,
+        'jenis' => $master->jenis,
+        'tingkat' => $master->tingkat,
+        'hasil' => $master->hasil,
+
+        'tanggal' => $request->tanggal,
+        'peran' => $request->peran,
+        'jumlah_anggota' => $request->jumlah_anggota,
+    ]);
+
+    return redirect()
+        ->route('kegiatans.index', $rpk->id)
+        ->with('success', 'Kegiatan berhasil ditambahkan');
+}
 
     /**
      * Display the specified resource.
@@ -101,24 +108,57 @@ public function tolak(Kegiatan $kegiatan)
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
-    {
-        //
-    }
+    public function edit(Kegiatan $kegiatan)
+{
+    $masterKegiatans = MasterKegiatan::where('status', 'aktif')->get();
+
+    return view('kegiatans.edit', compact(
+        'kegiatan',
+        'masterKegiatans'
+    ));
+}
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+    public function update(Request $request, Kegiatan $kegiatan)
+{
+    $master = MasterKegiatan::findOrFail(
+        $request->master_kegiatan_id
+    );
 
+    $kegiatan->update([
+        'master_kegiatan_id' => $master->id,
+        'kegiatan' => $master->nama_kegiatan,
+        'jenis' => $master->jenis,
+        'tingkat' => $master->tingkat,
+        'hasil' => $master->hasil,
+        'tanggal' => $request->tanggal,
+        'peran' => $request->peran,
+        'jumlah_anggota' => $request->jumlah_anggota,
+    ]);
+
+    return redirect()
+        ->route('kegiatans.index', $kegiatan->rpk_id)
+        ->with('success', 'Kegiatan berhasil diperbarui');
+}
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        //
+    public function destroy(Kegiatan $kegiatan)
+{
+    if (!in_array($kegiatan->status, ['draft', 'ditolak'])) {
+        return back()->with(
+            'error',
+            'Kegiatan yang sudah disetujui tidak dapat dihapus.'
+        );
     }
+
+    $kegiatan->delete();
+
+    return back()->with(
+        'success',
+        'Kegiatan berhasil dihapus.'
+    );
+}
 }

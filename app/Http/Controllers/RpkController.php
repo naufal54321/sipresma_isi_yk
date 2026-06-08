@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Rpk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\MasterKegiatan;
 
 class RpkController extends Controller
 {
@@ -26,7 +27,15 @@ class RpkController extends Controller
      */
     public function create()
     {
-        return view('rpks.create');
+         $masterKegiatans = MasterKegiatan::where(
+        'status',
+        'aktif'
+    )->get();
+
+    return view(
+        'rpks.create',
+        compact('masterKegiatans')
+    );
     }
 
     /**
@@ -37,14 +46,14 @@ class RpkController extends Controller
         $request->validate([
             'tahun' => 'required',
             'semester' => 'required',
-            'kategori' => 'required',
+            
         ]);
 
         Rpk::create([
             'user_id' => Auth::id(),
             'tahun' => $request->tahun,
             'semester' => $request->semester,
-            'kategori' => $request->kategori,
+            
         ]);
 
         return redirect()

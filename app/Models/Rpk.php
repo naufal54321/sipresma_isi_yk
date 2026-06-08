@@ -28,4 +28,9 @@ public function spks()
     return $this->hasMany(Spk::class);
 }
 
+public function masterKegiatan()
+{
+    return $this->belongsTo(MasterKegiatan::class);
+}
+
 }

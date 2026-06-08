@@ -39,6 +39,7 @@
                         <th class="px-6 py-4">Jenis</th>
                         <th class="px-6 py-4 text-center">Status</th>
                         <th class="px-6 py-4">Catatan Dosen</th>
+                        <th class="px-6 py-4 text-center">Aksi</th>
                     </tr>
 
                 </thead>
@@ -75,19 +76,19 @@
 
                             @if($spk->status == 'draft')
 
-                                <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                <span class="bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
                                     Draft
                                 </span>
 
                             @elseif($spk->status == 'disetujui')
 
-                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
                                     Disetujui
                                 </span>
 
                             @else
 
-                                <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
                                     Ditolak
                                 </span>
 
@@ -95,9 +96,57 @@
 
                         </td>
 
+                        
+
                         <td class="px-6 py-4">
                             {{ $spk->catatan_dosen ?? '-' }}
                         </td>
+
+                        <td class="px-6 py-4 text-center">
+
+    <div class="flex justify-center gap-2">
+
+        @if($spk->status == 'ditolak')
+
+            <a href="{{ route('spks.edit', $spk->id) }}"
+               class="bg-yellow-500 hover:bg-yellow-400 text-white px-4 py-2 rounded-lg">
+
+                Edit
+
+            </a>
+
+        @endif
+
+        @if(in_array($spk->status, ['draft', 'ditolak']))
+
+            <form action="{{ route('spks.destroy', $spk->id) }}"
+                  method="POST"
+                  class="delete-form">
+
+                @csrf
+                @method('DELETE')
+
+                <button type="button"
+                        onclick="hapusSpk(this)"
+                        class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg">
+
+                    Hapus
+
+                </button>
+
+            </form>
+
+        @endif
+
+        @if($spk->status == 'disetujui')
+
+            <span class="text-gray-400">-</span>
+
+        @endif
+
+    </div>
+
+</td>
 
                     </tr>
 
@@ -125,5 +174,29 @@
     </div>
 
 </div>
+
+<script>
+
+function hapusSpk(button)
+{
+    Swal.fire({
+        title: 'Hapus SPK?',
+        text: 'Data yang dihapus tidak dapat dikembalikan.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Ya, Hapus',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+
+        if(result.isConfirmed){
+            button.closest('form').submit();
+        }
+
+    });
+}
+
+</script>
 
 </x-app-layout>

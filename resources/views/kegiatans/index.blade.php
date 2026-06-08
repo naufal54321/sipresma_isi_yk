@@ -5,26 +5,40 @@
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
         <!-- Header -->
-        <div class="flex items-center justify-between mb-6">
+       <div class="flex items-center justify-between mb-6">
 
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800">
-                    Detail RPK
-                </h1>
 
-                <p class="text-gray-500 mt-1">
-                    Daftar kegiatan pada RPK
-                </p>
-            </div>
+<div>
+    <h1 class="text-3xl font-bold text-gray-800">
+        Detail RPK
+    </h1>
 
-            <a href="{{ route('kegiatans.create', $rpk->id) }}"
-               class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm font-semibold transition">
+    <p class="text-gray-500 mt-1">
+        Daftar kegiatan pada RPK
+    </p>
+</div>
 
-                + Tambah Kegiatan
+<div class="flex gap-3">
 
-            </a>
+    <a href="{{ route('rpks.index') }}"
+       class="bg-gray-500 hover:bg-gray-400 text-white px-5 py-2 rounded-xl text-sm font-semibold transition">
 
-        </div>
+        ← Kembali
+
+    </a>
+
+    <a href="{{ route('kegiatans.create', $rpk->id) }}"
+       class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm font-semibold transition">
+
+        + Tambah Kegiatan
+
+    </a>
+
+</div>
+
+
+</div>
+
 
         <!-- Info RPK -->
         <div class="bg-white shadow rounded-2xl p-6 mb-6">
@@ -79,6 +93,9 @@
                         <th class="px-6 py-4">Tingkat</th>
                         <th class="px-6 py-4">Peran</th>
                         <th class="px-6 py-4">Status</th>
+                        <th class="px-6 py-4">Catatan Dosen</th>
+                        <th class="px-6 py-4 text-center">Poin</th>
+                         <th class="px-6 py-4 text-center">Aksi</th>
                     </tr>
 
                 </thead>
@@ -109,13 +126,13 @@
 
                             @if($kegiatan->peran == 'Ketua')
 
-                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs">
+                                <span>
                                     Ketua
                                 </span>
 
                             @else
 
-                                <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs">
+                                <span>
                                     Anggota
                                 </span>
 
@@ -127,19 +144,19 @@
 
                             @if($kegiatan->status == 'draft')
 
-                                <span class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-xs">
+                                <span class="bg-yellow-500 text-white px-3 py-1 rounded-full text-xs">
                                     Draft
                                 </span>
 
                             @elseif($kegiatan->status == 'disetujui')
 
-                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs">
+                                <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs">
                                     Disetujui
                                 </span>
 
                             @else
 
-                                <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs">
+                                <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs">
                                     Ditolak
                                 </span>
 
@@ -147,13 +164,76 @@
 
                         </td>
 
+                        <td class="px-6 py-4">
+    @if($kegiatan->catatan_dosen)
+
+        <span class="text-gray-700">
+            {{ $kegiatan->catatan_dosen }}
+        </span>
+
+    @else
+
+        <span class="text-gray-400 italic">
+            Belum ada catatan
+        </span>
+
+    @endif
+</td>
+<td class="px-6 py-4 text-center">
+    {{ $kegiatan->masterKegiatan->poin ?? '-' }}
+</td>
+
+
+<td class="px-6 py-4 text-center">
+
+    @if($kegiatan->status == 'draft' || $kegiatan->status == 'ditolak')
+
+    
+
+    <div class="flex justify-center gap-2">
+
+        <a href="{{ route('kegiatans.edit', $kegiatan->id) }}"
+           class="bg-yellow-500 hover:bg-yellow-400 text-white px-3 py-2 rounded-lg text-sm">
+
+            Edit
+
+        </a>
+
+        <form action="{{ route('kegiatans.destroy', $kegiatan->id) }}"
+              method="POST">
+
+            @csrf
+            @method('DELETE')
+
+            <button type="button"
+                    onclick="hapusKegiatan(this)"
+                    class="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded-lg text-sm">
+
+                Hapus
+
+            </button>
+
+        </form>
+
+    </div>
+
+    @else
+
+    <span class="text-gray-400">
+        Selesai
+    </span>
+
+    @endif
+
+</td>
+
                     </tr>
 
                     @empty
 
                     <tr>
 
-                        <td colspan="6"
+                        <td colspan="8"
                             class="text-center py-10 text-gray-400">
 
                             Belum ada kegiatan
@@ -173,5 +253,29 @@
     </div>
 
 </div>
+
+<script>
+
+function hapusKegiatan(button)
+{
+    Swal.fire({
+        title: 'Hapus Kegiatan?',
+        text: 'Data yang dihapus tidak dapat dikembalikan.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Ya, Hapus',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+            button.closest('form').submit();
+        }
+
+    });
+}
+
+</script>
 
 </x-app-layout>

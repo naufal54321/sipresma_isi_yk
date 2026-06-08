@@ -37,9 +37,8 @@
         <th class="px-6 py-4">No</th>
         <th class="px-6 py-4">Tahun</th>
         <th class="px-6 py-4">Semester</th>
-        <th class="px-6 py-4">Kategori</th>
         <th class="px-6 py-4">Jumlah Kegiatan</th>
-        <th class="px-6 py-4 text-center">Aksi</th>
+        <th class="px-6 py-4">Aksi</th>
     </tr>
 
 </thead>
@@ -62,23 +61,7 @@
                             {{ $rpk->semester }}
                         </td>
 
-                        <td class="px-6 py-4">
-
-                            @if($rpk->kategori == 'Individu')
-
-                                <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs">
-                                    Individu
-                                </span>
-
-                            @else
-
-                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs">
-                                    Kelompok
-                                </span>
-
-                            @endif
-
-                        </td>
+                      
                         <td class="px-6 py-4">
 
     <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs">

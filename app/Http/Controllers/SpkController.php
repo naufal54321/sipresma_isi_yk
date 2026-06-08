@@ -20,19 +20,22 @@ class SpkController extends Controller
         return view('spks.index', compact('spks'));
     }
 
-    public function create()
-    {
-        $rpks = Rpk::where('user_id', Auth::id())->get();
+   public function create()
+{
+    $rpks = Rpk::where('user_id', Auth::id())->get();
 
-        // 🔥 FIX: hanya kegiatan milik user + sudah disetujui
-        $kegiatans = Kegiatan::whereHas('rpk', function ($query) {
-                $query->where('user_id', Auth::id());
-            })
-            ->where('status', 'disetujui')
-            ->get();
+    $kegiatans = Kegiatan::whereHas('rpk', function ($query) {
+            $query->where('user_id', Auth::id());
+        })
+        ->where('status', 'disetujui')
+        ->select('id', 'rpk_id', 'kegiatan')
+        ->get();
 
-        return view('spks.create', compact('rpks', 'kegiatans'));
-    }
+    return view('spks.create', compact(
+        'rpks',
+        'kegiatans'
+    ));
+}
 
     public function store(Request $request)
     {
@@ -46,13 +49,19 @@ class SpkController extends Controller
             'bukti' => 'required|mimes:pdf|max:5120',
             'keterangan' => 'required'
         ]);
+// Validasi kegiatan harus sesuai RPK yang dipilih
+$kegiatan = Kegiatan::where('id', $request->kegiatan_id)
+    ->where('rpk_id', $request->rpk_id)
+    ->where('status', 'disetujui')
+    ->first();
 
-        // 🔥 FIX: validasi kegiatan wajib disetujui
-        $kegiatan = Kegiatan::findOrFail($request->kegiatan_id);
-
-        if ($kegiatan->status !== 'disetujui') {
-            return back()->with('error', 'SPK hanya bisa dibuat dari kegiatan yang sudah disetujui');
-        }
+if (!$kegiatan) {
+    return back()
+        ->withErrors([
+            'kegiatan_id' => 'Kegiatan tidak sesuai dengan RPK yang dipilih atau belum disetujui.'
+        ])
+        ->withInput();
+}
 
         $file = $request->file('bukti')->store('bukti-spk', 'public');
 
@@ -80,13 +89,25 @@ class SpkController extends Controller
         return view('spks.show', compact('spk'));
     }
 
-    public function destroy(Spk $spk)
-    {
-        $spk->delete();
-
-        return redirect()->route('spks.index')
-            ->with('success', 'SPK berhasil dihapus');
+   public function destroy(Spk $spk)
+{
+    if ($spk->user_id != Auth::id()) {
+        abort(403);
     }
+
+    if (!in_array($spk->status, ['draft', 'ditolak'])) {
+        return back()->with(
+            'error',
+            'SPK yang sudah disetujui tidak dapat dihapus.'
+        );
+    }
+
+    $spk->delete();
+
+    return redirect()
+        ->route('spks.index')
+        ->with('success', 'SPK berhasil dihapus.');
+}
 
     public function approve(Request $request, Spk $spk)
     {
@@ -107,4 +128,70 @@ class SpkController extends Controller
 
         return back()->with('success', 'SPK ditolak');
     }
+
+    public function edit(Spk $spk)
+{
+    if ($spk->user_id != Auth::id()) {
+        abort(403);
+    }
+
+    $rpks = Rpk::where('user_id', Auth::id())->get();
+
+    $kegiatans = Kegiatan::whereHas('rpk', function ($q) {
+        $q->where('user_id', Auth::id());
+    })
+    ->where('status', 'disetujui')
+    ->get();
+
+    return view('spks.edit', compact(
+        'spk',
+        'rpks',
+        'kegiatans'
+    ));
+}
+
+public function update(Request $request, Spk $spk)
+{
+    if ($spk->user_id != Auth::id()) {
+        abort(403);
+    }
+
+    $request->validate([
+        'tahun' => 'required',
+        'rpk_id' => 'required',
+        'kegiatan_id' => 'required',
+        'tanggal_kegiatan' => 'required',
+        'penyelenggara' => 'required',
+        'kategori' => 'required',
+        'keterangan' => 'required'
+    ]);
+
+    $data = [
+        'tahun' => $request->tahun,
+        'rpk_id' => $request->rpk_id,
+        'kegiatan_id' => $request->kegiatan_id,
+        'tanggal_kegiatan' => $request->tanggal_kegiatan,
+        'penyelenggara' => $request->penyelenggara,
+        'kategori' => $request->kategori,
+        'url_kegiatan' => $request->url_kegiatan,
+        'keterangan' => $request->keterangan,
+
+        // setelah diperbaiki kembali menjadi draft
+        'status' => 'draft',
+        'catatan_dosen' => null
+    ];
+
+    if ($request->hasFile('bukti')) {
+
+        $data['bukti'] = $request->file('bukti')
+            ->store('bukti-spk', 'public');
+    }
+
+    $spk->update($data);
+
+    return redirect()
+        ->route('spks.index')
+        ->with('success', 'SPK berhasil diperbaiki dan diajukan ulang');
+}
+
 }

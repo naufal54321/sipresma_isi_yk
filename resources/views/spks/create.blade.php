@@ -29,13 +29,19 @@
         <div class="mb-4">
             <label class="font-semibold">RPK *</label>
 
-            <select name="rpk_id" class="w-full border rounded-lg p-2">
-                @foreach($rpks as $rpk)
-                    <option value="{{ $rpk->id }}">
-                        {{ $rpk->tahun }} - {{ $rpk->semester }}
-                    </option>
-                @endforeach
-            </select>
+           <select name="rpk_id"
+        id="rpk_id"
+        class="w-full border rounded-lg p-2">
+
+    <option value="">Pilih RPK</option>
+
+    @foreach($rpks as $rpk)
+        <option value="{{ $rpk->id }}">
+            {{ $rpk->tahun }} - {{ $rpk->semester }}
+        </option>
+    @endforeach
+
+</select>
         </div>
 
         <!-- Kegiatan -->
@@ -45,19 +51,14 @@
     </label>
 
     <select name="kegiatan_id"
+        id="kegiatan_id"
         class="w-full border rounded-lg p-2">
 
-        <option value="">
-            Pilih Kegiatan
-        </option>
+    <option value="">
+        Pilih RPK terlebih dahulu
+    </option>
 
-        @foreach($kegiatans as $kegiatan)
-            <option value="{{ $kegiatan->id }}">
-                {{ $kegiatan->kegiatan }}
-            </option>
-        @endforeach
-
-    </select>
+</select>
 </div>
 
         <div class="mb-4">
@@ -123,8 +124,37 @@
 
     </form>
 
-</div>
 
+    
+</div>
+<script>
+
+const kegiatanData = @json($kegiatans);
+
+document.getElementById('rpk_id').addEventListener('change', function () {
+
+    let rpkId = this.value;
+    let kegiatanSelect = document.getElementById('kegiatan_id');
+
+    kegiatanSelect.innerHTML =
+        '<option value="">Pilih Kegiatan</option>';
+
+    kegiatanData.forEach(function(kegiatan){
+
+        if(kegiatan.rpk_id == rpkId){
+
+            kegiatanSelect.innerHTML += `
+                <option value="${kegiatan.id}">
+                    ${kegiatan.kegiatan}
+                </option>
+            `;
+        }
+
+    });
+
+});
+
+</script>
 
 
 </x-app-layout>

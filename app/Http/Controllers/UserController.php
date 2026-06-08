@@ -24,6 +24,14 @@ class UserController extends Controller
     | STORE AJAX
     |-----------------------------------
     */
+    
+    // Tambah index() jika belum ada
+public function index()
+{
+    $users = User::with('roles')->latest()->get(); // ✅ DESC (baru ke lama)
+    return view('admin.users.index', compact('users'));
+}
+    
     public function store(Request $request)
     {
         $request->validate([
@@ -117,20 +125,23 @@ class UserController extends Controller
 
 public function setPembimbing(Request $request)
 {
-    $request->validate([
-        'mahasiswa_id' => 'required',
-        'dosen_id' => 'required',
-    ]);
+    $mahasiswa = User::findOrFail($request->mahasiswa_id);
 
-    $mahasiswa = \App\Models\User::find($request->mahasiswa_id);
+    $mahasiswa->dosen_pembimbing_id =
+        $request->filled('dosen_id')
+            ? $request->dosen_id
+            : null;
 
-    if (!$mahasiswa) {
-        return back()->with('error', 'Mahasiswa tidak ditemukan');
-    }
-
-    $mahasiswa->dosen_pembimbing_id = $request->dosen_id;
     $mahasiswa->save();
 
-    return back()->with('success', 'Berhasil assign dosen');
+    return back()->with('success', 'Data berhasil disimpan');
 }
+
+public function getUsersData()
+{
+    $users = User::orderBy('created_at', 'desc')->get();
+
+    return response()->json($users);
+}
+
 }

@@ -2,26 +2,39 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Rpk;
 use App\Models\Spk;
+use Illuminate\Support\Facades\Auth;
 
 class DosenMahasiswaController extends Controller
 {
-    public function index()
-{
-    $mahasiswa = User::where('dosen_pembimbing_id', Auth::id())
-        ->get()
-        ->map(function ($mhs) {
+    public function index(Request $request)
+    {
+        $search = $request->search;
 
-            $mhs->total_rpk = Rpk::where('user_id', $mhs->id)->count();
+        $mahasiswa = User::where('dosen_pembimbing_id', Auth::id())
 
-            $mhs->total_spk = Spk::where('user_id', $mhs->id)->count();
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%')
+                      ->orWhere('nim', 'like', '%' . $search . '%')
+                      ->orWhere('prodi', 'like', '%' . $search . '%');
+                });
+            })
 
-            return $mhs;
-        });
+            ->get()
 
-    return view('dosen.mahasiswa.index', compact('mahasiswa'));
-}
+            ->map(function ($mhs) {
+
+                $mhs->total_rpk = Rpk::where('user_id', $mhs->id)->count();
+
+                $mhs->total_spk = Spk::where('user_id', $mhs->id)->count();
+
+                return $mhs;
+            });
+
+        return view('dosen.mahasiswa.index', compact('mahasiswa'));
+    }
 }
