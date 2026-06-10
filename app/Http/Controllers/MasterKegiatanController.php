@@ -7,27 +7,24 @@ use Illuminate\Http\Request;
 
 class MasterKegiatanController extends Controller
 {
-   
-   public function index(Request $request)
-{
-    $query = MasterKegiatan::query();
+    public function index(Request $request)
+    {
+        $query = MasterKegiatan::query();
 
-    if ($request->filled('search')) {
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('nama_kegiatan', 'like', '%' . $request->search . '%')
+                  ->orWhere('jenis', 'like', '%' . $request->search . '%')
+                  ->orWhere('tingkat', 'like', '%' . $request->search . '%')
+                  ->orWhere('hasil', 'like', '%' . $request->search . '%')
+                  ->orWhere('status', 'like', '%' . $request->search . '%');
+            });
+        }
 
-        $query->where(function ($q) use ($request) {
+        $kegiatans = $query->latest()->get();
 
-            $q->where('nama_kegiatan', 'like', '%' . $request->search . '%')
-              ->orWhere('jenis', 'like', '%' . $request->search . '%')
-              ->orWhere('tingkat', 'like', '%' . $request->search . '%')
-              ->orWhere('hasil', 'like', '%' . $request->search . '%')
-              ->orWhere('status', 'like', '%' . $request->search . '%');
-        });
+        return view('admin.kegiatan.index', compact('kegiatans'));
     }
-
-    $kegiatans = $query->latest()->get();
-
-    return view('admin.kegiatan.index', compact('kegiatans'));
-}
 
     public function create()
     {
@@ -53,37 +50,34 @@ class MasterKegiatanController extends Controller
     }
 
     public function edit(MasterKegiatan $kegiatan)
-{
-    return view('admin.kegiatan.edit', compact('kegiatan'));
-}
+    {
+        return view('admin.kegiatan.edit', compact('kegiatan'));
+    }
 
-public function update(Request $request, MasterKegiatan $kegiatan)
-{
-    $request->validate([
-        'nama_kegiatan' => 'required',
-        'jenis' => 'required',
-        'tingkat' => 'required',
-        'hasil' => 'required',
-        'poin' => 'required|numeric',
-        'status' => 'required',
-    ]);
+    public function update(Request $request, MasterKegiatan $kegiatan)
+    {
+        $request->validate([
+            'nama_kegiatan' => 'required',
+            'jenis' => 'required',
+            'tingkat' => 'required',
+            'hasil' => 'required',
+            'poin' => 'required|numeric',
+            'status' => 'required',
+        ]);
 
-    $kegiatan->update($request->all());
+        $kegiatan->update($request->all());
 
-    return redirect()
-        ->route('admin.kegiatan.index')
-        ->with('success', 'Kegiatan berhasil diperbarui');
-}
-    
-public function destroy(MasterKegiatan $kegiatan)
-{
-    $kegiatan->delete();
+        return redirect()
+            ->route('admin.kegiatan.index')
+            ->with('success', 'Kegiatan berhasil diperbarui');
+    }
 
-    return redirect()
-        ->route('admin.kegiatan.index')
-        ->with('success', 'Data kegiatan berhasil dihapus');
-}
+    public function destroy(MasterKegiatan $kegiatan)
+    {
+        $kegiatan->delete();
 
-
-
+        return redirect()
+            ->route('admin.kegiatan.index')
+            ->with('success', 'Data kegiatan berhasil dihapus');
+    }
 }

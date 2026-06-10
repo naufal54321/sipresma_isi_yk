@@ -10,7 +10,7 @@
             </h1>
 
             <p class="text-gray-500 mt-1">
-                Persetujuan SPK Mahasiswa
+                Persetujuan SPK
             </p>
         </div>
         <div class="flex justify-end mt-4 mb-4">
@@ -49,7 +49,7 @@
                 <thead class="bg-gray-50 uppercase text-xs tracking-wider">
 
                     <tr>
-                        <th class="px-6 py-4 text-center">No</th>
+                        <th class="px-3 py-4 text-center">No</th>
                         <th class="px-6 py-4">Mahasiswa</th>
                         <th class="px-6 py-4">NIM</th>
                         <th class="px-6 py-4">Prodi</th>
@@ -67,7 +67,7 @@
 
                     <tr class="border-b hover:bg-blue-50 transition">
 
-                        <td class="px-6 py-4 text-center">
+                        <td class="px-3 py-4 text-center">
                             {{ $loop->iteration }}
                         </td>
 
@@ -97,7 +97,7 @@
 
                             @if($spk->status == 'draft')
 
-                                <span class="bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                                <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
                                     Draft
                                 </span>
 

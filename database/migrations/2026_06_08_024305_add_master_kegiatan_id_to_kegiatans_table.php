@@ -9,15 +9,17 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+   public function up(): void
 {
     Schema::table('kegiatans', function (Blueprint $table) {
 
-        $table->foreignId('master_kegiatan_id')
-              ->nullable()
-              ->after('rpk_id')
-              ->constrained('master_kegiatans')
-              ->cascadeOnDelete();
+        if (!Schema::hasColumn('kegiatans', 'master_kegiatan_id')) {
+
+            $table->foreignId('master_kegiatan_id')
+                  ->nullable()
+                  ->after('rpk_id');
+
+        }
 
     });
 }

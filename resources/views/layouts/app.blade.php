@@ -56,12 +56,12 @@
     <!-- Left -->
     <div>
 
-        <h1 class="text-2xl font-bold text-gray-800">
-            SIPRESMA Dashboard
+        <h1 class="text-2xl font-bold text-white">
+            
         </h1>
 
-        <p class="text-sm text-gray-500">
-            Sistem Informasi Prestasi Mahasiswa
+        <p class="text-sm text-white">
+            
         </p>
 
     </div>

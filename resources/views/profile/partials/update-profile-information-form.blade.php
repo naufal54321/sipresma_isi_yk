@@ -39,7 +39,7 @@
 </div>
 
 <div>
-    <x-input-label for="prodi" :value="__('Program Studi')" />
+    <x-input-label for="prodi" :value="__('Program Studi / Fakultas')" />
 
     <x-text-input
         id="prodi"

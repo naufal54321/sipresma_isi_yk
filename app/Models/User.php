@@ -7,7 +7,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
+use App\Models\Spk;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
@@ -56,6 +56,8 @@ class User extends Authenticatable
     return $this->hasMany(Rpk::class);
 }
 
+
+
 public function mahasiswaBimbingan()
 {
     return $this->hasMany(User::class, 'dosen_pembimbing_id');
@@ -69,6 +71,11 @@ public function dosenPembimbing()
 public function scopeMahasiswaBimbingan($query, $dosenId)
 {
     return $query->where('dosen_pembimbing_id', $dosenId);
+}
+
+public function spks()
+{
+    return $this->hasMany(Spk::class);
 }
 
 }

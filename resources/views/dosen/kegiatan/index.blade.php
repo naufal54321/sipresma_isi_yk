@@ -7,11 +7,11 @@
         <div class="mb-6">
 
             <h1 class="text-3xl font-bold text-gray-800">
-                Validasi Kegiatan RPK Mahasiswa
+                Validasi RPK
             </h1>
 
             <p class="text-gray-500 mt-1">
-                Persetujuan Kegiatan RPK Mahasiswa
+                Persetujuan RPK 
             </p>
 
         </div>
@@ -75,7 +75,7 @@
                             {{ $loop->iteration }}
                         </td>
 
-                        <td class="px-4 py-4">
+                        <td class="px-4 py-4 font-medium text-gray-800">
                              {{ $kegiatan->rpk->user->name ?? '-' }}
                         </td>
 
@@ -103,7 +103,7 @@
 
                             @if($kegiatan->status == 'draft')
 
-                                <span class="bg-yellow-500 text-white px-2 py-1 rounded-full text-xs">
+                                <span class="bg-orange-500 text-white px-2 py-1 rounded-full text-xs">
                                     Draft
                                 </span>
 

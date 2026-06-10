@@ -10,14 +10,30 @@ use Illuminate\Support\Facades\Auth;
 
 class SpkController extends Controller
 {
+    /**
+     * Menampilkan daftar SPK
+     */
     public function index()
     {
+        // 1. Mengambil data SPK milik user yang sedang login
         $spks = Spk::with(['rpk', 'kegiatan'])
             ->where('user_id', Auth::id())
             ->latest()
             ->get();
 
-        return view('spks.index', compact('spks'));
+        // 2. AMBIL DATA RPK UNTUK OPTION DI SWEETALERT (Logika disamakan dengan method create)
+        $rpks = Rpk::where('user_id', Auth::id())->get();
+
+        // 3. AMBIL DATA KEGIATAN YANG DISETUJUI UNTUK DROPDOWN DINAMIS DI SWEETALERT
+        $kegiatans = Kegiatan::whereHas('rpk', function ($query) {
+                $query->where('user_id', Auth::id());
+            })
+            ->where('status', 'disetujui')
+            ->select('id', 'rpk_id', 'kegiatan')
+            ->get();
+
+        // 4. KIRIM SEMUA VARIABEL KE VIEW INDEX
+        return view('spks.index', compact('spks', 'rpks', 'kegiatans'));
     }
 
    public function create()
@@ -84,10 +100,10 @@ if (!$kegiatan) {
             ->with('success', 'SPK berhasil ditambahkan');
     }
 
-    public function show(Spk $spk)
-    {
-        return view('spks.show', compact('spk'));
-    }
+   public function show(Spk $spk)
+{
+    return view('spks.show', compact('spk'));
+}
 
    public function destroy(Spk $spk)
 {
@@ -193,5 +209,7 @@ public function update(Request $request, Spk $spk)
         ->route('spks.index')
         ->with('success', 'SPK berhasil diperbaiki dan diajukan ulang');
 }
+
+
 
 }

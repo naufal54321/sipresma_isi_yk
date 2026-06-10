@@ -1,10 +1,10 @@
 <x-app-layout>
 
 <div class="py-8">
-<div class="max-w-7xl mx-auto px-6">
+<div class="max-w-8xl mx-auto py-6">
 
     <!-- Hero -->
-    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl p-8 text-white shadow-lg mb-8">
+    <div class="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 rounded-3xl p-8 text-white shadow-lg mb-8">
 
         <h1 class="text-3xl font-bold">
             Selamat Datang, {{ Auth::user()->name }}
@@ -20,6 +20,58 @@
         </div>
 
     </div>
+
+    <!-- Dosen Pembimbing -->
+<div class="bg-white rounded-2xl shadow p-6 mb-8">
+
+    <div class="flex items-center gap-4">
+
+        <div class="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center">
+
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="w-8 h-8 text-indigo-600"
+                 fill="none"
+                 viewBox="0 0 24 24"
+                 stroke="currentColor">
+
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5.121 17.804A9 9 0 1118.88 17.8M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+
+            </svg>
+
+        </div>
+
+        <div>
+
+            <h2 class="text-lg font-bold text-gray-800">
+                Dosen Pembimbing
+            </h2>
+
+            @if($dosenPembimbing)
+
+                <p class="text-xl font-semibold text-indigo-600">
+                    {{ $dosenPembimbing->name }}
+                </p>
+
+                <p class="text-gray-500">
+                    Pembimbing Prestasi Mahasiswa
+                </p>
+
+            @else
+
+                <p class="text-red-500">
+                    Belum memiliki dosen pembimbing
+                </p>
+
+            @endif
+
+        </div>
+
+    </div>
+
+</div>
 
     <!-- Statistik -->
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
@@ -132,7 +184,14 @@ type:'bar',
 data:{
 labels:['Universitas','Regional','Nasional','Internasional'],
 datasets:[{
-data:@json([$universitas,$regional,$nasional,$internasional])
+label:'Jumlah Prestasi',
+data: {{ Js::from([
+    $universitas,
+    $regional,
+    $nasional,
+    $internasional
+]) }},
+backgroundColor:'#3b82f6'
 }]
 }
 });

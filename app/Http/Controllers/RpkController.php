@@ -64,11 +64,19 @@ class RpkController extends Controller
     /**
      * Detail RPK + daftar kegiatan
      */
+    /**
+     * Detail RPK + daftar kegiatan
+     */
     public function show(Rpk $rpk)
     {
+        // Load relasi kegiatan bawaan RPK
         $rpk->load('kegiatans');
 
-        return view('rpks.show', compact('rpk'));
+        // MENGAMBIL DATA MASTER KEGIATAN (Sama seperti di method create)
+        $masterKegiatans = MasterKegiatan::where('status', 'aktif')->get();
+
+        // MENGIRIMKAN KEDUA VARIABEL KE VIEW
+        return view('rpks.show', compact('rpk', 'masterKegiatans'));
     }
 
     /**

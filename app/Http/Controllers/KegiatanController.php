@@ -74,6 +74,12 @@ public function create(Rpk $rpk)
 
 public function store(Request $request, Rpk $rpk)
 {
+    $request->validate([
+        'master_kegiatan_id' => 'required',
+        'tanggal' => 'required|date',
+        'kategori' => 'required',
+    ]);
+
     $master = MasterKegiatan::findOrFail(
         $request->master_kegiatan_id
     );
@@ -88,15 +94,25 @@ public function store(Request $request, Rpk $rpk)
         'hasil' => $master->hasil,
 
         'tanggal' => $request->tanggal,
-        'peran' => $request->peran,
-        'jumlah_anggota' => $request->jumlah_anggota,
+
+        'kategori' => $request->kategori,
+
+        'peran' => $request->kategori == 'Individu'
+            ? 'Individu'
+            : $request->peran,
+
+        'jumlah_anggota' => $request->kategori == 'Kelompok'
+            ? $request->jumlah_anggota
+            : null,
+
+        'status' => 'draft',
     ]);
 
+    // UBAH BAGIAN INI SAJA
     return redirect()
-        ->route('kegiatans.index', $rpk->id)
+        ->route('rpks.show', $rpk->id)
         ->with('success', 'Kegiatan berhasil ditambahkan');
 }
-
     /**
      * Display the specified resource.
      */
@@ -108,38 +124,65 @@ public function store(Request $request, Rpk $rpk)
     /**
      * Show the form for editing the specified resource.
      */
+    /**
+     * Show the form for editing the specified resource.
+     */
     public function edit(Kegiatan $kegiatan)
-{
-    $masterKegiatans = MasterKegiatan::where('status', 'aktif')->get();
+    {
+        $masterKegiatans = MasterKegiatan::where('status', 'aktif')->get();
+        
+        // TAMBAHKAN BARIS INI (Mengambil data RPK dari relasi Kegiatan)
+        $rpk = $kegiatan->rpk; 
 
-    return view('kegiatans.edit', compact(
-        'kegiatan',
-        'masterKegiatans'
-    ));
-}
+        return view('kegiatans.edit', compact(
+            'kegiatan',
+            'masterKegiatans',
+            'rpk' // TAMBAHKAN RPK DI SINI
+        ));
+    }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Kegiatan $kegiatan)
+   /**
+     * Update the specified resource in storage.
+     */
+   public function update(Request $request, Kegiatan $kegiatan)
 {
+    $request->validate([
+        'master_kegiatan_id' => 'required',
+        'tanggal' => 'required|date',
+        'kategori' => 'required',
+    ]);
+
     $master = MasterKegiatan::findOrFail(
         $request->master_kegiatan_id
     );
 
     $kegiatan->update([
         'master_kegiatan_id' => $master->id,
+
         'kegiatan' => $master->nama_kegiatan,
         'jenis' => $master->jenis,
         'tingkat' => $master->tingkat,
         'hasil' => $master->hasil,
+
         'tanggal' => $request->tanggal,
-        'peran' => $request->peran,
-        'jumlah_anggota' => $request->jumlah_anggota,
+
+        'kategori' => $request->kategori,
+
+        'peran' => $request->kategori == 'Individu'
+            ? 'Individu'
+            : $request->peran,
+
+        'jumlah_anggota' => $request->kategori == 'Kelompok'
+            ? $request->jumlah_anggota
+            : null,
     ]);
 
+    // ---- UBAH BAGIAN INI ----
     return redirect()
-        ->route('kegiatans.index', $kegiatan->rpk_id)
+        ->route('rpks.show', $kegiatan->rpk_id) // Ganti 'kegiatans.index' menjadi 'rpks.show'
         ->with('success', 'Kegiatan berhasil diperbarui');
 }
     /**

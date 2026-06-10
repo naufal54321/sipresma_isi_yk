@@ -14,6 +14,7 @@ class Kegiatan extends Model
     'tingkat',
     'hasil',
     'tanggal',
+    'kategori',
     'peran',
     'jumlah_anggota',
     'status',

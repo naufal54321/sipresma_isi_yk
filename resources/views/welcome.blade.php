@@ -10,39 +10,55 @@
     
     <style>
         /* Custom scrollbar untuk daftar rekap */
-        .rekap-scroll::-webkit-scrollbar {
-            width: 6px;
-        }
-        .rekap-scroll::-webkit-scrollbar-track {
-            background: #f1f1f1; 
-        }
-        .rekap-scroll::-webkit-scrollbar-thumb {
-            background: #ccc; 
-            border-radius: 10px;
-        }
+        .rekap-scroll::-webkit-scrollbar { width: 6px; }
+        .rekap-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
+        .rekap-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans">
 
     <nav class="bg-white shadow-sm border-b border-gray-200 px-6 py-3 flex justify-between items-center sticky top-0 z-50">
-    <div class="flex items-center gap-3">
-        
-        <img src="{{ asset('images/logo-isi.png') }}" alt="Logo Instansi" class="h-12 w-auto object-contain">
-        
-        <div>
-            <h1 class="font-bold text-xl tracking-tight text-gray-900 leading-none">SIPRESMA</h1>
-            <p class="text-xs text-gray-500 font-medium mt-1">Sistem Prestasi Mahasiswa</p>
+        <div class="flex items-center gap-3">
+            <img src="{{ asset('images/logo_isi_welcome.png') }}" alt="Logo Instansi" class="h-12 w-auto object-contain">
+            <div>
+                <h1 class="font-bold text-xl tracking-tight text-gray-900 leading-none">SIPRESMA</h1>
+                <p class="text-xs text-gray-500 font-medium mt-1">Sistem Prestasi Mahasiswa ISI Yogyakarta</p>
+            </div>
         </div>
-    </div>
-    
-    
         <div class="flex items-center gap-6">
-            <a href="#" class="text-red-400 hover:text-red-600 text-sm font-medium flex items-center gap-2 transition">
-                <i class="far fa-question-circle text-lg"></i> Panduan Pengguna
-            </a>
-            <a href="/login" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 shadow-sm transition">
-                <i class="fas fa-sign-in-alt"></i> Masuk
-            </a>
+          <details class="relative">
+    <summary class="cursor-pointer list-none text-red-400 hover:text-red-600 text-sm font-medium flex items-center gap-2">
+        <i class="far fa-question-circle text-lg"></i>
+        Panduan Pengguna
+    </summary>
+
+    <div class="absolute mt-2 w-72 bg-white border rounded-lg shadow-lg z-50">
+
+        <a href="https://youtube.com/watch?v=XXXXXXXXXXX"
+           target="_blank"
+           class="block px-2 py-2 hover:bg-gray-100">
+            <i class="fab fa-youtube text-red-500 mr-2"></i>
+            Video Tutorial Sipresma
+        </a>
+
+        <a href="{{ asset('panduan/Panduan_SIPRESMA.pdf') }}"
+           target="_blank"
+           class="block px-2 py-2 hover:bg-gray-100">
+            <i class="fas fa-file-pdf text-red-500 mr-2"></i>
+            Buku Panduan PDF
+        </a>
+
+    </div>
+</details>
+            @auth
+                <a href="{{ url('/dashboard') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 shadow-sm transition">
+                    <i class="fas fa-columns"></i> Dashboard
+                </a>
+            @else
+                <a href="{{ route('login') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 shadow-sm transition">
+                    <i class="fas fa-sign-in-alt"></i> Masuk
+                </a>
+            @endauth
         </div>
     </nav>
 
@@ -54,7 +70,7 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex justify-between items-center transition hover:shadow-md">
                 <div>
                     <p class="text-gray-500 text-sm font-semibold mb-1">Total Mahasiswa</p>
-                    <p class="text-3xl font-bold text-gray-800">10847</p>
+                    <p class="text-3xl font-bold text-gray-800">{{ number_format($totalMahasiswa, 0, ',', '.') }}</p>
                 </div>
                 <div class="bg-cyan-100 w-14 h-14 rounded-full flex items-center justify-center text-cyan-500 text-2xl">
                     <i class="fas fa-users-cog"></i>
@@ -64,7 +80,7 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex justify-between items-center transition hover:shadow-md">
                 <div>
                     <p class="text-gray-500 text-sm font-semibold mb-1">SPK (Draft/Disetujui)</p>
-                    <p class="text-3xl font-bold text-gray-800 flex items-baseline gap-1">763/652</p>
+                    <p class="text-3xl font-bold text-gray-800 flex items-baseline gap-1">{{ $spkDraft }}/{{ $spkDisetujui }}</p>
                 </div>
                 <div class="bg-orange-100 w-14 h-14 rounded-full flex items-center justify-center text-orange-400 text-2xl">
                     <i class="fas fa-medal"></i>
@@ -74,7 +90,7 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex justify-between items-center transition hover:shadow-md">
                 <div>
                     <p class="text-gray-500 text-sm font-semibold mb-1">Total Mahasiswa Berprestasi</p>
-                    <p class="text-3xl font-bold text-gray-800">43</p>
+                    <p class="text-3xl font-bold text-gray-800">{{ number_format($mahasiswaBerprestasi, 0, ',', '.') }}</p>
                 </div>
                 <div class="bg-green-100 w-14 h-14 rounded-full flex items-center justify-center text-green-500 text-2xl">
                     <i class="fas fa-trophy"></i>
@@ -82,80 +98,37 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
             
             <div class="lg:col-span-4 bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col h-[600px]">
                 <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 rounded-t-xl">
-                    <h3 class="font-bold text-gray-900">Rekap Prestasi</h3>
+                    <h3 class="font-bold text-gray-900">Rekap Prestasi Terbaru</h3>
                 </div>
                 <div class="flex-1 overflow-y-auto p-4 space-y-4 rekap-scroll">
-                    
-                    <div class="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
-                        <div class="flex justify-between items-start gap-4">
-                            <div>
-                                <h4 class="text-gray-800 font-semibold">Muhammad Naufal Yanuar</h4>
-                                <p class="text-sm text-gray-500 mt-1">Lomba Tingkat Nasional (sebagai Juara)</p>
+                    @forelse($rekapPrestasi as $spk)
+                        <div class="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+                            <div class="flex justify-between items-start gap-4">
+                                <div>
+                                    <h4 class="text-gray-800 font-semibold">{{ $spk->user->name ?? 'Anonim' }}</h4>
+                                    <p class="text-sm text-gray-500 mt-1">
+                                        {{ $spk->kegiatan->kegiatan ?? $spk->keterangan }} 
+                                        @if(isset($spk->kegiatan->tingkat)) (Tingkat {{ $spk->kegiatan->tingkat }}) @endif
+                                    </p>
+                                </div>
+                                <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full font-semibold shadow-sm whitespace-nowrap">Disetujui</span>
                             </div>
-                            <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full font-semibold shadow-sm whitespace-nowrap">Disetujui</span>
                         </div>
-                    </div>
-                    
-                    <div class="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
-                        <div class="flex justify-between items-start gap-4">
-                            <div>
-                                <h4 class="text-gray-800 font-semibold">Muhammad Naufal Yanuar</h4>
-                                <p class="text-sm text-gray-500 mt-1">Lomba Tingkat Internasional (sebagai Peserta)</p>
-                            </div>
-                            <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full font-semibold shadow-sm whitespace-nowrap">Disetujui</span>
+                    @empty
+                        <div class="text-center py-6 text-gray-400">
+                            Belum ada rekap prestasi yang disetujui.
                         </div>
-                    </div>
-
-                    <div class="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
-                        <div class="flex justify-between items-start gap-4">
-                            <div>
-                                <h4 class="text-gray-800 font-semibold">Muhammad Naufal Yanuar</h4>
-                                <p class="text-sm text-gray-500 mt-1">Lomba Tingkat Regional (sebagai Juara)</p>
-                            </div>
-                            <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full font-semibold shadow-sm whitespace-nowrap">Disetujui</span>
-                        </div>
-                    </div>
-
-                     <div class="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
-                        <div class="flex justify-between items-start gap-4">
-                            <div>
-                                <h4 class="text-gray-800 font-semibold">Muhammad Naufal Yanuar</h4>
-                                <p class="text-sm text-gray-500 mt-1">Lomba Tingkat Lokal (sebagai Juara)</p>
-                            </div>
-                            <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full font-semibold shadow-sm whitespace-nowrap">Disetujui</span>
-                        </div>
-                    </div>
-                    
-                    <div class="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
-                        <div class="flex justify-between items-start gap-4">
-                            <div>
-                                <h4 class="text-gray-800 font-semibold">Muhammad Naufal Yanuar</h4>
-                                <p class="text-sm text-gray-500 mt-1">Lomba Tingkat Nasional (sebagai Peserta)</p>
-                            </div>
-                            <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full font-semibold shadow-sm whitespace-nowrap">Disetujui</span>
-                        </div>
-                    </div>
-
-                    <div class="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
-                        <div class="flex justify-between items-start gap-4">
-                            <div>
-                                <h4 class="text-gray-800 font-semibold">Muhammad Naufal Yanuar</h4>
-                                <p class="text-sm text-gray-500 mt-1">Lomba Tingkat Regional (sebagai Peserta)</p>
-                            </div>
-                            <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full font-semibold shadow-sm whitespace-nowrap">Disetujui</span>
-                        </div>
-                    </div>
-
+                    @endforelse
                 </div>
             </div>
 
             <div class="lg:col-span-8 bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col h-[600px]">
                 <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 rounded-t-xl">
-                    <h3 class="font-bold text-gray-900">Statistik Prestasi Program Studi Tahun 2025</h3>
+                    <h3 class="font-bold text-gray-900">Statistik Prestasi Program Studi Tahun {{ date('Y') }}</h3>
                 </div>
                 <div class="p-6 flex-1 w-full relative">
                     <canvas id="prestasiChart"></canvas>
@@ -163,28 +136,48 @@
             </div>
 
         </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col h-[400px]">
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 rounded-t-xl">
+                    <h3 class="font-bold text-gray-900">Prestasi Berdasarkan Tingkat</h3>
+                </div>
+                <div class="p-6 flex-1 w-full relative">
+                    <canvas id="tingkatChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col h-[400px]">
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 rounded-t-xl">
+                    <h3 class="font-bold text-gray-900">Distribusi Jenis Kegiatan</h3>
+                </div>
+                <div class="p-6 flex-1 w-full relative flex items-center justify-center">
+                    <canvas id="jenisChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+
     </main>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const ctx = document.getElementById('prestasiChart').getContext('2d');
-            
-            new Chart(ctx, {
+            // Palet Warna untuk Chart
+            const colorPalette = [
+                '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#14b8a6', '#f43f5e'
+            ];
+
+            // 1. Chart Prodi (Bar Chart)
+            const ctxProdi = document.getElementById('prestasiChart').getContext('2d');
+            new Chart(ctxProdi, {
                 type: 'bar',
                 data: {
-                    labels: [
-                        'S1 Tari', 'S1 Seni Karawitan', 'S1 Musik', 'S1 Penciptaan Musik', 
-                        'S1 Pendidikan Musik', 'D4 Penyajian Musik', 'S1 Teater', 'S1 Etnomusikologi', 
-                        'S1 Seni Pedalangan', 'S1 Pendidikan Seni Pertunjukan', 'D4 Teater Musikal', 
-                        'S1 Seni Murni', 'S1 Kriya', 'D4 Desain Kriya Batik', 'S1 Desain Interior', 
-                        'S1 Komunikasi Visual', 'S1 Desain Produk', 'S1 Tata Kelola Seni', 
-                        'S1 Konservasi Seni', 'D4 Desain Media', 'S1 Fotografi', 'S1 Film dan Televisi', 
-                        'D4 Animasi', 'D4 Produksi Film dan Televisi'
-                    ],
+                    labels: {!! json_encode($chartLabels) !!},
                     datasets: [{
                         label: 'Jumlah Prestasi',
-                        data: [4.5, 6.8, 1.8, 9.6, 5.5, 3.2, 6.9, 4.1, 9.5, 6, 6.2, 3.2, 1.2, 3.8, 1.8, 4.6, 1.5, 7.8, 4.6, 9.8, 1.4, 5.8, 3, 2.7], // Data dummy disesuaikan dengan tinggi pada gambar
-                        backgroundColor: '#4ade80', // Warna hijau cerah (mirip gambar)
+                        data: {!! json_encode($chartData) !!},
+                        backgroundColor: '#4ade80',
                         barPercentage: 0.6,
                         categoryPercentage: 0.8
                     }]
@@ -192,43 +185,82 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false // Menyembunyikan legend karena di gambar tidak ada
-                        }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            max: 14,
-                            ticks: {
-                                stepSize: 2
-                            },
-                            grid: {
-                                color: '#e5e7eb', // Warna garis grid abu-abu tipis
-                            },
-                            border: {
-                                display: false
-                            }
+                            ticks: { stepSize: 1 },
+                            grid: { color: '#e5e7eb' },
+                            border: { display: false }
                         },
                         x: {
                             ticks: {
-                                maxRotation: 90, // Memaksa teks miring 90 derajat
-                                minRotation: 90,
-                                autoSkip: false, // Menampilkan semua label prodi
-                                font: {
-                                    size: 11
-                                },
-                                color: '#6b7280'
+                                maxRotation: 90, minRotation: 90,
+                                autoSkip: false, font: { size: 11 }, color: '#6b7280'
                             },
-                            grid: {
-                                display: false // Menghilangkan garis vertikal
-                            },
-                            border: {
-                                display: false
-                            }
+                            grid: { display: false },
+                            border: { display: false }
                         }
                     }
+                }
+            });
+
+            // 2. Chart Tingkat (Bar Chart)
+            const ctxTingkat = document.getElementById('tingkatChart').getContext('2d');
+            new Chart(ctxTingkat, {
+                type: 'bar',
+                data: {
+                    labels: {!! json_encode($tingkatLabels) !!},
+                    datasets: [{
+                        label: 'Jumlah Prestasi',
+                        data: {!! json_encode($tingkatData) !!},
+                        backgroundColor: '#3b82f6', // Biru
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 },
+                            grid: { color: '#e5e7eb' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // 3. Chart Jenis (Doughnut Chart)
+            const ctxJenis = document.getElementById('jenisChart').getContext('2d');
+            new Chart(ctxJenis, {
+                type: 'doughnut',
+                data: {
+                    labels: {!! json_encode($jenisLabels) !!},
+                    datasets: [{
+                        data: {!! json_encode($jenisData) !!},
+                        backgroundColor: colorPalette,
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                padding: 20,
+                                font: { size: 12 }
+                            }
+                        }
+                    },
+                    cutout: '65%' // Besaran lubang tengah Donut
                 }
             });
         });

@@ -64,7 +64,7 @@
                 <input type="text"
                        name="hasil"
                        class="w-full border rounded-lg p-3"
-                       placeholder="Contoh: Juara 1"
+                       placeholder="Contoh: Juara/Sertifikat/Peserta"
                        required>
             </div>
 

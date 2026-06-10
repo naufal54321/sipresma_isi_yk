@@ -23,6 +23,8 @@ public function kegiatans()
     return $this->hasMany(Kegiatan::class);
 }
 
+
+
 public function spks()
 {
     return $this->hasMany(Spk::class);

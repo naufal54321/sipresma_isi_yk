@@ -85,30 +85,41 @@
                 <x-input-error :messages="$errors->get('nim')" class="mt-1 text-red-200 text-xs" />
             </div>
 
-            {{-- Prodi --}}
+           {{-- Prodi --}}
+            @php
+                // Trik: Mengambil data langsung dari model tanpa butuh Controller
+                $programStudis = \App\Models\ProgramStudi::where('status', 'aktif')
+                                    ->orderBy('nama_prodi', 'asc')
+                                    ->get();
+            @endphp
+
             <div class="mb-3">
                 <x-input-label for="prodi" :value="__('Program Studi')" class="sr-only" />
 
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-white/60">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M12 14l9-5-9-5-9 5 9 5z">
-                            </path>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                         </svg>
                     </span>
 
-                    <x-text-input
-                        id="prodi"
-                        class="block w-full rounded-full backdrop-blur-sm bg-white/10 border border-white/20 text-white placeholder-white/60 py-2 pl-12 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
-                        type="text"
-                        name="prodi"
-                        :value="old('prodi')"
-                        required
-                        placeholder="Program Studi" />
+                    <select id="prodi" 
+                            name="prodi" 
+                            class="block w-full rounded-full backdrop-blur-sm bg-white/10 border border-white/20 text-white placeholder-white/60 py-2 pl-12 pr-10 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 appearance-none [&>option]:text-gray-900" 
+                            required>
+                        <option value="" class="text-gray-500">Pilih Program Studi</option>
+                        @foreach($programStudis as $prodi)
+                            <option value="{{ $prodi->nama_prodi }}" {{ old('prodi') == $prodi->nama_prodi ? 'selected' : '' }}>
+                                {{ $prodi->nama_prodi }}
+                            </option>
+                        @endforeach
+                    </select>
+                    
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-white/60">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
                 </div>
 
                 <x-input-error :messages="$errors->get('prodi')" class="mt-1 text-red-200 text-xs" />
@@ -215,7 +226,7 @@
                 </p>
 
                 <a href="{{ route('login') }}"
-                    class="w-full inline-flex justify-center rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white py-2 text-sm font-semibold focus:ring-2 focus:ring-blue-400 transition shadow-md">
+                    class="w-full inline-flex justify-center rounded-full bg-blue-600 hover:bg-blue-500 border border-white/20 text-white py-2 text-sm font-semibold focus:ring-2 focus:ring-blue-400 transition shadow-md">
                     {{ __('Masuk') }}
                 </a>
             </div>

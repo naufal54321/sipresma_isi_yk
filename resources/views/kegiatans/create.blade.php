@@ -85,38 +85,75 @@
 
                 </div>
 
-                <!-- Peran -->
-                <div class="mb-5">
+                <!-- Kategori -->
+<div class="mb-5">
 
-                    <label class="block mb-2 font-semibold text-gray-700">
-                        Peran
-                    </label>
+    <label class="block mb-2 font-semibold text-gray-700">
+        Kategori
+    </label>
 
-                    <select name="peran"
-                            id="peran"
-                            class="w-full border rounded-xl px-4 py-3">
+    <select name="kategori"
+            id="kategori"
+            class="w-full border rounded-xl px-4 py-3">
 
-                        <option value="">Pilih Peran</option>
-                        <option value="Ketua">Ketua</option>
-                        <option value="Anggota">Anggota</option>
+        <option value="">
+            Pilih Kategori
+        </option>
 
-                    </select>
+        <option value="Individu">
+            Individu
+        </option>
 
-                </div>
+        <option value="Kelompok">
+            Kelompok
+        </option>
+
+    </select>
+
+</div>
+
+               <!-- Peran -->
+<div class="mb-5 hidden"
+     id="peranField">
+
+    <label class="block mb-2 font-semibold text-gray-700">
+        Peran
+    </label>
+
+    <select name="peran"
+            id="peran"
+            class="w-full border rounded-xl px-4 py-3">
+
+        <option value="">
+            Pilih Peran
+        </option>
+
+        <option value="Ketua">
+            Ketua
+        </option>
+
+        <option value="Anggota">
+            Anggota
+        </option>
+
+    </select>
+
+</div>
 
                 <!-- Jumlah Anggota -->
-                <div class="mb-6 hidden"
-                     id="jumlahAnggotaField">
+               <div class="mb-6 hidden"
+     id="jumlahAnggotaField">
 
-                    <label class="block mb-2 font-semibold text-gray-700">
-                        Jumlah Anggota
-                    </label>
+    <label class="block mb-2 font-semibold text-gray-700">
+        Jumlah Anggota
+    </label>
 
-                    <input type="number"
-                           name="jumlah_anggota"
-                           class="w-full border rounded-xl px-4 py-3">
+    <input type="number"
+           name="jumlah_anggota"
+           min="1"
+           class="w-full border rounded-xl px-4 py-3">
 
-                </div>
+</div>
 
                 <!-- Tombol -->
                 <div class="flex items-center gap-3">
@@ -147,23 +184,69 @@
 
 <script>
 
-document.getElementById('peran')
-.addEventListener('change', function(){
+const kategori =
+    document.getElementById('kategori');
 
-    let field =
-        document.getElementById('jumlahAnggotaField');
+const peran =
+    document.getElementById('peran');
 
-    if(this.value === 'Ketua'){
+const peranField =
+    document.getElementById('peranField');
 
-        field.classList.remove('hidden');
+const jumlahAnggotaField =
+    document.getElementById('jumlahAnggotaField');
+
+kategori.addEventListener('change', function(){
+
+    if(this.value === 'Kelompok'){
+
+        peranField.classList.remove('hidden');
 
     } else {
 
-        field.classList.add('hidden');
+        peranField.classList.add('hidden');
+        jumlahAnggotaField.classList.add('hidden');
+
+        peran.value = '';
 
     }
 
 });
+
+peran.addEventListener('change', function(){
+
+    if(this.value === 'Ketua'){
+
+        jumlahAnggotaField.classList.remove('hidden');
+
+    } else {
+
+        jumlahAnggotaField.classList.add('hidden');
+
+    }
+
+});
+
+document.getElementById('master_kegiatan_id')
+.addEventListener('change', function(){
+
+    let selected =
+        this.options[this.selectedIndex];
+
+    document.getElementById('jenis').value =
+        selected.dataset.jenis || '';
+
+    document.getElementById('tingkat').value =
+        selected.dataset.tingkat || '';
+
+    document.getElementById('hasil').value =
+        selected.dataset.hasil || '';
+
+    document.getElementById('poin').value =
+        selected.dataset.poin || '';
+
+});
+
 
 document.getElementById('master_kegiatan_id')
 .addEventListener('change', function() {

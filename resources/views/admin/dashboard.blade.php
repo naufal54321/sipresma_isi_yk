@@ -1,18 +1,22 @@
 <x-app-layout>
 
-<div class="py-1">
-     <div class="max-w-8xl mx-auto py-6">
+@php
+    // Trik: Mengambil data prodi yang aktif langsung dari model
+    $programStudis = \App\Models\ProgramStudi::where('status', 'aktif')
+                        ->orderBy('nama_prodi', 'asc')
+                        ->get();
+@endphp
 
-        <!-- Judul -->
+<div class="py-1">
+    <div class="max-w-8xl mx-auto py-6">
+
         <div class="mb-6">
             <h1 class="text-3xl font-bold text-gray-800">Dashboard Admin</h1>
             <p class="text-gray-500 mt-1">Kelola seluruh pengguna SIPRESMA</p>
         </div>
 
-        <!-- Card Table -->
         <div class="bg-white overflow-hidden shadow-xl rounded-2xl">
 
-            <!-- HEADER -->
             <div class="p-6 border-b border-gray-100 flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-800">Daftar Pengguna</h1>
@@ -35,14 +39,13 @@
                 </div>
             </div>
 
-            <!-- TABLE -->
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-left text-gray-600">
                     <thead class="bg-gray-50 text-black uppercase text-xs tracking-wider">
                         <tr>
                             <th class="px-4 py-4 text-center">No</th>
                             <th class="px-4 py-4">Nama</th>
-                            <th class="px-4 py-4">NIM</th>
+                            <th class="px-4 py-4">NIM / NIP</th>
                             <th class="px-4 py-4">Program Studi / Fakultas</th>
                             <th class="px-4 py-4">Email</th>
                             <th class="px-4 py-4 text-center">Role</th>
@@ -97,7 +100,22 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+// =============================================
+// FUNGSI HELPER: GENERATE DROPDOWN PRODI
+// =============================================
+function getProdiOptions(selectedValue = '') {
+    let options = `<option value="" disabled ${!selectedValue ? 'selected' : ''}>Pilih Program Studi</option>`;
+    
+    // Looping data dari PHP/Laravel ke dalam String JavaScript
+    @foreach($programStudis as $prodi)
+        options += `<option value="{{ $prodi->nama_prodi }}" ${selectedValue === '{{ $prodi->nama_prodi }}' ? 'selected' : ''}>{{ $prodi->nama_prodi }}</option>`;
+    @endforeach
+
+    return options;
+}
+
 // =============================================
 // RENDER USER — buat baris HTML lengkap
 // =============================================
@@ -198,13 +216,15 @@ function addUser() {
         <div class="form-row">
             <label>NIM/NIP <span>*</span></label>
             <div class="input-wrapper">
-                <input id="nim" class="custom-input" placeholder="Masukan NIM/NPM">
+                <input id="nim" class="custom-input" placeholder="Masukan NIM/NIP">
             </div>
         </div>
         <div class="form-row">
-            <label>Prodi/Fakultas <span>*</span></label>
+            <label>Program Studi <span>*</span></label>
             <div class="input-wrapper">
-                <input id="prodi" type="text" class="custom-input" placeholder="Masukan Prodi/Fakultas">
+                <select id="prodi" class="custom-input">
+                    ${getProdiOptions()}
+                </select>
             </div>
         </div>
         <div class="form-row">
@@ -257,7 +277,7 @@ function addUser() {
     }).then(result => {
         if (!result.isConfirmed) return;
 
-        fetch("{{ route('users.store') }}", {
+        fetch("{{ route('admin.users.store') }}", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -277,16 +297,14 @@ function addUser() {
             return data;
         })
         .then(data => {
+            document.getElementById('userTable')
+                .insertAdjacentHTML('beforeend', renderUser(data.user));
 
-    document.getElementById('userTable')
-        .insertAdjacentHTML('beforeend', renderUser(data.user));
+            resetTableNumber();
+            updateTotalUser();
 
-    // reset dipanggil SETELAH row sudah masuk ke DOM
-    resetTableNumber();
-    updateTotalUser();
-
-    Swal.fire('Sukses', 'User berhasil ditambahkan', 'success');
-})
+            Swal.fire('Sukses', 'User berhasil ditambahkan', 'success');
+        })
         .catch(err => {
             Swal.fire('Error', err.message, 'error');
         });
@@ -297,7 +315,7 @@ function addUser() {
 // EDIT USER
 // =============================================
 function editUser(id) {
-    fetch(`/users/${id}`)
+    fetch(`admin/users/${id}`)
     .then(res => res.json())
     .then(user => {
 
@@ -363,9 +381,11 @@ function editUser(id) {
                 </div>
             </div>
             <div class="form-row">
-                <label>Prodi/Fakultas <span>*</span></label>
+                <label>Program Studi <span>*</span></label>
                 <div class="input-wrapper">
-                    <input id="prodi" class="custom-input" value="${user.prodi}" placeholder="Prodi/Fakultas">
+                    <select id="prodi" class="custom-input">
+                        ${getProdiOptions(user.prodi)}
+                    </select>
                 </div>
             </div>
             <div class="form-row">
@@ -397,7 +417,7 @@ function editUser(id) {
         }).then(result => {
             if (!result.isConfirmed) return;
 
-            fetch(`/users/${id}`, {
+            fetch(`admin/users/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -447,7 +467,7 @@ function deleteUser(id) {
     }).then(result => {
         if (!result.isConfirmed) return;
 
-        fetch(`/users/${id}`, {
+        fetch(`admin/users/${id}`, {
             method: 'DELETE',
             headers: {
                 'Accept': 'application/json',
@@ -473,6 +493,7 @@ function deleteUser(id) {
 
 // =============================================
 // HELPER
+// =============================================
 function resetTableNumber() {
     let counter = 1;
     document.querySelectorAll('#userTable tr').forEach((row) => {
