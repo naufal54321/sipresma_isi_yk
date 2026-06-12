@@ -2,34 +2,74 @@
 
 <div class="py-6">
 
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+   <div class="max-w-8xl mx-auto py-6">
 
         <div class="flex items-center justify-between mb-6">
 
             <div>
                 <h1 class="text-3xl font-bold text-gray-800">
-                    Data SPK
+                    SPK
                 </h1>
-
                 <p class="text-gray-500">
-                    Surat Pengajuan Kegiatan
+                    Satuan Prestasi Kemahasiswaan
                 </p>
             </div>
 
             <button onclick="bukaModalTambahSPK()"
-               class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm font-semibold transition cursor-pointer">
+               class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg text-sm font-semibold transition cursor-pointer">
                 + Tambah SPK
             </button>
 
         </div>
 
-        <div class="bg-white shadow-xl rounded-2xl overflow-hidden">
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-6">
+            <form method="GET" action="{{ route('spks.index') }}" class="flex flex-col md:flex-row gap-4 items-end">
+                
+                <div class="w-full md:w-64">
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Tahun</label>
+                    <select name="tahun" class="w-full border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Semua Tahun</option>
+                        @php
+                            $tahunSekarang = date('Y');
+                            $tahunAwal = 2020; // Sesuaikan dengan awal sistem Anda
+                        @endphp
+                        @for($i = $tahunSekarang; $i >= $tahunAwal; $i--)
+                            <option value="{{ $i }}" {{ request('tahun') == $i ? 'selected' : '' }}>{{ $i }}</option>
+                        @endfor
+                    </select>
+                </div>
+
+                <div class="w-full md:w-64">
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Status</label>
+                    <select name="status" class="w-full border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Semua Status</option>
+                        <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
+                        <option value="disetujui" {{ request('status') == 'disetujui' ? 'selected' : '' }}>Disetujui</option>
+                        <option value="ditolak" {{ request('status') == 'ditolak' ? 'selected' : '' }}>Ditolak</option>
+                    </select>
+                </div>
+
+                <div class="flex gap-2 w-full md:w-auto">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg text-sm font-semibold transition w-full md:w-auto whitespace-nowrap">
+                        Terapkan Filter
+                    </button>
+                    @if(request('tahun') || request('status'))
+                        <a href="{{ route('spks.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition text-center whitespace-nowrap">
+                            Reset
+                        </a>
+                    @endif
+                </div>
+
+            </form>
+        </div>
+
+        <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-200">
 
             <table class="w-full text-sm text-left text-gray-600">
 
-                <thead class="bg-gray-50 uppercase text-xs tracking-wider">
+                <thead class="bg-gray-50 uppercase text-xs tracking-wider border-b border-gray-200">
                     <tr>
-                        <th class="px-6 py-4 text-center">No</th>
+                        <th class="px-6 py-4 text-center w-16">No</th>
                         <th class="px-6 py-4">Tahun</th>
                         <th class="px-6 py-4">RPK</th>
                         <th class="px-6 py-4">Kegiatan</th>
@@ -40,17 +80,17 @@
                     </tr>
                 </thead>
 
-                <tbody>
+                <tbody class="divide-y divide-gray-100">
 
                     @forelse($spks as $spk)
 
-                    <tr class="border-b hover:bg-blue-50 transition">
+                    <tr class="hover:bg-blue-50 transition duration-200">
 
-                        <td class="px-6 py-4 text-center">
+                        <td class="px-6 py-4 text-center font-medium text-gray-900">
                             {{ $loop->iteration }}
                         </td>
 
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 font-semibold text-gray-800">
                             {{ $spk->tahun }}
                         </td>
 
@@ -58,7 +98,7 @@
                             {{ $spk->rpk->tahun ?? '-' }} - {{ $spk->rpk->semester ?? '-' }}
                         </td>
 
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 font-medium text-gray-800">
                             {{ $spk->kegiatan->kegiatan ?? '-' }}
                         </td>
 
@@ -68,66 +108,61 @@
 
                         <td class="px-6 py-4 text-center">
                             @if($spk->status == 'draft')
-                                <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                                <span class="bg-orange-500 text-white border border-orange-200 px-3 py-1 rounded-full text-xs font-semibold">
                                     Draft
                                 </span>
                             @elseif($spk->status == 'disetujui')
-                                <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                                <span class="bg-green-500 text-white border border-green-200 px-3 py-1 rounded-full text-xs font-semibold">
                                     Disetujui
                                 </span>
                             @else
-                                <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                                <span class="bg-red-500 text-white border border-red-200 px-3 py-1 rounded-full text-xs font-semibold">
                                     Ditolak
                                 </span>
                             @endif
                         </td>
 
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 text-gray-500 italic">
                             {{ $spk->catatan_dosen ?? '-' }}
                         </td>
 
                         <td class="px-6 py-4 text-center">
                             <div class="flex justify-center gap-2">
                                <a href="{{ route('spks.show', $spk->id) }}"
-   class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-lg text-sm">
-    Detail
-</a>
+                                  class="bg-blue-500 text-white hover:bg-blue-600 hover:text-white border border-blue-200 px-3 py-1.5 rounded-lg text-sm font-semibold transition">
+                                    Detail
+                                </a>
 
-                               @if(in_array($spk->status, ['draft', 'ditolak']))
+                                @if(in_array($spk->status, ['draft', 'ditolak']))
                                     <button type="button"
-        onclick="bukaModalEditSPK(this)"
-        data-id="{{ $spk->id }}"
-        data-catatan="{{ $spk->catatan_dosen }}"
-        data-tahun="{{ $spk->tahun }}"
-        data-rpk="{{ $spk->rpk_id }}"
-        data-kegiatan="{{ $spk->kegiatan_id }}"
-        data-tanggal="{{ $spk->tanggal_kegiatan }}"
-        data-penyelenggara="{{ $spk->penyelenggara }}"
-        data-kategori="{{ $spk->kategori }}"
-        data-url="{{ $spk->url_kegiatan }}"
-        data-bukti="{{ $spk->bukti ? asset('storage/'.$spk->bukti) : '' }}"
-        data-keterangan="{{ $spk->keterangan }}"
-        class="bg-yellow-500 hover:bg-yellow-400 text-white px-4 py-2 rounded-lg text-sm transition">
-    Edit
-</button>
+                                            onclick="bukaModalEditSPK(this)"
+                                            data-id="{{ $spk->id }}"
+                                            data-catatan="{{ $spk->catatan_dosen }}"
+                                            data-tahun="{{ $spk->tahun }}"
+                                            data-rpk="{{ $spk->rpk_id }}"
+                                            data-kegiatan="{{ $spk->kegiatan_id }}"
+                                            data-tanggal="{{ $spk->tanggal_kegiatan }}"
+                                            data-penyelenggara="{{ $spk->penyelenggara }}"
+                                            data-kategori="{{ $spk->kategori }}"
+                                            data-url="{{ $spk->url_kegiatan }}"
+                                            data-bukti="{{ $spk->bukti ? asset('storage/'.$spk->bukti) : '' }}"
+                                            data-keterangan="{{ $spk->keterangan }}"
+                                            class="bg-yellow-500 text-white hover:bg-yellow-600 hover:text-white border border-yellow-200 px-3 py-1.5 rounded-lg text-sm font-semibold transition">
+                                        Edit
+                                    </button>
                                 @endif
 
                                 @if(in_array($spk->status, ['draft', 'ditolak']))
-                                    <form action="{{ route('spks.destroy', $spk->id) }}" method="POST" class="delete-form">
+                                    <form action="{{ route('spks.destroy', $spk->id) }}" method="POST" class="delete-form inline-block">
                                         @csrf
                                         @method('DELETE')
                                         <button type="button"
                                                 onclick="hapusSpk(this)"
-                                                class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg">
+                                                class="bg-red-500 text-white hover:bg-red-600 hover:text-white border border-red-200 px-3 py-1.5 rounded-lg text-sm font-semibold transition">
                                             Hapus
                                         </button>
                                     </form>
                                 @endif
-
-                                @if($spk->status == 'disetujui')
-                                    <span class="text-gray-400">-</span>
-                                @endif
-
                             </div>
                         </td>
 
@@ -136,8 +171,9 @@
                     @empty
 
                     <tr>
-                        <td colspan="8" class="text-center py-10 text-gray-400">
-                            Belum ada data SPK
+                        <td colspan="8" class="text-center py-12 text-gray-400 font-medium">
+                            <i class="fas fa-folder-open text-3xl mb-3 text-gray-300 block"></i>
+                            Belum ada data SPK yang ditemukan.
                         </td>
                     </tr>
 
@@ -154,6 +190,36 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@if(session('success'))
+<script>
+Swal.fire({
+    icon: 'success',
+    title: 'Berhasil',
+    text: '{{ session("success") }}',
+    timer: 2500,
+    showConfirmButton: false,
+    toast: true,
+    position: 'top-end'
+});
+</script>
+@endif
+
+@if($errors->any())
+<script>
+    Swal.fire({
+        icon: 'error',
+        title: 'Gagal Menyimpan!',
+        html: `
+            <ul style="text-align: left; color: #dc2626; font-size: 14px;">
+                @foreach ($errors->all() as $error)
+                    <li>- {{ $error }}</li>
+                @endforeach
+            </ul>
+        `,
+    });
+</script>
+@endif
 
 <script>
 // --- Script Hapus SPK ---
@@ -187,7 +253,7 @@ function bukaModalTambahSPK() {
                 @csrf
 
                 <div class="mb-4">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tahun *</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tahun Pengajuan *</label>
                     <select name="tahun" id="swal_tahun" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring focus:ring-blue-200 outline-none" required>
                         @for($i = date('Y'); $i >= date('Y') - 8; $i--)
                             <option value="{{ $i }}">{{ $i }}</option>
@@ -213,7 +279,7 @@ function bukaModalTambahSPK() {
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tanggal Kegiatan *</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tanggal Pelaksanaan *</label>
                     <input type="date" name="tanggal_kegiatan" id="swal_tanggal" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring focus:ring-blue-200 outline-none" required>
                 </div>
 
@@ -231,7 +297,7 @@ function bukaModalTambahSPK() {
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">URL Kegiatan</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">URL Kegiatan (Opsional)</label>
                     <input type="url" name="url_kegiatan" id="swal_url" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring focus:ring-blue-200 outline-none">
                 </div>
 
@@ -241,14 +307,14 @@ function bukaModalTambahSPK() {
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Keterangan *</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Keterangan / Deskripsi Prestasi *</label>
                     <textarea name="keterangan" id="swal_keterangan" rows="4" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring focus:ring-blue-200 outline-none" required></textarea>
                 </div>
 
             </form>
         `,
         showCancelButton: true,
-        confirmButtonText: 'Simpan',
+        confirmButtonText: 'Simpan Data',
         cancelButtonText: 'Batal',
         confirmButtonColor: '#2563EB',
         cancelButtonColor: '#9CA3AF',
@@ -306,10 +372,10 @@ function bukaModalEditSPK(button) {
 
     // 3. Render blok Catatan Dosen (jika ada)
     let catatanHtml = '';
-    if (catatan) {
+    if (catatan && catatan !== 'null') {
         catatanHtml = `
             <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-4 text-sm text-left">
-                <strong>Catatan Dosen:</strong><br>${catatan}
+                <strong>Catatan Dosen Pembimbing:</strong><br>${catatan}
             </div>
         `;
     }
@@ -319,7 +385,7 @@ function bukaModalEditSPK(button) {
     if (bukti) {
         buktiHtml = `
             <div class="mb-2 text-sm text-left">
-                <a href="${bukti}" target="_blank" class="text-blue-600 underline font-medium">Lihat Bukti Saat Ini</a>
+                <a href="${bukti}" target="_blank" class="text-blue-600 underline font-medium hover:text-blue-800 transition"><i class="fas fa-file-pdf"></i> Lihat File Bukti Saat Ini</a>
             </div>
         `;
     }
@@ -362,7 +428,7 @@ function bukaModalEditSPK(button) {
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tanggal Kegiatan *</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tanggal Pelaksanaan *</label>
                     <input type="date" name="tanggal_kegiatan" id="edit_swal_tanggal" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring focus:ring-blue-200" required>
                 </div>
 
@@ -388,7 +454,7 @@ function bukaModalEditSPK(button) {
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Bukti (PDF max 5MB)</label>
                     ${buktiHtml}
                     <input type="file" name="bukti" accept=".pdf" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring focus:ring-blue-200">
-                    <small class="text-gray-500 mt-1 block">Kosongkan jika tidak ingin mengganti file.</small>
+                    <small class="text-gray-500 mt-1 block">Abaikan kolom file ini jika tidak ingin mengubah dokumen bukti yang sudah ada.</small>
                 </div>
 
                 <div class="mb-4">
@@ -463,7 +529,6 @@ function bukaModalEditSPK(button) {
         }
     });
 }
-
 </script>
 
 </x-app-layout>

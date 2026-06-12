@@ -8,6 +8,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -22,15 +24,35 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
-    {
-        $request->authenticate();
 
-        $request->session()->regenerate();
+public function store(LoginRequest $request): RedirectResponse
+{
+    $user = User::where('email', $request->email)->first();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+    if (!$user || !Hash::check($request->password, $user->password)) {
+        return back()->withErrors([
+            'email' => 'Email atau password yang Anda masukkan tidak sesuai.',
+        ])->onlyInput('email');
     }
 
+    if ($user->status === 'pending') {
+        return back()->withErrors([
+            'email' => 'Akun Anda masih menunggu persetujuan admin.',
+        ])->onlyInput('email');
+    }
+
+    if ($user->status === 'ditolak') {
+        return back()->withErrors([
+            'email' => 'Akun Anda telah ditolak oleh admin.',
+        ])->onlyInput('email');
+    }
+
+    Auth::login($user, $request->boolean('remember'));
+
+    $request->session()->regenerate();
+
+    return redirect()->intended(route('dashboard'));
+}
     /**
      * Destroy an authenticated session.
      */

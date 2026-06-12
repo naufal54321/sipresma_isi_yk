@@ -20,7 +20,7 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if ($user->hasRole('Admin')) {
+         if ($user->roles->contains('name', 'Admin')) {
 
             $totalMahasiswa = User::role('Mahasiswa')->count();
             $totalDosen = User::role('Dosen')->count();
@@ -206,7 +206,7 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if ($user->hasRole('Dosen')) {
+        if ($user->roles->contains('name', 'Dosen')) {
 
             $totalMahasiswa = User::where(
                 'dosen_pembimbing_id',

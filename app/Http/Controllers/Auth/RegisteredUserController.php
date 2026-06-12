@@ -44,13 +44,18 @@ $user = User::create([
     'prodi' => $request->prodi,
     'email' => $request->email,
     'password' => Hash::make($request->password),
+
+    // status default menunggu persetujuan
+    'status' => 'pending',
 ]);
+
 
 $user->assignRole('Mahasiswa');
 
         event(new Registered($user));
 
-return redirect()->route('login')
-    ->with('success', 'Registrasi berhasil, silakan login');
-    }
+return redirect()
+    ->route('login')
+    ->with('success_register', true);
+}
 }

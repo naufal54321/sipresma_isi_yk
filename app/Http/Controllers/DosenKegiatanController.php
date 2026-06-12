@@ -41,7 +41,7 @@ class DosenKegiatanController extends Controller
         ->latest()
         ->get();
 
-    return view('dosen.kegiatan.index', compact(
+    return view('dosen.rpk.index', compact(
         'kegiatans',
         'search'
     ));

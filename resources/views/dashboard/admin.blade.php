@@ -24,28 +24,28 @@
     <!-- Statistik -->
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
 
-        <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl p-5 shadow">
+        <div class="bg-gradient-to-r from-blue-100 to-blue-200 text-blue-500 rounded-2xl p-5 shadow">
             <p>Total Mahasiswa</p>
             <h2 class="text-4xl font-bold mt-2">
                 {{ $totalMahasiswa }}
             </h2>
         </div>
 
-        <div class="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-2xl p-5 shadow">
+        <div class="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-500 rounded-2xl p-5 shadow">
             <p>Total Dosen</p>
             <h2 class="text-4xl font-bold mt-2">
                 {{ $totalDosen }}
             </h2>
         </div>
 
-        <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-2xl p-5 shadow">
+        <div class="bg-gradient-to-r from-orange-100 to-orange-200 text-orange-500 rounded-2xl p-5 shadow">
             <p>Total RPK</p>
             <h2 class="text-4xl font-bold mt-2">
                 {{ $totalRpk }}
             </h2>
         </div>
 
-        <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-2xl p-5 shadow">
+        <div class="bg-gradient-to-r from-green-100 to-green-200 text-green-500 rounded-2xl p-5 shadow">
             <p>Total SPK</p>
             <h2 class="text-4xl font-bold mt-2">
                 {{ $totalSpk }}
@@ -229,7 +229,7 @@
 
         @if($item['role'] == 'Dosen')
 
-            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs">
+            <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs">
                 Dosen
             </span>
 

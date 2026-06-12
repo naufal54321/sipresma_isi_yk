@@ -63,4 +63,23 @@
 
         </form>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@if(session('success_register'))
+<script>
+Swal.fire({
+    icon: 'success',
+    title: 'Pendaftaran Berhasil',
+    html: `
+        <div style="text-align:left">
+            <p>Akun Anda berhasil didaftarkan.</p>
+            <br>
+            <p>Silakan tunggu persetujuan dari Admin sebelum dapat masuk ke sistem.</p>
+        </div>
+    `,
+    confirmButtonText: 'Baik',
+    confirmButtonColor: '#2563eb'
+});
+</script>
+@endif
 </x-guest-layout>

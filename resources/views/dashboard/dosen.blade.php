@@ -3,6 +3,7 @@
 <div class="py-8">
 <div class="max-w-8xl mx-auto py-6">
 
+
     <!-- Hero -->
     <div class="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 rounded-3xl p-8 text-white shadow-lg mb-8">
 
@@ -131,7 +132,7 @@
     <!-- Menu Cepat -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-        <a href="{{ route('dosen.kegiatan.index') }}"
+        <a href="{{ route('dosen.rpk.index') }}"
            class="bg-white rounded-2xl shadow p-6 hover:shadow-lg transition">
 
             <h3 class="font-bold text-lg text-blue-600">

@@ -2,52 +2,102 @@
 
 <div class="py-6">
 
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+   <div class="max-w-8xl mx-auto py-6">
 
-        <div class="flex items-center justify-between mb-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
 
             <div>
                 <h1 class="text-3xl font-bold text-gray-800">
-                    RPK Mahasiswa
+                    RPK
                 </h1>
-
                 <p class="text-gray-500 mt-1">
                     Rencana Prestasi Kemahasiswaan
                 </p>
             </div>
 
-            <button onclick="bukaModalTambahRPK()"
-                    class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm font-semibold transition cursor-pointer">
+             <button onclick="bukaModalTambahRPK()"
+               class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg text-sm font-semibold transition cursor-pointer">
                 + Tambah RPK
             </button>
 
         </div>
 
-        <div class="bg-white shadow-xl rounded-2xl overflow-hidden">
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-6">
+            <form method="GET" action="{{ route('rpks.index') }}" class="flex flex-col md:flex-row gap-4 items-end">
+                
+                <div class="w-full md:w-48">
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Tahun</label>
+                    <select name="tahun" class="w-full border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Semua Tahun</option>
+                        @php
+                            $tahunSekarang = date('Y');
+                            $tahunAwal = 2020; // Sesuaikan dengan tahun awal sistem Anda
+                        @endphp
+                        @for($i = $tahunSekarang; $i >= $tahunAwal; $i--)
+                            <option value="{{ $i }}" {{ request('tahun') == $i ? 'selected' : '' }}>{{ $i }}</option>
+                        @endfor
+                    </select>
+                </div>
+
+                <div class="w-full md:w-48">
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Semester</label>
+                    <select name="semester" class="w-full border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Semua Semester</option>
+                        <option value="Ganjil" {{ request('semester') == 'Ganjil' ? 'selected' : '' }}>Ganjil</option>
+                        <option value="Genap" {{ request('semester') == 'Genap' ? 'selected' : '' }}>Genap</option>
+                    </select>
+                </div>
+
+                <div class="w-full md:w-48">
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Status</label>
+                    <select name="status" class="w-full border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Semua Status</option>
+                        <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
+                        <option value="disetujui" {{ request('status') == 'disetujui' ? 'selected' : '' }}>Disetujui</option>
+                        <option value="ditolak" {{ request('status') == 'ditolak' ? 'selected' : '' }}>Ditolak</option>
+                    </select>
+                </div>
+
+                <div class="flex gap-2 w-full md:w-auto">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-400 text-white px-5 py-2 rounded-lg text-sm font-semibold transition w-full md:w-auto">
+                        Terapkan Filter
+                    </button>
+                    @if(request('tahun') || request('semester') || request('status'))
+                        <a href="{{ route('rpks.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition text-center whitespace-nowrap">
+                            Reset
+                        </a>
+                    @endif
+                </div>
+
+            </form>
+        </div>
+
+        <div class="bg-white shadow-sm border border-gray-200 rounded-2xl overflow-hidden">
 
             <table class="w-full text-sm text-left text-gray-600">
 
-                <thead class="bg-gray-50 uppercase text-xs tracking-wider">
+                <thead class="bg-gray-50 uppercase text-xs tracking-wider border-b border-gray-200">
                     <tr>
                         <th class="px-6 py-4">No</th>
                         <th class="px-6 py-4">Tahun</th>
                         <th class="px-6 py-4">Semester</th>
                         <th class="px-6 py-4">Jumlah Kegiatan</th>
+                        <th class="px-6 py-4">Status</th>
                         <th class="px-6 py-4">Aksi</th>
                     </tr>
                 </thead>
 
-                <tbody>
+                <tbody class="divide-y divide-gray-100">
 
                     @forelse ($rpks as $rpk)
 
-                    <tr class="border-b hover:bg-blue-50 transition">
+                    <tr class="hover:bg-blue-50 transition duration-200">
 
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 font-medium text-gray-900">
                             {{ $loop->iteration }}
                         </td>
 
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 font-semibold text-gray-800">
                             {{ $rpk->tahun }}
                         </td>
 
@@ -56,17 +106,30 @@
                         </td>
 
                         <td class="px-6 py-4">
-                            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
-                                {{ $rpk->kegiatans_count }} Kegiatan
+                                 {{ $rpk->kegiatans->count() }} Kegiatan
                             </span>
                         </td>
-
+                        <td class="px-6 py-4">
+                            @if($rpk->status == 'draft')
+                                <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold border border-orange-200">
+                                    Draft
+                                </span>
+                            @elseif($rpk->status == 'disetujui')
+                                <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold border border-green-200">
+                                    Disetujui
+                                </span>
+                            @elseif($rpk->status == 'ditolak')
+                                <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold border border-red-200">
+                                    Ditolak
+                                </span>
+                            @endif
+                        </td>
                         <td class="px-6 py-4">
 
                             <div class="flex items-center gap-2">
 
                                 <a href="{{ route('rpks.show', $rpk->id) }}"
-                                   class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm transition">
+                                   class="bg-blue-500 text-white hover:bg-blue-600 hover:text-white border border-blue-200 px-4 py-1.5 rounded-lg text-sm font-semibold transition">
                                     Detail
                                 </a>
                                 
@@ -74,9 +137,9 @@
                                     @csrf
                                     @method('DELETE')
 
-                                    <button type="submit"
-                                        onclick="return confirm('Yakin ingin menghapus data ini?')"
-                                        class="bg-red-500 hover:bg-red-400 text-white px-4 py-2 rounded-lg text-sm transition">
+                                    <button type="button"
+                                        onclick="konfirmasiHapus(this)"
+                                        class="bg-red-500 text-white hover:bg-red-600 hover:text-white border border-red-200 px-3 py-1.5 rounded-lg text-sm font-semibold transition">
                                         Hapus
                                     </button>
 
@@ -91,8 +154,9 @@
                     @empty
 
                     <tr>
-                        <td colspan="5" class="text-center py-10 text-gray-400 font-medium">
-                            Belum ada data RPK
+                        <td colspan="6" class="text-center py-12 text-gray-400 font-medium">
+                            <i class="fas fa-folder-open text-3xl mb-3 text-gray-300 block"></i>
+                            Belum ada data RPK yang ditemukan.
                         </td>
                     </tr>
 
@@ -110,7 +174,56 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+@if(session('success'))
 <script>
+Swal.fire({
+    icon: 'success',
+    title: 'Berhasil',
+    text: '{{ session("success") }}',
+    timer: 2500,
+    showConfirmButton: false,
+    toast: true,
+    position: 'top-end'
+});
+</script>
+@endif
+
+@if($errors->any())
+<script>
+    Swal.fire({
+        icon: 'error',
+        title: 'Gagal Menyimpan!',
+        html: `
+            <ul style="text-align: left; color: #dc2626; font-size: 14px;">
+                @foreach ($errors->all() as $error)
+                    <li>- {{ $error }}</li>
+                @endforeach
+            </ul>
+        `,
+    });
+</script>
+@endif
+
+<script>
+    // Konfirmasi Hapus Data Modern
+    function konfirmasiHapus(button) {
+        Swal.fire({
+            title: 'Hapus RPK?',
+            text: "Data yang dihapus tidak dapat dikembalikan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                button.closest('form').submit();
+            }
+        });
+    }
+
+    // Modal Tambah RPK
     function bukaModalTambahRPK() {
         Swal.fire({
             title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Tambah RPK</h2>',
@@ -120,11 +233,12 @@
                     
                     <div class="mb-5">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Tahun</label>
-                        <input type="text" 
+                        <input type="number" 
                                name="tahun" 
                                id="inputTahun"
                                class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring focus:ring-blue-200 focus:border-blue-500 outline-none" 
                                placeholder="Contoh: {{ date('Y') }}"
+                               value="{{ date('Y') }}"
                                required>
                     </div>
 
@@ -144,8 +258,8 @@
             showCancelButton: true,
             confirmButtonText: 'Simpan',
             cancelButtonText: 'Batal',
-            confirmButtonColor: '#2563EB', // Warna bg-blue-600
-            cancelButtonColor: '#9CA3AF',  // Warna bg-gray-400
+            confirmButtonColor: '#2563EB',
+            cancelButtonColor: '#9CA3AF',
             customClass: {
                 popup: 'rounded-2xl p-4'
             },
@@ -158,7 +272,6 @@
                     return false;
                 }
 
-                // Submit form otomatis
                 document.getElementById('formTambahRPK').submit();
             }
         });

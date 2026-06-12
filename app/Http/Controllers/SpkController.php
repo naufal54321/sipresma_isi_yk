@@ -13,18 +13,33 @@ class SpkController extends Controller
     /**
      * Menampilkan daftar SPK
      */
-    public function index()
+    public function index(Request $request)
     {
-        // 1. Mengambil data SPK milik user yang sedang login
+        // 1. Tangkap parameter dari form filter dropdown
+        $filterTahun = $request->tahun;
+        $filterStatus = $request->status;
+
+        // 2. Mengambil data SPK milik user yang sedang login beserta logika filter
         $spks = Spk::with(['rpk', 'kegiatan'])
             ->where('user_id', Auth::id())
+            
+            // Filter Tahun
+            ->when($filterTahun, function ($query) use ($filterTahun) {
+                return $query->where('tahun', $filterTahun);
+            })
+            
+            // Filter Status
+            ->when($filterStatus, function ($query) use ($filterStatus) {
+                return $query->where('status', $filterStatus);
+            })
+            
             ->latest()
             ->get();
 
-        // 2. AMBIL DATA RPK UNTUK OPTION DI SWEETALERT (Logika disamakan dengan method create)
+        // 3. AMBIL DATA RPK UNTUK OPTION DI SWEETALERT (Sesuai kode asli Anda)
         $rpks = Rpk::where('user_id', Auth::id())->get();
 
-        // 3. AMBIL DATA KEGIATAN YANG DISETUJUI UNTUK DROPDOWN DINAMIS DI SWEETALERT
+        // 4. AMBIL DATA KEGIATAN YANG DISETUJUI UNTUK DROPDOWN DINAMIS (Sesuai kode asli Anda)
         $kegiatans = Kegiatan::whereHas('rpk', function ($query) {
                 $query->where('user_id', Auth::id());
             })
@@ -32,7 +47,7 @@ class SpkController extends Controller
             ->select('id', 'rpk_id', 'kegiatan')
             ->get();
 
-        // 4. KIRIM SEMUA VARIABEL KE VIEW INDEX
+        // 5. KIRIM SEMUA VARIABEL KE VIEW INDEX
         return view('spks.index', compact('spks', 'rpks', 'kegiatans'));
     }
 

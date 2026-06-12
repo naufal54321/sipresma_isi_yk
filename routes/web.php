@@ -10,6 +10,7 @@ use App\Http\Controllers\UserRoleController;
 use App\Http\Controllers\RpkController;
 use App\Http\Controllers\KegiatanController;
 use App\Http\Controllers\DosenKegiatanController;
+use App\Http\Controllers\DosenRpkController;
 use App\Http\Controllers\DosenSpkController;
 use App\Http\Controllers\SpkController;
 use App\Http\Controllers\DosenMahasiswaController;
@@ -18,6 +19,10 @@ use App\Http\Controllers\ProgramStudiController;
 use App\Models\User;
 use App\Models\Spk;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\AdminUserApprovalController;
+
+
+
 
 Route::get(
     '/admin/laporan/export-pdf',
@@ -166,22 +171,64 @@ Route::get(
 
 });
 
+Route::middleware(['auth', 'role:Admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+
+        Route::get('/', function () {
+            $users = User::with('roles')->orderBy('id', 'asc')->get();
+            return view('admin.dashboard', compact('users'));
+        })->name('dashboard');
+
+        // Approval User
+        Route::get('/approval-users',
+            [AdminUserApprovalController::class, 'index']
+        )->name('users.approval');
+
+        Route::put('/approval-users/{user}/approve',
+            [AdminUserApprovalController::class, 'approve']
+        )->name('users.approve');
+
+        Route::delete('/approval-users/{user}/reject',
+            [AdminUserApprovalController::class, 'reject']
+        )->name('users.reject');
+
+        Route::resource('users', UserController::class);
+});
+
 
 /*
 |--------------------------------------------------------------------------
 | ROLE: DOSEN
 |--------------------------------------------------------------------------
 */
+
+Route::middleware(['auth', 'role:Dosen'])
+    ->prefix('dosen')
+    ->name('dosen.')
+    ->group(function () {
+
+        Route::get('/rpk', [DosenRpkController::class, 'index'])
+            ->name('rpk.index');
+
+        Route::get('/rpk/{rpk}', [DosenRpkController::class, 'show'])
+            ->name('rpk.show');
+
+        Route::put('/rpk/{rpk}/approve', [DosenRpkController::class, 'approve'])
+            ->name('rpk.approve');
+
+        Route::put('/rpk/{rpk}/reject', [DosenRpkController::class, 'reject'])
+            ->name('rpk.reject');
+    });
+
+
 Route::middleware(['auth', 'role:Dosen'])->prefix('dosen')->name('dosen.')->group(function () {
     
     // Mahasiswa Bimbingan
     Route::get('/mahasiswa', [DosenMahasiswaController::class, 'index'])->name('mahasiswa.index');
 
-    // Persetujuan RPK
-    Route::get('/kegiatan', [DosenKegiatanController::class, 'index'])->name('kegiatan.index');
-    Route::get('/kegiatan/{kegiatan}', [DosenKegiatanController::class, 'show'])->name('kegiatan.show');
-    Route::put('/kegiatan/{kegiatan}/approve', [DosenKegiatanController::class, 'approve'])->name('kegiatan.approve');
-    Route::put('/kegiatan/{kegiatan}/reject', [DosenKegiatanController::class, 'reject'])->name('kegiatan.reject');
+    
 
     // Persetujuan SPK
     Route::get('/spk', [DosenSpkController::class, 'index'])->name('spk.index');

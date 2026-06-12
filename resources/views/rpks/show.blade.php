@@ -1,139 +1,300 @@
 <x-app-layout>
 
-<div class="py-6">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+<style>
+    /* Menyembunyikan scrollbar tapi tetap bisa di-scroll */
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+</style>
 
-        <div class="flex items-center justify-between mb-6">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800">
-                    Detail RPK
-                </h1>
-                <p class="text-gray-500 mt-1">
-                    Daftar kegiatan pada RPK
-                </p>
-            </div>
+<div class="max-w-8xl mx-auto py-6">
 
-            <div class="flex gap-3">
-                <a href="{{ route('rpks.index') }}"
-                   class="bg-gray-500 hover:bg-gray-400 text-white px-5 py-2 rounded-xl text-sm font-semibold transition">
-                    ← Kembali
-                </a>
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <h1 class="text-3xl font-bold text-gray-900">
+            Detail Kegiatan RPK
+        </h1>
 
-                <button onclick="bukaModalTambahKegiatan()"
-                   class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm font-semibold transition cursor-pointer">
-                    + Tambah Kegiatan
-                </button>
-            </div>
+        <div class="flex items-center gap-3">
+    <a href="{{ route('rpks.index') }}"
+       class="inline-flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition">
+        ← Kembali
+    </a>
+@if($rpk->status == 'draft' || $rpk->status == 'ditolak')
+<button onclick="bukaModalTambahKegiatan()"
+    class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm font-semibold transition cursor-pointer">
+    + Tambah Kegiatan
+</button>
+@endif
+</div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <div class="lg:col-span-4">
+    <div class="bg-gray-50 border border-gray-200 shadow-sm rounded-xl overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-200 bg-white">
+            <h2 class="text-lg font-bold text-gray-900">Detail & Periode</h2>
         </div>
 
-        <div class="bg-white shadow rounded-2xl p-6 mb-6">
-            <div class="grid grid-cols-3 gap-6">
-                <div>
-                    <p class="text-sm text-gray-500">Tahun</p>
-                    <h1 class="text-lg font-bold text-gray-800">{{ $rpk->tahun }}</h1>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-500">Semester</p>
-                    <h1 class="text-lg font-bold text-gray-800">{{ $rpk->semester }}</h1>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-500">Kategori</p>
-                    <h1 class="text-lg font-bold text-gray-800">{{ $rpk->kategori }}</h1>
-                </div>
+        <div class="p-6 bg-white space-y-4">
+
+            <div class="grid grid-cols-3 gap-2">
+                <span class="text-sm font-bold text-gray-600">Nama</span>
+                <span class="col-span-2 text-sm text-gray-800 font-medium">
+                    {{ $rpk->user->name }}
+                </span>
             </div>
+
+            <div class="grid grid-cols-3 gap-2">
+                <span class="text-sm font-bold text-gray-600">NIM</span>
+                <span class="col-span-2 text-sm text-gray-800 font-medium">
+                    {{ $rpk->user->nim ?? '-' }}
+                </span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
+                <span class="text-sm font-bold text-gray-600">Prodi</span>
+                <span class="col-span-2 text-sm text-gray-800 font-medium">
+                    {{ $rpk->user->prodi ?? '-' }}
+                </span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 pt-2">
+                <span class="text-sm font-bold text-gray-600">Tahun RPK</span>
+                <span class="col-span-2 text-sm text-gray-800 font-medium">
+                    {{ $rpk->tahun }}
+                </span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
+                <span class="text-sm font-bold text-gray-600">Semester</span>
+                <span class="col-span-2 text-sm text-gray-800 font-medium">
+                    {{ $rpk->semester }}
+                </span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 pb-4">
+                <span class="text-sm font-bold text-gray-600">Kategori</span>
+                <span class="col-span-2 text-sm text-gray-800 font-medium">
+                    {{ $rpk->kategori }}
+                </span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 pb-4">
+                <span class="text-sm font-bold text-gray-600">Jumlah Kegiatan</span>
+                <span class="col-span-2 text-sm text-gray-800 font-medium">
+                    {{ $rpk->kegiatans->count() }}
+                </span>
+            </div>
+
+
+            <div class="col-span-2 md:col-span-4 mt-2 pt-3 border-t border-gray-200">
+                <span class="text-sm font-bold text-gray-600">Status</span>
+
+                @if($rpk->status == 'draft')
+                    <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                        Draft
+                    </span>
+
+                @elseif($rpk->status == 'disetujui')
+                    <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                        Disetujui
+                    </span>
+
+                @elseif($rpk->status == 'ditolak')
+                    <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                        Ditolak
+                    </span>
+
+                @else
+                    <span class="bg-gray-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                        Belum Diketahui
+                    </span>
+                @endif
+            </div>
+
         </div>
+    </div>
+</div>
 
-        <div class="bg-white shadow-xl rounded-2xl overflow-hidden">
-            <table class="w-full text-sm text-left text-gray-600">
-                <thead class="bg-gray-50 uppercase text-xs tracking-wider">
-                    <tr>
-                        <th class="px-6 py-4">No</th>
-                        <th class="px-6 py-4">Kegiatan</th>
-                        <th class="px-6 py-4">Jenis</th>
-                        <th class="px-6 py-4">Tingkat</th>
-                        <th class="px-6 py-4">Kategori</th>
-                        <th class="px-6 py-4">Status</th>
-                        <th class="px-6 py-4">Catatan Dosen</th>
-                        <th class="px-6 py-4 text-center">Poin</th>
-                        <th class="px-6 py-4 text-center">Aksi</th>
-                    </tr>
-                </thead>
+        <div class="lg:col-span-8">
+            <div class="bg-white border border-gray-200 shadow-sm rounded-xl overflow-hidden flex flex-col h-full">
+                
+                <div class="flex border-b border-gray-200 bg-gray-50 px-2 pt-2 overflow-x-auto hide-scrollbar" id="tab-headers">
+                    <button onclick="geserTab(0)" class="tab-btn bg-white border-t border-l border-r border-gray-200 rounded-t-lg px-6 py-3 -mb-[1px] relative z-10 font-bold text-gray-800 whitespace-nowrap transition cursor-pointer">
+                        Rencana Kegiatan
+                    </button>
+                   
+                    <button onclick="geserTab(2)" class="tab-btn px-6 py-3 text-gray-500 font-bold hover:text-gray-700 whitespace-nowrap border-b border-transparent transition cursor-pointer">
+                        Riwayat RPK
+                    </button>
+                </div>
 
-                <tbody>
-                    @forelse($rpk->kegiatans as $kegiatan)
-                    <tr class="border-b hover:bg-blue-50 transition">
-                        <td class="px-6 py-4">{{ $loop->iteration }}</td>
-                        <td class="px-6 py-4">{{ $kegiatan->kegiatan }}</td>
-                        <td class="px-6 py-4">{{ $kegiatan->jenis }}</td>
-                        <td class="px-6 py-4">{{ $kegiatan->tingkat }}</td>
-                        <td class="px-6 py-4">{{ $kegiatan->kategori }}</td>
-                        <td class="px-6 py-4">
-                            @if($kegiatan->status == 'draft')
-                                <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-xs">Draft</span>
-                            @elseif($kegiatan->status == 'disetujui')
-                                <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs">Disetujui</span>
-                            @else
-                                <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs">Ditolak</span>
-                            @endif
-                        </td>
-                        <td class="px-6 py-4">
-                            @if($kegiatan->catatan_dosen)
-                                <span class="text-gray-700">{{ $kegiatan->catatan_dosen }}</span>
-                            @else
-                                <span class="text-gray-400 italic">Belum ada catatan</span>
-                            @endif
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            {{ $kegiatan->masterKegiatan->poin ?? '-' }}
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            @if($kegiatan->status == 'draft' || $kegiatan->status == 'ditolak')
-                            <div class="flex justify-center gap-2">
-                                
-                                <button type="button"
-                                        onclick="bukaModalEditKegiatan(this)"
-                                        data-id="{{ $kegiatan->id }}"
-                                        data-master="{{ $kegiatan->master_kegiatan_id }}"
-                                        data-tanggal="{{ $kegiatan->tanggal }}"
-                                        data-kategori="{{ $kegiatan->kategori }}"
-                                        data-peran="{{ $kegiatan->peran }}"
-                                        data-jumlah="{{ $kegiatan->jumlah_anggota }}"
-                                        class="bg-yellow-500 hover:bg-yellow-400 text-white px-3 py-2 rounded-lg text-sm transition">
-                                    Edit
-                                </button>
+                <div class="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar scroll-smooth flex-grow" id="tab-content-container">
+                    
+                    <div class="w-full flex-shrink-0 snap-start p-6">
+                        <h3 class="text-gray-600 font-medium mb-4">Daftar Rencana Kegiatan</h3>
+                        
+                       <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden mb-6">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-gray-600">
+            <thead class="bg-gray-50 text-gray-700 uppercase text-xs tracking-wider border-b border-gray-200">
+                <tr>
+                    <th class="px-4 py-4 font-semibold text-center w-16">Aksi</th>
+                    <th class="px-4 py-4 font-semibold text-center w-16">No</th>
+                    <th class="px-4 py-4 font-semibold">Nama Kegiatan</th>
+                    <th class="px-4 py-4 font-semibold">Jenis</th>
+                    <th class="px-4 py-4 font-semibold">Tingkat</th>
+                    <th class="px-4 py-4 font-semibold">Hasil</th>
+                    <th class="px-4 py-4 font-semibold text-center">Poin</th>
+                </tr>
+            </thead>
+            <tbody>
 
-                                <form action="{{ route('kegiatans.destroy', $kegiatan->id) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="button"
-                                            onclick="hapusKegiatan(this)"
-                                            class="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded-lg text-sm transition">
-                                        Hapus
-                                    </button>
-                                </form>
+
+@forelse($rpk->kegiatans as $kegiatan)
+<tr class="bg-white">
+    <td class="px-4 py-4 border-r border-gray-200">
+
+    <div class="flex gap-2">
+
+       {{-- Tombol Hapus --}}
+                @if($rpk->status == 'draft' || $rpk->status == 'ditolak')
+        <form action="{{ route('kegiatans.destroy', $kegiatan->id) }}"
+            method="POST">
+
+            @csrf
+            @method('DELETE')
+
+            <button type="button"
+                    onclick="hapusKegiatan(this)"
+                    class="bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded-lg text-xs font-semibold">
+                Hapus
+            </button>
+
+        </form>
+        @else
+        <span class="text-gray-400 text-xs">
+            -
+        </span>
+        @endif
+
+    </div>
+
+</td>
+    <td class="px-4 py-4 border-r border-gray-200">
+        {{ $loop->iteration }}
+    </td>
+
+    <td class="px-4 py-4 border-r border-gray-200 font-medium text-gray-800">
+        {{ $kegiatan->kegiatan }}
+    </td>
+
+    <td class="px-4 py-4 border-r border-gray-200">
+        {{ $kegiatan->jenis }}
+    </td>
+
+    <td class="px-4 py-4 border-r border-gray-200">
+        {{ $kegiatan->tingkat }}
+    </td>
+
+    <td class="px-4 py-4 border-r border-gray-200">
+        {{ $kegiatan->hasil }}
+    </td>
+
+    <td class="px-4 py-4">
+        {{ $kegiatan->masterKegiatan->poin ?? '-' }}
+    </td>
+</tr>
+@empty
+<tr>
+    <td colspan="7" class="text-center py-4 text-gray-500">
+        Belum ada kegiatan pada RPK ini
+    </td>
+</tr>
+@endforelse
+</tbody>
+        </table>
+    </div>
+</div>
+
+                        
+                    </div>
+
+
+                    <div class="w-full flex-shrink-0 snap-start p-6">
+                        <h3 class="text-gray-600 font-medium mb-6">Timeline Riwayat Pengajuan</h3>
+                        
+                        <div class="relative border-l-2 border-blue-200 ml-3 space-y-8">
+                            
+                            <div class="relative pl-6">
+                                <div class="absolute w-4 h-4 bg-blue-500 rounded-full -left-[9px] top-1 border-2 border-white shadow"></div>
+                                <p class="text-xs font-semibold text-blue-600 mb-1">Terbaru</p>
+                                <h4 class="font-bold text-gray-800">Status Diperbarui: {{ ucfirst($rpk->status) }}</h4>
+                                <p class="text-sm text-gray-600 mt-1 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    Catatan: {{ $rpk->catatan_dosen ?? 'Tidak ada catatan yang dilampirkan.' }}
+                                </p>
                             </div>
-                            @else
-                            <span class="text-gray-400">Selesai</span>
-                            @endif
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="9" class="text-center py-10 text-gray-400">
-                            Belum ada kegiatan
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+
+                            <div class="relative pl-6">
+                                <div class="absolute w-4 h-4 bg-gray-300 rounded-full -left-[9px] top-1 border-2 border-white shadow"></div>
+                                <p class="text-xs font-semibold text-gray-500 mb-1">{{ $rpk->created_at ? $rpk->created_at->format('d M Y - H:i') : 'Tanggal tidak tersedia' }}</p>
+                                <h4 class="font-bold text-gray-800">Kegiatan Diajukan</h4>
+                                <p class="text-sm text-gray-600 mt-1">
+                                    Mahasiswa membuat draf rencana kegiatan dan mengajukannya ke sistem.
+                                </p>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
         </div>
 
     </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
+// --- LOGIKA TAB GESER (SWIPEABLE) ---
+const container = document.getElementById('tab-content-container');
+const buttons = document.querySelectorAll('.tab-btn');
+
+// Fungsi saat tombol tab diklik
+function geserTab(index) {
+    container.scrollTo({
+        left: container.clientWidth * index,
+        behavior: 'smooth'
+    });
+    updateGayaTab(index);
+}
+
+// Fungsi mendeteksi posisi geser (swipe layar HP) untuk mengubah tombol aktif
+container.addEventListener('scroll', () => {
+    // Math.round membantu mendeteksi div mana yang paling dominan terlihat di layar
+    let indexAktif = Math.round(container.scrollLeft / container.clientWidth);
+    updateGayaTab(indexAktif);
+});
+
+// Fungsi untuk mengganti warna tombol tab
+function updateGayaTab(index) {
+    buttons.forEach((btn, i) => {
+        if (i === index) {
+            btn.className = "tab-btn bg-white border-t border-l border-r border-gray-200 rounded-t-lg px-6 py-3 -mb-[1px] relative z-10 font-bold text-gray-800 whitespace-nowrap transition cursor-pointer";
+        } else {
+            btn.className = "tab-btn px-6 py-3 text-gray-500 font-bold hover:text-gray-700 whitespace-nowrap border-b border-transparent transition cursor-pointer";
+        }
+    });
+}
+
+
 // --- Script Hapus Kegiatan ---
 function hapusKegiatan(button) {
     Swal.fire({
@@ -200,13 +361,12 @@ function bindLogikaForm(prefix) {
 
 function validasiForm(prefix) {
     const master = document.getElementById(`${prefix}_master`).value;
-    const tgl = document.getElementById(`${prefix}_tanggal`).value;
     const kat = document.getElementById(`${prefix}_kategori`).value;
     const per = document.getElementById(`${prefix}_peran`).value;
     const jml = document.getElementById(`${prefix}_jumlah`).value;
 
-    if (!master || !tgl || !kat) {
-        Swal.showValidationMessage('Kegiatan, Tanggal, dan Kategori wajib diisi!');
+    if (!master || !kat) {
+        Swal.showValidationMessage('Kegiatan dan Kategori wajib diisi!');
         return false;
     }
     if (kat === 'Kelompok' && !per) {
@@ -252,11 +412,6 @@ function generateFormHTML(prefix) {
                 <label class="block text-xs font-semibold text-gray-500 mb-1">Poin</label>
                 <input type="text" id="${prefix}_poin" class="w-full bg-gray-50 border border-gray-300 text-gray-500 rounded-lg p-2 outline-none" readonly>
             </div>
-        </div>
-
-        <div class="mb-4">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Tanggal *</label>
-            <input type="date" id="${prefix}_tanggal" name="tanggal" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none" required>
         </div>
 
         <div class="mb-4">
@@ -334,7 +489,6 @@ function bukaModalEditKegiatan(button) {
             
             // Auto-fill data
             document.getElementById('edit_master').value = button.getAttribute('data-master');
-            document.getElementById('edit_tanggal').value = button.getAttribute('data-tanggal');
             document.getElementById('edit_kategori').value = button.getAttribute('data-kategori');
             
             // Trigger events to calculate readonly fields
@@ -355,6 +509,7 @@ function bukaModalEditKegiatan(button) {
         }
     });
 }
+
 </script>
 
 </x-app-layout>

@@ -19,16 +19,16 @@
         </h1>
 
         <div class="flex items-center gap-3">
-            <a href="{{ route('dosen.kegiatan.index') }}"
-               class="inline-flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition">
+            <a href="{{ route('dosen.rpk.index') }}"
+               class="inline-flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
                 Kembali
             </a>
 
-            @if($kegiatan->status == 'draft')
-                <button onclick="approveKegiatan({{ $kegiatan->id }})"
+            @if($rpk->status == 'draft')
+                <button onclick="approveKegiatan({{ $rpk->id }})"
                         class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
@@ -36,7 +36,7 @@
                     RPK Disetujui
                 </button>
 
-                <button onclick="rejectKegiatan({{ $kegiatan->id }})"
+                <button onclick="rejectKegiatan({{ $rpk->id }})"
                         class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -62,60 +62,60 @@
                 <div class="p-6 bg-white space-y-4">
                     <div class="grid grid-cols-3 gap-2">
                         <span class="col-span-1 text-sm font-bold text-gray-600">Nama</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $kegiatan->rpk->user->name }}</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->user->name }}</span>
                     </div>
                     
                     <div class="grid grid-cols-3 gap-2 pb-4 ">
                         <span class="col-span-1 text-sm font-bold text-gray-600">NIM</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $kegiatan->rpk->user->nim ?? '-' }}</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->user->nim ?? '-' }}</span>
                     </div>
 
                     <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
                         <span class="col-span-1 text-sm font-bold text-gray-600">Prodi</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $kegiatan->rpk->user->prodi ?? '-' }}</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->user->prodi ?? '-' }}</span>
                     </div>
 
                     <div class="grid grid-cols-3 gap-2 pt-2">
                         <span class="col-span-1 text-sm font-bold text-gray-600">Tahun RPK</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $kegiatan->rpk->tahun }}</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->tahun }}</span>
                     </div>
 
                     <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
                         <span class="col-span-1 text-sm font-bold text-gray-600">Semester</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $kegiatan->rpk->semester }}</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->semester }}</span>
                     </div>
 
                      <div class="grid grid-cols-3 gap-2 pb-4">
                         <span class="col-span-1 text-sm font-bold text-gray-600">Tanggal</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $kegiatan->tanggal }}</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->tanggal }}</span>
                     </div>
 
                     <div class="grid grid-cols-3 gap-2 pb-4">
                         <span class="col-span-1 text-sm font-bold text-gray-600">Kategori</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $kegiatan->kategori }}</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->kategori }}</span>
                     </div>
 
-                     @if($kegiatan->kategori == 'Kelompok')
+                     @if($rpk->kategori == 'Kelompok')
                     <div class="grid grid-cols-3 gap-2 pb-4">
                         <span class="col-span-1 text-sm font-bold text-gray-600">Peran</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $kegiatan->peran }}</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->peran }}</span>
                     </div>
                     <div class="grid grid-cols-3 gap-2 pb-4">
                         <span class="col-span-1 text-sm font-bold text-gray-600">Anggota</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $kegiatan->jumlah_anggota ?? '-' }}</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->jumlah_anggota ?? '-' }}</span>
                     </div>
                     @endif
 
                     <div class="grid grid-cols-3 gap-2 pb-4">
                         <span class="col-span-1 text-sm font-bold text-gray-600">Catatan Dosen</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $kegiatan->catatan_dosen ?? 'Belum ada catatan' }}</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->catatan_dosen ?? 'Belum ada catatan' }}</span>
                     </div>
 
                     <div class="col-span-2 md:col-span-4 mt-2 pt-3 border-t border-gray-200">
                         <span class="col-span-1 text-sm font-bold text-gray-600">Status Saat Ini</span>
-                         @if($kegiatan->status == 'draft')
+                         @if($rpk->status == 'draft')
                         <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold border border-yellow-200">Draft</span>
-                         @elseif($kegiatan->status == 'disetujui')
+                         @elseif($rpk->status == 'disetujui')
                         <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold border border-green-200">Disetujui</span>
                         @else
                         <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold border border-red-200">Ditolak</span>
@@ -156,15 +156,40 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr class="bg-white">
-                                        <td class="px-4 py-4 border-r border-gray-200">1</td>
-                                        <td class="px-4 py-4 border-r border-gray-200 font-medium text-gray-800">{{ $kegiatan->kegiatan }}</td>
-                                        <td class="px-4 py-4 border-r border-gray-200">{{ $kegiatan->jenis }}</td>
-                                        <td class="px-4 py-4 border-r border-gray-200">{{ $kegiatan->tingkat }}</td>
-                                        <td class="px-4 py-4 border-r border-gray-200">{{ $kegiatan->hasil }}</td>
-                                        <td class="px-4 py-4 border-r border-gray-200">{{ $kegiatan->masterKegiatan->poin ?? '-' }}</td>
-                                    </tr>
-                                </tbody>
+    @forelse($rpk->kegiatans as $kegiatan)
+    <tr class="bg-white">
+        <td class="px-4 py-4 border-r border-gray-200">
+            {{ $loop->iteration }}
+        </td>
+
+        <td class="px-4 py-4 border-r border-gray-200 font-medium text-gray-800">
+            {{ $kegiatan->kegiatan }}
+        </td>
+
+        <td class="px-4 py-4 border-r border-gray-200">
+            {{ $kegiatan->jenis }}
+        </td>
+
+        <td class="px-4 py-4 border-r border-gray-200">
+            {{ $kegiatan->tingkat }}
+        </td>
+
+        <td class="px-4 py-4 border-r border-gray-200">
+            {{ $kegiatan->hasil }}
+        </td>
+
+        <td class="px-4 py-4">
+            {{ $kegiatan->masterKegiatan->poin ?? '-' }}
+        </td>
+    </tr>
+    @empty
+    <tr>
+        <td colspan="6" class="text-center py-6 text-gray-500">
+            Belum ada kegiatan pada RPK ini
+        </td>
+    </tr>
+    @endforelse
+</tbody>
                             </table>
                         </div>
 
@@ -180,15 +205,15 @@
                             <div class="relative pl-6">
                                 <div class="absolute w-4 h-4 bg-blue-500 rounded-full -left-[9px] top-1 border-2 border-white shadow"></div>
                                 <p class="text-xs font-semibold text-blue-600 mb-1">Terbaru</p>
-                                <h4 class="font-bold text-gray-800">Status Diperbarui: {{ ucfirst($kegiatan->status) }}</h4>
+                                <h4 class="font-bold text-gray-800">Status Diperbarui: {{ ucfirst($rpk->status) }}</h4>
                                 <p class="text-sm text-gray-600 mt-1 bg-gray-50 p-3 rounded-lg border border-gray-100">
-                                    Catatan: {{ $kegiatan->catatan_dosen ?? 'Tidak ada catatan yang dilampirkan.' }}
+                                    Catatan: {{ $rpk->catatan_dosen ?? 'Tidak ada catatan yang dilampirkan.' }}
                                 </p>
                             </div>
 
                             <div class="relative pl-6">
                                 <div class="absolute w-4 h-4 bg-gray-300 rounded-full -left-[9px] top-1 border-2 border-white shadow"></div>
-                                <p class="text-xs font-semibold text-gray-500 mb-1">{{ $kegiatan->created_at ? $kegiatan->created_at->format('d M Y - H:i') : 'Tanggal tidak tersedia' }}</p>
+                                <p class="text-xs font-semibold text-gray-500 mb-1">{{ $rpk->created_at ? $rpk->created_at->format('d M Y - H:i') : 'Tanggal tidak tersedia' }}</p>
                                 <h4 class="font-bold text-gray-800">Kegiatan Diajukan</h4>
                                 <p class="text-sm text-gray-600 mt-1">
                                     Mahasiswa membuat draf rencana kegiatan dan mengajukannya ke sistem.
@@ -243,10 +268,10 @@ function updateGayaTab(index) {
 // --- LOGIKA SETUJUI & TOLAK ---
 function approveKegiatan(id) {
     Swal.fire({
-        title: 'Alasan Persetujuan',
+        title: 'Alasan RPK Disetujui',
         input: 'textarea',
         inputLabel: 'Catatan Dosen',
-        inputPlaceholder: 'Masukkan alasan kegiatan disetujui...',
+        inputPlaceholder: 'Masukkan alasan RPK disetujui...',
         showCancelButton: true,
         confirmButtonText: 'Setujui',
         confirmButtonColor: '#16a34a',
@@ -257,7 +282,7 @@ function approveKegiatan(id) {
         if(result.isConfirmed) {
             let form = document.createElement('form');
             form.method = 'POST';
-            form.action = '/dosen/kegiatan/' + id + '/approve';
+            form.action = '/dosen/rpk/' + id + '/approve';
             form.innerHTML = `
                 @csrf
                 <input type="hidden" name="_method" value="PUT">
@@ -271,10 +296,10 @@ function approveKegiatan(id) {
 
 function rejectKegiatan(id) {
     Swal.fire({
-        title: 'Alasan Penolakan',
+        title: 'Alasan RPK Ditolak',
         input: 'textarea',
         inputLabel: 'Catatan Dosen',
-        inputPlaceholder: 'Masukkan alasan kegiatan ditolak...',
+        inputPlaceholder: 'Masukkan alasan RPK ditolak...',
         showCancelButton: true,
         confirmButtonText: 'Tolak',
         confirmButtonColor: '#dc2626',
@@ -285,7 +310,7 @@ function rejectKegiatan(id) {
         if(result.isConfirmed) {
             let form = document.createElement('form');
             form.method = 'POST';
-            form.action = '/dosen/kegiatan/' + id + '/reject';
+            form.action = '/dosen/rpk/' + id + '/reject';
             form.innerHTML = `
                 @csrf
                 <input type="hidden" name="_method" value="PUT">

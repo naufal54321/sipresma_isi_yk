@@ -67,7 +67,7 @@
                                     @if ($role->name == 'Admin')
                                         <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">{{ $role->name }}</span>
                                     @elseif ($role->name == 'Dosen')
-                                        <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">{{ $role->name }}</span>
+                                        <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-semibold">{{ $role->name }}</span>
                                     @else
                                         <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">{{ $role->name }}</span>
                                     @endif
