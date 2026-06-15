@@ -26,17 +26,16 @@
         value="{{ request('tahun') }}"
         placeholder="Tahun"
         class="border rounded-lg p-2">
+<select name="prodi" class="border rounded-lg p-2">
+    <option value="">Semua Program Studi</option>
 
-    <select name="prodi" class="border rounded-lg p-2">
-        <option value="">Semua Program Studi</option>
-
-        @foreach($prodis as $prodi)
-            <option value="{{ $prodi }}"
-                {{ request('prodi') == $prodi ? 'selected' : '' }}>
-                {{ $prodi }}
-            </option>
-        @endforeach
-    </select>
+    @foreach($prodis as $prodi)
+        <option value="{{ $prodi->nama_prodi }}"
+            {{ request('prodi') == $prodi->nama_prodi ? 'selected' : '' }}>
+            {{ $prodi->nama_prodi }}
+        </option>
+    @endforeach
+</select>
 
 </div>
         <div class="mt-4 flex gap-2">
@@ -85,7 +84,6 @@
 
 @forelse($laporan as $item)
 
-<tr class="border-t">
 
     <td class="p-3">
         {{ $item->user->name }}

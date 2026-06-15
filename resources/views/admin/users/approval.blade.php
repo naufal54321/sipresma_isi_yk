@@ -1,5 +1,10 @@
 <x-app-layout>
 
+    @php
+
+    \Carbon\Carbon::setLocale('id');
+    @endphp
+
 <div class="max-w-7xl mx-auto py-6">
 
     <div class="mb-6">
@@ -58,7 +63,7 @@
 
                     <td class="px-4 py-3">
                     <div class="text-sm">
-                        {{ $user->created_at->format('d M Y') }}
+                       {{ $user->created_at->translatedFormat('d F Y') }}
                     </div>
                     <div class="text-sm text-gray-500">
                         {{ $user->created_at->format('H:i') }} WIB
@@ -139,7 +144,18 @@
 function confirmReject(id) {
     Swal.fire({
         title: 'Yakin?',
-        text: 'Akun akan ditolak dan dihapus permanen.',
+        html: `
+            <p>Akun akan ditolak dan dihapus permanen.</p>
+
+            <div style="margin-top:15px;text-align:left">
+                <label>
+                    <input type="checkbox"
+                           id="send_email"
+                           checked>
+                    Kirim email notifikasi
+                </label>
+            </div>
+        `,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
@@ -147,8 +163,25 @@ function confirmReject(id) {
         confirmButtonText: 'Ya, Tolak',
         cancelButtonText: 'Batal'
     }).then((result) => {
+
         if (result.isConfirmed) {
-            document.getElementById('reject-form-' + id).submit();
+
+            const form =
+                document.getElementById('reject-form-' + id);
+
+            const sendEmail =
+                document.getElementById('send_email').checked ? 1 : 0;
+
+            let input =
+                document.createElement('input');
+
+            input.type = 'hidden';
+            input.name = 'send_email';
+            input.value = sendEmail;
+
+            form.appendChild(input);
+
+            form.submit();
         }
     });
 }
@@ -156,7 +189,18 @@ function confirmReject(id) {
 function confirmApprove(id) {
     Swal.fire({
         title: 'Setujui akun?',
-        text: 'Mahasiswa akan dapat login ke sistem.',
+        html: `
+            <p>Mahasiswa akan dapat login ke sistem.</p>
+
+            <div style="margin-top:15px;text-align:left">
+                <label>
+                    <input type="checkbox"
+                           id="send_email"
+                           checked>
+                    Kirim email notifikasi
+                </label>
+            </div>
+        `,
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#16a34a',
@@ -164,11 +208,31 @@ function confirmApprove(id) {
         confirmButtonText: 'Ya, Setujui',
         cancelButtonText: 'Batal'
     }).then((result) => {
+
         if (result.isConfirmed) {
-            document.getElementById('approve-form-' + id).submit();
+
+            const form =
+                document.getElementById('approve-form-' + id);
+
+            const sendEmail =
+                document.getElementById('send_email').checked ? 1 : 0;
+
+            let input =
+                document.createElement('input');
+
+            input.type = 'hidden';
+            input.name = 'send_email';
+            input.value = sendEmail;
+
+            form.appendChild(input);
+
+            form.submit();
         }
     });
 }
 </script>
+
+
+
 
 </x-app-layout>

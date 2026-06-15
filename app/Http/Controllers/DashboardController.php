@@ -99,7 +99,7 @@ class DashboardController extends Controller
                 ->map(function ($item) {
                     return [
                         'aktor'      => $item->rpk->user->name ?? '-',
-                        'role'       => 'Mahasiswa',
+                        'role'       => 'Mahasiswa', 
                         'jenis'      => 'RPK',
                         'aktivitas'  => 'Mengajukan RPK : '.$item->kegiatan,
                         'status'     => $item->status,
@@ -128,20 +128,21 @@ class DashboardController extends Controller
             // ==========================
             // AKTIVITAS DOSEN - RPK
             // ==========================
-            $aktivitasRpkDosen = Kegiatan::with('rpk.user')
+            $aktivitasRpkDosen = Kegiatan::with(['rpk.user.dosenPembimbing']) // Tambahkan relasi dosen
                 ->whereIn('status', ['disetujui','ditolak'])
                 ->latest('updated_at')
                 ->take(10)
                 ->get()
                 ->map(function ($item) {
                     return [
-                        'aktor' => 'Dosen',
-                        'role' => 'Dosen',
-                        'jenis' => 'RPK',
-                        'aktivitas' => $item->status == 'disetujui'
+                        // Ambil nama Dosen Pembimbing dari relasi User
+                        'aktor'      => $item->rpk->user->dosenPembimbing->name ?? 'Dosen (Tidak Diketahui)',
+                        'role'       => 'Dosen',
+                        'jenis'      => 'RPK',
+                        'aktivitas'  => $item->status == 'disetujui'
                             ? 'Menyetujui RPK "' . $item->kegiatan . '" milik ' . ($item->rpk->user->name ?? '-')
                             : 'Menolak RPK "' . $item->kegiatan . '" milik ' . ($item->rpk->user->name ?? '-'),
-                        'status' => $item->status,
+                        'status'     => $item->status,
                         'created_at' => $item->updated_at,
                     ];
                 });
@@ -149,20 +150,21 @@ class DashboardController extends Controller
             // ==========================
             // AKTIVITAS DOSEN - SPK
             // ==========================
-            $aktivitasSpkDosen = Spk::with('user')
+            $aktivitasSpkDosen = Spk::with(['user.dosenPembimbing']) // Tambahkan relasi dosen
                 ->whereIn('status', ['disetujui','ditolak'])
                 ->latest('updated_at')
                 ->take(10)
                 ->get()
                 ->map(function ($item) {
                     return [
-                        'aktor' => 'Dosen',
-                        'role' => 'Dosen',
-                        'jenis' => 'SPK',
-                        'aktivitas' => $item->status == 'disetujui'
+                        // Ambil nama Dosen Pembimbing dari relasi User
+                        'aktor'      => $item->user->dosenPembimbing->name ?? 'Dosen (Tidak Diketahui)',
+                        'role'       => 'Dosen',
+                        'jenis'      => 'SPK',
+                        'aktivitas'  => $item->status == 'disetujui'
                             ? 'Menyetujui SPK "' . ($item->kegiatan->kegiatan ?? '-') . '" milik ' . ($item->user->name ?? '-')
                             : 'Menolak SPK "' . ($item->kegiatan->kegiatan ?? '-') . '" milik ' . ($item->user->name ?? '-'),
-                        'status' => $item->status,
+                        'status'     => $item->status,
                         'created_at' => $item->updated_at,
                     ];
                 });

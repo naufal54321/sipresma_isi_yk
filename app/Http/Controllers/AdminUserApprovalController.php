@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\AccountApprovedMail;
+use App\Mail\AccountRejectedMail;
+use Illuminate\Http\Request;
 
 class AdminUserApprovalController extends Controller
 {
@@ -19,25 +23,29 @@ class AdminUserApprovalController extends Controller
         );
     }
 
-    public function approve(User $user)
+    public function approve(Request $request, User $user)
 {
     $user->update([
         'status' => 'aktif'
     ]);
 
-    return redirect()
-        ->route('admin.users.approval')
-        ->with('success', 'Akun berhasil disetujui');
+    if ($request->send_email == 1) {
+        Mail::to($user->email)
+            ->send(new AccountApprovedMail($user));
+    }
+
+    return back()->with('success', 'Akun berhasil disetujui');
 }
 
-public function reject(User $user)
+    public function reject(Request $request, User $user)
 {
+    if ($request->send_email == 1) {
+        Mail::to($user->email)
+            ->send(new AccountRejectedMail($user));
+    }
+
     $user->delete();
 
-    return redirect()
-        ->route('admin.users.approval')
-        ->with('success', 'Akun ditolak dan dihapus');
+    return back()->with('success', 'Akun berhasil ditolak');
 }
-
-   
 }

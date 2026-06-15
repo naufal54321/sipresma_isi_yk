@@ -130,8 +130,23 @@
                     </div>
                 </div>
             </div>
-        </div>
 
+            <div class="mt-6 bg-cyan-50 border border-cyan-100 rounded-xl p-6 shadow-sm">
+                <h3 class="text-xl text-slate-600 mb-3">Catatan!</h3>
+                <p class="text-sm text-slate-600 leading-relaxed mb-4">
+                    Pastikan Dosen Pembimbing mengecek kesesuaian data yang diajukan dengan ketentuan kegiatan ( <a href="#" class="text-blue-600 hover:underline">Klik di sini</a>) sebelum melakukan VALIDASI.<br>
+                    Apabila terdapat poin yang tidak sesuai Dosen Pembimbing dapat meminta REVISI dan menulis pesan kepada Mahasiswa ybs.
+                </p>
+                
+                <div class="border-t border-cyan-200/60 my-4"></div>
+                
+                <p class="text-sm text-red-500 leading-relaxed">
+                    Note: Kesalahan prosedural dan/atau ketidakcermatan akan mengakibatkan proses penyelesaian semakin sulit dan lama.
+                </p>
+            </div>
+            </div>
+
+        
         <div class="lg:col-span-8">
             <div class="bg-white border border-gray-200 shadow-sm rounded-xl overflow-hidden flex flex-col h-full">
                 

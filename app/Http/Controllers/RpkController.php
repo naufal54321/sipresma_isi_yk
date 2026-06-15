@@ -22,22 +22,22 @@ class RpkController extends Controller
         // 2. Terapkan query filter
         $rpks = Rpk::with(['user', 'kegiatans'])
             ->where('user_id', Auth::id())
-            
+
             // Jika tahun dipilih, saring berdasarkan tahun
             ->when($filterTahun, function ($query) use ($filterTahun) {
                 return $query->where('tahun', $filterTahun);
             })
-            
+
             // Jika semester dipilih, saring berdasarkan semester
             ->when($filterSemester, function ($query) use ($filterSemester) {
                 return $query->where('semester', $filterSemester);
             })
-            
+
             // Jika status dipilih, saring berdasarkan status
             ->when($filterStatus, function ($query) use ($filterStatus) {
                 return $query->where('status', $filterStatus);
             })
-            
+
             ->latest()
             ->get();
 
@@ -64,25 +64,25 @@ class RpkController extends Controller
      * Simpan RPK
      */
     public function store(Request $request)
-{
-    $request->validate([
-        'tahun' => 'required',
-        'semester' => 'required',
-        'kategori' => 'required',
-    ]);
+    {
+        $request->validate([
+            'tahun' => 'required',
+            'semester' => 'required',
+            'kategori' => 'required',
+        ]);
 
-    Rpk::create([
-        'user_id' => auth()->id(),
-        'tahun' => $request->tahun,
-        'semester' => $request->semester,
-        'kategori' => $request->kategori,
-        'status' => 'draft', // wajib
-    ]);
+        Rpk::create([
+            'user_id' => Auth::id(), // <-- Gunakan ini
+            'tahun' => $request->tahun,
+            'semester' => $request->semester,
+            'kategori' => $request->kategori,
+            'status' => 'draft', // wajib
+        ]);
 
-    return redirect()
-        ->route('rpks.index')
-        ->with('success', 'RPK berhasil dibuat');
-}
+        return redirect()
+            ->route('rpks.index')
+            ->with('success', 'RPK berhasil dibuat');
+    }
 
     /**
      * Detail RPK + daftar kegiatan
@@ -91,20 +91,20 @@ class RpkController extends Controller
      * Detail RPK + daftar kegiatan
      */
 
-public function show(Rpk $rpk)
-{
-    $rpk->load([
-        'user',
-        'kegiatans.masterKegiatan'
-    ]);
+    public function show(Rpk $rpk)
+    {
+        $rpk->load([
+            'user',
+            'kegiatans.masterKegiatan'
+        ]);
 
-    $masterKegiatans = MasterKegiatan::where('status', 'aktif')->get();
+        $masterKegiatans = MasterKegiatan::where('status', 'aktif')->get();
 
-    return view('rpks.show', compact(
-        'rpk',
-        'masterKegiatans'
-    ));
-}
+        return view('rpks.show', compact(
+            'rpk',
+            'masterKegiatans'
+        ));
+    }
 
     /**
      * Form edit RPK

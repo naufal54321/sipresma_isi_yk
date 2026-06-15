@@ -1,6 +1,10 @@
 <x-app-layout>
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
 @php
+
+    \Carbon\Carbon::setLocale('id');
     // Trik: Mengambil data prodi yang aktif langsung dari model
     $programStudis = \App\Models\ProgramStudi::where('status', 'aktif')
                         ->orderBy('nama_prodi', 'asc')
@@ -26,6 +30,22 @@
                     <input type="text" id="globalSearch"
                         placeholder="Cari"
                         class="border rounded-xl px-4 py-2 text-sm w-64 focus:ring focus:ring-blue-200">
+
+                    <div class="relative">
+    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+        <i class="fas fa-filter"></i>
+    </span>
+
+    <select id="roleFilter"
+        class="border border-gray-300 rounded-xl pl-10 pr-8 py-2 text-sm bg-white
+               focus:ring-2 focus:ring-blue-300 focus:border-blue-400
+               outline-none transition">
+        <option value="">Semua Role</option>
+        <option value="Mahasiswa">Mahasiswa</option>
+        <option value="Dosen">Dosen</option>
+        <option value="Admin">Admin</option>
+    </select>
+</div>
 
                     <span id="totalUser"
                         class="bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold">
@@ -60,7 +80,9 @@
                             <td class="px-4 py-4 text-center font-semibold text-gray-800">{{ $loop->iteration }}</td>
                             <td class="px-4 py-4 font-semibold text-gray-800">{{ $user->name }}</td>
                             <td class="px-4 py-4">{{ $user->nim }}</td>
-                            <td class="px-4 py-4">{{ $user->prodi }}</td>
+                            <td class="px-4 py-4">
+                                {{ $user->prodi ?: '-' }}
+                            </td>
                             <td class="px-4 py-4">{{ $user->email }}</td>
                             <td class="px-4 py-4 text-center">
                                 @foreach ($user->roles as $role)
@@ -73,7 +95,12 @@
                                     @endif
                                 @endforeach
                             </td>
-                            <td class="px-4 py-4">{{ $user->created_at->translatedFormat('d F Y') }}</td>
+                            <td class="px-4 py-4"> {{ $user->created_at->translatedFormat('d F Y') }}
+                                <div class="text-sm text-gray-500">
+                                {{ $user->created_at->format('H:i') }} WIB
+                                </div>
+                            </td>
+                            
                             <td class="px-4 py-4">
                                 <div class="flex items-center gap-2">
                                     <button onclick="editUser({{ $user->id }})"
@@ -131,7 +158,7 @@ function renderUser(user) {
         <td class="px-4 py-4 text-center font-semibold text-gray-800">0</td>
         <td class="px-4 py-4 font-semibold text-gray-800">${user.name}</td>
         <td class="px-4 py-4">${user.nim}</td>
-        <td class="px-4 py-4">${user.prodi}</td>
+        <td class="px-4 py-4">${user.prodi || '-'}</td>
         <td class="px-4 py-4">${user.email}</td>
         <td class="px-4 py-4 text-center">
             <span class="${roleColor} px-3 py-1 rounded-full text-xs font-semibold">${roleName}</span>
@@ -170,6 +197,9 @@ function addUser() {
             confirmButton: 'btn-simpan',
             cancelButton: 'btn-batal'
         },
+        position: 'top',
+        heightAuto: false,
+
         html: `
         <style>
             div:where(.swal2-container) h2:where(.swal2-title) {
@@ -177,9 +207,18 @@ function addUser() {
                 padding: 25px 40px 15px 30px !important; margin: 0 !important;
                 border-bottom: 1px solid #eee;
             }
+            /* Ubah padding dari 25px 30px menjadi lebih kecil */
             div:where(.swal2-container) div:where(.swal2-html-container) {
-                padding: 25px 30px 10px 30px !important; margin: 0 !important;
+                padding: 15px 20px 20px 20px !important;
             }
+
+            /* Perkecil jarak antar baris */
+            .form-row { margin-bottom: 10px; }
+                
+            }
+            .swal2-popup{ overflow: visible !important; }
+            .form-row{ overflow: visible !important; }
+            .input-wrapper{ overflow: visible !important; }
             div:where(.swal2-container) div:where(.swal2-actions) {
                 justify-content: flex-end !important; width: 100%;
                 margin: 0 !important; padding: 0 30px 25px 0 !important; box-sizing: border-box;
@@ -220,14 +259,6 @@ function addUser() {
             </div>
         </div>
         <div class="form-row">
-            <label>Program Studi <span>*</span></label>
-            <div class="input-wrapper">
-                <select id="prodi" class="custom-input">
-                    ${getProdiOptions()}
-                </select>
-            </div>
-        </div>
-        <div class="form-row">
             <label>Roles <span>*</span></label>
             <div class="input-wrapper">
                 <select id="role" class="custom-input">
@@ -235,6 +266,14 @@ function addUser() {
                     <option value="Mahasiswa">Mahasiswa</option>
                     <option value="Dosen">Dosen</option>
                     <option value="Admin">Admin</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row" style="margin-bottom:35px;">
+            <label>Program Studi <span>*</span></label>
+            <div class="input-wrapper" id="prodiWrapper">
+                <select id="prodi" class="custom-input">
+                    ${getProdiOptions()}
                 </select>
             </div>
         </div>
@@ -255,6 +294,11 @@ function addUser() {
         `,
 
         didOpen: () => {
+            const popup = Swal.getPopup();
+            popup.style.marginTop = '10px';
+            popup.style.overflow = 'visible';
+
+            // Toggle Password
             const toggle = document.getElementById('togglePassword');
             const passInput = document.getElementById('password');
             toggle?.addEventListener('click', function () {
@@ -262,6 +306,18 @@ function addUser() {
                 passInput.setAttribute('type', type);
                 this.classList.toggle('fa-eye');
                 this.classList.toggle('fa-eye-slash');
+            });
+
+            // Role Change Listener untuk Input Manual Prodi
+            const roleSelect = document.getElementById('role');
+            const prodiWrapper = document.getElementById('prodiWrapper');
+
+            roleSelect?.addEventListener('change', function () {
+                if (this.value === 'Admin' || this.value === 'Dosen') {
+                    prodiWrapper.innerHTML = '<input id="prodi" type="text" class="custom-input" placeholder="Masukkan Program Studi / Fakultas secara manual">';
+                } else {
+                    prodiWrapper.innerHTML = '<select id="prodi" class="custom-input">' + getProdiOptions() + '</select>';
+                }
             });
         },
 
@@ -319,6 +375,8 @@ function editUser(id) {
     .then(res => res.json())
     .then(user => {
 
+        let isManualInput = ['Admin', 'Dosen'].includes(user.roles?.[0]?.name);
+
         Swal.fire({
             title: 'Edit Data Pengguna',
             width: '600px',
@@ -332,6 +390,9 @@ function editUser(id) {
                 confirmButton: 'btn-simpan',
                 cancelButton: 'btn-batal'
             },
+            position: 'top',
+            heightAuto: false,
+
             html: `
             <style>
                 div:where(.swal2-container) h2:where(.swal2-title) {
@@ -339,17 +400,23 @@ function editUser(id) {
                     padding: 25px 40px 15px 30px !important; margin: 0 !important;
                     border-bottom: 1px solid #eee;
                 }
+                /* Ubah padding dari 25px 30px menjadi lebih kecil */
                 div:where(.swal2-container) div:where(.swal2-html-container) {
-                    padding: 25px 30px 10px 30px !important; margin: 0 !important;
+                    padding: 15px 20px 20px 20px !important;
                 }
+
+                /* Perkecil jarak antar baris */
+                .form-row { margin-bottom: 10px; 
+                }
+                .swal2-popup{ overflow: visible !important; }
+                .form-row{ display: flex; align-items: center; margin-bottom: 20px; overflow: visible !important; }
+                .input-wrapper{ width: 72%; overflow: visible !important; }
                 div:where(.swal2-container) div:where(.swal2-actions) {
                     justify-content: flex-end !important; width: 100%;
                     margin: 0 !important; padding: 0 30px 25px 0 !important; box-sizing: border-box;
                 }
-                .form-row { display: flex; align-items: center; margin-bottom: 20px; }
                 .form-row label { width: 28%; text-align: left; font-weight: 600; color: #555; font-size: 14px; }
                 .form-row label span { color: red; }
-                .form-row .input-wrapper { width: 72%; }
                 .custom-input {
                     width: 100%; padding: 10px 12px; border: 1px solid #ccc;
                     border-radius: 4px; font-size: 14px; color: #333;
@@ -381,14 +448,6 @@ function editUser(id) {
                 </div>
             </div>
             <div class="form-row">
-                <label>Program Studi <span>*</span></label>
-                <div class="input-wrapper">
-                    <select id="prodi" class="custom-input">
-                        ${getProdiOptions(user.prodi)}
-                    </select>
-                </div>
-            </div>
-            <div class="form-row">
                 <label>Roles <span>*</span></label>
                 <div class="input-wrapper">
                     <select id="role" class="custom-input">
@@ -398,6 +457,15 @@ function editUser(id) {
                     </select>
                 </div>
             </div>
+            <div class="form-row" style="margin-bottom:35px;">
+                <label>Program Studi <span>*</span></label>
+                <div class="input-wrapper" id="prodiWrapper">
+                    ${isManualInput 
+                        ? `<input id="prodi" type="text" class="custom-input" value="${user.prodi || ''}" placeholder="Masukkan Program Studi / Fakultas">`
+                        : `<select id="prodi" class="custom-input">${getProdiOptions(user.prodi)}</select>`
+                    }
+                </div>
+            </div>
             <div class="form-row">
                 <label>Email <span>*</span></label>
                 <div class="input-wrapper">
@@ -405,6 +473,24 @@ function editUser(id) {
                 </div>
             </div>
             `,
+
+            didOpen: () => {
+                const popup = Swal.getPopup();
+                popup.style.marginTop = '10px';
+                popup.style.overflow = 'visible';
+
+                // Role Change Listener untuk Input Manual Prodi
+                const roleSelect = document.getElementById('role');
+                const prodiWrapper = document.getElementById('prodiWrapper');
+
+                roleSelect?.addEventListener('change', function () {
+                    if (this.value === 'Admin' || this.value === 'Dosen') {
+                        prodiWrapper.innerHTML = `<input id="prodi" type="text" class="custom-input" value="${user.prodi || ''}" placeholder="Masukkan Program Studi / Fakultas secara manual">`;
+                    } else {
+                        prodiWrapper.innerHTML = `<select id="prodi" class="custom-input">${getProdiOptions(user.prodi)}</select>`;
+                    }
+                });
+            },
 
             preConfirm: () => ({
                 name:  document.getElementById('name').value,
@@ -431,13 +517,13 @@ function editUser(id) {
                 const row = document.getElementById(`row-${id}`);
                 row.children[1].innerText = result.value.name;
                 row.children[2].innerText = result.value.nim;
-                row.children[3].innerText = result.value.prodi;
+                row.children[3].innerText = result.value.prodi || '-';
                 row.children[4].innerText = result.value.email;
 
                 let roleName  = result.value.role;
                 let roleColor = 'bg-blue-100 text-blue-700';
                 if (roleName === 'Admin') roleColor = 'bg-red-100 text-red-700';
-                if (roleName === 'Dosen') roleColor = 'bg-green-100 text-green-700';
+                if (roleName === 'Dosen') roleColor = 'bg-purple-100 text-purple-700';
 
                 row.children[5].innerHTML = `
                     <span class="${roleColor} px-3 py-1 rounded-full text-xs font-semibold">
@@ -513,15 +599,42 @@ function updateTotalUser() {
 // =============================================
 // GLOBAL SEARCH
 // =============================================
-document.getElementById('globalSearch').addEventListener('keyup', function () {
-    let filter = this.value.toLowerCase().trim();
-    document.querySelectorAll('tbody tr').forEach(row => {
-        let rowText = Array.from(row.querySelectorAll('td'))
-            .map(td => td.textContent.toLowerCase())
-            .join(' ');
-        row.style.display = rowText.includes(filter) ? '' : 'none';
+function filterTable() {
+    let searchText = document.getElementById('globalSearch')
+        .value.toLowerCase()
+        .trim();
+
+    let roleFilter = document.getElementById('roleFilter')
+        .value
+        .toLowerCase();
+
+    document.querySelectorAll('#userTable tr').forEach(row => {
+
+        let rowText = row.textContent.toLowerCase();
+
+        let roleCell = row.children[5];
+        let roleText = roleCell
+            ? roleCell.textContent.toLowerCase().trim()
+            : '';
+
+        let matchSearch = rowText.includes(searchText);
+
+        let matchRole =
+            roleFilter === '' ||
+            roleText.includes(roleFilter);
+
+        row.style.display =
+            (matchSearch && matchRole)
+                ? ''
+                : 'none';
     });
-});
+}
+
+document.getElementById('globalSearch')
+    .addEventListener('keyup', filterTable);
+
+document.getElementById('roleFilter')
+    .addEventListener('change', filterTable);
 </script>
 
 </x-app-layout>

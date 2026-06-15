@@ -133,7 +133,7 @@
         <h2>Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi</h2>
         <h1>Institut Seni Indonesia Yogyakarta</h1>
         <p>Jalan Parangtritis Km. 6,5 Sewon, Bantul, Yogyakarta 55188</p>
-        <p>Telepon: (0274) 379133, 373659 | Laman: www.isi.ac.id | Surel: rektorat@isi.ac.id</p>
+        <p>Telepon: (0274) 379133, 373659 | Laman: www.isi.ac.id </p>
     </div>
 
     <div class="judul-dokumen">

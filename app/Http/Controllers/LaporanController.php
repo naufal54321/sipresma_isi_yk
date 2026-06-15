@@ -9,6 +9,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\LaporanPrestasiExport;
 use App\Http\Controllers\Controller;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\ProgramStudi;
 
 class LaporanController extends Controller
 {
@@ -46,11 +47,9 @@ if ($request->filled('nama')) {
         ->withQueryString();
 
     // Dropdown Prodi
-    $prodis = User::role('Mahasiswa')
-        ->select('prodi')
-        ->distinct()
-        ->orderBy('prodi')
-        ->pluck('prodi');
+    $prodis = ProgramStudi::where('status', 'aktif')
+    ->orderBy('nama_prodi')
+    ->get();
 
     $totalMahasiswa = User::role('Mahasiswa')->count();
     $totalDosen = User::role('Dosen')->count();
@@ -96,7 +95,7 @@ if ($request->filled('nama')) {
 
     $laporan = $query->get();
 
-    $fileName = 'laporan_prestasi.csv';
+    $fileName = 'laporan-prestasi-mahasiswa-isi-yk.csv';
 
     $headers = [
         'Content-Type' => 'text/csv',
@@ -173,6 +172,6 @@ public function exportPdf(Request $request)
 
     $pdf->setPaper('A4', 'landscape');
 
-    return $pdf->download('laporan-prestasi.pdf');
+    return $pdf->download('laporan-prestasi-mahasiswa-isi-yk.pdf');
 }
 }

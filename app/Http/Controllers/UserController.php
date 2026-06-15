@@ -24,29 +24,36 @@ class UserController extends Controller
     | STORE AJAX
     |-----------------------------------
     */
-    
+
     // Tambah index() jika belum ada
-public function index()
-{
-    $users = User::with('roles')->latest()->get(); // ✅ DESC (baru ke lama)
-    return view('admin.users.index', compact('users'));
-}
-    
+    public function index()
+    {
+        $users = User::with('roles')->latest()->get(); // ✅ DESC (baru ke lama)
+        return view('admin.users.index', compact('users'));
+    }
+
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required',
             'nim' => 'required|unique:users,nim',
-            'prodi' => 'required',
+            'prodi' => 'nullable',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6',
             'role' => 'required',
         ]);
 
+        if ($request->role === 'Mahasiswa' && empty($request->prodi)) {
+            return response()->json([
+                'message' => 'Program Studi wajib diisi untuk Mahasiswa'
+            ], 422);
+        }
+
+        // PERBAIKAN: Langsung simpan nilai prodi tanpa memaksa null
         $user = User::create([
             'name' => $request->name,
             'nim' => $request->nim,
-            'prodi' => $request->prodi,
+            'prodi' => $request->prodi, // <--- Ubah bagian ini
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
@@ -81,15 +88,22 @@ public function index()
         $request->validate([
             'name' => 'required',
             'nim' => 'required',
-            'prodi' => 'required',
+            'prodi' => 'nullable',
             'email' => 'required|email',
             'role' => 'required',
         ]);
 
+        if ($request->role === 'Mahasiswa' && empty($request->prodi)) {
+            return response()->json([
+                'message' => 'Program Studi wajib diisi untuk Mahasiswa'
+            ], 422);
+        }
+
+        // PERBAIKAN: Langsung simpan nilai prodi tanpa memaksa null
         $user->update([
             'name' => $request->name,
             'nim' => $request->nim,
-            'prodi' => $request->prodi,
+            'prodi' => $request->prodi, // <--- Ubah bagian ini
             'email' => $request->email,
         ]);
 
@@ -100,7 +114,6 @@ public function index()
             'user' => $user->load('roles')
         ]);
     }
-
     /*
     |-----------------------------------
     | DELETE AJAX
@@ -116,32 +129,31 @@ public function index()
     }
 
     public function pembimbingIndex()
-{
-    $mahasiswa = User::role('Mahasiswa')->get();
-    $dosen = User::role('Dosen')->get();
+    {
+        $mahasiswa = User::role('Mahasiswa')->get();
+        $dosen = User::role('Dosen')->get();
 
-    return view('admin.pembimbing.index', compact('mahasiswa', 'dosen'));
-}
+        return view('admin.pembimbing.index', compact('mahasiswa', 'dosen'));
+    }
 
-public function setPembimbing(Request $request)
-{
-    $mahasiswa = User::findOrFail($request->mahasiswa_id);
+    public function setPembimbing(Request $request)
+    {
+        $mahasiswa = User::findOrFail($request->mahasiswa_id);
 
-    $mahasiswa->dosen_pembimbing_id =
-        $request->filled('dosen_id')
+        $mahasiswa->dosen_pembimbing_id =
+            $request->filled('dosen_id')
             ? $request->dosen_id
             : null;
 
-    $mahasiswa->save();
+        $mahasiswa->save();
 
-    return back()->with('success', 'Data berhasil disimpan');
-}
+        return back()->with('success', 'Data berhasil disimpan');
+    }
 
-public function getUsersData()
-{
-    $users = User::orderBy('created_at', 'desc')->get();
+    public function getUsersData()
+    {
+        $users = User::orderBy('created_at', 'desc')->get();
 
-    return response()->json($users);
-}
-
+        return response()->json($users);
+    }
 }

@@ -1,5 +1,6 @@
 <x-app-layout>
 
+
 <div class="py-8">
 <div class="max-w-8xl mx-auto py-6">
 
@@ -207,7 +208,7 @@
             <table class="min-w-full table-auto">
     <thead class="bg-gray-50">
 <tr>
-    <th class="px-4 py-3 text-left">Aktor</th>
+    <th class="px-4 py-3 text-left">Nama</th>
     <th class="px-4 py-3 text-left">Role</th>
     <th class="px-4 py-3 text-left">Aktivitas</th>
     <th class="px-4 py-3 text-left">Waktu</th>
@@ -247,17 +248,16 @@
         {{ $item['aktivitas'] }}
     </td>
 
-    <td class="px-4 py-3">
+  <td class="px-4 py-3">
+    <div>
+        <!-- Gunakan locale('id') dan isoFormat('DD MMMM YYYY') -->
+        {{ \Carbon\Carbon::parse($item['created_at'])->locale('id')->isoFormat('DD MMMM YYYY') }}
+    </div>
 
-        <div>
-            {{ \Carbon\Carbon::parse($item['created_at'])->format('d M Y') }}
-        </div>
-
-        <div class="text-xs text-gray-500">
-            {{ \Carbon\Carbon::parse($item['created_at'])->format('H:i') }} WIB
-        </div>
-
-    </td>
+    <div class="text-xs text-gray-500">
+        {{ \Carbon\Carbon::parse($item['created_at'])->format('H:i') }} WIB
+    </div>
+</td>
 
     <td class="px-4 py-3">
 
@@ -288,7 +288,7 @@
 @empty
 
 <tr>
-    <td colspan="6" class="text-center py-6 text-gray-500">
+    <td colspan="5" class="text-center py-6 text-gray-500">
         Belum ada aktivitas
     </td>
 </tr>
@@ -366,9 +366,10 @@ new Chart(document.getElementById('summaryChart'), {
             ],
             backgroundColor: [
                 '#3b82f6',
-                '#22c55e',
+                '#8b5cf6',
                 '#f97316',
-                '#8b5cf6'
+                '#22c55e'
+                
             ]
         }]
     },

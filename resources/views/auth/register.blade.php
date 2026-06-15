@@ -57,19 +57,10 @@
 
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-white/60">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M9 17v-2a4 4 0 014-4h4">
-                            </path>
-                            <path stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M13 7h4v4">
-                            </path>
-                        </svg>
+                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+  <path fill-rule="evenodd" d="M9.493 2.852a.75.75 0 0 0-1.486-.204L7.545 6H4.198a.75.75 0 0 0 0 1.5h3.14l-.69 5H3.302a.75.75 0 0 0 0 1.5h3.14l-.435 3.148a.75.75 0 0 0 1.486.204L7.955 14h2.986l-.434 3.148a.75.75 0 0 0 1.486.204L12.456 14h3.346a.75.75 0 0 0 0-1.5h-3.14l.69-5h3.346a.75.75 0 0 0 0-1.5h-3.14l.435-3.148a.75.75 0 0 0-1.486-.204L12.045 6H9.059l.434-3.148ZM8.852 7.5l-.69 5h2.986l.69-5H8.852Z" clip-rule="evenodd" />
+</svg>
+
                     </span>
 
                     <x-text-input
@@ -92,38 +83,36 @@
                                     ->orderBy('nama_prodi', 'asc')
                                     ->get();
             @endphp
+<div class="mb-3">
+    <x-input-label for="prodi" :value="__('Program Studi')" class="sr-only" />
 
-            <div class="mb-3">
-                <x-input-label for="prodi" :value="__('Program Studi')" class="sr-only" />
+    <div class="relative">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-white/60">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                </path>
+            </svg>
+        </span>
 
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-white/60">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                        </svg>
-                    </span>
+        <input
+            id="prodi"
+            name="prodi"
+            list="daftar-prodi"
+            value="{{ old('prodi') }}"
+            placeholder="Pilih Program Studi"
+            class="block w-full rounded-lg backdrop-blur-sm bg-white/10 border border-white/20 text-white placeholder-white/60 py-2 pl-12 pr-4 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+            required>
 
-                    <select id="prodi" 
-                            name="prodi" 
-                            class="block w-full rounded-full backdrop-blur-sm bg-white/10 border border-white/20 text-white placeholder-white/60 py-2 pl-12 pr-10 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 appearance-none [&>option]:text-gray-900" 
-                            required>
-                        <option value="" class="text-gray-500">Pilih Program Studi</option>
-                        @foreach($programStudis as $prodi)
-                            <option value="{{ $prodi->nama_prodi }}" {{ old('prodi') == $prodi->nama_prodi ? 'selected' : '' }}>
-                                {{ $prodi->nama_prodi }}
-                            </option>
-                        @endforeach
-                    </select>
-                    
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-white/60">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </div>
-                </div>
+        <datalist id="daftar-prodi">
+            @foreach($programStudis as $prodi)
+                <option value="{{ $prodi->nama_prodi }}">
+            @endforeach
+        </datalist>
+    </div>
 
-                <x-input-error :messages="$errors->get('prodi')" class="mt-1 text-red-200 text-xs" />
-            </div>
+    <x-input-error :messages="$errors->get('prodi')" class="mt-1 text-red-200 text-xs" />
+</div>
 
             {{-- Email --}}
             <div class="mb-3">
@@ -131,14 +120,10 @@
 
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-white/60">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0z">
-                            </path>
-                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+  <path fill-rule="evenodd" d="M5.404 14.596A6.5 6.5 0 1 1 16.5 10a1.25 1.25 0 0 1-2.5 0 4 4 0 1 0-.571 2.06A2.75 2.75 0 0 0 18 10a8 8 0 1 0-2.343 5.657.75.75 0 0 0-1.06-1.06 6.5 6.5 0 0 1-9.193 0ZM10 7.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z" clip-rule="evenodd" />
+</svg>
+
                     </span>
 
                     <x-text-input
@@ -253,4 +238,5 @@ Swal.fire({
 });
 </script>
 @endif
+
 </x-guest-layout>

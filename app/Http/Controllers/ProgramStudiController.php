@@ -21,9 +21,14 @@ class ProgramStudiController extends Controller
             'status' => 'required'
         ]);
 
-        ProgramStudi::create($request->all());
+        ProgramStudi::create([
+            'nama_prodi' => $request->nama_prodi,
+            'status' => $request->status
+        ]);
 
-        return redirect()->route('admin.prodi.index')->with('success', 'Program Studi berhasil ditambahkan');
+        return redirect()
+            ->route('admin.prodi.index')
+            ->with('success', 'Program Studi berhasil ditambahkan');
     }
 
     public function update(Request $request, ProgramStudi $prodi)
@@ -33,14 +38,22 @@ class ProgramStudiController extends Controller
             'status' => 'required'
         ]);
 
-        $prodi->update($request->all());
+        $prodi->update([
+            'nama_prodi' => $request->nama_prodi,
+            'status' => $request->status
+        ]);
 
-        return redirect()->route('admin.prodi.index')->with('success', 'Program Studi berhasil diupdate');
+        return redirect()
+            ->route('admin.prodi.index')
+            ->with('success', 'Program Studi berhasil diupdate');
     }
 
     public function destroy(ProgramStudi $prodi)
     {
         $prodi->delete();
-        return redirect()->route('admin.prodi.index')->with('success', 'Program Studi berhasil dihapus');
+
+        return redirect()
+            ->route('admin.prodi.index')
+            ->with('success', 'Program Studi berhasil dihapus');
     }
 }
