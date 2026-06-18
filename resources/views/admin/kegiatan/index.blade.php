@@ -27,26 +27,47 @@
                 </div>
             </div>
 
-            <div class="bg-white shadow rounded-xl p-4 mb-4 flex items-center justify-between">
-                <form method="GET" action="{{ route('admin.kegiatan.index') }}" class="relative">
-                    <input type="text"
-                           name="search"
-                           value="{{ request('search') }}"
-                           placeholder="Cari data..."
-                           class="w-72 border border-gray-300 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                         class="w-4 h-4 absolute left-3 top-3 text-gray-400"
-                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"/>
-                    </svg>
-                </form>
+            <div class="bg-white shadow rounded-xl p-4 mb-4 flex flex-col md:flex-row items-center justify-between gap-4">
+                
+                <form method="GET" action="{{ route('admin.kegiatan.index') }}" class="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
+    
+    <div class="relative w-full md:w-auto flex-shrink-0">
+        <input type="text"
+               name="search"
+               value="{{ request('search') }}"
+               placeholder="Cari data..."
+               class="w-full md:w-64 border border-gray-300 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <svg xmlns="http://www.w3.org/2000/svg"
+             class="w-4 h-4 absolute left-3 top-3 text-gray-400"
+             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"/>
+        </svg>
+    </div>
+
+    <select name="status" class="w-full md:w-48 border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+        <option value="">Semua Status</option>
+        <option value="aktif" {{ request('status') == 'aktif' ? 'selected' : '' }}>Aktif</option>
+        <option value="tidak aktif" {{ request('status') == 'tidak aktif' ? 'selected' : '' }}>Tidak Aktif</option>
+    </select>
+
+    <div class="flex gap-2 w-full md:w-auto flex-shrink-0">
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-semibold transition w-full md:w-auto whitespace-nowrap">
+            Cari
+        </button>
+        
+        @if(request('search') || request('status'))
+            <a href="{{ route('admin.kegiatan.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-xl text-sm font-semibold transition flex items-center justify-center w-full md:w-auto whitespace-nowrap">
+                Reset
+            </a>
+        @endif
+    </div>
+</form>
 
                 <button onclick="bukaModalTambahMaster()"
-                   class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm font-semibold transition cursor-pointer">
+                   class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm font-semibold transition cursor-pointer w-full md:w-auto whitespace-nowrap">
                     + Tambah Kegiatan
                 </button>
             </div>
-
             <div class="bg-white shadow-xl rounded-2xl overflow-hidden">
                 <table class="w-full text-sm text-left text-gray-600">
                     <thead class="bg-gray-50 uppercase text-xs tracking-wider">
@@ -99,10 +120,10 @@
                                     <button type="button"
                                             onclick="bukaModalEditMaster(this)"
                                             data-id="{{ $kegiatan->id }}"
-                                            data-nama="{{ $kegiatan->nama_kegiatan }}"
-                                            data-jenis="{{ $kegiatan->jenis }}"
-                                            data-tingkat="{{ $kegiatan->tingkat }}"
-                                            data-hasil="{{ $kegiatan->hasil }}"
+                                            data-nama="{{ e($kegiatan->nama_kegiatan) }}"
+                                            data-jenis="{{ e($kegiatan->jenis) }}"
+                                            data-tingkat="{{ e($kegiatan->tingkat) }}"
+                                            data-hasil="{{ e($kegiatan->hasil) }}"
                                             data-poin="{{ $kegiatan->poin }}"
                                             data-status="{{ $kegiatan->status }}"
                                             class="bg-yellow-500 hover:bg-yellow-400 text-white px-4 py-2 rounded-lg text-sm transition">

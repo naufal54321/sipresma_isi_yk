@@ -68,14 +68,12 @@ class RpkController extends Controller
         $request->validate([
             'tahun' => 'required',
             'semester' => 'required',
-            'kategori' => 'required',
         ]);
 
         Rpk::create([
             'user_id' => Auth::id(), // <-- Gunakan ini
             'tahun' => $request->tahun,
             'semester' => $request->semester,
-            'kategori' => $request->kategori,
             'status' => 'draft', // wajib
         ]);
 

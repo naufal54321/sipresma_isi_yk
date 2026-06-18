@@ -134,19 +134,19 @@
                                 </a>
 
                                 @if(in_array($spk->status, ['draft', 'ditolak']))
-                                    <button type="button"
+                                   <button type="button"
                                             onclick="bukaModalEditSPK(this)"
                                             data-id="{{ $spk->id }}"
-                                            data-catatan="{{ $spk->catatan_dosen }}"
+                                            data-catatan="{{ e($spk->catatan_dosen) }}"
                                             data-tahun="{{ $spk->tahun }}"
                                             data-rpk="{{ $spk->rpk_id }}"
                                             data-kegiatan="{{ $spk->kegiatan_id }}"
                                             data-tanggal="{{ $spk->tanggal_kegiatan }}"
-                                            data-penyelenggara="{{ $spk->penyelenggara }}"
+                                            data-penyelenggara="{{ e($spk->penyelenggara) }}"
                                             data-kategori="{{ $spk->kategori }}"
                                             data-url="{{ $spk->url_kegiatan }}"
                                             data-bukti="{{ $spk->bukti ? asset('storage/'.$spk->bukti) : '' }}"
-                                            data-keterangan="{{ $spk->keterangan }}"
+                                            data-keterangan="{{ e($spk->keterangan) }}"
                                             class="bg-yellow-500 text-white hover:bg-yellow-600 hover:text-white border border-yellow-200 px-3 py-1.5 rounded-lg text-sm font-semibold transition">
                                         Edit
                                     </button>
@@ -243,6 +243,8 @@ function hapusSpk(button) {
 // --- Variabel Data Kegiatan untuk Modal ---
 const kegiatanData = @json($kegiatans ?? []);
 
+
+
 // --- Script Tambah SPK (Modal Dinamis + Upload File) ---
 function bukaModalTambahSPK() {
     Swal.fire({
@@ -320,19 +322,35 @@ function bukaModalTambahSPK() {
         cancelButtonColor: '#9CA3AF',
         customClass: { popup: 'rounded-2xl p-4' },
         didOpen: () => {
-            const rpkSelect = document.getElementById('swal_rpk_id');
-            const kegiatanSelect = document.getElementById('swal_kegiatan_id');
+    
 
-            rpkSelect.addEventListener('change', function() {
-                let rpkId = this.value;
-                kegiatanSelect.innerHTML = '<option value="">Pilih Kegiatan</option>';
+    const rpkSelect = document.getElementById('swal_rpk_id');
+    const kegiatanSelect = document.getElementById('swal_kegiatan_id');
 
-                kegiatanData.forEach(function(kegiatan) {
-                    if (kegiatan.rpk_id == rpkId) {
-                        kegiatanSelect.innerHTML += `<option value="${kegiatan.id}">${kegiatan.kegiatan}</option>`;
-                    }
-                });
-            });
+    rpkSelect.addEventListener('change', function () {
+
+        let rpkId = this.value;
+
+        
+
+        kegiatanSelect.innerHTML =
+            '<option value="">Pilih Kegiatan</option>';
+
+        kegiatanData.forEach(function (kegiatan) {
+
+
+            if (kegiatan.rpk_id == rpkId) {
+                kegiatanSelect.innerHTML +=
+                    `<option value="${kegiatan.id}">
+                        ${kegiatan.kegiatan}
+                    </option>`;
+            }
+        });
+
+       
+    });
+
+   
         },
         preConfirm: () => {
             const rpk = document.getElementById('swal_rpk_id').value;
@@ -513,16 +531,19 @@ function bukaModalEditSPK(button) {
         },
         preConfirm: () => {
             // Validasi manual wajib isi
+            const reqThn = document.getElementById('edit_swal_tahun').value; // <-- Tambahan ini
             const reqRpk = document.getElementById('edit_swal_rpk_id').value;
             const reqKeg = document.getElementById('edit_swal_kegiatan_id').value;
             const reqTgl = document.getElementById('edit_swal_tanggal').value;
             const reqPny = document.getElementById('edit_swal_penyelenggara').value;
             const reqKet = document.getElementById('edit_swal_keterangan').value;
 
-            if (!reqRpk || !reqKeg || !reqTgl || !reqPny || !reqKet) {
+            // Masukkan reqThn ke dalam kondisi pengecekan if
+            if (!reqThn || !reqRpk || !reqKeg || !reqTgl || !reqPny || !reqKet) { 
                 Swal.showValidationMessage('Harap lengkapi field wajib (Tahun, RPK, Kegiatan, Tanggal, Penyelenggara, Keterangan)');
                 return false;
             }
+            // ...
 
             // Submit native form (menangani file upload PUT method)
             document.getElementById('formEditSPK').submit();

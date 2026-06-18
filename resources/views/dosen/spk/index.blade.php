@@ -9,7 +9,7 @@
                 Validasi SPK
             </h1>
             <p class="text-gray-500 mt-1">
-                Persetujuan SPK
+                Persetujuan Satuan Prestasi Kemahasiswaan
             </p>
         </div>
 

@@ -11,14 +11,19 @@ class MasterKegiatanController extends Controller
     {
         $query = MasterKegiatan::query();
 
+        // 1. Logika untuk Pencarian Teks (Input Search)
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('nama_kegiatan', 'like', '%' . $request->search . '%')
                   ->orWhere('jenis', 'like', '%' . $request->search . '%')
                   ->orWhere('tingkat', 'like', '%' . $request->search . '%')
-                  ->orWhere('hasil', 'like', '%' . $request->search . '%')
-                  ->orWhere('status', 'like', '%' . $request->search . '%');
+                  ->orWhere('hasil', 'like', '%' . $request->search . '%');
             });
+        }
+
+        // 2. Logika BARU untuk Filter Status (Dropdown)
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
         }
 
         $kegiatans = $query->latest()->get();

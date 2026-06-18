@@ -23,7 +23,7 @@ Swal.fire({
             </h1>
 
             <p class="text-gray-500 mt-1">
-                Persetujuan Rencana Prestasi Mahasiswa
+                Persetujuan Rencana Prestasi Kemahasiswaan
             </p>
         </div>
 

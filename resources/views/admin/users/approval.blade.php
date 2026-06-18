@@ -82,7 +82,7 @@
 
                                 <button type="button"
                                     onclick="confirmApprove({{ $user->id }})"
-                                    class="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded">
+                                    class="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded-lg">
                                     Setujui
                                 </button>
                             </form>
@@ -95,7 +95,7 @@
 
                                 <button type="button"
                                     onclick="confirmReject({{ $user->id }})"
-                                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded">
+                                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg">
                                     Tolak
                                 </button>
                             </form>

@@ -8,11 +8,27 @@ use Illuminate\Http\Request;
 
 class ProgramStudiController extends Controller
 {
-    public function index()
-    {
-        $prodis = ProgramStudi::latest()->get();
-        return view('admin.prodi.index', compact('prodis'));
+   public function index(Request $request)
+{
+    $query = ProgramStudi::query();
+
+    // Pencarian Nama Program Studi
+    if ($request->filled('search')) {
+        $query->where('nama_prodi', 'like', '%' . $request->search . '%');
     }
+
+    // Filter Status
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    $prodis = $query
+        ->latest()
+        ->paginate(10)
+        ->withQueryString();
+
+    return view('admin.prodi.index', compact('prodis'));
+}
 
     public function store(Request $request)
     {

@@ -137,18 +137,28 @@ class UserController extends Controller
     }
 
     public function setPembimbing(Request $request)
-    {
-        $mahasiswa = User::findOrFail($request->mahasiswa_id);
+{
+    // 1. Tambahkan validasi ini untuk mencegah error 404
+    $request->validate([
+        'mahasiswa_id' => 'required|exists:users,id',
+        'dosen_id'     => 'nullable|exists:users,id'
+    ], [
+        'mahasiswa_id.required' => 'Harap pilih mahasiswa terlebih dahulu.',
+    ]);
 
-        $mahasiswa->dosen_pembimbing_id =
-            $request->filled('dosen_id')
-            ? $request->dosen_id
-            : null;
+    // 2. Karena sudah divalidasi 'required', baris ini dijamin tidak akan memicu 404
+    $mahasiswa = User::findOrFail($request->mahasiswa_id);
 
-        $mahasiswa->save();
+    // 3. Logika Anda yang sudah rapi dipertahankan
+    $mahasiswa->dosen_pembimbing_id = 
+        $request->filled('dosen_id') 
+        ? $request->dosen_id 
+        : null;
 
-        return back()->with('success', 'Data berhasil disimpan');
-    }
+    $mahasiswa->save();
+
+    return back()->with('success', 'Data berhasil disimpan');
+}
 
     public function getUsersData()
     {

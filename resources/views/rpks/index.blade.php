@@ -132,7 +132,7 @@
                                    class="bg-blue-500 text-white hover:bg-blue-600 hover:text-white border border-blue-200 px-4 py-1.5 rounded-lg text-sm font-semibold transition">
                                     Detail
                                 </a>
-                                
+                                 @if(in_array($rpk->status, ['draft', 'ditolak']))
                                 <form action="{{ route('rpks.destroy', $rpk->id) }}" method="POST">
                                     @csrf
                                     @method('DELETE')
@@ -144,6 +144,7 @@
                                     </button>
 
                                 </form>
+                                @endif
 
                             </div>
 

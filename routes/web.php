@@ -19,6 +19,7 @@ use App\Http\Controllers\ProgramStudiController;
 use App\Models\User;
 use App\Models\Spk;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\LaporanDosenController;
 use App\Http\Controllers\AdminUserApprovalController;
 
 
@@ -236,6 +237,10 @@ Route::middleware(['auth', 'role:Dosen'])->prefix('dosen')->name('dosen.')->grou
     Route::put('/spk/{spk}/approve', [DosenSpkController::class, 'approve'])->name('spk.approve');
     Route::put('/spk/{spk}/reject', [DosenSpkController::class, 'reject'])->name('spk.reject');
 });
+
+Route::get('/dosen/laporan', [LaporanDosenController::class, 'index'])->name('dosen.laporan.index');
+Route::get('/dosen/laporan/export', [LaporanDosenController::class, 'export'])->name('dosen.laporan.export');
+Route::get('/dosen/laporan/export-pdf', [LaporanDosenController::class, 'exportPdf'])->name('dosen.laporan.export-pdf');
 
 /*
 |--------------------------------------------------------------------------

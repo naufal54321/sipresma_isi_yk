@@ -39,17 +39,40 @@
 </div>
 
 <div>
-    <x-input-label for="prodi" :value="__('Program Studi / Fakultas')" />
+    <x-input-label for="prodi" :value="__('Program Studi')" />
 
-    <x-text-input
-        id="prodi"
-        name="prodi"
-        type="text"
-        class="mt-1 block w-full"
-        :value="old('prodi', $user->prodi)"
-        required
-        autocomplete="prodi"
-    />
+    @if($user->hasRole('Mahasiswa'))
+
+        <select
+            id="prodi"
+            name="prodi"
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            required>
+
+            <option value="">-- Pilih Program Studi --</option>
+
+            @foreach($prodis as $prodi)
+                <option
+                    value="{{ $prodi->nama_prodi }}"
+                    {{ old('prodi', $user->prodi) == $prodi->nama_prodi ? 'selected' : '' }}>
+                    {{ $prodi->nama_prodi }}
+                </option>
+            @endforeach
+
+        </select>
+
+    @else
+
+        <x-text-input
+            id="prodi"
+            name="prodi"
+            type="text"
+            class="mt-1 block w-full"
+            :value="old('prodi', $user->prodi)"
+            autocomplete="prodi"
+        />
+
+    @endif
 
     <x-input-error class="mt-2" :messages="$errors->get('prodi')" />
 </div>
