@@ -117,7 +117,7 @@
 
                     <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
                         <span class="text-sm font-bold text-gray-600">Poin</span>
-                        <span class="col-span-2 text-sm font-bold text-blue-600 text-lg">{{ $spk->poin ?? '0' }}</span>
+                        <span class="col-span-2 text-sm font-bold text-blue-600">{{ $spk->poin ?? '0' }}</span>
                     </div>
 
                     <div class="grid grid-cols-3 gap-2">
