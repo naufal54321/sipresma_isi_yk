@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Spk;
 use App\Models\User;
+use App\Models\ProgramStudi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -11,87 +12,105 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class LaporanDosenController extends Controller
 {
     /**
-     * Helper Method: Menerapkan filter pencarian
+     * Menerapkan semua filter
      */
     private function applyFilters($query, Request $request)
     {
-        // 1. Filter Pencarian Global (Nama, NIM, Kegiatan)
+        // Search
         if ($request->filled('search')) {
             $search = $request->search;
+
             $query->where(function ($q) use ($search) {
-                // Cari di tabel SPK
                 $q->where('penyelenggara', 'like', "%{$search}%")
-                  ->orWhere('keterangan', 'like', "%{$search}%")
-                  
-                  // Cari di tabel User (Nama/NIM Mahasiswa)
-                  ->orWhereHas('user', function ($userQuery) use ($search) {
-                      $userQuery->where('name', 'like', "%{$search}%")
-                                ->orWhere('nim', 'like', "%{$search}%");
-                  })
-                  
-                  // Cari di tabel Kegiatan
-                  ->orWhereHas('kegiatan', function ($kegiatanQuery) use ($search) {
-                      $kegiatanQuery->where('kegiatan', 'like', "%{$search}%");
-                  });
+                    ->orWhere('keterangan', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($user) use ($search) {
+                        $user->where('name', 'like', "%{$search}%")
+                            ->orWhere('nim', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('kegiatan', function ($kegiatan) use ($search) {
+                        $kegiatan->where('kegiatan', 'like', "%{$search}%");
+                    });
             });
         }
 
-        // 2. Filter Status SPK
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        // 3. Filter Tahun Pengajuan SPK
+        // Tahun
         if ($request->filled('tahun')) {
             $query->where('tahun', $request->tahun);
+        }
+
+        // Program Studi
+        if ($request->filled('prodi')) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('prodi', $request->prodi);
+            });
+        }
+
+        // 🔧 PERBAIKAN: Tingkat dari SPKS, bukan kegiatans
+        if ($request->filled('tingkat')) {
+            $query->where('tingkat', $request->tingkat);
         }
 
         return $query;
     }
 
     /**
-     * Menampilkan halaman index laporan dosen
+     * Halaman laporan
      */
     public function index(Request $request)
     {
         $dosenId = Auth::id();
 
-        // Base Query: Ambil SPK yang HANYA milik mahasiswa bimbingannya
         $query = Spk::with(['user', 'kegiatan.masterKegiatan'])
             ->whereHas('user', function ($q) use ($dosenId) {
                 $q->where('dosen_pembimbing_id', $dosenId);
-            });
+            })
+            ->where('status', 'disetujui');
 
-        // Terapkan filter dari helper
         $query = $this->applyFilters($query, $request);
 
-        // Ambil data untuk tabel dengan pagination
-        $laporan = $query->latest()->paginate(10)->withQueryString();
+        $laporan = $query->latest()
+            ->paginate(10)
+            ->withQueryString();
 
-        // -----------------------------------------------------
-        // Menghitung Statistik untuk Kartu Ringkasan (Cards)
-        // -----------------------------------------------------
+        // Statistik
         $totalBimbingan = User::where('dosen_pembimbing_id', $dosenId)->count();
-        
-        $totalDisetujui = Spk::whereHas('user', function($q) use ($dosenId) {
-            $q->where('dosen_pembimbing_id', $dosenId);
-        })->where('status', 'disetujui')->count();
 
-        $totalMenunggu = Spk::whereHas('user', function($q) use ($dosenId) {
-            $q->where('dosen_pembimbing_id', $dosenId);
-        })->where('status', 'draft')->count();
+        $totalDisetujui = Spk::whereHas('user', function ($q) use ($dosenId) {
+                $q->where('dosen_pembimbing_id', $dosenId);
+            })
+            ->where('status', 'disetujui')
+            ->count();
 
-        // Return ke view yang telah kita buat sebelumnya
+        $totalMenunggu = Spk::whereHas('user', function ($q) use ($dosenId) {
+                $q->where('dosen_pembimbing_id', $dosenId);
+            })
+            ->where('status', 'draft')
+            ->count();
+
+        // Dropdown Program Studi
+        $programStudis = ProgramStudi::where('status', 'aktif')
+            ->orderBy('nama_prodi')
+            ->get();
+
+        // 🔧 PERBAIKAN: Dropdown Tingkat dari SPKS
+        $tingkatList = Spk::select('tingkat')
+            ->distinct()
+            ->whereNotNull('tingkat')
+            ->orderBy('tingkat')
+            ->pluck('tingkat');
+
         return view('dosen.laporan.index', compact(
             'laporan',
             'totalBimbingan',
             'totalDisetujui',
-            'totalMenunggu'
+            'totalMenunggu',
+            'programStudis',
+            'tingkatList'
         ));
     }
 
     /**
-     * Export data ke Excel / CSV
+     * Export Excel
      */
     public function export(Request $request)
     {
@@ -100,12 +119,14 @@ class LaporanDosenController extends Controller
         $query = Spk::with(['user', 'kegiatan.masterKegiatan'])
             ->whereHas('user', function ($q) use ($dosenId) {
                 $q->where('dosen_pembimbing_id', $dosenId);
-            });
+            })
+            ->where('status', 'disetujui');
 
         $query = $this->applyFilters($query, $request);
+
         $laporan = $query->latest()->get();
 
-        $fileName = 'laporan-prestasi-bimbingan-' . date('Ymd') . '.csv';
+        $fileName = 'laporan-prestasi-' . date('Ymd') . '.csv';
 
         $headers = [
             'Content-Type' => 'text/csv',
@@ -114,33 +135,29 @@ class LaporanDosenController extends Controller
 
         $callback = function () use ($laporan) {
             $file = fopen('php://output', 'w');
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
 
-            // UTF-8 BOM agar rapi di Microsoft Excel
-            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
-
-            // Header kolom Excel
             fputcsv($file, [
                 'Nama Mahasiswa',
                 'NIM',
-                'Nama Kegiatan',
+                'Program Studi',
+                'Kegiatan',
                 'Penyelenggara',
                 'Tingkat',
                 'Tahun',
-                'Poin',
-                'Status'
+                'Poin'
             ], ';');
 
-            // Isi Data
             foreach ($laporan as $item) {
                 fputcsv($file, [
                     $item->user->name ?? '',
                     $item->user->nim ?? '',
+                    $item->user->prodi ?? '',
                     $item->kegiatan->kegiatan ?? '',
                     $item->penyelenggara ?? '',
-                    $item->kegiatan->tingkat ?? '',
-                    $item->tahun ?? '',
-                    $item->kegiatan->masterKegiatan->poin ?? 0,
-                    strtoupper($item->status)
+                    $item->tingkat ?? '', // 🔧 PERBAIKAN: dari SPKS
+                    $item->tahun,
+                    $item->poin ?? 0, // 🔧 PERBAIKAN: dari SPKS langsung
                 ], ';');
             }
 
@@ -151,7 +168,7 @@ class LaporanDosenController extends Controller
     }
 
     /**
-     * Export data ke PDF
+     * Export PDF
      */
     public function exportPdf(Request $request)
     {
@@ -160,18 +177,18 @@ class LaporanDosenController extends Controller
         $query = Spk::with(['user', 'kegiatan.masterKegiatan'])
             ->whereHas('user', function ($q) use ($dosenId) {
                 $q->where('dosen_pembimbing_id', $dosenId);
-            });
+            })
+            ->where('status', 'disetujui');
 
         $query = $this->applyFilters($query, $request);
+
         $laporan = $query->latest()->get();
-        $dosen = Auth::user(); // Untuk mencetak nama dosen di kop surat PDF
 
-        // Pastikan Anda sudah membuat view 'dosen.laporan.pdf' untuk format cetaknya
-        $pdf = Pdf::loadView('dosen.laporan.pdf', compact('laporan', 'dosen'));
+        $dosen = Auth::user();
 
-        // Atur ukuran kertas
-        $pdf->setPaper('A4', 'landscape');
+        $pdf = Pdf::loadView('dosen.laporan.pdf', compact('laporan', 'dosen'))
+            ->setPaper('A4', 'landscape');
 
-        return $pdf->download('Laporan-Prestasi-Bimbingan-' . date('Y-m-d') . '.pdf');
+        return $pdf->download('laporan.pdf');
     }
 }

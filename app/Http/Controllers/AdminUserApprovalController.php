@@ -12,40 +12,36 @@ class AdminUserApprovalController extends Controller
 {
     public function index()
     {
-        $users = User::where(
-            'status',
-            'pending'
-        )->latest()->get();
+        // 🔧 Hanya tampilkan user yang is_approved = false (belum disetujui)
+        $users = User::where('is_approved', false)
+            ->latest()
+            ->get();
 
-        return view(
-            'admin.users.approval',
-            compact('users')
-        );
+        return view('admin.users.approval', compact('users'));
     }
 
     public function approve(Request $request, User $user)
-{
-    $user->update([
-        'status' => 'aktif'
-    ]);
+    {
+        $user->update([
+            'status' => 'aktif',        // 🔧 Status jadi aktif
+            'is_approved' => true,      // 🔧 Approved = true
+        ]);
 
-    if ($request->send_email == 1) {
-        Mail::to($user->email)
-            ->send(new AccountApprovedMail($user));
+        if ($request->send_email == 1) {
+            Mail::to($user->email)->send(new AccountApprovedMail($user));
+        }
+
+        return back()->with('success', 'Akun berhasil disetujui');
     }
-
-    return back()->with('success', 'Akun berhasil disetujui');
-}
 
     public function reject(Request $request, User $user)
-{
-    if ($request->send_email == 1) {
-        Mail::to($user->email)
-            ->send(new AccountRejectedMail($user));
+    {
+        if ($request->send_email == 1) {
+            Mail::to($user->email)->send(new AccountRejectedMail($user));
+        }
+
+        $user->delete();
+
+        return back()->with('success', 'Akun berhasil ditolak');
     }
-
-    $user->delete();
-
-    return back()->with('success', 'Akun berhasil ditolak');
-}
 }

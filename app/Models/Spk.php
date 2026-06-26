@@ -14,11 +14,16 @@ class Spk extends Model
         'tanggal_kegiatan',
         'penyelenggara',
         'kategori',
+        'prestasi_id',      // 🔧 TAMBAH INI
+        'hasil',
+        'judul_kegiatan',
+        'tingkat',          // 🔧 TAMBAH INI
+        'poin',            // 🔧 TAMBAH INI
         'url_kegiatan',
         'bukti',
         'keterangan',
         'status',
-        'catatan_dosen'
+        'catatan_dosen',
     ];
 
     public function user()

@@ -35,7 +35,12 @@
             <div class="absolute right-0 top-0 w-32 h-32 bg-indigo-100/50 rounded-bl-full opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
             
             <div class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shrink-0 border border-indigo-100 shadow-sm relative z-10 group-hover:rotate-12 transition-transform duration-300">
-                <i class="fas fa-chalkboard-teacher text-2xl text-indigo-600"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+  <path d="M11.7 2.805a.75.75 0 0 1 .6 0A60.65 60.65 0 0 1 22.83 8.72a.75.75 0 0 1-.231 1.337 49.948 49.948 0 0 0-9.902 3.912l-.003.002c-.114.06-.227.119-.34.18a.75.75 0 0 1-.707 0A50.88 50.88 0 0 0 7.5 12.173v-.224c0-.131.067-.248.172-.311a54.615 54.615 0 0 1 4.653-2.52.75.75 0 0 0-.65-1.352 56.123 56.123 0 0 0-4.78 2.589 1.858 1.858 0 0 0-.859 1.228 49.803 49.803 0 0 0-4.634-1.527.75.75 0 0 1-.231-1.337A60.653 60.653 0 0 1 11.7 2.805Z" />
+  <path d="M13.06 15.473a48.45 48.45 0 0 1 7.666-3.282c.134 1.414.22 2.843.255 4.284a.75.75 0 0 1-.46.711 47.87 47.87 0 0 0-8.105 4.342.75.75 0 0 1-.832 0 47.87 47.87 0 0 0-8.104-4.342.75.75 0 0 1-.461-.71c.035-1.442.121-2.87.255-4.286.921.304 1.83.634 2.726.99v1.27a1.5 1.5 0 0 0-.14 2.508c-.09.38-.222.753-.397 1.11.452.213.901.434 1.346.66a6.727 6.727 0 0 0 .551-1.607 1.5 1.5 0 0 0 .14-2.67v-.645a48.549 48.549 0 0 1 3.44 1.667 2.25 2.25 0 0 0 2.12 0Z" />
+  <path d="M4.462 19.462c.42-.419.753-.89 1-1.395.453.214.902.435 1.347.662a6.742 6.742 0 0 1-1.286 1.794.75.75 0 0 1-1.06-1.06Z" />
+</svg>
+
             </div>
             <div class="relative z-10 min-w-0">
                 <h2 class="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1">Dosen Pembimbing</h2>
@@ -73,7 +78,10 @@
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-center group hover:-translate-y-1.5 hover:shadow-xl hover:shadow-teal-500/10 transition-all duration-300 relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-400 to-teal-600 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
                 <div class="min-w-0"><p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest truncate">SPK Disetujui</p><h2 class="text-3xl font-extrabold text-slate-800 group-hover:text-teal-500 transition-colors mt-1">{{ $spkDisetujui }}</h2></div>
-                <div class="w-12 h-12 bg-gradient-to-br from-teal-50 to-teal-100 text-teal-600 rounded-xl flex items-center justify-center text-lg shrink-0 group-hover:scale-110 transition-transform"><i class="fas fa-stamp"></i></div>
+                <div class="w-12 h-12 bg-gradient-to-br from-teal-50 to-teal-100 text-teal-600 rounded-xl flex items-center justify-center text-lg shrink-0 group-hover:scale-110 transition-transform"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                    <path fill-rule="evenodd" d="M7.502 6h7.128A3.375 3.375 0 0 1 18 9.375v9.375a3 3 0 0 0 3-3V6.108c0-1.505-1.125-2.811-2.664-2.94a48.972 48.972 0 0 0-.673-.05A3 3 0 0 0 15 1.5h-1.5a3 3 0 0 0-2.663 1.618c-.225.015-.45.032-.673.05C8.662 3.295 7.554 4.542 7.502 6ZM13.5 3A1.5 1.5 0 0 0 12 4.5h4.5A1.5 1.5 0 0 0 15 3h-1.5Z" clip-rule="evenodd" />
+                    <path fill-rule="evenodd" d="M3 9.375C3 8.339 3.84 7.5 4.875 7.5h9.75c1.036 0 1.875.84 1.875 1.875v11.25c0 1.035-.84 1.875-1.875 1.875h-9.75A1.875 1.875 0 0 1 3 20.625V9.375Zm9.586 4.594a.75.75 0 0 0-1.172-.938l-2.476 3.096-.908-.907a.75.75 0 0 0-1.06 1.06l1.5 1.5a.75.75 0 0 0 1.116-.062l3-3.75Z" clip-rule="evenodd" />
+                    </svg></div>
             </div>
 
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-center group hover:-translate-y-1.5 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 relative overflow-hidden">
@@ -84,13 +92,13 @@
 
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-center group hover:-translate-y-1.5 hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300 relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-400 to-purple-600 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
-                <div class="min-w-0"><p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest truncate">Total Kegiatan</p><h2 class="text-3xl font-extrabold text-slate-800 group-hover:text-purple-500 transition-colors mt-1">{{ $totalKegiatan }}</h2></div>
+                <div class="min-w-0"><p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest truncate">Total RPK & SPK</p><h2 class="text-3xl font-extrabold text-slate-800 group-hover:text-purple-500 transition-colors mt-1">{{ $totalKegiatan }}</h2></div>
                 <div class="w-12 h-12 bg-gradient-to-br from-purple-50 to-purple-100 text-purple-600 rounded-xl flex items-center justify-center text-lg shrink-0 group-hover:scale-110 transition-transform"><i class="fas fa-tasks"></i></div>
             </div>
 
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-center group hover:-translate-y-1.5 hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300 relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-400 to-red-600 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
-                <div class="min-w-0"><p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest truncate">Ditolak</p><h2 class="text-3xl font-extrabold text-slate-800 group-hover:text-red-500 transition-colors mt-1">{{ $ditolak }}</h2></div>
+                <div class="min-w-0"><p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest truncate">Ditolak</p><h2 class="text-3xl font-extrabold text-slate-800 group-hover:text-red-500 transition-colors mt-1">{{ $jumlahDitolak }}</h2></div>
                 <div class="w-12 h-12 bg-gradient-to-br from-red-50 to-red-100 text-red-600 rounded-xl flex items-center justify-center text-lg shrink-0 group-hover:scale-110 transition-transform"><i class="fas fa-times-circle"></i></div>
             </div>
 
@@ -102,31 +110,7 @@
 
         </div>
 
-        <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-100 mb-8 relative overflow-hidden">
-            <div class="absolute -right-10 -top-10 w-40 h-40 bg-yellow-50 rounded-full blur-3xl"></div>
-            
-            <div class="relative z-10 flex flex-col sm:flex-row justify-between sm:items-end mb-4 gap-4">
-                <div>
-                    <h2 class="font-bold text-slate-800 text-lg flex items-center gap-2">
-                        <span class="p-1.5 rounded-lg bg-yellow-50 text-yellow-500"><i class="fas fa-trophy"></i></span> 
-                        Progress Poin Prestasi
-                    </h2>
-                    <p class="text-sm text-slate-500 mt-1.5">Kumpulkan poin prestasi (minimal 100) untuk memenuhi syarat SKPI kelulusan.</p>
-                </div>
-                <div class="inline-flex items-center justify-center px-4 py-1.5 bg-slate-900 rounded-full shrink-0 shadow-md">
-                    <span class="font-extrabold text-white text-sm">{{ $totalPoin }} / 100 Poin</span>
-                </div>
-            </div>
-            
-            <div class="relative z-10 w-full bg-slate-100/80 rounded-full h-4 overflow-hidden border border-slate-200/60 shadow-inner">
-                <div class="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 h-4 rounded-full transition-all duration-1000 ease-out relative"
-                     style="width: {{ min(($totalPoin/100)*100, 100) }}%">
-                    <div class="absolute inset-0 overflow-hidden rounded-full">
-                        <div class="w-full h-full opacity-30" style="background-image: repeating-linear-gradient(-45deg, rgba(255,255,255,0.25), rgba(255,255,255,0.25) 1rem, transparent 1rem, transparent 2rem); background-size: 200% 200%; animation: barberpole 20s linear infinite;"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        
 
         <style>
             @keyframes barberpole { 100% { background-position: 100% 100%; } }
@@ -181,123 +165,160 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+(function jalankanGrafikMahasiswa() {
     
-    // Global Chart Config
-    Chart.defaults.font.family = "'Inter', sans-serif";
-    Chart.defaults.color = '#64748b';
-    const commonOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            tooltip: {
-                backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                padding: 12,
-                cornerRadius: 8
-            }
+    // Fungsi Cerdas: Menunggu sampai Chart.js dan Canvas benar-benar siap di layar
+    function inisialisasiSaatSiap() {
+        // Cek apakah library Chart.js sudah selesai di-download
+        if (typeof Chart === 'undefined') {
+            setTimeout(inisialisasiSaatSiap, 50); // Cek lagi dalam 50ms
+            return;
         }
-    };
 
-    // 1. Pie Chart (Status Kegiatan)
-    new Chart(document.getElementById('pieChart'), {
-        type: 'pie',
-        data: {
-            labels: ['Draft', 'Disetujui', 'Ditolak'],
-            datasets: [{
-                data: @json([$draft, $disetujui, $ditolak]),
-                backgroundColor: ['#f97316', '#10b981', '#ef4444'],
-                borderWidth: 0,
-                hoverOffset: 4
-            }]
-        },
-        options: {
-            ...commonOptions,
+        // Cek apakah elemen HTML canvas sudah benar-benar ada di layar
+        const pieCanvas = document.getElementById('pieChart');
+        if (!pieCanvas) {
+            setTimeout(inisialisasiSaatSiap, 50); // Cek lagi dalam 50ms
+            return;
+        }
+
+        // JIKA SEMUANYA SIAP, BARU JALANKAN GRAFIKNYA:
+
+        // Global Chart Config
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#64748b';
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
             plugins: {
-                ...commonOptions.plugins,
-                legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
+                tooltip: {
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    padding: 12,
+                    cornerRadius: 8
+                }
             }
-        }
-    });
+        };
 
-    // 2. Bar Chart (Tingkat)
-    new Chart(document.getElementById('barChart'), {
-        type: 'bar',
-        data: {
-            labels: ['Universitas', 'Regional', 'Nasional', 'Internasional'],
-            datasets: [{
-                label: 'Jumlah Prestasi',
-                data: {{ Js::from([$universitas, $regional, $nasional, $internasional]) }},
-                backgroundColor: '#3b82f6',
-                borderRadius: 6,
-                barPercentage: 0.5
-            }]
-        },
-        options: {
-            ...commonOptions,
-            plugins: { ...commonOptions.plugins, legend: { display: false } },
-            scales: {
-                y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f1f5f9', drawBorder: false }, border: { display: false } },
-                x: { grid: { display: false }, border: { display: false } }
+        // FUNGSI SUPER AMAN: Menghancurkan memori grafik lama sebelum menggambar ulang (SPA Proof)
+        function createSafeChart(id, config) {
+            const canvas = document.getElementById(id);
+            if (!canvas) return;
+
+            const existingChart = Chart.getChart(id);
+            if (existingChart) {
+                existingChart.destroy();
             }
-        }
-    });
 
-    // 3. Donut Chart (Jenis Kegiatan)
-    const modernPalette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#0ea5e9', '#f43f5e', '#14b8a6'];
-    
-    new Chart(document.getElementById('donutChart'), {
-        type: 'doughnut',
-        data: {
-            labels: @json($jenisLabels),
-            datasets: [{
-                data: @json($jenisData),
-                backgroundColor: modernPalette,
-                borderWidth: 0,
-                hoverOffset: 4
-            }]
-        },
-        options: {
-            ...commonOptions,
-            cutout: '65%',
-            plugins: {
-                ...commonOptions.plugins,
-                legend: { position: 'right', labels: { usePointStyle: true, padding: 15, font: { size: 11 } } }
+            return new Chart(canvas, config);
+        }
+
+        // 1. Pie Chart (Status Kegiatan)
+        createSafeChart('pieChart', {
+            type: 'pie',
+            data: {
+                labels: ['Draft', 'Disetujui', 'Ditolak'],
+                datasets: [{
+                    data: @json([$draft, $disetujui, $ditolak]),
+                    backgroundColor: ['#f97316', '#10b981', '#ef4444'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                ...commonOptions,
+                plugins: {
+                    ...commonOptions.plugins,
+                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
+                }
             }
-        }
-    });
+        });
 
-    // 4. Line Chart (Aktivitas)
-    new Chart(document.getElementById('lineChart'), {
-        type: 'line',
-        data: {
-            labels: @json($bulanLabels),
-            datasets: [{
-                label: 'Aktivitas',
-                data: @json($bulanData),
-                borderColor: '#2563eb',
-                backgroundColor: 'rgba(37, 99, 235, 0.08)',
-                borderWidth: 3,
-                tension: 0.4, // Membuat garis menjadi melengkung mulus (smooth)
-                fill: true,   // Efek area di bawah garis
-                pointBackgroundColor: '#ffffff',
-                pointBorderColor: '#2563eb',
-                pointBorderWidth: 2,
-                pointRadius: 4,
-                pointHoverRadius: 6
-            }]
-        },
-        options: {
-            ...commonOptions,
-            plugins: { ...commonOptions.plugins, legend: { display: false } },
-            scales: {
-                y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f1f5f9', drawBorder: false }, border: { display: false } },
-                x: { grid: { display: false }, border: { display: false } }
+        // 2. Bar Chart (Tingkat)
+        createSafeChart('barChart', {
+            type: 'bar',
+            data: {
+                labels: ['Universitas', 'Regional', 'Nasional', 'Internasional'],
+                datasets: [{
+                    label: 'Jumlah Prestasi',
+                    data: {{ Js::from([$universitas, $regional, $nasional, $internasional]) }},
+                    backgroundColor: '#3b82f6',
+                    borderRadius: 6,
+                    barPercentage: 0.5
+                }]
+            },
+            options: {
+                ...commonOptions,
+                plugins: { ...commonOptions.plugins, legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f1f5f9', drawBorder: false }, border: { display: false } },
+                    x: { grid: { display: false }, border: { display: false } }
+                }
             }
-        }
-    });
+        });
 
-});
+        // 3. Donut Chart (Jenis Kegiatan)
+        const modernPalette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#0ea5e9', '#f43f5e', '#14b8a6'];
+        createSafeChart('donutChart', {
+            type: 'doughnut',
+            data: {
+                labels: @json($jenisLabels),
+                datasets: [{
+                    data: @json($jenisData),
+                    backgroundColor: modernPalette,
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                ...commonOptions,
+                cutout: '65%',
+                plugins: {
+                    ...commonOptions.plugins,
+                    legend: { position: 'right', labels: { usePointStyle: true, padding: 15, font: { size: 11 } } }
+                }
+            }
+        });
+
+        // 4. Line Chart (Aktivitas)
+        createSafeChart('lineChart', {
+            type: 'line',
+            data: {
+                labels: @json($bulanLabels),
+                datasets: [{
+                    label: 'Aktivitas',
+                    data: @json($bulanData),
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                    borderWidth: 3,
+                    tension: 0.4, 
+                    fill: true,   
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: '#2563eb',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                ...commonOptions,
+                plugins: { ...commonOptions.plugins, legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f1f5f9', drawBorder: false }, border: { display: false } },
+                    x: { grid: { display: false }, border: { display: false } }
+                }
+            }
+        });
+    }
+
+    // Panggil fungsi pengeceknya
+    inisialisasiSaatSiap();
+
+})();
 </script>
 
 </x-app-layout>

@@ -1,9 +1,7 @@
 <x-app-layout>
-    <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
 @php
-
     \Carbon\Carbon::setLocale('id');
     // Trik: Mengambil data prodi yang aktif langsung dari model
     $programStudis = \App\Models\ProgramStudi::where('status', 'aktif')
@@ -15,49 +13,68 @@
     <div class="max-w-8xl mx-auto py-6">
 
         <div class="mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Dashboard Admin</h1>
+            <h1 class="text-3xl font-bold text-gray-800">Daftar Pengguna</h1>
             <p class="text-gray-500 mt-1">Kelola seluruh pengguna SIPRESMA</p>
         </div>
+        
 
         <div class="bg-white overflow-hidden shadow-xl rounded-2xl">
 
-            <div class="p-6 border-b border-gray-100 flex items-center justify-between">
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-800">Daftar Pengguna</h1>
-                    <p class="text-sm text-gray-500 mt-1">Data seluruh pengguna sistem</p>
-                </div>
-                <div class="flex items-center gap-3">
-                    <input type="text" id="globalSearch"
-                        placeholder="Cari"
-                        class="border rounded-xl px-4 py-2 text-sm w-64 focus:ring focus:ring-blue-200">
+    <div class="p-6 border-b border-gray-100">
+    
+        <div class="mb-4">
+            <h2 class="text-2xl font-bold text-gray-800">Data seluruh pengguna sistem</h2>
+            <p class="text-sm text-gray-500 mt-1"></p>
+        </div>
+        
+        <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+            
+            <div class="flex flex-wrap items-center gap-3">
+                <form method="GET" action="{{ route('admin.users.index') }}" class="flex flex-wrap items-center gap-2">
+                    
+                    <input type="text" name="search" value="{{ request('search') }}"
+                        placeholder="Cari Pengguna..."
+                        class="border border-gray-300 rounded-xl px-4 py-2 text-sm w-48 md:w-64 focus:ring-2 focus:ring-blue-300 focus:border-blue-400 outline-none transition">
 
                     <div class="relative">
-    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-        <i class="fas fa-filter"></i>
-    </span>
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-filter"></i>
+                        </span>
+                        <select name="role"
+                            class="border border-gray-300 rounded-xl pl-10 pr-8 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-300 focus:border-blue-400 outline-none transition cursor-pointer">
+                            <option value="">Semua Role</option>
+                            <option value="Mahasiswa" {{ request('role') == 'Mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
+                            <option value="Dosen" {{ request('role') == 'Dosen' ? 'selected' : '' }}>Dosen</option>
+                            <option value="Admin" {{ request('role') == 'Admin' ? 'selected' : '' }}>Admin</option>
+                        </select>
+                    </div>
 
-    <select id="roleFilter"
-        class="border border-gray-300 rounded-xl pl-10 pr-8 py-2 text-sm bg-white
-               focus:ring-2 focus:ring-blue-300 focus:border-blue-400
-               outline-none transition">
-        <option value="">Semua Role</option>
-        <option value="Mahasiswa">Mahasiswa</option>
-        <option value="Dosen">Dosen</option>
-        <option value="Admin">Admin</option>
-    </select>
-</div>
-
-                    <span id="totalUser"
-                        class="bg-blue-100 text-blue-700 px-4 py-2 rounded-xl text-sm font-semibold">
-                        Total: {{ $users->count() }} Pengguna
-                    </span>
-
-                    <button onclick="addUser()"
-                        class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm font-semibold transition">
-                        + Tambah Pengguna
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">
+                        Cari
                     </button>
-                </div>
+
+                    @if(request('search') || request('role'))
+                        <a href="{{ route('admin.users.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center justify-center">
+                            Reset
+                        </a>
+                    @endif
+                </form>
+
+                <span id="totalUser"
+                    class="bg-blue-100 text-blue-700 px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap">
+                    Total: {{ $users->total() ?? $users->count() }} Pengguna
+                </span>
             </div>
+
+            <div>
+                <button type="button" onclick="addUser()"
+                    class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm font-semibold shadow-md transition whitespace-nowrap">
+                    + Tambah Pengguna
+                </button>
+            </div>
+            
+        </div>
+    </div>
 
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-left text-gray-600">
@@ -75,9 +92,11 @@
                     </thead>
 
                     <tbody id="userTable">
-                        @forelse ($users as $user)
+                        @forelse ($users->where('status', 'aktif') as $user)
                         <tr id="row-{{ $user->id }}" class="border-b hover:bg-blue-50 transition duration-200">
-                            <td class="px-4 py-4 text-center font-semibold text-gray-800">{{ $loop->iteration }}</td>
+                            <td class="px-4 py-4 text-center font-semibold text-gray-800">
+                                {{ method_exists($users, 'firstItem') ? $users->firstItem() + $loop->index : $loop->iteration }}
+                            </td>
                             <td class="px-4 py-4 font-semibold text-gray-800">{{ $user->name }}</td>
                             <td class="px-4 py-4">{{ $user->nim }}</td>
                             <td class="px-4 py-4">
@@ -103,13 +122,14 @@
                             
                             <td class="px-4 py-4">
                                 <div class="flex items-center gap-2">
-                                    <button onclick="editUser({{ $user->id }})"
-                                        class="inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-md transition duration-200">
-                                        Edit
+                                    <button onclick="editUser({{ $user->id }})" title="Edit Pengguna"
+                                        class="flex items-center justify-center w-9 h-9 bg-yellow-500 hover:bg-yellow-400 text-white rounded-xl shadow-md transition duration-200">
+                                        <i class="fas fa-pen"></i>
                                     </button>
-                                    <button onclick="deleteUser({{ $user->id }})"
-                                        class="bg-red-500 hover:bg-red-400 text-white px-4 py-2 rounded-lg text-sm transition">
-                                        Hapus
+                                    
+                                    <button onclick="deleteUser({{ $user->id }})" title="Hapus Pengguna"
+                                        class="flex items-center justify-center w-9 h-9 bg-red-500 hover:bg-red-400 text-white rounded-xl shadow-md transition duration-200">
+                                        <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
                             </td>
@@ -123,6 +143,12 @@
                 </table>
             </div>
 
+            @if(method_exists($users, 'links'))
+            <div class="p-6 border-t border-gray-100">
+                {{ $users->links() }}
+            </div>
+            @endif
+
         </div>
     </div>
 </div>
@@ -132,33 +158,38 @@
 // =============================================
 // FUNGSI HELPER: GENERATE DROPDOWN PRODI
 // =============================================
-function getProdiOptions(selectedValue = '') {
-    let options = `<option value="" disabled ${!selectedValue ? 'selected' : ''}>Pilih Program Studi</option>`;
+function getProdiOptions(selectedValue) {
+    let selected = selectedValue || '';
+    let options = '<option value="" disabled ' + (!selected ? 'selected' : '') + '>Pilih Program Studi</option>';
     
-    // Looping data dari PHP/Laravel ke dalam String JavaScript
     @foreach($programStudis as $prodi)
-        options += `<option value="{{ $prodi->nama_prodi }}" ${selectedValue === '{{ $prodi->nama_prodi }}' ? 'selected' : ''}>{{ $prodi->nama_prodi }}</option>`;
+        options += '<option value="{{ $prodi->nama_prodi }}" ' + (selected === '{{ $prodi->nama_prodi }}' ? 'selected' : '') + '>{{ $prodi->nama_prodi }}</option>';
     @endforeach
 
     return options;
 }
 
 // =============================================
-// RENDER USER — buat baris HTML lengkap
+// RENDER USER
 // =============================================
 function renderUser(user) {
+    let roleName = 'Mahasiswa';
+    if (user.roles && user.roles.length > 0) {
+        roleName = user.roles[0].name;
+    }
 
-    let roleName  = user.roles?.[0]?.name ?? 'Mahasiswa';
     let roleColor = 'bg-blue-100 text-blue-700';
     if (roleName === 'Admin') roleColor = 'bg-red-100 text-red-700';
     if (roleName === 'Dosen') roleColor = 'bg-green-100 text-green-700';
+
+    let prodiName = user.prodi ? user.prodi : '-';
 
     return `
     <tr id="row-${user.id}" class="border-b hover:bg-blue-50 transition duration-200">
         <td class="px-4 py-4 text-center font-semibold text-gray-800">0</td>
         <td class="px-4 py-4 font-semibold text-gray-800">${user.name}</td>
         <td class="px-4 py-4">${user.nim}</td>
-        <td class="px-4 py-4">${user.prodi || '-'}</td>
+        <td class="px-4 py-4">${prodiName}</td>
         <td class="px-4 py-4">${user.email}</td>
         <td class="px-4 py-4 text-center">
             <span class="${roleColor} px-3 py-1 rounded-full text-xs font-semibold">${roleName}</span>
@@ -166,13 +197,13 @@ function renderUser(user) {
         <td class="px-4 py-4">Baru saja</td>
         <td class="px-4 py-4">
             <div class="flex items-center gap-2">
-                <button onclick="editUser(${user.id})"
-                    class="inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-md transition duration-200">
-                    Edit
+                <button onclick="editUser(${user.id})" title="Edit Pengguna"
+                    class="flex items-center justify-center w-9 h-9 bg-yellow-500 hover:bg-yellow-400 text-white rounded-xl shadow-md transition duration-200">
+                    <i class="fas fa-pen"></i>
                 </button>
-                <button onclick="deleteUser(${user.id})"
-                    class="bg-red-500 hover:bg-red-400 text-white px-4 py-2 rounded-lg text-sm transition">
-                    Hapus
+                <button onclick="deleteUser(${user.id})" title="Hapus Pengguna"
+                    class="flex items-center justify-center w-9 h-9 bg-red-500 hover:bg-red-400 text-white rounded-xl shadow-md transition duration-200">
+                    <i class="fas fa-trash"></i>
                 </button>
             </div>
         </td>
@@ -181,7 +212,7 @@ function renderUser(user) {
 }
 
 // =============================================
-// ADD USER
+// ADD USER (DESAIN AWAL + FIX SYNTAX)
 // =============================================
 function addUser() {
     Swal.fire({
@@ -207,15 +238,10 @@ function addUser() {
                 padding: 25px 40px 15px 30px !important; margin: 0 !important;
                 border-bottom: 1px solid #eee;
             }
-            /* Ubah padding dari 25px 30px menjadi lebih kecil */
             div:where(.swal2-container) div:where(.swal2-html-container) {
                 padding: 15px 20px 20px 20px !important;
             }
-
-            /* Perkecil jarak antar baris */
             .form-row { margin-bottom: 10px; }
-                
-            }
             .swal2-popup{ overflow: visible !important; }
             .form-row{ overflow: visible !important; }
             .input-wrapper{ overflow: visible !important; }
@@ -298,27 +324,29 @@ function addUser() {
             popup.style.marginTop = '10px';
             popup.style.overflow = 'visible';
 
-            // Toggle Password
             const toggle = document.getElementById('togglePassword');
             const passInput = document.getElementById('password');
-            toggle?.addEventListener('click', function () {
-                const type = passInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                passInput.setAttribute('type', type);
-                this.classList.toggle('fa-eye');
-                this.classList.toggle('fa-eye-slash');
-            });
+            if (toggle && passInput) {
+                toggle.addEventListener('click', function () {
+                    const type = passInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passInput.setAttribute('type', type);
+                    this.classList.toggle('fa-eye');
+                    this.classList.toggle('fa-eye-slash');
+                });
+            }
 
-            // Role Change Listener untuk Input Manual Prodi
             const roleSelect = document.getElementById('role');
             const prodiWrapper = document.getElementById('prodiWrapper');
 
-            roleSelect?.addEventListener('change', function () {
-                if (this.value === 'Admin' || this.value === 'Dosen') {
-                    prodiWrapper.innerHTML = '<input id="prodi" type="text" class="custom-input" placeholder="Masukkan Program Studi / Fakultas secara manual">';
-                } else {
-                    prodiWrapper.innerHTML = '<select id="prodi" class="custom-input">' + getProdiOptions() + '</select>';
-                }
-            });
+            if (roleSelect && prodiWrapper) {
+                roleSelect.addEventListener('change', function () {
+                    if (this.value === 'Admin' || this.value === 'Dosen') {
+                        prodiWrapper.innerHTML = '<input id="prodi" type="text" class="custom-input" placeholder="Masukkan Program Studi / Fakultas secara manual">';
+                    } else {
+                        prodiWrapper.innerHTML = '<select id="prodi" class="custom-input">' + getProdiOptions() + '</select>';
+                    }
+                });
+            }
         },
 
         preConfirm: () => ({
@@ -345,20 +373,18 @@ function addUser() {
         .then(async res => {
             let data = await res.json();
             if (!res.ok) {
-                let errorText = data.errors
-                    ? Object.values(data.errors).map(e => e[0]).join('<br>')
-                    : data.message;
+                let errorText = data.errors ? Object.values(data.errors).map(e => e[0]).join('<br>') : data.message;
                 throw new Error(errorText);
             }
             return data;
         })
         .then(data => {
-            document.getElementById('userTable')
-                .insertAdjacentHTML('beforeend', renderUser(data.user));
-
+            const tableBody = document.getElementById('userTable');
+            if (tableBody) {
+                tableBody.insertAdjacentHTML('afterbegin', renderUser(data.user));
+            }
             resetTableNumber();
             updateTotalUser();
-
             Swal.fire('Sukses', 'User berhasil ditambahkan', 'success');
         })
         .catch(err => {
@@ -368,14 +394,26 @@ function addUser() {
 }
 
 // =============================================
-// EDIT USER
+// EDIT USER (DESAIN AWAL + FIX SYNTAX + FORMDATA)
 // =============================================
 function editUser(id) {
-    fetch(`admin/users/${id}`)
-    .then(res => res.json())
+    fetch(`/admin/users/${id}`, {
+        headers: { 'Accept': 'application/json' }
+    })
+    .then(res => {
+        if (!res.ok) throw new Error('Gagal mengambil data dari server.');
+        return res.json();
+    })
     .then(user => {
+        let currentRole = 'Mahasiswa';
+        if (user.roles && user.roles.length > 0) {
+            currentRole = user.roles[0].name;
+        }
 
-        let isManualInput = ['Admin', 'Dosen'].includes(user.roles?.[0]?.name);
+        let isManualInput = ['Admin', 'Dosen'].includes(currentRole);
+        let prodiHTML = isManualInput 
+            ? `<input id="prodi" type="text" class="custom-input" value="${user.prodi || ''}" placeholder="Masukkan Program Studi / Fakultas">`
+            : `<select id="prodi" class="custom-input">${getProdiOptions(user.prodi)}</select>`;
 
         Swal.fire({
             title: 'Edit Data Pengguna',
@@ -383,7 +421,7 @@ function editUser(id) {
             padding: '0',
             showCloseButton: true,
             showCancelButton: true,
-            confirmButtonText: 'Simpan',
+            confirmButtonText: 'Perbarui',
             cancelButtonText: 'Batal',
             reverseButtons: true,
             customClass: {
@@ -400,14 +438,8 @@ function editUser(id) {
                     padding: 25px 40px 15px 30px !important; margin: 0 !important;
                     border-bottom: 1px solid #eee;
                 }
-                /* Ubah padding dari 25px 30px menjadi lebih kecil */
-                div:where(.swal2-container) div:where(.swal2-html-container) {
-                    padding: 15px 20px 20px 20px !important;
-                }
-
-                /* Perkecil jarak antar baris */
-                .form-row { margin-bottom: 10px; 
-                }
+                div:where(.swal2-container) div:where(.swal2-html-container) { padding: 15px 20px 20px 20px !important; }
+                .form-row { margin-bottom: 10px; }
                 .swal2-popup{ overflow: visible !important; }
                 .form-row{ display: flex; align-items: center; margin-bottom: 20px; overflow: visible !important; }
                 .input-wrapper{ width: 72%; overflow: visible !important; }
@@ -419,19 +451,16 @@ function editUser(id) {
                 .form-row label span { color: red; }
                 .custom-input {
                     width: 100%; padding: 10px 12px; border: 1px solid #ccc;
-                    border-radius: 4px; font-size: 14px; color: #333;
-                    box-sizing: border-box; outline: none;
+                    border-radius: 4px; font-size: 14px; color: #333; box-sizing: border-box; outline: none;
                 }
                 .custom-input:focus { border-color: #3f51b5; }
                 .btn-simpan {
                     background-color: #3f51b5 !important; color: white !important;
-                    border-radius: 4px !important; padding: 8px 25px !important;
-                    font-size: 14px !important; margin-left: 10px !important;
+                    border-radius: 4px !important; padding: 8px 25px !important; font-size: 14px !important; margin-left: 10px !important;
                 }
                 .btn-batal {
                     background-color: #fff !important; color: #666 !important;
-                    border: 1px solid #ccc !important; border-radius: 4px !important;
-                    padding: 8px 25px !important; font-size: 14px !important;
+                    border: 1px solid #ccc !important; border-radius: 4px !important; padding: 8px 25px !important; font-size: 14px !important;
                 }
             </style>
 
@@ -451,19 +480,16 @@ function editUser(id) {
                 <label>Roles <span>*</span></label>
                 <div class="input-wrapper">
                     <select id="role" class="custom-input">
-                        <option value="Mahasiswa" ${user.roles?.[0]?.name === 'Mahasiswa' ? 'selected' : ''}>Mahasiswa</option>
-                        <option value="Dosen"     ${user.roles?.[0]?.name === 'Dosen'     ? 'selected' : ''}>Dosen</option>
-                        <option value="Admin"     ${user.roles?.[0]?.name === 'Admin'     ? 'selected' : ''}>Admin</option>
+                        <option value="Mahasiswa" ${currentRole === 'Mahasiswa' ? 'selected' : ''}>Mahasiswa</option>
+                        <option value="Dosen"     ${currentRole === 'Dosen'     ? 'selected' : ''}>Dosen</option>
+                        <option value="Admin"     ${currentRole === 'Admin'     ? 'selected' : ''}>Admin</option>
                     </select>
                 </div>
             </div>
             <div class="form-row" style="margin-bottom:35px;">
                 <label>Program Studi <span>*</span></label>
                 <div class="input-wrapper" id="prodiWrapper">
-                    ${isManualInput 
-                        ? `<input id="prodi" type="text" class="custom-input" value="${user.prodi || ''}" placeholder="Masukkan Program Studi / Fakultas">`
-                        : `<select id="prodi" class="custom-input">${getProdiOptions(user.prodi)}</select>`
-                    }
+                    ${prodiHTML}
                 </div>
             </div>
             <div class="form-row">
@@ -475,21 +501,17 @@ function editUser(id) {
             `,
 
             didOpen: () => {
-                const popup = Swal.getPopup();
-                popup.style.marginTop = '10px';
-                popup.style.overflow = 'visible';
-
-                // Role Change Listener untuk Input Manual Prodi
                 const roleSelect = document.getElementById('role');
                 const prodiWrapper = document.getElementById('prodiWrapper');
-
-                roleSelect?.addEventListener('change', function () {
-                    if (this.value === 'Admin' || this.value === 'Dosen') {
-                        prodiWrapper.innerHTML = `<input id="prodi" type="text" class="custom-input" value="${user.prodi || ''}" placeholder="Masukkan Program Studi / Fakultas secara manual">`;
-                    } else {
-                        prodiWrapper.innerHTML = `<select id="prodi" class="custom-input">${getProdiOptions(user.prodi)}</select>`;
-                    }
-                });
+                if (roleSelect && prodiWrapper) {
+                    roleSelect.addEventListener('change', function () {
+                        if (this.value === 'Admin' || this.value === 'Dosen') {
+                            prodiWrapper.innerHTML = `<input id="prodi" type="text" class="custom-input" value="${user.prodi || ''}" placeholder="Masukkan Program Studi / Fakultas secara manual">`;
+                        } else {
+                            prodiWrapper.innerHTML = `<select id="prodi" class="custom-input">${getProdiOptions()}</select>`;
+                        }
+                    });
+                }
             },
 
             preConfirm: () => ({
@@ -503,37 +525,55 @@ function editUser(id) {
         }).then(result => {
             if (!result.isConfirmed) return;
 
-            fetch(`admin/users/${id}`, {
-                method: 'PUT',
+            const formData = new FormData();
+            formData.append('_method', 'PUT'); 
+            formData.append('name', result.value.name);
+            formData.append('nim', result.value.nim);
+            formData.append('prodi', result.value.prodi || '');
+            formData.append('email', result.value.email);
+            formData.append('role', result.value.role);
+
+            fetch(`/admin/users/${id}`, {
+                method: 'POST', 
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
                 },
-                body: JSON.stringify(result.value)
+                body: formData
             })
-            .then(res => res.json())
+            .then(async res => {
+                let data = await res.json();
+                if (!res.ok) {
+                    let errorText = data.errors ? Object.values(data.errors).map(e => e[0]).join('<br>') : data.message;
+                    throw new Error(errorText);
+                }
+                return data;
+            })
             .then(() => {
-
                 const row = document.getElementById(`row-${id}`);
-                row.children[1].innerText = result.value.name;
-                row.children[2].innerText = result.value.nim;
-                row.children[3].innerText = result.value.prodi || '-';
-                row.children[4].innerText = result.value.email;
+                if (row) {
+                    row.children[1].innerText = result.value.name;
+                    row.children[2].innerText = result.value.nim;
+                    row.children[3].innerText = result.value.prodi || '-';
+                    row.children[4].innerText = result.value.email;
 
-                let roleName  = result.value.role;
-                let roleColor = 'bg-blue-100 text-blue-700';
-                if (roleName === 'Admin') roleColor = 'bg-red-100 text-red-700';
-                if (roleName === 'Dosen') roleColor = 'bg-purple-100 text-purple-700';
+                    let roleName  = result.value.role;
+                    let roleColor = 'bg-blue-100 text-blue-700';
+                    if (roleName === 'Admin') roleColor = 'bg-red-100 text-red-700';
+                    if (roleName === 'Dosen') roleColor = 'bg-purple-100 text-purple-700';
 
-                row.children[5].innerHTML = `
-                    <span class="${roleColor} px-3 py-1 rounded-full text-xs font-semibold">
-                        ${roleName}
-                    </span>
-                `;
+                    row.children[5].innerHTML = `<span class="${roleColor} px-3 py-1 rounded-full text-xs font-semibold">${roleName}</span>`;
+                }
 
                 Swal.fire('Sukses', 'User berhasil diupdate', 'success');
+            })
+            .catch(err => {
+                Swal.fire('Error saat Update', err.message, 'error');
             });
         });
+    })
+    .catch(err => {
+        Swal.fire('Error', err.message, 'error');
     });
 }
 
@@ -553,35 +593,47 @@ function deleteUser(id) {
     }).then(result => {
         if (!result.isConfirmed) return;
 
-        fetch(`admin/users/${id}`, {
-            method: 'DELETE',
+        const formData = new FormData();
+        formData.append('_method', 'DELETE');
+
+        fetch(`/admin/users/${id}`, {
+            method: 'POST',
             headers: {
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            }
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: formData
         })
         .then(async res => {
             let data = await res.json();
-            if (!res.ok) throw new Error(data.message || 'Gagal menghapus');
+            if (!res.ok) throw new Error(data.message || 'Gagal menghapus pengguna.');
             return data;
         })
         .then(() => {
-            document.getElementById(`row-${id}`)?.remove();
+            let rowElement = document.getElementById(`row-${id}`);
+            if (rowElement) {
+                rowElement.remove();
+            }
             resetTableNumber();
             updateTotalUser();
             Swal.fire('Berhasil', 'User berhasil dihapus', 'success');
         })
         .catch(err => {
-            Swal.fire('Error', err.message, 'error');
+            Swal.fire('Error saat Hapus', err.message, 'error');
         });
     });
 }
 
 // =============================================
-// HELPER
+// HELPER: RESET NOMOR TABEL & TOTAL
 // =============================================
 function resetTableNumber() {
-    let counter = 1;
+    const table = document.getElementById('userTable');
+    if (!table) return;
+    
+    let firstItem = parseInt(table.getAttribute('data-first-item')) || 1;
+    let counter = firstItem;
+    
     document.querySelectorAll('#userTable tr').forEach((row) => {
         const tds = row.querySelectorAll('td');
         if (tds.length > 0) {
@@ -593,48 +645,11 @@ function resetTableNumber() {
 
 function updateTotalUser() {
     let total = document.querySelectorAll('#userTable tr').length;
-    document.getElementById('totalUser').innerText = `Total: ${total} Pengguna`;
+    let totalElement = document.getElementById('totalUser');
+    if (totalElement) {
+        totalElement.innerText = `Total di Halaman Ini: ${total} Pengguna`;
+    }
 }
-
-// =============================================
-// GLOBAL SEARCH
-// =============================================
-function filterTable() {
-    let searchText = document.getElementById('globalSearch')
-        .value.toLowerCase()
-        .trim();
-
-    let roleFilter = document.getElementById('roleFilter')
-        .value
-        .toLowerCase();
-
-    document.querySelectorAll('#userTable tr').forEach(row => {
-
-        let rowText = row.textContent.toLowerCase();
-
-        let roleCell = row.children[5];
-        let roleText = roleCell
-            ? roleCell.textContent.toLowerCase().trim()
-            : '';
-
-        let matchSearch = rowText.includes(searchText);
-
-        let matchRole =
-            roleFilter === '' ||
-            roleText.includes(roleFilter);
-
-        row.style.display =
-            (matchSearch && matchRole)
-                ? ''
-                : 'none';
-    });
-}
-
-document.getElementById('globalSearch')
-    .addEventListener('keyup', filterTable);
-
-document.getElementById('roleFilter')
-    .addEventListener('change', filterTable);
 </script>
 
 </x-app-layout>

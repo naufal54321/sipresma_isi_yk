@@ -8,13 +8,12 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\ProgramStudi;
+use Carbon\Carbon;
 
 class LaporanController extends Controller
 {
     /**
      * FUNGSI HELPER: Menerapkan semua filter pencarian
-     * Memisahkan fungsi ini agar tidak perlu menulis ulang logika yang sama
-     * di method index, export, dan exportPdf.
      */
     private function applyFilters($query, Request $request)
     {
@@ -22,26 +21,23 @@ class LaporanController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                // Cari di tabel utama (SPK)
                 $q->where('penyelenggara', 'like', "%{$search}%")
-                  ->orWhere('status', 'like', "%{$search}%")
-                  
-                  // Cari di tabel relasi User (Nama & NIM)
+                  ->orWhere('hasil', 'like', "%{$search}%")
+                  ->orWhere('judul_kegiatan', 'like', "%{$search}%")
                   ->orWhereHas('user', function ($userQuery) use ($search) {
                       $userQuery->where('name', 'like', "%{$search}%")
                                 ->orWhere('nim', 'like', "%{$search}%");
                   })
-                  
-                  // Cari di tabel relasi Kegiatan
                   ->orWhereHas('kegiatan', function ($kegiatanQuery) use ($search) {
-                      $kegiatanQuery->where('kegiatan', 'like', "%{$search}%");
+                      $kegiatanQuery->where('kegiatan', 'like', "%{$search}%")
+                                    ->orWhere('judul_kegiatan', 'like', "%{$search}%");
                   });
             });
         }
 
-        // 2. Filter Tahun
+        // 2. FILTER TAHUN
         if ($request->filled('tahun')) {
-            $query->whereYear('created_at', $request->tahun);
+            $query->where('tahun', $request->tahun);
         }
 
         // 3. Filter Program Studi
@@ -51,11 +47,9 @@ class LaporanController extends Controller
             });
         }
 
-        // 4. Filter Tingkat
+        // 🔧 4. Filter Tingkat (dari SPK, bukan kegiatan)
         if ($request->filled('tingkat')) {
-            $query->whereHas('kegiatan', function ($q) use ($request) {
-                $q->where('tingkat', $request->tingkat);
-            });
+            $query->where('tingkat', $request->tingkat);
         }
 
         return $query;
@@ -63,22 +57,26 @@ class LaporanController extends Controller
 
     public function index(Request $request)
     {
-        $query = Spk::with([
-            'user',
-            'kegiatan.masterKegiatan'
-        ])->where('status', 'disetujui');
+        $query = Spk::with(['user', 'kegiatan.masterKegiatan'])
+            ->where('status', 'disetujui');
 
-        // Panggil fungsi helper untuk filter
         $query = $this->applyFilters($query, $request);
 
         $laporan = $query
             ->latest()
             ->paginate(10)
-            ->withQueryString(); // Mempertahankan parameter filter di URL pagination
+            ->withQueryString();
 
         $prodis = ProgramStudi::where('status', 'aktif')
             ->orderBy('nama_prodi')
             ->get();
+
+        // 🔧 Dropdown Tingkat dari SPK
+        $tingkatList = Spk::select('tingkat')
+            ->distinct()
+            ->whereNotNull('tingkat')
+            ->orderBy('tingkat')
+            ->pluck('tingkat');
 
         $totalMahasiswa = User::role('Mahasiswa')->count();
         $totalDosen = User::role('Dosen')->count();
@@ -88,6 +86,7 @@ class LaporanController extends Controller
         return view('admin.laporan.index', compact(
             'laporan',
             'prodis',
+            'tingkatList',
             'totalMahasiswa',
             'totalDosen',
             'totalSpk',
@@ -97,12 +96,9 @@ class LaporanController extends Controller
 
     public function export(Request $request)
     {
-        $query = Spk::with([
-            'user',
-            'kegiatan.masterKegiatan'
-        ])->where('status', 'disetujui');
+        $query = Spk::with(['user', 'kegiatan.masterKegiatan'])
+            ->where('status', 'disetujui');
 
-        // Panggil fungsi helper untuk filter
         $query = $this->applyFilters($query, $request);
 
         $laporan = $query->get();
@@ -116,19 +112,19 @@ class LaporanController extends Controller
 
         $callback = function () use ($laporan) {
             $file = fopen('php://output', 'w');
-
-            // UTF-8 BOM agar bisa dibaca dengan baik di Excel
             fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
             fputcsv($file, [
                 'Nama',
                 'NIM',
                 'Prodi',
-                'Kegiatan',
+                'Judul Kegiatan',
+                'Nama Kegiatan',
                 'Penyelenggara',
                 'Tingkat',
+                'Hasil',
                 'Poin',
-                'Tanggal'
+                'Tanggal Kegiatan'
             ], ';');
 
             foreach ($laporan as $item) {
@@ -136,11 +132,13 @@ class LaporanController extends Controller
                     $item->user->name ?? '',
                     $item->user->nim ?? '',
                     $item->user->prodi ?? '',
+                    $item->judul_kegiatan ?? $item->kegiatan->judul_kegiatan ?? $item->kegiatan->kegiatan ?? '',
                     $item->kegiatan->kegiatan ?? '',
                     $item->penyelenggara ?? '',
-                    $item->kegiatan->tingkat ?? '',
-                    $item->kegiatan->masterKegiatan->poin ?? 0,
-                    $item->created_at->format('d-m-Y')
+                    $item->tingkat ?? '', // 🔧 DARI SPK
+                    $item->hasil ?? '', // 🔧 DARI SPK
+                    $item->poin ?? 0, // 🔧 DARI SPK
+                    $item->tanggal_kegiatan ? Carbon::parse($item->tanggal_kegiatan)->format('d-m-Y') : '-'
                 ], ';');
             }
 
@@ -152,18 +150,14 @@ class LaporanController extends Controller
 
     public function exportPdf(Request $request)
     {
-        $query = Spk::with([
-            'user',
-            'kegiatan.masterKegiatan'
-        ])->where('status', 'disetujui');
+        $query = Spk::with(['user', 'kegiatan.masterKegiatan'])
+            ->where('status', 'disetujui');
 
-        // Panggil fungsi helper untuk filter
         $query = $this->applyFilters($query, $request);
 
         $laporan = $query->get();
 
         $pdf = Pdf::loadView('admin.laporan.pdf', compact('laporan'));
-
         $pdf->setPaper('A4', 'landscape');
 
         return $pdf->download('laporan-prestasi-mahasiswa-isi-yk.pdf');

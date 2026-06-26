@@ -6,7 +6,6 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
-
 class UserController extends Controller
 {
     /*
@@ -21,17 +20,42 @@ class UserController extends Controller
 
     /*
     |-----------------------------------
-    | STORE AJAX
+    | INDEX AJAX & SERVER-SIDE SEARCH
     |-----------------------------------
     */
+    public function index(Request $request)
+{
+    $query = User::with('roles')
+        ->where('status', 'aktif')  // Hanya aktif
+        ->whereNotNull('status')     // Tidak null
+        ->where('status', '!=', 'pending') // Bukan pending
+        ->where('status', '!=', 'ditolak') // Bukan ditolak
+        ->latest();
 
-    // Tambah index() jika belum ada
-    public function index()
-    {
-        $users = User::with('roles')->latest()->get(); // ✅ DESC (baru ke lama)
-        return view('admin.users.index', compact('users'));
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', '%' . $search . '%')
+              ->orWhere('nim', 'like', '%' . $search . '%')
+              ->orWhere('email', 'like', '%' . $search . '%')
+              ->orWhere('prodi', 'like', '%' . $search . '%');
+        });
     }
 
+    if ($request->filled('role')) {
+        $query->role($request->role);
+    }
+
+    $users = $query->paginate(10)->appends($request->all());
+
+    return view('admin.dashboard', compact('users'));
+}
+
+    /*
+    |-----------------------------------
+    | STORE AJAX (Admin daftarkan user)
+    |-----------------------------------
+    */
     public function store(Request $request)
     {
         $request->validate([
@@ -49,13 +73,15 @@ class UserController extends Controller
             ], 422);
         }
 
-        // PERBAIKAN: Langsung simpan nilai prodi tanpa memaksa null
         $user = User::create([
             'name' => $request->name,
             'nim' => $request->nim,
-            'prodi' => $request->prodi, // <--- Ubah bagian ini
+            'prodi' => $request->prodi,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'email_verified_at' => now(),
+            'is_approved' => true,
+            'status' => 'aktif',
         ]);
 
         $user->assignRole($request->role);
@@ -99,11 +125,10 @@ class UserController extends Controller
             ], 422);
         }
 
-        // PERBAIKAN: Langsung simpan nilai prodi tanpa memaksa null
         $user->update([
             'name' => $request->name,
             'nim' => $request->nim,
-            'prodi' => $request->prodi, // <--- Ubah bagian ini
+            'prodi' => $request->prodi,
             'email' => $request->email,
         ]);
 
@@ -114,6 +139,7 @@ class UserController extends Controller
             'user' => $user->load('roles')
         ]);
     }
+
     /*
     |-----------------------------------
     | DELETE AJAX
@@ -128,42 +154,57 @@ class UserController extends Controller
         ]);
     }
 
-    public function pembimbingIndex()
+    /*
+    |-----------------------------------
+    | DOSEN PEMBIMBING
+    |-----------------------------------
+    */
+    public function pembimbingIndex(Request $request)
     {
-        $mahasiswa = User::role('Mahasiswa')->get();
         $dosen = User::role('Dosen')->get();
+
+        // 🔧 Hanya mahasiswa dengan status 'aktif'
+        $query = User::role('Mahasiswa')
+            ->where('status', 'aktif')
+            ->with('dosenPembimbing');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('nim', 'like', "%{$search}%");
+            });
+        }
+
+        $mahasiswa = $query->latest()->paginate(10);
 
         return view('admin.pembimbing.index', compact('mahasiswa', 'dosen'));
     }
 
     public function setPembimbing(Request $request)
-{
-    // 1. Tambahkan validasi ini untuk mencegah error 404
-    $request->validate([
-        'mahasiswa_id' => 'required|exists:users,id',
-        'dosen_id'     => 'nullable|exists:users,id'
-    ], [
-        'mahasiswa_id.required' => 'Harap pilih mahasiswa terlebih dahulu.',
-    ]);
+    {
+        $request->validate([
+            'mahasiswa_id' => 'required|exists:users,id',
+            'dosen_id'     => 'nullable|exists:users,id'
+        ], [
+            'mahasiswa_id.required' => 'Harap pilih mahasiswa terlebih dahulu.',
+        ]);
 
-    // 2. Karena sudah divalidasi 'required', baris ini dijamin tidak akan memicu 404
-    $mahasiswa = User::findOrFail($request->mahasiswa_id);
+        $mahasiswa = User::findOrFail($request->mahasiswa_id);
+        $mahasiswa->dosen_pembimbing_id = $request->dosen_id;
+        $mahasiswa->save();
 
-    // 3. Logika Anda yang sudah rapi dipertahankan
-    $mahasiswa->dosen_pembimbing_id = 
-        $request->filled('dosen_id') 
-        ? $request->dosen_id 
-        : null;
+        $pesan = $request->dosen_id
+            ? 'Dosen pembimbing berhasil diatur.'
+            : 'Dosen pembimbing berhasil dihapus.';
 
-    $mahasiswa->save();
-
-    return back()->with('success', 'Data berhasil disimpan');
-}
+        return back()->with('success', $pesan);
+    }
 
     public function getUsersData()
     {
-        $users = User::orderBy('created_at', 'desc')->get();
-
+        // 🔧 Hanya user aktif
+        $users = User::where('status', 'aktif')->orderBy('created_at', 'desc')->get();
         return response()->json($users);
     }
 }

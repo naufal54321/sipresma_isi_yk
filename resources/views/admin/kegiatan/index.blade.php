@@ -1,14 +1,34 @@
 <x-app-layout>
 
+    {{-- SweetAlert Success Message --}}
     @if(session('success'))
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         Swal.fire({
             icon: 'success',
-            title: 'Berhasil',
+            title: 'Berhasil!',
             text: '{{ session('success') }}',
-            timer: 2000,
-            showConfirmButton: false
+            timer: 3000,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    </script>
+    @endif
+
+    {{-- SweetAlert Error Messages --}}
+    @if($errors->any())
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Validasi Gagal!',
+            html: `<ul class="text-left list-disc pl-4">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>`,
+            confirmButtonColor: '#dc2626'
         });
     </script>
     @endif
@@ -16,6 +36,7 @@
     <div class="py-6">
         <div class="max-w-8xl mx-auto py-6">
 
+            {{-- Header Section --}}
             <div class="flex items-center justify-between mb-6">
                 <div>
                     <h1 class="text-3xl font-bold text-gray-800">
@@ -27,289 +48,347 @@
                 </div>
             </div>
 
+            {{-- Filter & Search Section --}}
             <div class="bg-white shadow rounded-xl p-4 mb-4 flex flex-col md:flex-row items-center justify-between gap-4">
                 
-                <form method="GET" action="{{ route('admin.kegiatan.index') }}" class="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
+                <form method="GET" action="{{ route('admin.kegiatan.index') }}" 
+                      id="filterForm"
+                      class="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
     
-    <div class="relative w-full md:w-auto flex-shrink-0">
-        <input type="text"
-               name="search"
-               value="{{ request('search') }}"
-               placeholder="Cari data..."
-               class="w-full md:w-64 border border-gray-300 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-        <svg xmlns="http://www.w3.org/2000/svg"
-             class="w-4 h-4 absolute left-3 top-3 text-gray-400"
-             fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"/>
-        </svg>
-    </div>
+                    {{-- Search Input --}}
+                    <div class="relative w-full md:w-auto flex-shrink-0">
+                        <input type="text"
+                               name="search"
+                               value="{{ request('search') }}"
+                               placeholder="Cari kegiatan..."
+                               class="w-full md:w-64 border border-gray-300 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="w-4 h-4 absolute left-3 top-3 text-gray-400"
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"/>
+                        </svg>
+                    </div>
 
-    <select name="status" class="w-full md:w-48 border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
-        <option value="">Semua Status</option>
-        <option value="aktif" {{ request('status') == 'aktif' ? 'selected' : '' }}>Aktif</option>
-        <option value="tidak aktif" {{ request('status') == 'tidak aktif' ? 'selected' : '' }}>Tidak Aktif</option>
-    </select>
+                    {{-- Status Filter --}}
+                    <select name="status" 
+                            id="statusFilter"
+                            class="w-full md:w-48 border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer transition">
+                        <option value="">Semua Status</option>
+                        <option value="aktif" {{ request('status') == 'aktif' ? 'selected' : '' }}>Aktif</option>
+                        <option value="tidak aktif" {{ request('status') == 'tidak aktif' ? 'selected' : '' }}>Tidak Aktif</option>
+                    </select>
 
-    <div class="flex gap-2 w-full md:w-auto flex-shrink-0">
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-semibold transition w-full md:w-auto whitespace-nowrap">
-            Cari
-        </button>
-        
-        @if(request('search') || request('status'))
-            <a href="{{ route('admin.kegiatan.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-xl text-sm font-semibold transition flex items-center justify-center w-full md:w-auto whitespace-nowrap">
-                Reset
-            </a>
-        @endif
-    </div>
-</form>
+                    {{-- Action Buttons --}}
+                    <div class="flex gap-2 w-full md:w-auto flex-shrink-0">
+                        <button type="submit" 
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-semibold transition duration-150 w-full md:w-auto whitespace-nowrap flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                            Cari
+                        </button>
+                        
+                        @if(request('search') || request('status'))
+                            <a href="{{ route('admin.kegiatan.index') }}" 
+                               onclick="return confirm('Reset semua filter?')"
+                               class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-xl text-sm font-semibold transition duration-150 flex items-center justify-center w-full md:w-auto whitespace-nowrap gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                </svg>
+                                Reset
+                            </a>
+                        @endif
+                    </div>
+                </form>
 
+                {{-- Add Button --}}
                 <button onclick="bukaModalTambahMaster()"
-                   class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm font-semibold transition cursor-pointer w-full md:w-auto whitespace-nowrap">
-                    + Tambah Kegiatan
+                   class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm font-semibold transition duration-150 cursor-pointer w-full md:w-auto whitespace-nowrap flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Tambah Kegiatan
                 </button>
             </div>
+
+            {{-- Table Section --}}
             <div class="bg-white shadow-xl rounded-2xl overflow-hidden">
-                <table class="w-full text-sm text-left text-gray-600">
-                    <thead class="bg-gray-50 uppercase text-xs tracking-wider">
-                        <tr>
-                            <th class="px-6 py-4 text-center">No</th>
-                            <th class="px-6 py-4">Nama Kegiatan</th>
-                            <th class="px-6 py-4">Jenis</th>
-                            <th class="px-6 py-4">Tingkat</th>
-                            <th class="px-6 py-4">Hasil</th>
-                            <th class="px-4 py-4 text-center">Poin</th>
-                            <th class="px-8 py-4 text-center">Status</th>
-                            <th class="px-6 py-4 text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($kegiatans as $kegiatan)
-                        <tr class="border-b hover:bg-blue-50 transition">
-                            <td class="px-6 py-4 text-center">
-                                {{ $loop->iteration }}
-                            </td>
-                            <td class="px-6 py-4 font-medium text-gray-800">
-                                {{ $kegiatan->nama_kegiatan }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ $kegiatan->jenis }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ $kegiatan->tingkat }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ $kegiatan->hasil }}
-                            </td>
-                            <td class="px-4 py-4 text-center">
-                                {{ $kegiatan->poin }}
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                @if($kegiatan->status == 'aktif')
-                                    <span class="inline-block min-w-[90px] text-center bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
-                                        Aktif
-                                    </span>
-                                @else
-                                    <span class="inline-block min-w-[90px] text-center bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
-                                        Tidak Aktif
-                                    </span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                <div class="flex justify-center gap-2">
-                                    
-                                    <button type="button"
-                                            onclick="bukaModalEditMaster(this)"
-                                            data-id="{{ $kegiatan->id }}"
-                                            data-nama="{{ e($kegiatan->nama_kegiatan) }}"
-                                            data-jenis="{{ e($kegiatan->jenis) }}"
-                                            data-tingkat="{{ e($kegiatan->tingkat) }}"
-                                            data-hasil="{{ e($kegiatan->hasil) }}"
-                                            data-poin="{{ $kegiatan->poin }}"
-                                            data-status="{{ $kegiatan->status }}"
-                                            class="bg-yellow-500 hover:bg-yellow-400 text-white px-4 py-2 rounded-lg text-sm transition">
-                                        Edit
-                                    </button>
-
-                                    <form action="{{ route('admin.kegiatan.destroy', $kegiatan->id) }}" method="POST" class="delete-form">
-                                        @csrf
-                                        @method('DELETE')
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-600">
+                        <thead class="bg-gray-50 uppercase text-xs tracking-wider border-b-2 border-gray-200">
+                            <tr>
+                                <th class="px-6 py-4 text-center w-16">No</th>
+                                <th class="px-6 py-4">Nama Kegiatan</th>
+                                <th class="px-6 py-4">Jenis</th>
+                                <th class="px-8 py-4 text-center">Status</th>
+                                <th class="px-6 py-4 text-center w-32">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            @forelse($kegiatans as $index => $kegiatan)
+                            <tr class="border-b hover:bg-blue-50 transition duration-150">
+                                {{-- Nomor --}}
+                                <td class="px-6 py-4 text-center">
+                                    {{ ($kegiatans->currentPage() - 1) * $kegiatans->perPage() + $loop->iteration }}
+                                </td>
+                                
+                                {{-- Nama Kegiatan --}}
+                                <td class="px-6 py-4 font-medium text-gray-800">
+                                    {{ $kegiatan->nama_kegiatan }}
+                                </td>
+                                
+                                {{-- Jenis --}}
+                                <td class="px-6 py-4">
+                                    {{ $kegiatan->jenis }}
+                                </td>
+                                
+                                {{-- Status --}}
+                                <td class="px-6 py-4 text-center">
+                                    @if($kegiatan->status == 'aktif')
+                                        <span class="inline-flex items-center gap-1 min-w-[100px] justify-center bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                            Aktif
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 min-w-[100px] justify-center bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                            <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                                            Tidak Aktif
+                                        </span>
+                                    @endif
+                                </td>
+                                
+                                {{-- Aksi --}}
+                                <td class="px-6 py-4 text-center">
+                                    <div class="flex justify-center gap-2">
+                                        
+                                        {{-- Edit Button --}}
                                         <button type="button"
-                                                onclick="hapusKegiatan(this)"
-                                                class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm transition">
-                                            Hapus
+                                                onclick="bukaModalEditMaster(this)"
+                                                data-id="{{ $kegiatan->id }}"
+                                                data-nama="{{ e($kegiatan->nama_kegiatan) }}"
+                                                data-jenis="{{ e($kegiatan->jenis) }}"
+                                                data-status="{{ $kegiatan->status }}"
+                                                title="Edit Kegiatan"
+                                                class="flex items-center justify-center w-9 h-9 bg-yellow-500 hover:bg-yellow-400 text-white rounded-lg transition shadow-sm">
+                                            <i class="fas fa-pen"></i>
                                         </button>
-                                    </form>
 
-                                </div>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="8" class="text-center py-10 text-gray-400">
-                                Belum ada data kegiatan
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                                        {{-- Delete Button --}}
+                                        <form action="{{ route('admin.kegiatan.destroy', $kegiatan->id) }}" 
+                                              method="POST" 
+                                              class="delete-form m-0">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="button"
+                                                    onclick="hapusKegiatan(this, '{{ e($kegiatan->nama_kegiatan) }}')"
+                                                    title="Hapus Kegiatan"
+                                                    class="flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-500 text-white rounded-lg transition shadow-sm">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+
+                                    </div>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="6" class="text-center py-10 text-gray-400">
+                                    Belum ada data kegiatan
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {{-- Pagination --}}
+            <div class="mt-6">
+                {{ $kegiatans->withQueryString()->links() }}
             </div>
 
         </div>
     </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {{-- Font Awesome --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    {{-- SweetAlert2 --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
-// --- Script Hapus Master Kegiatan ---
-function hapusKegiatan(button) {
-    Swal.fire({
-        title: 'Hapus Kegiatan?',
-        text: 'Data yang dihapus tidak dapat dikembalikan.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#dc2626',
-        cancelButtonColor: '#6b7280',
-        confirmButtonText: 'Ya, Hapus',
-        cancelButtonText: 'Batal'
-    }).then((result) => {
-        if(result.isConfirmed) {
-            button.closest('form').submit();
-        }
-    });
-}
-
-// --- FUNGSI HELPER UNTUK VALIDASI FORM ---
-function validasiFormMaster(prefix) {
-    const nama = document.getElementById(`${prefix}_nama`).value;
-    const jenis = document.getElementById(`${prefix}_jenis`).value;
-    const tingkat = document.getElementById(`${prefix}_tingkat`).value;
-    const hasil = document.getElementById(`${prefix}_hasil`).value;
-    const poin = document.getElementById(`${prefix}_poin`).value;
-    const status = document.getElementById(`${prefix}_status`).value;
-
-    if (!nama || !jenis || !tingkat || !hasil || !poin || !status) {
-        Swal.showValidationMessage('Harap lengkapi semua field wajib (bertanda *)');
-        return false;
+    <script>
+    // ============================================
+    // FUNGSI HAPUS KEGIATAN
+    // ============================================
+    function hapusKegiatan(button, namaKegiatan) {
+        Swal.fire({
+            title: 'Hapus Kegiatan?',
+            html: `Anda akan menghapus kegiatan <strong>"${namaKegiatan}"</strong>.<br>Data yang dihapus tidak dapat dikembalikan.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal',
+            reverseButtons: true,
+            allowOutsideClick: false, 
+            allowEscapeKey: false, 
+            customClass: {
+                popup: 'rounded-2xl',
+                confirmButton: 'rounded-xl font-semibold',
+                cancelButton: 'rounded-xl font-semibold'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Menghapus...',
+                    text: 'Mohon tunggu sebentar',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+                button.closest('form').submit();
+            }
+        });
     }
-    return true;
-}
 
-// --- FUNGSI GENERATE HTML MODAL ---
-function generateFormMasterHTML(prefix) {
-    return `
-        <div class="mb-4">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Kegiatan *</label>
-            <input type="text" name="nama_kegiatan" id="${prefix}_nama" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring focus:ring-blue-200" required>
-        </div>
+    // ============================================
+    // FUNGSI VALIDASI FORM (DIPERBAIKI)
+    // ============================================
+    function validasiFormMaster(prefix) {
+        const nama = document.getElementById(`${prefix}_nama`).value.trim();
+        const jenis = document.getElementById(`${prefix}_jenis`).value.trim();
+        const status = document.getElementById(`${prefix}_status`).value;
 
-        <div class="mb-4">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Jenis *</label>
-            <input type="text" name="jenis" id="${prefix}_jenis" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring focus:ring-blue-200" required>
-        </div>
-
-        <div class="mb-4">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Tingkat *</label>
-            <select name="tingkat" id="${prefix}_tingkat" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring focus:ring-blue-200" required>
-                <option value="">Pilih Tingkat</option>
-                <option value="Universitas">Universitas</option>
-                <option value="Regional">Regional</option>
-                <option value="Nasional">Nasional</option>
-                <option value="Internasional">Internasional</option>
-            </select>
-        </div>
-
-        <div class="mb-4">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Hasil *</label>
-            <input type="text" name="hasil" id="${prefix}_hasil" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring focus:ring-blue-200" placeholder="Contoh: Juara/Sertifikat" required>
-        </div>
-
-        <div class="mb-4">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Poin *</label>
-            <input type="number" name="poin" id="${prefix}_poin" min="0" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring focus:ring-blue-200" required>
-        </div>
-
-        <div class="mb-4">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Status Kegiatan *</label>
-            <select name="status" id="${prefix}_status" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring focus:ring-blue-200" required>
-                <option value="aktif">Aktif</option>
-                <option value="tidak aktif">Tidak Aktif</option>
-            </select>
-        </div>
-    `;
-}
-
-// --- Script Tambah Master Kegiatan ---
-function bukaModalTambahMaster() {
-    Swal.fire({
-        title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Tambah Master Kegiatan</h2>',
-        width: '600px',
-        html: `
-            <form id="formTambahMaster" action="{{ route('admin.kegiatan.store') }}" method="POST" class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">
-                @csrf
-                ${generateFormMasterHTML('add')}
-            </form>
-        `,
-        showCancelButton: true,
-        confirmButtonText: 'Simpan',
-        cancelButtonText: 'Batal',
-        confirmButtonColor: '#2563EB',
-        cancelButtonColor: '#9CA3AF',
-        customClass: { popup: 'rounded-2xl p-4' },
-        preConfirm: () => {
-            if (validasiFormMaster('add')) {
-                document.getElementById('formTambahMaster').submit();
-            }
+        // 🔧 HANYA 3 FIELD: nama, jenis, status
+        if (!nama || !jenis || !status) {
+            Swal.showValidationMessage('Harap lengkapi semua field wajib (bertanda *)');
+            return false;
         }
-    });
-}
 
-// --- Script Edit Master Kegiatan ---
-function bukaModalEditMaster(button) {
-    // 1. Ambil data dari atribut tombol
-    const id = button.getAttribute('data-id');
-    const nama = button.getAttribute('data-nama');
-    const jenis = button.getAttribute('data-jenis');
-    const tingkat = button.getAttribute('data-tingkat');
-    const hasil = button.getAttribute('data-hasil');
-    const poin = button.getAttribute('data-poin');
-    const status = button.getAttribute('data-status');
+        return true;
+    }
 
-    // 2. Buat URL dinamis untuk form action PUT
-    let actionUrl = "{{ route('admin.kegiatan.update', ':id') }}".replace(':id', id);
+    // ============================================
+    // FUNGSI GENERATE HTML FORM
+    // ============================================
+    function generateFormMasterHTML(prefix) {
+        return `
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Kegiatan *</label>
+                <input type="text" name="nama_kegiatan" id="${prefix}_nama" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring focus:ring-blue-200" required>
+            </div>
 
-    // 3. Panggil SweetAlert
-    Swal.fire({
-        title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Edit Master Kegiatan</h2>',
-        width: '600px',
-        html: `
-            <form id="formEditMaster" action="${actionUrl}" method="POST" class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">
-                @csrf
-                @method('PUT')
-                ${generateFormMasterHTML('edit')}
-            </form>
-        `,
-        showCancelButton: true,
-        confirmButtonText: 'Update',
-        cancelButtonText: 'Batal',
-        confirmButtonColor: '#D97706', // Warna Kuning/Orange (Sesuai tombol edit)
-        cancelButtonColor: '#9CA3AF',
-        customClass: { popup: 'rounded-2xl p-4' },
-        didOpen: () => {
-            // Auto-fill value ke dalam inputan saat modal terbuka
-            document.getElementById('edit_nama').value = nama;
-            document.getElementById('edit_jenis').value = jenis;
-            document.getElementById('edit_tingkat').value = tingkat;
-            document.getElementById('edit_hasil').value = hasil;
-            document.getElementById('edit_poin').value = poin;
-            document.getElementById('edit_status').value = status;
-        },
-        preConfirm: () => {
-            if (validasiFormMaster('edit')) {
-                document.getElementById('formEditMaster').submit();
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Jenis *</label>
+                <input type="text" name="jenis" id="${prefix}_jenis" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring focus:ring-blue-200" required>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Status Kegiatan *</label>
+                <select name="status" id="${prefix}_status" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring focus:ring-blue-200" required>
+                    <option value="aktif">Aktif</option>
+                    <option value="tidak aktif">Tidak Aktif</option>
+                </select>
+            </div>
+        `;
+    }
+
+    // ============================================
+    // FUNGSI TAMBAH KEGIATAN
+    // ============================================
+    function bukaModalTambahMaster() {
+        Swal.fire({
+            title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Tambah Master Kegiatan</h2>',
+            width: '600px',
+            html: `
+                <form id="formTambahMaster" action="{{ route('admin.kegiatan.store') }}" method="POST" class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">
+                    @csrf
+                    ${generateFormMasterHTML('add')}
+                </form>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Simpan',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#2563EB',
+            cancelButtonColor: '#9CA3AF',
+            allowOutsideClick: false, 
+            allowEscapeKey: false, 
+            customClass: { popup: 'rounded-2xl p-4' },
+            didOpen: () => {
+                setTimeout(() => {
+                    const input = document.getElementById('add_nama');
+                    if (input) input.focus();
+                }, 100);
+            },
+            preConfirm: () => {
+                if (validasiFormMaster('add')) {
+                    Swal.showLoading();
+                    document.getElementById('formTambahMaster').submit();
+                    return false; 
+                }
+                return false; 
             }
-        }
+        });
+    }
+
+    // ============================================
+    // FUNGSI EDIT KEGIATAN
+    // ============================================
+    function bukaModalEditMaster(button) {
+        const id = button.getAttribute('data-id');
+        const nama = button.getAttribute('data-nama');
+        const jenis = button.getAttribute('data-jenis');
+        const status = button.getAttribute('data-status');
+
+        let actionUrl = "{{ route('admin.kegiatan.update', ':id') }}".replace(':id', id);
+
+        Swal.fire({
+            title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Edit Master Kegiatan</h2>',
+            width: '600px',
+            html: `
+                <form id="formEditMaster" action="${actionUrl}" method="POST" class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">
+                    @csrf
+                    @method('PUT')
+                    ${generateFormMasterHTML('edit')}
+                </form>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Perbarui',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#2563EB',
+            cancelButtonColor: '#9CA3AF',
+            allowOutsideClick: false, 
+            allowEscapeKey: false, 
+            customClass: { popup: 'rounded-2xl p-4' },
+            didOpen: () => {
+                document.getElementById('edit_nama').value = nama;
+                document.getElementById('edit_jenis').value = jenis;
+                document.getElementById('edit_status').value = status;
+                
+                setTimeout(() => {
+                    const input = document.getElementById('edit_nama');
+                    if (input) input.focus();
+                }, 100);
+            },
+            preConfirm: () => {
+                if (validasiFormMaster('edit')) {
+                    Swal.showLoading();
+                    document.getElementById('formEditMaster').submit();
+                    return false; 
+                }
+                return false; 
+            }
+        });
+    }
+
+    // ============================================
+    // AUTO SUBMIT FILTER SAAT STATUS BERUBAH
+    // ============================================
+    document.getElementById('statusFilter')?.addEventListener('change', function() {
+        document.getElementById('filterForm').submit();
     });
-}
 </script>
 
 </x-app-layout>

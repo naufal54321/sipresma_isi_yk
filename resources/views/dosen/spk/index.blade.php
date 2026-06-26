@@ -75,6 +75,7 @@
                         <th class="px-6 py-4">Tahun</th>
                         <th class="px-6 py-4">RPK</th>
                         <th class="px-6 py-4">Kegiatan</th>
+                        <th class="px-6 py-4">Kategori</th>
                         <th class="px-6 py-4 text-center">Status</th>
                         <th class="px-6 py-4 text-center">Aksi</th>
                     </tr>
@@ -118,6 +119,10 @@
                             {{ $spk->kegiatan->kegiatan ?? '-' }}
                         </td>
 
+                        <td class="px-6 py-4">
+                            {{ $spk->kategori ?? '-' }}
+                        </td>
+
                         <td class="px-6 py-4 text-center">
 
                             @if($spk->status == 'draft')
@@ -147,8 +152,9 @@
                             <div class="flex justify-center gap-2">
 
                                 <a href="{{ route('dosen.spk.show', $spk->id) }}"
-                                   class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm">
-                                    Detail
+                                   title="Detail SPK"
+                                    class="flex items-center justify-center w-9 h-9 bg-gray-400 text-white hover:bg-gray-500 border border-gray-200 rounded-lg transition shadow-sm">
+                                    <i class="fas fa-eye"></i>
                                 </a>
 
                             </div>

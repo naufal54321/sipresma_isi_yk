@@ -1,126 +1,120 @@
 <x-app-layout>
 
 <style>
-    /* Menyembunyikan scrollbar tapi tetap bisa di-scroll */
-    .hide-scrollbar::-webkit-scrollbar {
-        display: none;
-    }
-    .hide-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
 
 <div class="max-w-8xl mx-auto py-6">
 
+    {{-- BANNER UNTUK ANGGOTA --}}
+    @php
+        $user = Auth::user();
+        $isPemilik = $rpk->user_id == $user->id;
+        $isAnggota = !$isPemilik && $rpk->kegiatans()
+            ->whereHas('anggota', function($q) use ($user) {
+                $q->where('user_id', $user->id);
+            })->exists();
+    @endphp
+
+    @if($isAnggota)
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+            <div class="flex items-center gap-3">
+                <svg class="w-6 h-6 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div>
+                    <p class="text-sm font-semibold text-blue-800">Anda adalah Anggota Kelompok</p>
+                    <p class="text-xs text-blue-600 mt-1">Anda hanya dapat melihat data. Anda tidak dapat menambah, mengedit, atau menghapus kegiatan.</p>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <h1 class="text-3xl font-bold text-gray-900">
-            Detail Kegiatan RPK
-        </h1>
+        <h1 class="text-3xl font-bold text-gray-900">Detail Kegiatan RPK</h1>
 
         <div class="flex items-center gap-3">
-    <a href="{{ route('rpks.index') }}"
-       class="inline-flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition">
-        ← Kembali
-    </a>
-@if($rpk->status == 'draft' || $rpk->status == 'ditolak')
-<button onclick="bukaModalTambahKegiatan()"
-    class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm font-semibold transition cursor-pointer">
-    + Tambah Kegiatan
-</button>
-@endif
-</div>
+            <a href="{{ route('rpks.index') }}"
+               class="inline-flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition">
+                ← Kembali
+            </a>
+            
+           {{-- ✅ Semua mahasiswa bisa tambah kegiatan --}}
+                @if($rpk->status == 'draft' || $rpk->status == 'ditolak')
+                <button onclick="bukaModalTambahKegiatan()"
+                    class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm font-semibold transition cursor-pointer">
+                    + Tambah Kegiatan
+                </button>
+                @endif
+        </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
+        {{-- SIDEBAR --}}
         <div class="lg:col-span-4">
-    <div class="bg-gray-50 border border-gray-200 shadow-sm rounded-xl overflow-hidden">
-        <div class="px-6 py-5 border-b border-gray-200 bg-white">
-            <h2 class="text-lg font-bold text-gray-900">Detail & Periode</h2>
+            <div class="bg-gray-50 border border-gray-200 shadow-sm rounded-xl overflow-hidden">
+                <div class="px-6 py-5 border-b border-gray-200 bg-white">
+                    <h2 class="text-lg font-bold text-gray-900">Detail & Periode</h2>
+                </div>
+
+                <div class="p-6 bg-white space-y-4">
+                    <div class="grid grid-cols-3 gap-2">
+                        <span class="text-sm font-bold text-gray-600">Nama</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">
+                            {{ $rpk->user->name }}
+                            @if($isPemilik)<span class="text-xs text-blue-500 ml-1">(Anda)</span>
+                            @elseif($isAnggota)<span class="text-xs text-gray-400 ml-1">(Ketua)</span>@endif
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2">
+                        <span class="text-sm font-bold text-gray-600">NIM</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->user->nim ?? '-' }}</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
+                        <span class="text-sm font-bold text-gray-600">Prodi</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->user->prodi ?? '-' }}</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 pt-2">
+                        <span class="text-sm font-bold text-gray-600">Tahun RPK</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->tahun }}</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
+                        <span class="text-sm font-bold text-gray-600">Semester</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->semester }}</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 pb-4">
+                        <span class="text-sm font-bold text-gray-600">Jumlah Kegiatan</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">
+                            @if($isAnggota)
+                                {{ $rpk->kegiatans->filter(function($k) use ($user) { return $k->anggota->contains('id', $user->id); })->count() }}
+                            @else
+                                {{ $rpk->kegiatans->count() }}
+                            @endif
+                        </span>
+                    </div>
+
+                    <div class="col-span-2 md:col-span-4 mt-2 pt-3 border-t border-gray-200">
+                        <span class="text-sm font-bold text-gray-600">Status</span>
+                        @if($rpk->status == 'draft')
+                            <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">Draft</span>
+                        @elseif($rpk->status == 'disetujui')
+                            <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">Disetujui</span>
+                        @elseif($rpk->status == 'ditolak')
+                            <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold">Ditolak</span>
+                        @endif
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="p-6 bg-white space-y-4">
-
-            <div class="grid grid-cols-3 gap-2">
-                <span class="text-sm font-bold text-gray-600">Nama</span>
-                <span class="col-span-2 text-sm text-gray-800 font-medium">
-                    {{ $rpk->user->name }}
-                </span>
-            </div>
-
-            <div class="grid grid-cols-3 gap-2">
-                <span class="text-sm font-bold text-gray-600">NIM</span>
-                <span class="col-span-2 text-sm text-gray-800 font-medium">
-                    {{ $rpk->user->nim ?? '-' }}
-                </span>
-            </div>
-
-            <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
-                <span class="text-sm font-bold text-gray-600">Prodi</span>
-                <span class="col-span-2 text-sm text-gray-800 font-medium">
-                    {{ $rpk->user->prodi ?? '-' }}
-                </span>
-            </div>
-
-            <div class="grid grid-cols-3 gap-2 pt-2">
-                <span class="text-sm font-bold text-gray-600">Tahun RPK</span>
-                <span class="col-span-2 text-sm text-gray-800 font-medium">
-                    {{ $rpk->tahun }}
-                </span>
-            </div>
-
-            <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
-                <span class="text-sm font-bold text-gray-600">Semester</span>
-                <span class="col-span-2 text-sm text-gray-800 font-medium">
-                    {{ $rpk->semester }}
-                </span>
-            </div>
-
-            <div class="grid grid-cols-3 gap-2 pb-4">
-                <span class="text-sm font-bold text-gray-600">Kategori</span>
-                <span class="col-span-2 text-sm text-gray-800 font-medium">
-                    {{ $rpk->kategori }}
-                </span>
-            </div>
-
-            <div class="grid grid-cols-3 gap-2 pb-4">
-                <span class="text-sm font-bold text-gray-600">Jumlah Kegiatan</span>
-                <span class="col-span-2 text-sm text-gray-800 font-medium">
-                    {{ $rpk->kegiatans->count() }}
-                </span>
-            </div>
-
-
-            <div class="col-span-2 md:col-span-4 mt-2 pt-3 border-t border-gray-200">
-                <span class="text-sm font-bold text-gray-600">Status</span>
-
-                @if($rpk->status == 'draft')
-                    <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                        Draft
-                    </span>
-
-                @elseif($rpk->status == 'disetujui')
-                    <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                        Disetujui
-                    </span>
-
-                @elseif($rpk->status == 'ditolak')
-                    <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                        Ditolak
-                    </span>
-
-                @else
-                    <span class="bg-gray-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                        Belum Diketahui
-                    </span>
-                @endif
-            </div>
-
-        </div>
-    </div>
-</div>
-
+        {{-- TABEL KEGIATAN --}}
         <div class="lg:col-span-8">
             <div class="bg-white border border-gray-200 shadow-sm rounded-xl overflow-hidden flex flex-col h-full">
                 
@@ -128,109 +122,172 @@
                     <button onclick="geserTab(0)" class="tab-btn bg-white border-t border-l border-r border-gray-200 rounded-t-lg px-6 py-3 -mb-[1px] relative z-10 font-bold text-gray-800 whitespace-nowrap transition cursor-pointer">
                         Rencana Kegiatan
                     </button>
-                   
-                    <button onclick="geserTab(2)" class="tab-btn px-6 py-3 text-gray-500 font-bold hover:text-gray-700 whitespace-nowrap border-b border-transparent transition cursor-pointer">
+                    <button onclick="geserTab(1)" class="tab-btn px-6 py-3 text-gray-500 font-bold hover:text-gray-700 whitespace-nowrap border-b border-transparent transition cursor-pointer">
                         Riwayat RPK
                     </button>
                 </div>
 
                 <div class="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar scroll-smooth flex-grow" id="tab-content-container">
                     
+                    {{-- TAB 1: RENCANA KEGIATAN --}}
                     <div class="w-full flex-shrink-0 snap-start p-6">
                         <h3 class="text-gray-600 font-medium mb-4">Daftar Rencana Kegiatan</h3>
                         
-                       <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden mb-6">
-    <div class="overflow-x-auto">
-        <table class="w-full text-sm text-left text-gray-600">
-            <thead class="bg-gray-50 text-gray-700 uppercase text-xs tracking-wider border-b border-gray-200">
-                <tr>
-                    <th class="px-4 py-4 font-semibold text-center w-16">Aksi</th>
-                    <th class="px-4 py-4 font-semibold text-center w-16">No</th>
-                    <th class="px-4 py-4 font-semibold">Nama Kegiatan</th>
-                    <th class="px-4 py-4 font-semibold">Jenis</th>
-                    <th class="px-4 py-4 font-semibold">Tingkat</th>
-                    <th class="px-4 py-4 font-semibold">Hasil</th>
-                    <th class="px-4 py-4 font-semibold text-center">Poin</th>
-                </tr>
-            </thead>
-            <tbody>
+                        <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden mb-6">
+                            
+                                <table class="w-full text-sm text-left text-gray-600">
+                                    <thead class="bg-gray-50 text-gray-700 uppercase text-xs tracking-wider border-b border-gray-200">
+                                                                        <tr>
+                                            @if($isPemilik && ($rpk->status == 'draft' || $rpk->status == 'ditolak'))
+                                                <th class="px-3 py-3 font-semibold text-center w-16">Aksi</th>
+                                            @endif
+                                            <th class="px-3 py-3 font-semibold text-center w-10">No</th>
+                                            <th class="px-3 py-3 font-semibold">Judul Kegiatan</th>
+                                            <th class="px-3 py-3 font-semibold">Nama Kegiatan</th>
+                                            <th class="px-3 py-3 font-semibold">Jenis</th>
+                                            <th class="px-3 py-3 font-semibold text-center">Kategori</th>
+                                            <th class="px-3 py-3 font-semibold text-center">Tanggal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    @php
+                                        if($isAnggota) {
+                                            $kegiatansTampil = $rpk->kegiatans->filter(function($k) use ($user) {
+                                                return $k->kategori == 'Kelompok' && $k->anggota->contains('id', $user->id);
+                                            });
+                                        } else {
+                                            $kegiatansTampil = $rpk->kegiatans;
+                                        }
+                                    @endphp
 
+                                    @forelse($kegiatansTampil as $kegiatan)
+                                    <tr class="bg-white hover:bg-gray-50">
+                                        @if($isPemilik && ($rpk->status == 'draft' || $rpk->status == 'ditolak'))
+                                            <td class="px-4 py-3 border-r border-gray-200">
+                                                <div class="flex gap-2">
 
-@forelse($rpk->kegiatans as $kegiatan)
-<tr class="bg-white">
-    <td class="px-4 py-4 border-r border-gray-200">
+                                                    <form action="{{ route('kegiatans.destroy', $kegiatan->id) }}" method="POST">
+                                                        @csrf @method('DELETE')
+                                                        <button type="button" onclick="hapusKegiatan(this)" title="Hapus Kegiatan"
+                                                                class="flex items-center justify-center w-9 h-9 bg-red-500 text-white hover:bg-red-600 rounded-lg transition shadow-sm">
+                                                            <i class="fas fa-trash text-xs"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        @endif
+                                        
+                                        <td class="px-4 py-3 border-r border-gray-200 text-center">{{ $loop->iteration }}</td>
+                                        <td class="px-4 py-3 border-r border-gray-200 font-medium text-gray-800">{{ $kegiatan->judul_kegiatan }}</td>
+                                        <td class="px-4 py-3 border-r border-gray-200 font-medium text-gray-800">{{ $kegiatan->kegiatan }}</td>
+                                        <td class="px-4 py-3 border-r border-gray-200">{{ $kegiatan->jenis }}</td>
+                                        <td class="px-4 py-3 border-r border-gray-200">
+                                            @if($kegiatan->kategori == 'Kelompok')
+                                                <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs font-semibold">
+                                                    <i class="fas fa-users mr-1"></i>Kelompok
+                                                </span>
+                                            @else
+                                                <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs font-semibold">
+                                                    <i class="fas fa-user mr-1"></i>Individu
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td class="px-4 py-3">{{ $kegiatan->tanggal ? \Carbon\Carbon::parse($kegiatan->tanggal)->format('d M Y') : '-' }}</td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="{{ $isPemilik && ($rpk->status == 'draft' || $rpk->status == 'ditolak') ? '8' : '7' }}" class="text-center py-4 text-gray-500">
+                                            Belum ada kegiatan pada RPK ini
+                                        </td>
+                                    </tr>
+                                    @endforelse
+                                    </tbody>
+                                </table>
+                            
+                        </div>
 
-    <div class="flex gap-2">
-
-       {{-- Tombol Hapus --}}
-                @if($rpk->status == 'draft' || $rpk->status == 'ditolak')
-        <form action="{{ route('kegiatans.destroy', $kegiatan->id) }}"
-            method="POST">
-
-            @csrf
-            @method('DELETE')
-
-            <button type="button"
-                    onclick="hapusKegiatan(this)"
-                    class="bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded-lg text-xs font-semibold">
-                Hapus
-            </button>
-
-        </form>
-        @else
-        <span class="text-gray-400 text-xs">
-            -
-        </span>
-        @endif
-
-    </div>
-
-</td>
-    <td class="px-4 py-4 border-r border-gray-200">
-        {{ $loop->iteration }}
-    </td>
-
-    <td class="px-4 py-4 border-r border-gray-200 font-medium text-gray-800">
-        {{ $kegiatan->kegiatan }}
-    </td>
-
-    <td class="px-4 py-4 border-r border-gray-200">
-        {{ $kegiatan->jenis }}
-    </td>
-
-    <td class="px-4 py-4 border-r border-gray-200">
-        {{ $kegiatan->tingkat }}
-    </td>
-
-    <td class="px-4 py-4 border-r border-gray-200">
-        {{ $kegiatan->hasil }}
-    </td>
-
-    <td class="px-4 py-4">
-        {{ $kegiatan->masterKegiatan->poin ?? '-' }}
-    </td>
-</tr>
-@empty
-<tr>
-    <td colspan="7" class="text-center py-4 text-gray-500">
-        Belum ada kegiatan pada RPK ini
-    </td>
-</tr>
-@endforelse
-</tbody>
-        </table>
-    </div>
-</div>
-
-                        
+                        {{-- DAFTAR ANGGOTA KELOMPOK --}}
+                        @if($isPemilik || $isAnggota)    {{-- 🔧 TAMPILKAN UNTUK PEMILIK & ANGGOTA --}}
+                            @php 
+                                if($isAnggota) {
+                                    // Anggota hanya lihat kelompok di mana dia terdaftar
+                                    $kegiatanKelompok = $rpk->kegiatans->where('kategori', 'Kelompok')->filter(function($k) use ($user) {
+                                        return $k->anggota->contains('id', $user->id);
+                                    });
+                                } else {
+                                    $kegiatanKelompok = $rpk->kegiatans->where('kategori', 'Kelompok');
+                                }
+                            @endphp
+                            @if($kegiatanKelompok->count() > 0)
+                            <div class="mt-6 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                                <div class="px-6 py-4 border-b border-gray-200 bg-blue-50">
+                                    <h3 class="text-sm font-bold text-gray-800">
+                                        <i class="fas fa-users text-blue-500 mr-2"></i>Daftar Anggota Kelompok
+                                    </h3>
+                                </div>
+                                <div class="p-4 space-y-6">
+                                    @foreach($kegiatanKelompok as $kegiatan)
+                                        <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                            <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+                                                <div class="flex items-center justify-between flex-wrap gap-2">
+                                                    <h4 class="text-sm font-semibold text-gray-700">{{ $kegiatan->judul_kegiatan }}</h4>
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs font-semibold">
+                                                            <i class="fas fa-users mr-1"></i>Kelompok
+                                                        </span>
+                                                        <span class="text-xs text-gray-400">{{ $kegiatan->anggota->count() }} anggota</span>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                                                    <span><i class="far fa-calendar mr-1"></i>{{ \Carbon\Carbon::parse($kegiatan->tanggal)->format('d M Y') }}</span>
+                                                    <span><i class="fas fa-tag mr-1"></i>{{ $kegiatan->jenis }}</span>
+                                                    <span><i class="fas fa-layer-group mr-1"></i>{{ $kegiatan->tingkat }}</span>
+                                                </div>
+                                            </div>
+                                            <table class="w-full text-sm">
+                                                <thead class="bg-gray-100 text-xs uppercase text-gray-500">
+                                                    <tr>
+                                                        <th class="px-4 py-2 text-center w-12">No</th>
+                                                        <th class="px-4 py-2 text-left">Nama</th>
+                                                        <th class="px-4 py-2 text-left">NIM</th>
+                                                        <th class="px-4 py-2 text-left">Prodi</th>
+                                                        <th class="px-4 py-2 text-center w-24">Peran</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="divide-y divide-gray-100">
+                                                    <tr class="bg-blue-50">
+                                                        <td class="px-4 py-2 text-center text-gray-500">1</td>
+                                                        <td class="px-4 py-2 font-medium text-gray-800">{{ $rpk->user->name }} <span class="text-blue-500 text-xs ml-1"></span></td>
+                                                        <td class="px-4 py-2 text-gray-500">{{ $rpk->user->nim ?? '-' }}</td>
+                                                        <td class="px-4 py-2 text-gray-500">{{ $rpk->user->prodi ?? '-' }}</td>
+                                                        <td class="px-4 py-2 text-center"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-semibold">Ketua</span></td>
+                                                    </tr>
+                                                    @foreach($kegiatan->anggota as $index => $anggota)
+                                                        <tr class="hover:bg-gray-50">
+                                                            <td class="px-4 py-2 text-center text-gray-500">{{ $index + 2 }}</td>
+                                                            <td class="px-4 py-2 font-medium text-gray-800">{{ $anggota->name }}</td>
+                                                            <td class="px-4 py-2 text-gray-500">{{ $anggota->nim ?? '-' }}</td>
+                                                            <td class="px-4 py-2 text-gray-500">{{ $anggota->prodi ?? '-' }}</td>
+                                                            <td class="px-4 py-2 text-center"><span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-semibold">Anggota</span></td>
+                                                        </tr>
+                                                    @endforeach
+                                                    @if($kegiatan->anggota->count() == 0)
+                                                        <tr><td colspan="5" class="px-4 py-4 text-center text-gray-400 text-xs">Belum ada anggota ditambahkan</td></tr>
+                                                    @endif
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
+                        @endif
                     </div>
 
-
+                    {{-- TAB 2: RIWAYAT --}}
                     <div class="w-full flex-shrink-0 snap-start p-6">
                         <h3 class="text-gray-600 font-medium mb-6">Timeline Riwayat Pengajuan</h3>
-                        
                         <div class="relative border-l-2 border-blue-200 ml-3 space-y-8">
-                            
                             <div class="relative pl-6">
                                 <div class="absolute w-4 h-4 bg-blue-500 rounded-full -left-[9px] top-1 border-2 border-white shadow"></div>
                                 <p class="text-xs font-semibold text-blue-600 mb-1">Terbaru</p>
@@ -239,16 +296,12 @@
                                     Catatan: {{ $rpk->catatan_dosen ?? 'Tidak ada catatan yang dilampirkan.' }}
                                 </p>
                             </div>
-
                             <div class="relative pl-6">
                                 <div class="absolute w-4 h-4 bg-gray-300 rounded-full -left-[9px] top-1 border-2 border-white shadow"></div>
-                                <p class="text-xs font-semibold text-gray-500 mb-1">{{ $rpk->created_at ? $rpk->created_at->format('d M Y - H:i') : 'Tanggal tidak tersedia' }}</p>
+                                <p class="text-xs font-semibold text-gray-500 mb-1">{{ $rpk->created_at ? $rpk->created_at->format('d M Y - H:i') : '-' }}</p>
                                 <h4 class="font-bold text-gray-800">Kegiatan Diajukan</h4>
-                                <p class="text-sm text-gray-600 mt-1">
-                                    Mahasiswa membuat draf rencana kegiatan dan mengajukannya ke sistem.
-                                </p>
+                                <p class="text-sm text-gray-600 mt-1">Mahasiswa membuat draf rencana kegiatan dan mengajukannya ke sistem.</p>
                             </div>
-
                         </div>
                     </div>
 
@@ -262,254 +315,212 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+{{-- SCRIPT TABS --}}
 <script>
-// --- LOGIKA TAB GESER (SWIPEABLE) ---
-const container = document.getElementById('tab-content-container');
-const buttons = document.querySelectorAll('.tab-btn');
-
-// Fungsi saat tombol tab diklik
-function geserTab(index) {
-    container.scrollTo({
-        left: container.clientWidth * index,
-        behavior: 'smooth'
-    });
-    updateGayaTab(index);
-}
-
-// Fungsi mendeteksi posisi geser (swipe layar HP) untuk mengubah tombol aktif
-container.addEventListener('scroll', () => {
-    // Math.round membantu mendeteksi div mana yang paling dominan terlihat di layar
-    let indexAktif = Math.round(container.scrollLeft / container.clientWidth);
-    updateGayaTab(indexAktif);
-});
-
-// Fungsi untuk mengganti warna tombol tab
-function updateGayaTab(index) {
+window.geserTab = function(index) {
+    var container = document.getElementById('tab-content-container');
+    if (!container) return;
+    container.scrollTo({ left: container.clientWidth * index, behavior: 'smooth' });
+    window.updateGayaTab(index);
+};
+window.updateGayaTab = function(index) {
+    var buttons = document.querySelectorAll('.tab-btn');
     buttons.forEach((btn, i) => {
-        if (i === index) {
-            btn.className = "tab-btn bg-white border-t border-l border-r border-gray-200 rounded-t-lg px-6 py-3 -mb-[1px] relative z-10 font-bold text-gray-800 whitespace-nowrap transition cursor-pointer";
-        } else {
-            btn.className = "tab-btn px-6 py-3 text-gray-500 font-bold hover:text-gray-700 whitespace-nowrap border-b border-transparent transition cursor-pointer";
-        }
+        if (i === index) btn.className = "tab-btn bg-white border-t border-l border-r border-gray-200 rounded-t-lg px-6 py-3 -mb-[1px] relative z-10 font-bold text-gray-800 whitespace-nowrap transition cursor-pointer";
+        else btn.className = "tab-btn px-6 py-3 text-gray-500 font-bold hover:text-gray-700 whitespace-nowrap border-b border-transparent transition cursor-pointer";
     });
-}
+};
+(function() {
+    var container = document.getElementById('tab-content-container');
+    if (container) container.onscroll = function() { var i = Math.round(container.scrollLeft / container.clientWidth); window.updateGayaTab(i); };
+})();
+</script>
 
-
-// --- Script Hapus Kegiatan ---
-function hapusKegiatan(button) {
+{{-- SCRIPT FORM MODAL (HANYA UNTUK PEMILIK) --}}
+@if($isPemilik && ($rpk->status == 'draft' || $rpk->status == 'ditolak'))
+<script>
+window.hapusKegiatan = function(button) {
     Swal.fire({
-        title: 'Hapus Kegiatan?',
-        text: 'Data yang dihapus tidak dapat dikembalikan.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#dc2626',
-        cancelButtonColor: '#6b7280',
-        confirmButtonText: 'Ya, Hapus',
-        cancelButtonText: 'Batal'
+        title: 'Hapus Kegiatan?', text: 'Data yang dihapus tidak dapat dikembalikan.', icon: 'warning',
+        showCancelButton: true, confirmButtonColor: '#dc2626', cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Ya, Hapus', cancelButtonText: 'Batal', allowOutsideClick: false, allowEscapeKey: false,
+        customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl font-semibold', cancelButton: 'rounded-xl font-semibold' }
     }).then((result) => {
         if (result.isConfirmed) {
+            Swal.fire({ title: 'Menghapus...', text: 'Mohon tunggu sebentar', allowOutsideClick: false, showConfirmButton: false, didOpen: () => Swal.showLoading() });
             button.closest('form').submit();
         }
     });
-}
+};
 
-// --- FUNGSI HELPER UNTUK LOGIKA DROPDOWN ---
-function bindLogikaForm(prefix) {
-    const elMaster = document.getElementById(`${prefix}_master`);
-    const elJenis = document.getElementById(`${prefix}_jenis`);
-    const elTingkat = document.getElementById(`${prefix}_tingkat`);
-    const elHasil = document.getElementById(`${prefix}_hasil`);
-    const elPoin = document.getElementById(`${prefix}_poin`);
-    
-    const elKat = document.getElementById(`${prefix}_kategori`);
-    const elPeran = document.getElementById(`${prefix}_peran`);
-    const elPeranField = document.getElementById(`${prefix}_peranField`);
-    const elJumlah = document.getElementById(`${prefix}_jumlah`);
-    const elJumlahField = document.getElementById(`${prefix}_jumlahField`);
+window.anggotaTerpilih = {};
 
-    // Logika Auto-fill Readonly
-    elMaster.addEventListener('change', function() {
-        let selected = this.options[this.selectedIndex];
-        elJenis.value = selected.dataset.jenis || '';
-        elTingkat.value = selected.dataset.tingkat || '';
-        elHasil.value = selected.dataset.hasil || '';
-        elPoin.value = selected.dataset.poin || '';
-    });
-
-    // Logika Kategori Kelompok/Individu
-    elKat.addEventListener('change', function() {
-        if(this.value === 'Kelompok') {
-            elPeranField.classList.remove('hidden');
-        } else {
-            elPeranField.classList.add('hidden');
-            elJumlahField.classList.add('hidden');
-            elPeran.value = '';
-            elJumlah.value = '';
-        }
-    });
-
-    // Logika Peran Ketua/Anggota
-    elPeran.addEventListener('change', function() {
-        if(this.value === 'Ketua') {
-            elJumlahField.classList.remove('hidden');
-        } else {
-            elJumlahField.classList.add('hidden');
-            elJumlah.value = '';
-        }
-    });
-}
-
-function validasiForm(prefix) {
-    const master = document.getElementById(`${prefix}_master`).value;
-    const kat = document.getElementById(`${prefix}_kategori`).value;
-    const per = document.getElementById(`${prefix}_peran`).value;
-    const jml = document.getElementById(`${prefix}_jumlah`).value;
-
-    if (!master || !kat) {
-        Swal.showValidationMessage('Kegiatan dan Kategori wajib diisi!');
-        return false;
+// 🔧 FUNGSI TAMPILKAN PESAN ERROR (TANPA SWEETALERT)
+window.tampilkanPesanAnggota = function(prefix, pesan, tipe) {
+    var elPesan = document.getElementById(`${prefix}_pesanAnggota`);
+    if (elPesan) {
+        elPesan.textContent = pesan;
+        elPesan.className = tipe === 'error' 
+            ? 'text-xs text-red-500 mt-1' 
+            : 'text-xs text-green-500 mt-1';
+        // Hilangkan pesan setelah 3 detik
+        setTimeout(() => { elPesan.textContent = ''; }, 3000);
     }
-    if (kat === 'Kelompok' && !per) {
-        Swal.showValidationMessage('Karena Kelompok, harap pilih Peran!');
-        return false;
-    }
-    if (kat === 'Kelompok' && per === 'Ketua' && !jml) {
-        Swal.showValidationMessage('Karena Anda Ketua, harap isi Jumlah Anggota!');
-        return false;
+};
+
+window.bindLogikaForm = function(prefix) {
+    var elMaster = document.getElementById(`${prefix}_master`);
+    var elJenis = document.getElementById(`${prefix}_jenis`);
+    var elTingkat = document.getElementById(`${prefix}_tingkat`);
+    var elKat = document.getElementById(`${prefix}_kategori`);
+    var elPeran = document.getElementById(`${prefix}_peran`);
+    var elPeranField = document.getElementById(`${prefix}_peranField`);
+    var elJumlah = document.getElementById(`${prefix}_jumlah`);
+    var elJumlahField = document.getElementById(`${prefix}_jumlahField`);
+    var elAnggotaContainer = document.getElementById(`${prefix}_anggotaContainer`);
+    var elAnggotaDropdown = document.getElementById(`${prefix}_anggotaDropdown`);
+    var elBtnTambahAnggota = document.getElementById(`${prefix}_btnTambahAnggota`);
+
+    window.anggotaTerpilih[prefix] = [];
+
+    if(elMaster) elMaster.onchange = function() { var s=this.options[this.selectedIndex]; elJenis.value=s.dataset.jenis||''; };
+    if(elKat) elKat.onchange = function() {
+        if(this.value==='Kelompok') elPeranField.classList.remove('hidden');
+        else { elPeranField.classList.add('hidden'); elJumlahField.classList.add('hidden'); if(elAnggotaContainer)elAnggotaContainer.classList.add('hidden'); elPeran.value=''; elJumlah.value=''; window.anggotaTerpilih[prefix]=[]; renderAnggotaTerpilih(prefix); }
+    };
+    if(elPeran) elPeran.onchange = function() {
+        if(this.value==='Ketua') elJumlahField.classList.remove('hidden');
+        else { elJumlahField.classList.add('hidden'); if(elAnggotaContainer)elAnggotaContainer.classList.add('hidden'); elJumlah.value=''; window.anggotaTerpilih[prefix]=[]; renderAnggotaTerpilih(prefix); }
+    };
+    if(elJumlah) elJumlah.onchange = function() {
+        var j=parseInt(this.value);
+        if(j>0) { if(elAnggotaContainer)elAnggotaContainer.classList.remove('hidden'); window.anggotaTerpilih[prefix]=[]; renderAnggotaTerpilih(prefix); }
+        else { if(elAnggotaContainer)elAnggotaContainer.classList.add('hidden'); window.anggotaTerpilih[prefix]=[]; renderAnggotaTerpilih(prefix); }
+    };
+    if(elBtnTambahAnggota) elBtnTambahAnggota.onclick = function() {
+        var d=elAnggotaDropdown, sv=d.value, st=d.options[d.selectedIndex].text, max=parseInt(elJumlah.value);
+        
+        // 🔧 GANTI SWEETALERT DENGAN PESAN TEKS
+        if(!sv) { 
+            tampilkanPesanAnggota(prefix, 'Silakan pilih mahasiswa terlebih dahulu!', 'error');
+            return; 
+        }
+        if(window.anggotaTerpilih[prefix].find(a=>a.id===sv)) { 
+            tampilkanPesanAnggota(prefix, 'Mahasiswa ini sudah ada dalam daftar!', 'error');
+            return; 
+        }
+        if(window.anggotaTerpilih[prefix].length>=max) { 
+            tampilkanPesanAnggota(prefix, `Maksimal ${max} anggota!`, 'error');
+            return; 
+        }
+        
+        window.anggotaTerpilih[prefix].push({id:sv,text:st}); 
+        renderAnggotaTerpilih(prefix); 
+        d.value='';
+        tampilkanPesanAnggota(prefix, 'Anggota berhasil ditambahkan', 'sukses');
+    };
+};
+
+window.renderAnggotaTerpilih = function(prefix) {
+    var c=document.getElementById(`${prefix}_anggotaTerpilih`), hi=document.getElementById(`${prefix}_anggotaHidden`);
+    if(!c)return;
+    var h='', ids=[];
+    window.anggotaTerpilih[prefix].forEach(function(a,i){
+        ids.push(a.id);
+        h+=`<span class="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">${a.text}<button type="button" onclick="window.hapusAnggota('${prefix}',${i})" class="ml-1 text-blue-500 hover:text-red-500 transition"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></span>`;
+    });
+    c.innerHTML=h||'<span class="text-xs text-gray-400">Belum ada anggota dipilih</span>';
+    if(hi)hi.value=ids.join(',');
+};
+
+window.hapusAnggota = function(prefix, index) { window.anggotaTerpilih[prefix].splice(index,1); renderAnggotaTerpilih(prefix); };
+
+window.validasiForm = function(prefix) {
+    var m=document.getElementById(`${prefix}_master`).value, j=document.getElementById(`${prefix}_judul`).value.trim(),
+        t=document.getElementById(`${prefix}_tanggal`).value, k=document.getElementById(`${prefix}_kategori`).value,
+        p=document.getElementById(`${prefix}_peran`).value, jml=document.getElementById(`${prefix}_jumlah`).value;
+    if(!m||!j||!t||!k) { Swal.showValidationMessage('Kegiatan, Judul, Tanggal, dan Kategori wajib diisi!'); return false; }
+    if(k==='Kelompok'&&!p) { Swal.showValidationMessage('Karena Kelompok, harap pilih Peran!'); return false; }
+    if(k==='Kelompok'&&p==='Ketua') {
+        if(!jml) { Swal.showValidationMessage('Karena Anda Ketua, harap isi Jumlah Anggota!'); return false; }
+        var dipilih=window.anggotaTerpilih[prefix].length, diminta=parseInt(jml);
+        if(dipilih<diminta) { Swal.showValidationMessage(`Harap pilih ${diminta} anggota! (Baru ${dipilih})`); return false; }
     }
     return true;
-}
+};
 
-// --- FUNGSI GENERATE HTML MODAL ---
-function generateFormHTML(prefix) {
+window.generateFormHTML = function(prefix) {
     return `
-        <div class="mb-4">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Kegiatan *</label>
-            <select name="master_kegiatan_id" id="${prefix}_master" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none" required>
+        <div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-2">Nama Kegiatan *</label>
+            <select name="master_kegiatan_id" id="${prefix}_master" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" required>
                 <option value="">Pilih Kegiatan</option>
-                @foreach($masterKegiatans as $item)
-                <option value="{{ $item->id }}" data-jenis="{{ $item->jenis }}" data-tingkat="{{ $item->tingkat }}" data-hasil="{{ $item->hasil }}" data-poin="{{ $item->poin }}">
-                    {{ $item->nama_kegiatan }}
-                </option>
-                @endforeach
-            </select>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4 mb-4">
-            <div>
-                <label class="block text-xs font-semibold text-gray-500 mb-1">Jenis</label>
-                <input type="text" id="${prefix}_jenis" name="jenis" class="w-full bg-gray-50 border border-gray-300 text-gray-500 rounded-lg p-2 outline-none" readonly>
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-gray-500 mb-1">Tingkat</label>
-                <input type="text" id="${prefix}_tingkat" name="tingkat" class="w-full bg-gray-50 border border-gray-300 text-gray-500 rounded-lg p-2 outline-none" readonly>
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-gray-500 mb-1">Hasil</label>
-                <input type="text" id="${prefix}_hasil" name="hasil" class="w-full bg-gray-50 border border-gray-300 text-gray-500 rounded-lg p-2 outline-none" readonly>
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-gray-500 mb-1">Poin</label>
-                <input type="text" id="${prefix}_poin" class="w-full bg-gray-50 border border-gray-300 text-gray-500 rounded-lg p-2 outline-none" readonly>
-            </div>
-        </div>
-
+                @foreach($masterKegiatans as $item)<option value="{{ $item->id }}" data-jenis="{{ $item->jenis }}">{{ $item->nama_kegiatan }}</option>@endforeach
+            </select></div>
+        
         <div class="mb-4">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Kategori *</label>
-            <select name="kategori" id="${prefix}_kategori" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none" required>
-                <option value="">Pilih Kategori</option>
-                <option value="Individu">Individu</option>
-                <option value="Kelompok">Kelompok</option>
-            </select>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Jenis</label>
+            <input type="text" id="${prefix}_jenis" class="w-full bg-gray-200 border border-gray-300 text-gray-700 rounded-lg px-4 py-3 outline-none" readonly>
         </div>
+    
+        <div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-2">Judul Kegiatan *</label><input type="text" name="judul_kegiatan" id="${prefix}_judul" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Masukkan judul kegiatan" required></div>
+        <div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-2">Tanggal Kegiatan *</label><input type="date" name="tanggal" id="${prefix}_tanggal" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" required></div>
+        <div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-2">Kategori *</label>
+            <select name="kategori" id="${prefix}_kategori" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" required>
+                <option value="">Pilih Kategori</option><option value="Individu">Individu</option><option value="Kelompok">Kelompok</option></select></div>
+        <div class="mb-4 hidden" id="${prefix}_peranField"><label class="block text-sm font-semibold text-gray-700 mb-2">Peran</label>
+            <select name="peran" id="${prefix}_peran" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition">
+                <option value="">Pilih Peran</option><option value="Ketua">Ketua</option></select></div>
+        <div class="mb-4 hidden" id="${prefix}_jumlahField"><label class="block text-sm font-semibold text-gray-700 mb-2">Jumlah Anggota</label><input type="number" id="${prefix}_jumlah" name="jumlah_anggota" min="1" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Masukkan jumlah anggota"></div>
+        <div class="mb-4 hidden" id="${prefix}_anggotaContainer"><label class="block text-sm font-semibold text-gray-700 mb-2">Tambah Anggota</label>
+            <div class="flex gap-2 mb-3">
+                <select id="${prefix}_anggotaDropdown" class="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition"><option value="">Pilih Mahasiswa</option>@foreach(\App\Models\User::role('Mahasiswa')->orderBy('name')->get() as $mhs)<option value="{{ $mhs->id }}">{{ $mhs->name }} ({{ $mhs->nim }})</option>@endforeach</select>
+                <button type="button" id="${prefix}_btnTambahAnggota" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-semibold transition whitespace-nowrap">+ Tambah</button></div>
+            {{-- 🔧 PESAN ERROR/SUKSES (TANPA SWEETALERT) --}}
+            <p id="${prefix}_pesanAnggota" class="text-xs mt-1"></p>
+            <div class="p-3 bg-gray-50 rounded-lg border border-gray-200 min-h-[50px]"><p class="text-xs text-gray-400 mb-2">Anggota terpilih:</p><div id="${prefix}_anggotaTerpilih" class="flex flex-wrap gap-2"><span class="text-xs text-gray-400">Belum ada anggota dipilih</span></div></div>
+            <input type="hidden" name="anggota_ids" id="${prefix}_anggotaHidden" value=""></div>`;
+};
 
-        <div class="mb-4 hidden" id="${prefix}_peranField">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Peran</label>
-            <select name="peran" id="${prefix}_peran" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none">
-                <option value="">Pilih Peran</option>
-                <option value="Ketua">Ketua</option>
-                <option value="Anggota">Anggota</option>
-            </select>
-        </div>
-
-        <div class="mb-4 hidden" id="${prefix}_jumlahField">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Jumlah Anggota</label>
-            <input type="number" id="${prefix}_jumlah" name="jumlah_anggota" min="1" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none">
-        </div>
-    `;
-}
-
-// --- Script Tambah Kegiatan ---
-function bukaModalTambahKegiatan() {
+window.bukaModalTambahKegiatan = function() {
     Swal.fire({
-        title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Tambah Kegiatan</h2>',
-        width: '600px',
-        html: `
-            <form id="formAdd" action="{{ route('kegiatans.store', $rpk->id) }}" method="POST" class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">
-                @csrf
-                ${generateFormHTML('add')}
-            </form>
-        `,
-        showCancelButton: true,
-        confirmButtonText: 'Simpan',
-        cancelButtonText: 'Batal',
-        confirmButtonColor: '#2563EB',
-        cancelButtonColor: '#9CA3AF',
-        customClass: { popup: 'rounded-2xl p-4' },
-        didOpen: () => bindLogikaForm('add'),
-        preConfirm: () => {
-            if(validasiForm('add')) document.getElementById('formAdd').submit();
-        }
+        title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Tambah Kegiatan</h2>', width: '650px',
+        html: `<form id="formAdd" action="{{ route('kegiatans.store', $rpk->id) }}" method="POST" class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">@csrf ${window.generateFormHTML('add')}</form>`,
+        showCancelButton: true, confirmButtonText: 'Simpan', cancelButtonText: 'Batal', confirmButtonColor: '#2563EB', cancelButtonColor: '#9CA3AF',
+        allowOutsideClick: false, allowEscapeKey: false, customClass: { popup: 'rounded-2xl p-6' },
+        didOpen: () => { window.bindLogikaForm('add'); window.anggotaTerpilih['add'] = []; },
+        preConfirm: () => { if(window.validasiForm('add')) { Swal.showLoading(); document.getElementById('formAdd').submit(); return false; } return false; }
     });
-}
+};
 
-// --- Script Edit Kegiatan ---
-function bukaModalEditKegiatan(button) {
-    const id = button.getAttribute('data-id');
-    const actionUrl = "{{ route('kegiatans.update', ':id') }}".replace(':id', id);
-
+window.bukaModalEditKegiatan = function(button) {
+    var id = button.getAttribute('data-id');
+    var actionUrl = "{{ route('kegiatans.update', ':id') }}".replace(':id', id);
     Swal.fire({
-        title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Edit Kegiatan</h2>',
-        width: '600px',
-        html: `
-            <form id="formEdit" action="${actionUrl}" method="POST" class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">
-                @csrf
-                @method('PUT')
-                ${generateFormHTML('edit')}
-            </form>
-        `,
-        showCancelButton: true,
-        confirmButtonText: 'Update',
-        cancelButtonText: 'Batal',
-        confirmButtonColor: '#2563EB',
-        cancelButtonColor: '#9CA3AF',
-        customClass: { popup: 'rounded-2xl p-4' },
+        title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Edit Kegiatan</h2>', width: '650px',
+        html: `<form id="formEdit" action="${actionUrl}" method="POST" class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">@csrf @method('PUT') ${window.generateFormHTML('edit')}</form>`,
+        showCancelButton: true, confirmButtonText: 'Update', cancelButtonText: 'Batal', confirmButtonColor: '#2563EB', cancelButtonColor: '#9CA3AF',
+        allowOutsideClick: false, allowEscapeKey: false, customClass: { popup: 'rounded-2xl p-6' },
         didOpen: () => {
-            bindLogikaForm('edit');
-            
-            // Auto-fill data
+            window.bindLogikaForm('edit'); window.anggotaTerpilih['edit'] = [];
             document.getElementById('edit_master').value = button.getAttribute('data-master');
-            document.getElementById('edit_kategori').value = button.getAttribute('data-kategori');
-            
-            // Trigger events to calculate readonly fields
             document.getElementById('edit_master').dispatchEvent(new Event('change'));
-            
+            document.getElementById('edit_judul').value = button.getAttribute('data-judul') || '';
+            document.getElementById('edit_tanggal').value = button.getAttribute('data-tanggal') || '';
+            document.getElementById('edit_kategori').value = button.getAttribute('data-kategori');
             if (button.getAttribute('data-kategori') === 'Kelompok') {
                 document.getElementById('edit_peranField').classList.remove('hidden');
                 document.getElementById('edit_peran').value = button.getAttribute('data-peran');
-                
                 if (button.getAttribute('data-peran') === 'Ketua') {
                     document.getElementById('edit_jumlahField').classList.remove('hidden');
                     document.getElementById('edit_jumlah').value = button.getAttribute('data-jumlah');
+                    document.getElementById('edit_anggotaContainer').classList.remove('hidden');
                 }
             }
         },
-        preConfirm: () => {
-            if(validasiForm('edit')) document.getElementById('formEdit').submit();
-        }
+        preConfirm: () => { if(window.validasiForm('edit')) { Swal.showLoading(); document.getElementById('formEdit').submit(); return false; } return false; }
     });
-}
-
+};
 </script>
+@endif
 
 </x-app-layout>

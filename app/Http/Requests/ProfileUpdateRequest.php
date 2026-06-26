@@ -15,19 +15,29 @@ class ProfileUpdateRequest extends FormRequest
      * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
-    {
-        return [
-    'name' => ['required', 'string', 'max:255'],
-    'nim' => ['required', 'string', 'max:30'],
-    'prodi' => ['required', 'string', 'max:100'],
-    'email' => [
-        'required',
-        'string',
-        'lowercase',
-        'email',
-        'max:255',
-        Rule::unique(User::class)->ignore($this->user()->id),
-    ],
-];
+{
+    $rules = [
+        'name' => ['required', 'string', 'max:255'],
+        'email' => [
+            'required',
+            'string',
+            'lowercase',
+            'email',
+            'max:255',
+            \Illuminate\Validation\Rule::unique('users')
+                ->ignore($this->user()->id),
+        ],
+        'nim' => ['required', 'string', 'max:30'],
+    ];
+
+    // Mahasiswa wajib mengisi prodi
+    if ($this->user()->hasRole('Mahasiswa')) {
+        $rules['prodi'] = ['required', 'string', 'max:255'];
+    } else {
+        // Admin & Dosen boleh kosong
+        $rules['prodi'] = ['nullable', 'string', 'max:255'];
     }
+
+    return $rules;
+}
 }

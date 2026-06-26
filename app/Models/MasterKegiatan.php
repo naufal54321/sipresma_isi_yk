@@ -7,13 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class MasterKegiatan extends Model
 {
     protected $fillable = [
-        'nama_kegiatan',
-        'jenis',
-        'tingkat',
-        'hasil',
-        'poin',
-        'status'
-    ];
+    'nama_kegiatan', 
+    'jenis',  
+    'status'
+];
 
     public function rpks()
 {

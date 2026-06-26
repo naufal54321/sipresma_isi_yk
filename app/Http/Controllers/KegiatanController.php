@@ -6,188 +6,136 @@ use App\Models\Rpk;
 use App\Models\Kegiatan;
 use Illuminate\Http\Request;
 use App\Models\MasterKegiatan;
-
-
+use App\Models\MasterPrestasi;
+use Illuminate\Support\Facades\Log;
 
 class KegiatanController extends Controller
 {
+    public function verifikasi()
+    {
+        $kegiatans = Kegiatan::with('rpk.user')->latest()->get();
+        return view('dosen.kegiatan.index', compact('kegiatans'));
+    }
 
 
-
-public function verifikasi()
-{
-    $kegiatans = Kegiatan::with('rpk.user')->latest()->get();
-
-    return view('dosen.kegiatan.index', compact('kegiatans'));
-}
-
-public function setujui(Kegiatan $kegiatan)
-{
-    $kegiatan->update([
-        'status' => 'disetujui'
-    ]);
-
-    return back()->with('success', 'Kegiatan disetujui');
-}
-
-public function tolak(Kegiatan $kegiatan)
-{
-    $kegiatan->update([
-        'status' => 'ditolak'
-    ]);
-
-    return back()->with('success', 'Kegiatan ditolak');
-}
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Rpk $rpk)
     {
         $kegiatans = $rpk->kegiatans;
-
-        return view('kegiatans.index', compact(
-            'rpk',
-            'kegiatans'
-        ));
+        return view('kegiatans.index', compact('rpk', 'kegiatans'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-
-public function create(Rpk $rpk)
-{
-    $masterKegiatans = MasterKegiatan::where(
-        'status',
-        'aktif'
-    )->get();
-
-    return view('kegiatans.create', compact(
-        'rpk',
-        'masterKegiatans'
-    ));
-}
-
-    /**
-     * Store a newly created resource in storage.
-     */
-
-public function store(Request $request, Rpk $rpk)
+    public function create(Rpk $rpk)
     {
-        // 1. Hapus validasi 'tanggal'
+        $masterKegiatans = MasterKegiatan::where('status', 'aktif')->get();
+        $prestasis = MasterPrestasi::where('is_active', true)->get();
+        return view('kegiatans.create', compact('rpk', 'masterKegiatans', 'prestasis'));
+    }
+
+    public function store(Request $request, Rpk $rpk)
+    {
         $request->validate([
-            'master_kegiatan_id' => 'required',
-            'kategori' => 'required',
+            'master_kegiatan_id' => 'required|exists:master_kegiatans,id',
+            'judul_kegiatan' => 'required|string|max:255',
+            'tanggal' => 'required|date',
+            'kategori' => 'required|in:Individu,Kelompok',
+            'peran' => 'nullable|string|max:255',
+            'jumlah_anggota' => 'nullable|integer|min:1',
+            'anggota_id' => 'nullable|array',
+            'anggota_id.*' => 'exists:users,id',
         ]);
 
-        $master = MasterKegiatan::findOrFail(
-            $request->master_kegiatan_id
-        );
+        $master = MasterKegiatan::findOrFail($request->master_kegiatan_id);
 
-        Kegiatan::create([
+        $kegiatan = Kegiatan::create([
             'rpk_id' => $rpk->id,
             'master_kegiatan_id' => $master->id,
-
             'kegiatan' => $master->nama_kegiatan,
             'jenis' => $master->jenis,
-            'tingkat' => $master->tingkat,
-            'hasil' => $master->hasil,
-
-            // 2. Isi tanggal otomatis menggunakan fungsi bawaan Laravel
-            'tanggal' => now(), 
-            
+            'judul_kegiatan' => $request->judul_kegiatan,
+            'tanggal' => $request->tanggal,
             'kategori' => $request->kategori,
-
-            'peran' => $request->kategori == 'Individu'
-                ? 'Individu'
-                : $request->peran,
-
-            'jumlah_anggota' => $request->kategori == 'Kelompok'
-                ? $request->jumlah_anggota
-                : null,
-
-            'status' => 'draft',
+            'peran' => $request->kategori == 'Individu' ? 'Individu' : ($request->peran ?? 'Anggota'),
+            'jumlah_anggota' => $request->kategori == 'Kelompok' ? $request->jumlah_anggota : null,
         ]);
 
-        // otomatis kembali draft jika ada perubahan
-        $rpk->update([
-            'status' => 'draft'
-        ]);
+        // app/Http/Controllers/KegiatanController.php
+
+        // Method store
+        if ($request->filled('anggota_ids')) {
+            $anggotaIds = explode(',', $request->anggota_ids);
+            $anggotaIds = array_filter($anggotaIds);
+
+            if (!empty($anggotaIds)) {
+                $syncData = [];
+                foreach ($anggotaIds as $userId) {
+                    $syncData[$userId] = ['peran' => 'Anggota']; // 🔧 OTOMATIS ANGGOTA
+                }
+                $kegiatan->anggota()->sync($syncData);
+            }
+        }
+
+        $rpk->update(['status' => 'draft']);
 
         return redirect()
             ->route('rpks.show', $rpk->id)
             ->with('success', 'Kegiatan berhasil ditambahkan');
     }
-    /**
-     * Show the form for editing the specified resource.
-     */
-    /**
-     * Show the form for editing the specified resource.
-     */
+
     public function edit(Kegiatan $kegiatan)
     {
         $masterKegiatans = MasterKegiatan::where('status', 'aktif')->get();
-        
-        // TAMBAHKAN BARIS INI (Mengambil data RPK dari relasi Kegiatan)
-        $rpk = $kegiatan->rpk; 
+        $prestasis = MasterPrestasi::where('is_active', true)->get();
+        $rpk = $kegiatan->rpk;
 
-        return view('kegiatans.edit', compact(
-            'kegiatan',
-            'masterKegiatans',
-            'rpk' // TAMBAHKAN RPK DI SINI
-        ));
+        return view('kegiatans.edit', compact('kegiatan', 'masterKegiatans', 'prestasis', 'rpk'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-   /**
-     * Update the specified resource in storage.
-     */
-   public function update(Request $request, Kegiatan $kegiatan)
+    public function update(Request $request, Kegiatan $kegiatan)
     {
-        // 1. Hapus validasi 'tanggal'
         $request->validate([
-            'master_kegiatan_id' => 'required',
-            'kategori' => 'required',
+            'master_kegiatan_id' => 'required|exists:master_kegiatans,id',
+            'judul_kegiatan' => 'required|string|max:255',
+            'tanggal' => 'required|date',
+            'kategori' => 'required|in:Individu,Kelompok',
+            'peran' => 'nullable|string|max:255',
+            'jumlah_anggota' => 'nullable|integer|min:1',
+            'anggota_id' => 'nullable|array',
+            'anggota_id.*' => 'exists:users,id',
         ]);
 
-        $master = MasterKegiatan::findOrFail(
-            $request->master_kegiatan_id
-        );
+        $master = MasterKegiatan::findOrFail($request->master_kegiatan_id);
 
         $kegiatan->update([
             'master_kegiatan_id' => $master->id,
-
             'kegiatan' => $master->nama_kegiatan,
             'jenis' => $master->jenis,
-            'tingkat' => $master->tingkat,
-            'hasil' => $master->hasil,
-
-            // 2. Isi tanggal otomatis menggunakan fungsi bawaan Laravel
-            'tanggal' => now(),
-
+            'judul_kegiatan' => $request->judul_kegiatan,
+            'tanggal' => $request->tanggal,
             'kategori' => $request->kategori,
-
-            'peran' => $request->kategori == 'Individu'
-                ? 'Individu'
-                : $request->peran,
-
-            'jumlah_anggota' => $request->kategori == 'Kelompok'
-                ? $request->jumlah_anggota
-                : null,
+            'peran' => $request->kategori == 'Individu' ? 'Individu' : ($request->peran ?? 'Anggota'),
+            'jumlah_anggota' => $request->kategori == 'Kelompok' ? $request->jumlah_anggota : null,
         ]);
+
+        // 🔧 UPDATE ANGGOTA
+        if ($request->has('anggota_id')) {
+            $anggotaIds = array_filter($request->anggota_id);
+
+            if (!empty($anggotaIds)) {
+                $kegiatan->anggota()->sync($anggotaIds);
+            } else {
+                $kegiatan->anggota()->detach(); // Hapus semua anggota jika kosong
+            }
+        }
+
+        $kegiatan->rpk->update(['status' => 'draft']);
 
         return redirect()
             ->route('rpks.show', $kegiatan->rpk_id)
             ->with('success', 'Kegiatan berhasil diperbarui');
     }
-    /**
-     * Remove the specified resource from storage.
-     */
-   public function destroy(Kegiatan $kegiatan)
+
+    public function destroy(Kegiatan $kegiatan)
     {
-        // Izinkan hapus jika statusnya draft ATAU ditolak
         if (!in_array($kegiatan->rpk->status, ['draft', 'ditolak'])) {
             return back()->with('error', 'Kegiatan tidak dapat dihapus karena RPK sedang diajukan atau sudah disetujui.');
         }
@@ -196,6 +144,4 @@ public function store(Request $request, Rpk $rpk)
 
         return back()->with('success', 'Kegiatan berhasil dihapus.');
     }
-
-   
 }

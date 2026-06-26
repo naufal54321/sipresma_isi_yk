@@ -1,4 +1,3 @@
-
 <x-app-layout>
 
 <div class="py-6">
@@ -87,7 +86,7 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 text-center">
-                            {{ $kegiatan->masterKegiatan->poin ?? '-' }}
+                            {{ $kegiatan->poin ?? '-' }}
                         </td>
                         <td class="px-6 py-4 text-center">
                             @if($kegiatan->status == 'draft' || $kegiatan->status == 'ditolak')
@@ -162,9 +161,7 @@ function bukaModalTambahKegiatan() {
                         @foreach($masterKegiatans as $item)
                         <option value="{{ $item->id }}"
                                 data-jenis="{{ $item->jenis }}"
-                                data-tingkat="{{ $item->tingkat }}"
-                                data-hasil="{{ $item->hasil }}"
-                                data-poin="{{ $item->poin }}">
+                                data-tingkat="{{ $item->tingkat }}">
                             {{ $item->nama_kegiatan }}
                         </option>
                         @endforeach
@@ -180,14 +177,16 @@ function bukaModalTambahKegiatan() {
                         <label class="block text-xs font-semibold text-gray-500 mb-1">Tingkat</label>
                         <input type="text" id="swal_tingkat" name="tingkat" class="w-full bg-gray-50 border border-gray-300 text-gray-500 rounded-lg p-2 outline-none" readonly>
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-500 mb-1">Hasil</label>
-                        <input type="text" id="swal_hasil" name="hasil" class="w-full bg-gray-50 border border-gray-300 text-gray-500 rounded-lg p-2 outline-none" readonly>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-500 mb-1">Poin</label>
-                        <input type="text" id="swal_poin" class="w-full bg-gray-50 border border-gray-300 text-gray-500 rounded-lg p-2 outline-none" readonly>
-                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Hasil / Prestasi *</label>
+                    <select name="prestasi_id" id="swal_prestasi_id" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring focus:ring-blue-200 outline-none" required>
+                        <option value="">-- Pilih Hasil / Juara --</option>
+                        @foreach(\App\Models\MasterPrestasi::where('is_active', true)->get() as $prestasi)
+                            <option value="{{ $prestasi->id }}">{{ $prestasi->juara }} ({{ $prestasi->poin }} Poin)</option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div class="mb-4">
@@ -233,12 +232,11 @@ function bukaModalTambahKegiatan() {
             const peranField = document.getElementById('swal_peranField');
             const jumlahAnggotaField = document.getElementById('swal_jumlahAnggotaField');
 
+            // Hapus referensi data-hasil dan data-poin
             masterId.addEventListener('change', function() {
                 let selected = this.options[this.selectedIndex];
                 document.getElementById('swal_jenis').value = selected.dataset.jenis || '';
                 document.getElementById('swal_tingkat').value = selected.dataset.tingkat || '';
-                document.getElementById('swal_hasil').value = selected.dataset.hasil || '';
-                document.getElementById('swal_poin').value = selected.dataset.poin || '';
             });
 
             kategori.addEventListener('change', function() {
@@ -263,13 +261,14 @@ function bukaModalTambahKegiatan() {
         },
         preConfirm: () => {
             const master = document.getElementById('swal_master_kegiatan_id').value;
+            const prestasi = document.getElementById('swal_prestasi_id').value; // Tambahkan ini
             const tgl = document.getElementById('swal_tanggal').value;
             const kat = document.getElementById('swal_kategori').value;
             const per = document.getElementById('swal_peran').value;
             const jml = document.getElementById('swal_jumlah_anggota').value;
 
-            if (!master || !tgl || !kat) {
-                Swal.showValidationMessage('Kegiatan, Tanggal, dan Kategori wajib diisi!');
+            if (!master || !prestasi || !tgl || !kat) {
+                Swal.showValidationMessage('Kegiatan, Prestasi, Tanggal, dan Kategori wajib diisi!');
                 return false;
             }
             if (kat === 'Kelompok' && !per) {

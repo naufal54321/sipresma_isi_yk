@@ -113,36 +113,32 @@
                             </td>
 
                             <td class="px-6 py-4 text-center">
-
                                 <div class="flex justify-center gap-2">
 
                                     <button
+                                        type="button"
                                         onclick="bukaModalEdit(this)"
                                         data-id="{{ $prodi->id }}"
                                         data-nama="{{ $prodi->nama_prodi }}"
                                         data-status="{{ $prodi->status }}"
-                                        class="bg-yellow-500 hover:bg-yellow-400 text-white px-3 py-2 rounded-lg text-sm">
-                                        Edit
+                                        title="Edit Program Studi"
+                                        class="flex items-center justify-center w-9 h-9 bg-yellow-500 hover:bg-yellow-400 text-white rounded-lg transition shadow-sm">
+                                        <i class="fas fa-pen"></i>
                                     </button>
 
-                                    <form
-                                        action="{{ route('admin.prodi.destroy', $prodi->id) }}"
-                                        method="POST">
-
+                                    <form action="{{ route('admin.prodi.destroy', $prodi->id) }}" method="POST" class="m-0">
                                         @csrf
                                         @method('DELETE')
-
                                         <button
                                             type="button"
                                             onclick="hapusProdi(this)"
-                                            class="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded-lg text-sm">
-                                            Hapus
+                                            title="Hapus Program Studi"
+                                            class="flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-500 text-white rounded-lg transition shadow-sm">
+                                            <i class="fas fa-trash"></i>
                                         </button>
-
                                     </form>
 
                                 </div>
-
                             </td>
 
                         </tr>
@@ -241,6 +237,8 @@
                 title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Tambah Prodi</h2>',
                 width: '500px',
 
+               
+
                 html: `
                     <form
                         id="formAdd"
@@ -301,8 +299,7 @@
                 `,
 
                 showCancelButton: true,
-                confirmButtonText: 'Update',
-                confirmButtonColor: '#D97706',
+                confirmButtonText: 'Perbarui',
 
                 customClass: {
                     popup: 'rounded-2xl p-4'

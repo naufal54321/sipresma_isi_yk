@@ -15,22 +15,14 @@ use App\Http\Controllers\DosenSpkController;
 use App\Http\Controllers\SpkController;
 use App\Http\Controllers\DosenMahasiswaController;
 use App\Http\Controllers\MasterKegiatanController;
+use App\Http\Controllers\MasterPrestasiController;
 use App\Http\Controllers\ProgramStudiController;
 use App\Models\User;
 use App\Models\Spk;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\LaporanDosenController;
 use App\Http\Controllers\AdminUserApprovalController;
-
-
-
-
-Route::get(
-    '/admin/laporan/export-pdf',
-    [LaporanController::class, 'exportPdf']
-)->name('admin.laporan.export-pdf');
-
-
+use App\Http\Controllers\AdminRpkController;
 
 /*
 |--------------------------------------------------------------------------
@@ -109,142 +101,133 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->group(function () {
-    
-    // Dashboard Admin
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dashboard
+    |--------------------------------------------------------------------------
+    */
     Route::get('/', function () {
-        $users = User::with('roles')->orderBy('id', 'asc')->get();
+        $users = User::with('roles')->latest()->paginate(10);
+
         return view('admin.dashboard', compact('users'));
     })->name('dashboard');
 
-    // Manajemen Pengguna (Users & Roles)
-    Route::resource('users', UserController::class)->names([
-        'index' => 'users.index',
-        'store' => 'users.store',
-        'show' => 'users.show',
-        'update' => 'users.update',
-        'destroy' => 'users.destroy',
-    ]);
-    Route::post('/users/{user}/role', [UserRoleController::class, 'update'])->name('users.role.update');
 
-    // Dosen Pembimbing
-    Route::get('/pembimbing', [UserController::class, 'pembimbingIndex'])->name('pembimbing.index');
-    Route::post('/pembimbing/set', [UserController::class, 'setPembimbing'])->name('pembimbing.set');
+    /*
+    |--------------------------------------------------------------------------
+    | Manajemen User
+    |--------------------------------------------------------------------------
+    */
+    Route::resource('users', UserController::class);
 
-    // Master Kegiatan
-    Route::resource('kegiatan', MasterKegiatanController::class)->except(['show']);
+    Route::post('/users/{user}/role', [UserRoleController::class, 'update'])
+        ->name('users.role.update');
 
-    // Master Program Studi
-    Route::resource('prodi', ProgramStudiController::class)->except(['create', 'edit', 'show']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Approval User
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/approval-users', [AdminUserApprovalController::class, 'index'])
+        ->name('users.approval');
+
+    Route::put('/approval-users/{user}/approve', [AdminUserApprovalController::class, 'approve'])
+        ->name('users.approve');
+
+    Route::delete('/approval-users/{user}/reject', [AdminUserApprovalController::class, 'reject'])
+        ->name('users.reject');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dosen Pembimbing
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/pembimbing', [UserController::class, 'pembimbingIndex'])
+        ->name('pembimbing.index');
+
+    Route::post('/pembimbing/set', [UserController::class, 'setPembimbing'])
+        ->name('pembimbing.set');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Master Kegiatan
+    |--------------------------------------------------------------------------
+    */
+    Route::resource('kegiatan', MasterKegiatanController::class)
+        ->except(['show']);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Program Studi
+    |--------------------------------------------------------------------------
+    */
+    Route::resource('prodi', ProgramStudiController::class)
+        ->except(['create', 'edit', 'show']);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Laporan
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/laporan', [LaporanController::class, 'index'])
+        ->name('laporan.index');
+
+    Route::get('/laporan/export', [LaporanController::class, 'export'])
+        ->name('laporan.export');
+
+    Route::get('/laporan/export-pdf', [LaporanController::class, 'exportPdf'])
+        ->name('laporan.export-pdf');
+
+    /*
+    |--------------------------------------------------------------------------
+    | RPK Mahasiswa (VIEW OLEH ADMIN)
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/rpk', [App\Http\Controllers\AdminRpkController::class, 'index'])->name('rpk.index');
+    Route::get('/rpk/{rpk}', [App\Http\Controllers\AdminRpkController::class, 'show'])->name('rpk.show');
+    Route::patch('/rpk/{rpk}/status', [App\Http\Controllers\AdminRpkController::class, 'updateStatus'])->name('rpk.update-status');
+
+    Route::resource('master-prestasi', MasterPrestasiController::class)->except(['create', 'show', 'edit']);
+
 });
-
-Route::middleware(['auth','role:Admin'])->group(function () {
-
-    Route::get('/admin/laporan', [LaporanController::class, 'index'])
-        ->name('admin.laporan.index');
-
-});
-
-Route::middleware(['auth','role:Admin'])
-    ->prefix('admin')
-    ->name('admin.')
-    ->group(function () {
-
-        Route::get('/laporan', [LaporanController::class, 'index'])
-            ->name('laporan.index');
-
-        Route::get('/laporan/export', [LaporanController::class, 'export'])
-            ->name('laporan.export');
-
-    });
-
-    Route::middleware(['auth','role:Admin'])->group(function () {
-
-    Route::get('/admin/laporan', [LaporanController::class, 'index'])
-        ->name('admin.laporan.index');
-
-    Route::get('/admin/laporan/export', [LaporanController::class, 'export'])
-        ->name('admin.laporan.export');
-
-Route::get(
-    '/admin/laporan/export',
-    [LaporanController::class, 'export']
-)->name('admin.laporan.export');
-
-});
-
-Route::middleware(['auth', 'role:Admin'])
-    ->prefix('admin')
-    ->name('admin.')
-    ->group(function () {
-
-        Route::get('/', function () {
-            $users = User::with('roles')->orderBy('id', 'asc')->get();
-            return view('admin.dashboard', compact('users'));
-        })->name('dashboard');
-
-        // Approval User
-        Route::get('/approval-users',
-            [AdminUserApprovalController::class, 'index']
-        )->name('users.approval');
-
-        Route::put('/approval-users/{user}/approve',
-            [AdminUserApprovalController::class, 'approve']
-        )->name('users.approve');
-
-        Route::delete('/approval-users/{user}/reject',
-            [AdminUserApprovalController::class, 'reject']
-        )->name('users.reject');
-
-        Route::resource('users', UserController::class);
-});
-
 
 /*
 |--------------------------------------------------------------------------
 | ROLE: DOSEN
 |--------------------------------------------------------------------------
 */
-
-Route::middleware(['auth', 'role:Dosen'])
-    ->prefix('dosen')
-    ->name('dosen.')
-    ->group(function () {
-
-        Route::get('/rpk', [DosenRpkController::class, 'index'])
-            ->name('rpk.index');
-
-        Route::get('/rpk/{rpk}', [DosenRpkController::class, 'show'])
-            ->name('rpk.show');
-
-        Route::put('/rpk/{rpk}/approve', [DosenRpkController::class, 'approve'])
-            ->name('rpk.approve');
-
-        Route::put('/rpk/{rpk}/reject', [DosenRpkController::class, 'reject'])
-            ->name('rpk.reject');
-    });
-
-
 Route::middleware(['auth', 'role:Dosen'])->prefix('dosen')->name('dosen.')->group(function () {
-    
+
+    // RPK
+    Route::get('/rpk', [DosenRpkController::class, 'index'])->name('rpk.index');
+    Route::get('/rpk/{rpk}', [DosenRpkController::class, 'show'])->name('rpk.show');
+    Route::put('/rpk/{rpk}/approve', [DosenRpkController::class, 'approve'])->name('rpk.approve');
+    Route::put('/rpk/{rpk}/reject', [DosenRpkController::class, 'reject'])->name('rpk.reject');
+
     // Mahasiswa Bimbingan
     Route::get('/mahasiswa', [DosenMahasiswaController::class, 'index'])->name('mahasiswa.index');
-
-    
 
     // Persetujuan SPK
     Route::get('/spk', [DosenSpkController::class, 'index'])->name('spk.index');
     Route::get('/spk/{spk}', [DosenSpkController::class, 'show'])->name('spk.show');
     Route::put('/spk/{spk}/approve', [DosenSpkController::class, 'approve'])->name('spk.approve');
     Route::put('/spk/{spk}/reject', [DosenSpkController::class, 'reject'])->name('spk.reject');
-});
 
-Route::get('/dosen/laporan', [LaporanDosenController::class, 'index'])->name('dosen.laporan.index');
-Route::get('/dosen/laporan/export', [LaporanDosenController::class, 'export'])->name('dosen.laporan.export');
-Route::get('/dosen/laporan/export-pdf', [LaporanDosenController::class, 'exportPdf'])->name('dosen.laporan.export-pdf');
+    // Laporan Dosen
+    Route::get('/laporan', [LaporanDosenController::class, 'index'])->name('laporan.index');
+    Route::get('/laporan/export', [LaporanDosenController::class, 'export'])->name('laporan.export');
+    Route::get('/laporan/export-pdf', [LaporanDosenController::class, 'exportPdf'])->name('laporan.export-pdf');
+});
 
 /*
 |--------------------------------------------------------------------------
-| ROLE: MAHASISWA
+| 🔧 ROLE: MAHASISWA + CHECK ANGGOTA
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'role:Mahasiswa'])->group(function () {

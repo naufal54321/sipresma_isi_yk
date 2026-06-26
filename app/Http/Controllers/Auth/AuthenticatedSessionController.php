@@ -24,35 +24,37 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
+    public function store(LoginRequest $request): RedirectResponse
+    {
+        $user = User::where('email', $request->email)->first();
 
-public function store(LoginRequest $request): RedirectResponse
-{
-    $user = User::where('email', $request->email)->first();
+        // 1. Cek kredensial
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return back()->withErrors([
+                'email' => 'Email atau password yang Anda masukkan tidak sesuai.',
+            ])->onlyInput('email');
+        }
 
-    if (!$user || !Hash::check($request->password, $user->password)) {
-        return back()->withErrors([
-            'email' => 'Email atau password yang Anda masukkan tidak sesuai.',
-        ])->onlyInput('email');
+        // 2. Cek status (pending / ditolak / approved)
+        if ($user->status === 'pending' || $user->is_approved == false) {
+            return back()->withErrors([
+                'email' => 'Akun Anda masih menunggu persetujuan admin.',
+            ])->onlyInput('email');
+        }
+
+        if ($user->status === 'ditolak') {
+            return back()->withErrors([
+                'email' => 'Akun Anda telah ditolak oleh admin.',
+            ])->onlyInput('email');
+        }
+
+        // 3. Login
+        Auth::login($user, $request->boolean('remember'));
+        $request->session()->regenerate();
+
+        return redirect()->intended(route('dashboard'));
     }
 
-    if ($user->status === 'pending') {
-        return back()->withErrors([
-            'email' => 'Akun Anda masih menunggu persetujuan admin.',
-        ])->onlyInput('email');
-    }
-
-    if ($user->status === 'ditolak') {
-        return back()->withErrors([
-            'email' => 'Akun Anda telah ditolak oleh admin.',
-        ])->onlyInput('email');
-    }
-
-    Auth::login($user, $request->boolean('remember'));
-
-    $request->session()->regenerate();
-
-    return redirect()->intended(route('dashboard'));
-}
     /**
      * Destroy an authenticated session.
      */
@@ -61,7 +63,6 @@ public function store(LoginRequest $request): RedirectResponse
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect('/');

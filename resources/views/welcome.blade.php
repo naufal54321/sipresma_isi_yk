@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIPRESMA - Beranda</title>
+    <title>{{ config('app.name', 'SIPRESMA') }}</title>
+
+    <link rel="icon" type="image/png" href="{{ asset('images/logo_isi_dashboard.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo_isi_dashboard.png') }}">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,14 +36,20 @@
         /* Menghilangkan panah bawaan pada tag details */
         details > summary { list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
+
+        /* Animasi modern */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-blue-200 selection:text-blue-900 overflow-x-hidden">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-blue-200 selection:text-blue-900 overflow-x-hidden min-h-screen flex flex-col">
 
-    <!-- Navbar Glassmorphism -->
-    <nav class="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200 px-6 py-3 flex justify-between items-center sticky top-0 z-50 transition-all">
+    <!-- Navbar Glassmorphism Modern -->
+    <nav class="bg-white/80 backdrop-blur-xl shadow-sm border-b border-slate-200/60 px-6 py-3 flex justify-between items-center sticky top-0 z-50 transition-all">
         <div class="flex items-center gap-4">
-            <div class="bg-white p-1.5 rounded-lg shadow-sm border border-slate-100">
+            <div class="bg-white p-2 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
                 <img src="{{ asset('images/logo_isi_welcome.png') }}" alt="Logo Instansi" class="h-9 w-auto object-contain">
             </div>
             <div>
@@ -87,22 +96,27 @@
         </div>
     </nav>
 
-    <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
 
-        <!-- Header Teks (Tanpa Kotak Banner) -->
+        <!-- Header Teks Modern -->
         <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 px-2">
             <div class="flex-1 min-w-0">
-                <p class="text-blue-600 font-extrabold tracking-[0.2em] text-xs uppercase mb-2">Portal Publik</p>
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="relative flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                    </span>
+                    <p class="text-blue-600 font-extrabold tracking-[0.2em] text-xs uppercase">Portal Publik</p>
+                </div>
                 <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 truncate">
                     Dashboard SIPRESMA
                 </h1>
                 <p class="mt-3 text-slate-500 max-w-2xl text-sm sm:text-base leading-relaxed line-clamp-2 sm:line-clamp-none">
                     Ringkasan data, persebaran, dan statistik pencapaian prestasi mahasiswa terkini di lingkungan kampus.
                 </p>
-               
             </div>
             
-            <div class="hidden md:flex items-center justify-center w-20 h-20 bg-white rounded-full border border-slate-200 shadow-sm shrink-0">
+            <div class="hidden md:flex items-center justify-center w-20 h-20 bg-white rounded-full border border-slate-200 shadow-sm shrink-0 animate-[floatSlow_6s_ease-in-out_infinite]">
                 <i class="fas fa-globe-asia text-4xl text-blue-500"></i>
             </div>
         </div>
@@ -147,7 +161,20 @@
             </div>
         </div>
 
-        <!-- Grid Tengah: Rekap Terbaru & Bar Chart -->
+        {{-- Statistik Prestasi Prodi — Full Width --}}
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[500px] overflow-hidden group hover:shadow-md transition-shadow mb-8">
+            <div class="px-6 py-5 border-b border-slate-100">
+                <h3 class="font-extrabold text-slate-800 flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center"><i class="fas fa-chart-bar"></i></div>
+                    Statistik Prestasi Prodi ({{ date('Y') }})
+                </h3>
+            </div>
+            <div class="p-6 flex-1 w-full relative">
+                <canvas id="prestasiChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Grid: Rekap Terbaru & Chart Tingkat -->
         <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
             
             <!-- Rekap Terbaru -->
@@ -188,25 +215,8 @@
                 </div>
             </div>
 
-            <!-- Chart Prodi -->
+            {{-- Prestasi Berdasarkan Tingkat — Warna Berbeda per Tingkat --}}
             <div class="xl:col-span-8 bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[500px] overflow-hidden group hover:shadow-md transition-shadow">
-                <div class="px-6 py-5 border-b border-slate-100">
-                    <h3 class="font-extrabold text-slate-800 flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center"><i class="fas fa-chart-bar"></i></div>
-                        Statistik Prestasi Prodi ({{ date('Y') }})
-                    </h3>
-                </div>
-                <div class="p-6 flex-1 w-full relative">
-                    <canvas id="prestasiChart"></canvas>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Grid Bawah: Chart Tingkat & Jenis -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
-            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[400px] overflow-hidden group hover:shadow-md transition-shadow">
                 <div class="px-6 py-5 border-b border-slate-100">
                     <h3 class="font-extrabold text-slate-800 flex items-center gap-2">
                         <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-500 flex items-center justify-center"><i class="fas fa-layer-group"></i></div>
@@ -218,27 +228,46 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[400px] overflow-hidden group hover:shadow-md transition-shadow">
-                <div class="px-6 py-5 border-b border-slate-100">
-                    <h3 class="font-extrabold text-slate-800 flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-lg bg-teal-50 text-teal-500 flex items-center justify-center"><i class="fas fa-shapes"></i></div>
-                        Distribusi Jenis Kegiatan
-                    </h3>
-                </div>
-                <div class="p-6 flex-1 w-full relative flex items-center justify-center">
-                    <canvas id="jenisChart"></canvas>
-                </div>
-            </div>
+        </div>
 
+        {{-- Distribusi Jenis Kegiatan — Full Width --}}
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[400px] overflow-hidden group hover:shadow-md transition-shadow mb-8">
+            <div class="px-6 py-5 border-b border-slate-100">
+                <h3 class="font-extrabold text-slate-800 flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-teal-50 text-teal-500 flex items-center justify-center"><i class="fas fa-shapes"></i></div>
+                    Distribusi Jenis Kegiatan
+                </h3>
+            </div>
+            <div class="p-6 flex-1 w-full relative flex items-center justify-center">
+                <canvas id="jenisChart"></canvas>
+            </div>
         </div>
 
     </main>
 
+    {{-- 🆕 FOOTER --}}
+   <footer class="w-full py-5 px-8 text-center sm:text-center text-sm text-slate-500 border-t border-slate-200 mt-auto bg-white/50 backdrop-blur-sm">
+        &copy; 2026 UPA TIK Institut Seni Indonesia Yogyakarta
+    </footer>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Palet Warna yang lebih modern dan selaras dengan Tailwind
+            // Palet Warna
             const colorPalette = [
                 '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#0ea5e9', '#14b8a6', '#f43f5e'
+            ];
+
+            // Warna khusus untuk setiap tingkat
+            const tingkatColorPalette = [
+                '#3b82f6', // Biru - Internasional
+                '#8b5cf6', // Ungu - Nasional
+                '#f59e0b', // Oranye - Provinsi
+                '#10b981', // Hijau - Kabupaten/Kota
+                '#ef4444', // Merah - Kecamatan
+                '#ec4899', // Pink - Desa
+                '#0ea5e9', // Cyan
+                '#14b8a6', // Teal
+                '#f43f5e', // Rose
             ];
 
             // Konfigurasi Font Global Chart.js
@@ -253,7 +282,7 @@
                 cornerRadius: 8
             };
 
-            // 1. Chart Prodi (Bar Chart)
+            // 1. Chart Prodi (Bar Chart) — Full Width
             const ctxProdi = document.getElementById('prestasiChart').getContext('2d');
             new Chart(ctxProdi, {
                 type: 'bar',
@@ -262,7 +291,7 @@
                     datasets: [{
                         label: 'Jumlah Prestasi',
                         data: {!! json_encode($chartData) !!},
-                        backgroundColor: '#3b82f6', // Biru Tailwind
+                        backgroundColor: '#3b82f6',
                         hoverBackgroundColor: '#2563eb',
                         borderRadius: 6,
                         barPercentage: 0.6,
@@ -285,7 +314,7 @@
                         },
                         x: {
                             ticks: {
-                                maxRotation: 45, minRotation: 45, // Sudut rotasi agar rapi
+                                maxRotation: 45, minRotation: 45,
                                 autoSkip: false, font: { size: 11, family: 'Inter' }, color: '#64748b'
                             },
                             grid: { display: false },
@@ -295,28 +324,49 @@
                 }
             });
 
-            // 2. Chart Tingkat (Bar Chart - Horizontal)
+            // 2. Chart Tingkat (Bar Chart - Horizontal) — Warna Berbeda per Tingkat
             const ctxTingkat = document.getElementById('tingkatChart').getContext('2d');
+            
+            const tingkatLabels = {!! json_encode($tingkatLabels) !!};
+            const tingkatData = {!! json_encode($tingkatData) !!};
+            
+            const tingkatColors = tingkatLabels.map((label, index) => {
+                return tingkatColorPalette[index % tingkatColorPalette.length];
+            });
+            
+            const tingkatHoverColors = tingkatLabels.map((label, index) => {
+                const color = tingkatColorPalette[index % tingkatColorPalette.length];
+                return color + 'CC';
+            });
+            
             new Chart(ctxTingkat, {
                 type: 'bar',
                 data: {
-                    labels: {!! json_encode($tingkatLabels) !!},
+                    labels: tingkatLabels,
                     datasets: [{
                         label: 'Jumlah Prestasi',
-                        data: {!! json_encode($tingkatData) !!},
-                        backgroundColor: '#f59e0b', // Oranye Tailwind
-                        hoverBackgroundColor: '#d97706',
+                        data: tingkatData,
+                        backgroundColor: tingkatColors,
+                        hoverBackgroundColor: tingkatHoverColors,
                         borderRadius: 6,
-                        barPercentage: 0.5
+                        barPercentage: 0.5,
+                        borderWidth: 0
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    indexAxis: 'y', // Horizontal
+                    indexAxis: 'y',
                     plugins: { 
                         legend: { display: false },
-                        tooltip: commonTooltip
+                        tooltip: {
+                            ...commonTooltip,
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.raw} Prestasi`;
+                                }
+                            }
+                        }
                     },
                     scales: {
                         x: {
@@ -363,7 +413,7 @@
                         },
                         tooltip: commonTooltip
                     },
-                    cutout: '70%' // Lubang donut sedikit diperbesar
+                    cutout: '70%'
                 }
             });
         });

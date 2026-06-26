@@ -175,8 +175,9 @@ Swal.fire({
 
                             <div class="flex items-center gap-2">
                                 <a href="{{ route('dosen.rpk.show', $rpk->id) }}"
-                                   class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm">
-                                    Detail
+                                    title="Detail RPK"
+                                    class="flex items-center justify-center w-9 h-9 bg-gray-400 text-white hover:bg-gray-500 border border-gray-200 rounded-lg transition shadow-sm">
+                                    <i class="fas fa-eye"></i>
                                 </a>
                             </div>
 

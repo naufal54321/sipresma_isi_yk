@@ -11,22 +11,20 @@ class MasterKegiatanController extends Controller
     {
         $query = MasterKegiatan::query();
 
-        // 1. Logika untuk Pencarian Teks (Input Search)
+        // Pencarian Teks
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('nama_kegiatan', 'like', '%' . $request->search . '%')
-                  ->orWhere('jenis', 'like', '%' . $request->search . '%')
-                  ->orWhere('tingkat', 'like', '%' . $request->search . '%')
-                  ->orWhere('hasil', 'like', '%' . $request->search . '%');
+                  ->orWhere('jenis', 'like', '%' . $request->search . '%');
             });
         }
 
-        // 2. Logika BARU untuk Filter Status (Dropdown)
+        // Filter Status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        $kegiatans = $query->latest()->get();
+        $kegiatans = $query->latest()->paginate(10);
 
         return view('admin.kegiatan.index', compact('kegiatans'));
     }
@@ -39,15 +37,16 @@ class MasterKegiatanController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_kegiatan' => 'required',
-            'jenis' => 'required',
-            'tingkat' => 'required',
-            'hasil' => 'required',
-            'poin' => 'required|numeric',
-            'status' => 'required',
+            'nama_kegiatan' => 'required|string|max:255',
+            'jenis' => 'required|string|max:255',
+            'status' => 'required|in:aktif,tidak aktif',
         ]);
 
-        MasterKegiatan::create($request->all());
+        MasterKegiatan::create([
+            'nama_kegiatan' => $request->nama_kegiatan,
+            'jenis' => $request->jenis,
+            'status' => $request->status,
+        ]);
 
         return redirect()
             ->route('admin.kegiatan.index')
@@ -62,15 +61,16 @@ class MasterKegiatanController extends Controller
     public function update(Request $request, MasterKegiatan $kegiatan)
     {
         $request->validate([
-            'nama_kegiatan' => 'required',
-            'jenis' => 'required',
-            'tingkat' => 'required',
-            'hasil' => 'required',
-            'poin' => 'required|numeric',
-            'status' => 'required',
+            'nama_kegiatan' => 'required|string|max:255',
+            'jenis' => 'required|string|max:255',
+            'status' => 'required|in:aktif,tidak aktif',
         ]);
 
-        $kegiatan->update($request->all());
+        $kegiatan->update([
+            'nama_kegiatan' => $request->nama_kegiatan,
+            'jenis' => $request->jenis,
+            'status' => $request->status,
+        ]);
 
         return redirect()
             ->route('admin.kegiatan.index')

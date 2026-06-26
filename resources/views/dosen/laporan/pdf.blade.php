@@ -7,9 +7,9 @@
     <style>
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 12px;
+            font-size: 11px;
             color: #333;
-            line-height: 1.5;
+            line-height: 1.4;
         }
         .header {
             text-align: center;
@@ -19,19 +19,19 @@
         }
         .header h1 {
             margin: 0;
-            font-size: 18px;
+            font-size: 16px;
             text-transform: uppercase;
         }
         .header p {
             margin: 5px 0 0 0;
-            font-size: 12px;
+            font-size: 11px;
             color: #555;
         }
         .info-dosen {
             margin-bottom: 20px;
         }
         .info-dosen table {
-            width: 50%;
+            width: 60%;
             border-collapse: collapse;
         }
         .info-dosen td {
@@ -45,8 +45,9 @@
         }
         .table-data th, .table-data td {
             border: 1px solid #999;
-            padding: 8px;
+            padding: 6px;
             text-align: left;
+            font-size: 10px;
         }
         .table-data th {
             background-color: #f2f2f2;
@@ -68,10 +69,6 @@
         .ttd-space {
             height: 80px;
         }
-        /* Status Badge Colors */
-        .status-disetujui { color: #059669; font-weight: bold; }
-        .status-ditolak { color: #dc2626; font-weight: bold; }
-        .status-draft { color: #d97706; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -96,7 +93,7 @@
             <tr>
                 <td><strong>Total Data</strong></td>
                 <td>:</td>
-                <td>{{ count($laporan) }} Mahasiswa/Kegiatan</td>
+                <td>{{ count($laporan) }} Kegiatan</td>
             </tr>
         </table>
     </div>
@@ -104,14 +101,15 @@
     <table class="table-data">
         <thead>
             <tr>
-                <th width="5%">No</th>
-                <th width="20%">Nama Mahasiswa</th>
+                <th width="4%">No</th>
+                <th width="15%">Nama Mahasiswa</th>
                 <th width="10%">NIM</th>
-                <th width="25%">Kegiatan / Penyelenggara</th>
+                <th width="18%">Judul Kegiatan</th>
+                <th width="15%">Nama Kegiatan</th>
                 <th width="10%">Tingkat</th>
-                <th width="10%">Tahun</th>
+                <th width="10%">Hasil</th>
+                <th width="8%">Tahun</th>
                 <th width="5%">Poin</th>
-                <th width="15%">Status</th>
             </tr>
         </thead>
         <tbody>
@@ -120,26 +118,20 @@
                     <td class="text-center">{{ $index + 1 }}</td>
                     <td>{{ $item->user->name ?? '-' }}</td>
                     <td class="text-center">{{ $item->user->nim ?? '-' }}</td>
-                    <td>
-                        <strong>{{ $item->kegiatan->kegiatan ?? '-' }}</strong><br>
-                        <span style="font-size: 10px; color: #555;">{{ $item->penyelenggara ?? '-' }}</span>
-                    </td>
-                    <td class="text-center">{{ $item->kegiatan->tingkat ?? '-' }}</td>
+                    {{-- 🔧 JUDUL KEGIATAN --}}
+                    <td>{{ $item->judul_kegiatan ?? $item->kegiatan->judul_kegiatan ?? $item->kegiatan->kegiatan ?? '-' }}</td>
+                    <td>{{ $item->kegiatan->kegiatan ?? '-' }}</td>
+                    {{-- 🔧 TINGKAT DARI SPK --}}
+                    <td class="text-center">{{ $item->tingkat ?? '-' }}</td>
+                    {{-- 🔧 HASIL DARI SPK --}}
+                    <td class="text-center">{{ $item->hasil ?? '-' }}</td>
                     <td class="text-center">{{ $item->tahun ?? '-' }}</td>
-                    <td class="text-center">{{ $item->kegiatan->masterKegiatan->poin ?? 0 }}</td>
-                    <td class="text-center">
-                        @if($item->status == 'disetujui')
-                            <span class="status-disetujui">DISETUJUI</span>
-                        @elseif($item->status == 'ditolak')
-                            <span class="status-ditolak">DITOLAK</span>
-                        @else
-                            <span class="status-draft">MENUNGGU</span>
-                        @endif
-                    </td>
+                    {{-- 🔧 POIN DARI SPK --}}
+                    <td class="text-center"><strong>{{ $item->poin ?? 0 }}</strong></td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" class="text-center">Tidak ada data prestasi pada periode ini.</td>
+                    <td colspan="9" class="text-center">Tidak ada data prestasi pada periode ini.</td>
                 </tr>
             @endforelse
         </tbody>

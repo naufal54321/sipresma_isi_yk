@@ -15,23 +15,25 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         /*
-        |--------------------------------------------------------------------------
-        | Dashboard Admin
-        |--------------------------------------------------------------------------
-        */
+|--------------------------------------------------------------------------
+| Dashboard Admin
+|--------------------------------------------------------------------------
+*/
 
-         if ($user->roles->contains('name', 'Admin')) {
+        if ($user->roles->contains('name', 'Admin')) {
 
             $totalMahasiswa = User::role('Mahasiswa')->count();
             $totalDosen = User::role('Dosen')->count();
 
-            $totalRpk = Kegiatan::count();
+            // 🔧 PERBAIKAN: Total RPK dari model Rpk
+            $totalRpk = Rpk::count();
             $totalSpk = Spk::count();
 
-            // STATUS RPK
-            $rpkDraft = Kegiatan::where('status', 'draft')->count();
-            $rpkDisetujui = Kegiatan::where('status', 'disetujui')->count();
-            $rpkDitolak = Kegiatan::where('status', 'ditolak')->count();
+            // 🔧 PERBAIKAN: Status dari RPK, bukan Kegiatan
+            $rpkDraft = Rpk::where('status', 'draft')->count();
+            $rpkDiajukan = Rpk::where('status', 'diajukan')->count();
+            $rpkDisetujui = Rpk::where('status', 'disetujui')->count();
+            $rpkDitolak = Rpk::where('status', 'ditolak')->count();
 
             // STATUS SPK
             $spkDraft = Spk::where('status', 'draft')->count();
@@ -59,58 +61,58 @@ class DashboardController extends Controller
                     $q->where('tingkat', 'Internasional');
                 })->count();
 
-            // DONUT CHART ADMIN (Menambahkan variabel yang sebelumnya hilang)
-            // ==================================================================
-            // UBAH BAGIAN INI AGAR MENGAMBIL DATA SPK YANG DISETUJUI (SEPERTI BERANDA)
-            // ==================================================================
+            // DONUT CHART ADMIN
             $jenisGrup = Spk::with('kegiatan')
                 ->where('status', 'disetujui')
                 ->get()
-                ->groupBy(function($spk) {
+                ->groupBy(function ($spk) {
                     return $spk->kegiatan->jenis ?? 'Lainnya';
                 });
 
             $jenisLabels = $jenisGrup->keys()->toArray();
             $jenisData = $jenisGrup->map->count()->values()->toArray();
-            // ==================================================================
-
-            // TOP MAHASISWA
+            // 🔧 TOP MAHASISWA (PERBAIKAN - TERMASUK ANGGOTA)
             $topMahasiswa = User::role('Mahasiswa')
-                ->with(['spks.kegiatan.masterKegiatan'])
                 ->get()
                 ->map(function ($user) {
-                    $user->total_poin = $user->spks
+                    // Poin dari SPK milik sendiri (sebagai ketua)
+                    $poinSendiri = Spk::where('user_id', $user->id)
                         ->where('status', 'disetujui')
-                        ->sum(function ($spk) {
-                            return $spk->kegiatan->masterKegiatan->poin ?? 0;
-                        });
+                        ->sum('poin');
+
+                    // Poin dari SPK di mana user adalah anggota
+                    $poinAnggota = Spk::where('status', 'disetujui')
+                        ->whereHas('kegiatan.anggota', function ($q) use ($user) {
+                            $q->where('user_id', $user->id);
+                        })
+                        ->sum('poin');
+
+                    // Total poin
+                    $user->total_poin = $poinSendiri + $poinAnggota;
+
                     return $user;
                 })
                 ->sortByDesc('total_poin')
                 ->take(5);
 
-            // ==========================
-            // AKTIVITAS MAHASISWA - RPK
-            // ==========================
-            $aktivitasRpkMahasiswa = Kegiatan::with('rpk.user')
+            // 🔧 PERBAIKAN: AKTIVITAS MAHASISWA - RPK (dari model Rpk)
+            $aktivitasRpkMahasiswa = Rpk::with('user')
                 ->latest()
                 ->take(10)
                 ->get()
                 ->map(function ($item) {
                     return [
-                        'aktor'      => $item->rpk->user->name ?? '-',
-                        'role'       => 'Mahasiswa', 
+                        'aktor'      => $item->user->name ?? '-',
+                        'role'       => 'Mahasiswa',
                         'jenis'      => 'RPK',
-                        'aktivitas'  => 'Mengajukan RPK : '.$item->kegiatan,
-                        'status'     => $item->status,
+                        'aktivitas'  => 'Membuat RPK',
+                        'status'     => $item->status, // 🔧 Status dari RPK
                         'created_at' => $item->created_at,
                     ];
                 });
 
-            // ==========================
             // AKTIVITAS MAHASISWA - SPK
-            // ==========================
-            $aktivitasSpkMahasiswa = Spk::with(['user','kegiatan'])
+            $aktivitasSpkMahasiswa = Spk::with(['user', 'kegiatan'])
                 ->latest()
                 ->take(10)
                 ->get()
@@ -119,45 +121,39 @@ class DashboardController extends Controller
                         'aktor'      => $item->user->name ?? '-',
                         'role'       => 'Mahasiswa',
                         'jenis'      => 'SPK',
-                        'aktivitas'  => 'Mengajukan SPK : '.($item->kegiatan->kegiatan ?? '-'),
+                        'aktivitas'  => 'Mengajukan SPK : ' . ($item->kegiatan->kegiatan ?? '-'),
                         'status'     => $item->status,
                         'created_at' => $item->created_at,
                     ];
                 });
 
-            // ==========================
-            // AKTIVITAS DOSEN - RPK
-            // ==========================
-            $aktivitasRpkDosen = Kegiatan::with(['rpk.user.dosenPembimbing']) // Tambahkan relasi dosen
-                ->whereIn('status', ['disetujui','ditolak'])
+            // 🔧 PERBAIKAN: AKTIVITAS DOSEN - RPK (dari model Rpk)
+            $aktivitasRpkDosen = Rpk::with(['user.dosenPembimbing'])
+                ->whereIn('status', ['disetujui', 'ditolak'])
                 ->latest('updated_at')
                 ->take(10)
                 ->get()
                 ->map(function ($item) {
                     return [
-                        // Ambil nama Dosen Pembimbing dari relasi User
-                        'aktor'      => $item->rpk->user->dosenPembimbing->name ?? 'Dosen (Tidak Diketahui)',
+                        'aktor'      => $item->user->dosenPembimbing->name ?? 'Dosen (Tidak Diketahui)',
                         'role'       => 'Dosen',
                         'jenis'      => 'RPK',
                         'aktivitas'  => $item->status == 'disetujui'
-                            ? 'Menyetujui RPK "' . $item->kegiatan . '" milik ' . ($item->rpk->user->name ?? '-')
-                            : 'Menolak RPK "' . $item->kegiatan . '" milik ' . ($item->rpk->user->name ?? '-'),
-                        'status'     => $item->status,
+                            ? 'Menyetujui RPK milik ' . ($item->user->name ?? '-')
+                            : 'Menolak RPK milik ' . ($item->user->name ?? '-'),
+                        'status'     => $item->status, // 🔧 Status dari RPK
                         'created_at' => $item->updated_at,
                     ];
                 });
 
-            // ==========================
             // AKTIVITAS DOSEN - SPK
-            // ==========================
-            $aktivitasSpkDosen = Spk::with(['user.dosenPembimbing']) // Tambahkan relasi dosen
-                ->whereIn('status', ['disetujui','ditolak'])
+            $aktivitasSpkDosen = Spk::with(['user.dosenPembimbing'])
+                ->whereIn('status', ['disetujui', 'ditolak'])
                 ->latest('updated_at')
                 ->take(10)
                 ->get()
                 ->map(function ($item) {
                     return [
-                        // Ambil nama Dosen Pembimbing dari relasi User
                         'aktor'      => $item->user->dosenPembimbing->name ?? 'Dosen (Tidak Diketahui)',
                         'role'       => 'Dosen',
                         'jenis'      => 'SPK',
@@ -169,9 +165,7 @@ class DashboardController extends Controller
                     ];
                 });
 
-            // ==========================
             // GABUNGKAN SEMUA AKTIVITAS
-            // ==========================
             $aktivitasTerbaru = collect()
                 ->concat($aktivitasRpkMahasiswa)
                 ->concat($aktivitasSpkMahasiswa)
@@ -186,6 +180,7 @@ class DashboardController extends Controller
                 'totalRpk',
                 'totalSpk',
                 'rpkDraft',
+                'rpkDiajukan',
                 'rpkDisetujui',
                 'rpkDitolak',
                 'spkDraft',
@@ -210,103 +205,110 @@ class DashboardController extends Controller
 
         if ($user->roles->contains('name', 'Dosen')) {
 
-            $totalMahasiswa = User::where(
-                'dosen_pembimbing_id',
-                $user->id
-            )->count();
+            $totalMahasiswa = User::where('dosen_pembimbing_id', $user->id)->count();
 
-            $rpkMenunggu = Kegiatan::where('status', 'draft')->count();
+            // RPK
+            $rpkMenunggu = Rpk::where('status', 'draft')->count();
+            $rpkDisetujui = Rpk::where('status', 'disetujui')
+                ->whereIn('user_id', User::where('dosen_pembimbing_id', $user->id)->pluck('id'))
+                ->count();
 
+            // SPK
             $spkMenunggu = Spk::where('status', 'draft')->count();
+            $spkDisetujui = Spk::where('status', 'disetujui')
+                ->whereIn('user_id', User::where('dosen_pembimbing_id', $user->id)->pluck('id'))
+                ->count();
 
             return view('dashboard.dosen', compact(
                 'totalMahasiswa',
                 'rpkMenunggu',
-                'spkMenunggu'
+                'rpkDisetujui',
+                'spkMenunggu',
+                'spkDisetujui'
             ));
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | Dashboard Mahasiswa
-        |--------------------------------------------------------------------------
-        */
-
-        $kegiatanUser = Kegiatan::whereHas('rpk', function ($q) use ($user) {
-            $q->where('user_id', $user->id);
-        });
+|--------------------------------------------------------------------------
+| 🔧 Dashboard Mahasiswa (SEMUA SAMA - TERMASUK ANGGOTA)
+|--------------------------------------------------------------------------
+*/
 
         // Dosen Pembimbing
         $dosenPembimbing = $user->dosenPembimbing;
 
-        // CARD STATISTIK
-        $rpkDraft = (clone $kegiatanUser)->where('status', 'draft')->count();
-        $rpkDisetujui = (clone $kegiatanUser)->where('status', 'disetujui')->count();
+        // 🔧 RPK di mana user jadi anggota (tambahan info)
+        $rpkAnggota = Rpk::whereHas('kegiatans.anggota', function ($q) use ($user) {
+            $q->where('user_id', $user->id);
+        })->where('user_id', '!=', $user->id)->latest()->get();
+
+        // 🔧 CARD STATISTIK (dari RPK & SPK milik sendiri)
+        $rpkDraft = Rpk::where('user_id', $user->id)->where('status', 'draft')->count();
+        $rpkDiajukan = Rpk::where('user_id', $user->id)->where('status', 'diajukan')->count();
+        $rpkDisetujui = Rpk::where('user_id', $user->id)->where('status', 'disetujui')->count();
+        $rpkDitolak = Rpk::where('user_id', $user->id)->where('status', 'ditolak')->count();
 
         $spkDraft = Spk::where('user_id', $user->id)->where('status', 'draft')->count();
+        $spkDiajukan = Spk::where('user_id', $user->id)->where('status', 'diajukan')->count();
         $spkDisetujui = Spk::where('user_id', $user->id)->where('status', 'disetujui')->count();
+        $spkDitolak = Spk::where('user_id', $user->id)->where('status', 'ditolak')->count();
 
-        $totalPoin = Spk::where('user_id', $user->id)
+        // 🔧 Total Poin = Poin dari SPK sendiri + Poin dari SPK sebagai anggota
+        $poinSendiri = Spk::where('user_id', $user->id)
             ->where('status', 'disetujui')
-            ->with('kegiatan.masterKegiatan')
-            ->get()
-            ->sum(function ($spk) {
-                return $spk->kegiatan?->masterKegiatan?->poin ?? 0;
-            });
+            ->sum('poin');
 
-        $totalKegiatan = (clone $kegiatanUser)->count();
-        $jumlahDitolak = (clone $kegiatanUser)->where('status', 'ditolak')->count();
+        $poinAnggota = Spk::where('status', 'disetujui')
+            ->whereHas('kegiatan.anggota', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            })
+            ->where('user_id', '!=', $user->id) // 🔧 Hindari double counting
+            ->sum('poin');
 
-        $persentase = $totalKegiatan > 0
-            ? round(($rpkDisetujui / $totalKegiatan) * 100)
+        $totalPoin = $poinSendiri + $poinAnggota;
+
+        // 🔧 Total Kegiatan = RPK Disetujui + SPK Disetujui
+        $totalKegiatan = $rpkDisetujui + $spkDisetujui;
+
+        // Jumlah Ditolak
+        $jumlahDitolak = $rpkDitolak + $spkDitolak;
+
+        // 🔧 Persentase Disetujui
+        $totalSemua = $totalKegiatan + $jumlahDitolak;
+        $persentase = $totalSemua > 0
+            ? round(($totalKegiatan / $totalSemua) * 100)
             : 0;
 
-        /*
-        |--------------------------------------------------------------------------
-        | PIE CHART
-        |--------------------------------------------------------------------------
-        */
+        // 🔧 PIE CHART: Status KESELURUHAN (RPK + SPK)
+        $draft = $rpkDraft + $spkDraft;
+        $disetujui = $rpkDisetujui + $spkDisetujui;
+        $ditolak = $rpkDitolak + $spkDitolak;
 
-        $draft = (clone $kegiatanUser)->where('status', 'draft')->count();
-        $disetujui = (clone $kegiatanUser)->where('status', 'disetujui')->count();
-        $ditolak = (clone $kegiatanUser)->where('status', 'ditolak')->count();
-
-        /*
-        |--------------------------------------------------------------------------
-        | BAR CHART
-        |--------------------------------------------------------------------------
-        */
-        // BAR CHART (berdasarkan SPK yang sudah disetujui)
-
+        // 🔧 BAR CHART - Tingkat dari SPK (kolom tingkat)
         $universitas = Spk::where('user_id', $user->id)
             ->where('status', 'disetujui')
-            ->whereHas('kegiatan', function ($q) {
-                $q->where('tingkat', 'Universitas');
-            })->count();
+            ->where('tingkat', 'Universitas')
+            ->count();
 
         $regional = Spk::where('user_id', $user->id)
             ->where('status', 'disetujui')
-            ->whereHas('kegiatan', function ($q) {
-                $q->where('tingkat', 'Regional');
-            })->count();
+            ->where('tingkat', 'Regional')
+            ->count();
 
         $nasional = Spk::where('user_id', $user->id)
             ->where('status', 'disetujui')
-            ->whereHas('kegiatan', function ($q) {
-                $q->where('tingkat', 'Nasional');
-            })->count();
+            ->where('tingkat', 'Nasional')
+            ->count();
 
         $internasional = Spk::where('user_id', $user->id)
             ->where('status', 'disetujui')
-            ->whereHas('kegiatan', function ($q) {
-                $q->where('tingkat', 'Internasional');
-            })->count();
+            ->where('tingkat', 'Internasional')
+            ->count();
 
-        /*
-        |--------------------------------------------------------------------------
-        | DONUT CHART
-        |--------------------------------------------------------------------------
-        */
+        // 🔧 DONUT CHART - Jenis Kegiatan dari kegiatan di RPK user
+        $kegiatanUser = Kegiatan::whereHas('rpk', function ($q) use ($user) {
+            $q->where('user_id', $user->id);
+        });
 
         $jenis = (clone $kegiatanUser)
             ->selectRaw('jenis, COUNT(*) as total')
@@ -316,12 +318,7 @@ class DashboardController extends Controller
         $jenisLabels = $jenis->pluck('jenis');
         $jenisData = $jenis->pluck('total');
 
-        /*
-        |--------------------------------------------------------------------------
-        | LINE CHART AKTIVITAS BULANAN
-        |--------------------------------------------------------------------------
-        */
-
+        // 🔧 LINE CHART - Aktivitas Bulanan
         $bulanLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
         $bulanData = [];
 
@@ -329,16 +326,11 @@ class DashboardController extends Controller
             $bulanData[] = Kegiatan::whereHas('rpk', function ($q) use ($user) {
                 $q->where('user_id', $user->id);
             })
-            ->whereMonth('created_at', $i)
-            ->count();
+                ->whereMonth('created_at', $i)
+                ->count();
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | AKTIVITAS TERBARU
-        |--------------------------------------------------------------------------
-        */
-
+        // AKTIVITAS TERBARU
         $kegiatanTerbaru = (clone $kegiatanUser)->latest()->take(5)->get();
 
         return view('dashboard.mahasiswa', compact(
@@ -360,7 +352,10 @@ class DashboardController extends Controller
             'jenisLabels',
             'jenisData',
             'bulanLabels',
-            'bulanData'
+            'bulanData',
+            'jumlahDitolak',
+            'kegiatanTerbaru',
+            'rpkAnggota'
         ));
     }
 }

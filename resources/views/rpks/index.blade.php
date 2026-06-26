@@ -15,12 +15,15 @@
                 </p>
             </div>
 
-             <button onclick="bukaModalTambahRPK()"
-               class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg text-sm font-semibold transition cursor-pointer">
-                + Tambah RPK
-            </button>
+           {{-- ✅ Semua mahasiswa bisa tambah RPK --}}
+                <button onclick="bukaModalTambahRPK()"
+                class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg text-sm font-semibold transition cursor-pointer">
+                    + Tambah RPK
+                </button>
 
         </div>
+
+        
 
         <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-6">
             <form method="GET" action="{{ route('rpks.index') }}" class="flex flex-col md:flex-row gap-4 items-end">
@@ -31,7 +34,7 @@
                         <option value="">Semua Tahun</option>
                         @php
                             $tahunSekarang = date('Y');
-                            $tahunAwal = 2020; // Sesuaikan dengan tahun awal sistem Anda
+                            $tahunAwal = 2020;
                         @endphp
                         @for($i = $tahunSekarang; $i >= $tahunAwal; $i--)
                             <option value="{{ $i }}" {{ request('tahun') == $i ? 'selected' : '' }}>{{ $i }}</option>
@@ -53,6 +56,7 @@
                     <select name="status" class="w-full border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Semua Status</option>
                         <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
+                        <option value="diajukan" {{ request('status') == 'diajukan' ? 'selected' : '' }}>Diajukan</option>
                         <option value="disetujui" {{ request('status') == 'disetujui' ? 'selected' : '' }}>Disetujui</option>
                         <option value="ditolak" {{ request('status') == 'ditolak' ? 'selected' : '' }}>Ditolak</option>
                     </select>
@@ -79,11 +83,14 @@
                 <thead class="bg-gray-50 uppercase text-xs tracking-wider border-b border-gray-200">
                     <tr>
                         <th class="px-6 py-4">No</th>
+                        <th class="px-6 py-4">Pemilik</th> {{-- 🔧 KOLOM BARU --}}
+                        <th class="px-6 py-4">NIM</th>
+                        <th class="px-6 py-4">Prodi</th>
                         <th class="px-6 py-4">Tahun</th>
                         <th class="px-6 py-4">Semester</th>
                         <th class="px-6 py-4">Jumlah Kegiatan</th>
                         <th class="px-6 py-4">Status</th>
-                        <th class="px-6 py-4">Aksi</th>
+                        <th class="px-6 py-4 text-center">Aksi</th>
                     </tr>
                 </thead>
 
@@ -97,6 +104,24 @@
                             {{ $loop->iteration }}
                         </td>
 
+
+                        {{-- 🔧 KOLOM PEMILIK --}}
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-2">
+                                <span class="font-medium text-gray-800">{{ $rpk->user->name ?? '-' }}</span>
+                                @if($rpk->user_id == Auth::id())
+                                @endif
+                            </div>
+                        </td>
+
+                        <td class="px-4 py-4">
+                            {{ $rpk->user->nim }}
+                        </td>
+
+                        <td class="px-4 py-4">
+                            {{ $rpk->user->prodi }}
+                        </td>
+
                         <td class="px-6 py-4 font-semibold text-gray-800">
                             {{ $rpk->tahun }}
                         </td>
@@ -106,48 +131,63 @@
                         </td>
 
                         <td class="px-6 py-4">
-                                 {{ $rpk->kegiatans->count() }} Kegiatan
-                            </span>
+                            @php
+                                if($rpk->user_id == Auth::id()) {
+                                    $jumlahKegiatan = $rpk->kegiatans->count();
+                                } else {
+                                    $jumlahKegiatan = $rpk->kegiatans->filter(function($k) {
+                                        return $k->anggota->contains('id', Auth::id());
+                                    })->count();
+                                }
+                            @endphp
+                            {{ $jumlahKegiatan }} Kegiatan
                         </td>
+                        
                         <td class="px-6 py-4">
                             @if($rpk->status == 'draft')
-                                <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold border border-orange-200">
+                                <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
                                     Draft
                                 </span>
+                            @elseif($rpk->status == 'diajukan')
+                                <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                                    Diajukan
+                                </span>
                             @elseif($rpk->status == 'disetujui')
-                                <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold border border-green-200">
+                                <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
                                     Disetujui
                                 </span>
                             @elseif($rpk->status == 'ditolak')
-                                <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold border border-red-200">
+                                <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
                                     Ditolak
                                 </span>
                             @endif
                         </td>
-                        <td class="px-6 py-4">
 
-                            <div class="flex items-center gap-2">
 
-                                <a href="{{ route('rpks.show', $rpk->id) }}"
-                                   class="bg-blue-500 text-white hover:bg-blue-600 hover:text-white border border-blue-200 px-4 py-1.5 rounded-lg text-sm font-semibold transition">
-                                    Detail
+                        <td class="px-6 py-4 text-center">
+                            <div class="flex items-center justify-center gap-2">
+
+                                <a href="{{ route('rpks.show', $rpk->id) }}" title="Detail RPK"
+                                class="flex items-center justify-center w-9 h-9 bg-gray-400 text-white hover:bg-gray-500 border border-gray-200 rounded-lg transition shadow-sm">
+                                    <i class="fas fa-eye"></i>
                                 </a>
-                                 @if(in_array($rpk->status, ['draft', 'ditolak']))
-                                <form action="{{ route('rpks.destroy', $rpk->id) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
 
-                                    <button type="button"
-                                        onclick="konfirmasiHapus(this)"
-                                        class="bg-red-500 text-white hover:bg-red-600 hover:text-white border border-red-200 px-3 py-1.5 rounded-lg text-sm font-semibold transition">
-                                        Hapus
-                                    </button>
+                                {{-- 🔧 Tombol edit & hapus hanya untuk pemilik --}}
+                                @if($rpk->user_id == Auth::id() && in_array($rpk->status, ['draft', 'ditolak']))
 
-                                </form>
+                                    <form action="{{ route('rpks.destroy', $rpk->id) }}" method="POST" class="m-0">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button"
+                                                onclick="konfirmasiHapus(this)"
+                                                title="Hapus RPK"
+                                                class="flex items-center justify-center w-9 h-9 bg-red-500 text-white hover:bg-red-600 rounded-lg transition shadow-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                 @endif
 
                             </div>
-
                         </td>
 
                     </tr>
@@ -155,7 +195,7 @@
                     @empty
 
                     <tr>
-                        <td colspan="6" class="text-center py-12 text-gray-400 font-medium">
+                        <td colspan="8" class="text-center py-12 text-gray-400 font-medium">
                             <i class="fas fa-folder-open text-3xl mb-3 text-gray-300 block"></i>
                             Belum ada data RPK yang ditemukan.
                         </td>
@@ -206,7 +246,6 @@ Swal.fire({
 @endif
 
 <script>
-    // Konfirmasi Hapus Data Modern
     function konfirmasiHapus(button) {
         Swal.fire({
             title: 'Hapus RPK?',
@@ -224,7 +263,6 @@ Swal.fire({
         });
     }
 
-    // Modal Tambah RPK
     function bukaModalTambahRPK() {
         Swal.fire({
             title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Tambah RPK</h2>',
@@ -261,6 +299,7 @@ Swal.fire({
             cancelButtonText: 'Batal',
             confirmButtonColor: '#2563EB',
             cancelButtonColor: '#9CA3AF',
+            allowOutsideClick: false,
             customClass: {
                 popup: 'rounded-2xl p-4'
             },
