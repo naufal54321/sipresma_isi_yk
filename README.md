@@ -47,3 +47,87 @@ Pastikan komputer Anda sudah terinstal:
    ```bash
    git clone [https://github.com/username-anda/nama-repo-anda.git](https://github.com/username-anda/nama-repo-anda.git)
    cd nama-repo-anda
+
+```
+
+2. **Install Dependencies PHP & Node**
+```bash
+composer install
+npm install
+
+```
+
+
+3. **Konfigurasi Environment**
+Duplikat file `.env.example` menjadi `.env`:
+```bash
+cp .env.example .env
+
+```
+
+
+Buka file `.env` dan sesuaikan koneksi database serta konfigurasi SMTP Email Anda:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=sipresma_db
+DB_USERNAME=root
+DB_PASSWORD=
+
+# Konfigurasi SMTP (Wajib untuk fitur Verifikasi & Reset Password)
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=email_anda@gmail.com
+MAIL_PASSWORD=app_password_gmail_anda
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=email_anda@gmail.com
+MAIL_FROM_NAME="${APP_NAME}"
+
+```
+
+
+4. **Generate Application Key**
+```bash
+php artisan key:generate
+
+```
+
+
+5. **Migrasi Database & Seeder** (Menyiapkan tabel dan data *default* seperti Roles)
+```bash
+php artisan migrate --seed
+
+```
+
+
+6. **Jalankan Server Lokal**
+Buka dua tab terminal. Di terminal pertama, jalankan *asset bundler*:
+```bash
+npm run dev
+
+```
+
+
+Di terminal kedua, jalankan server Laravel:
+```bash
+php artisan serve
+
+```
+
+
+Aplikasi kini dapat diakses melalui `http://127.0.0.1:8000`.
+
+## 🔒 Keamanan (Security Vulnerabilities)
+
+Jika Anda menemukan celah keamanan dalam sistem ini, mohon untuk tidak membukanya ke publik. Silakan laporkan langsung melalui kontak **UPA TIK ISI Yogyakarta**.
+
+## 📄 Hak Cipta & Lisensi
+
+Dikembangkan oleh **UPA TIK Institut Seni Indonesia Yogyakarta**.
+Hak Cipta Dilindungi © 2026.
+
+```
+
+```
