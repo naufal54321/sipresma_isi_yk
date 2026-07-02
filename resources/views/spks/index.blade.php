@@ -185,154 +185,266 @@ function hapusSpk(button) {
 
 function generateFormHTML(prefix) {
     return `
-        <div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-2">Tahun Pengajuan *</label>
+        {{-- ⚡ DROPDOWN PILIH TAHUN --}}
+        <div class="mb-4">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Tahun Pengajuan *</label>
             <select name="tahun" id="${prefix}_tahun" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500" required>
-                @for($i = date('Y'); $i >= date('Y') - 8; $i--)<option value="{{ $i }}">{{ $i }}</option>@endfor
-            </select></div>
-        <div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-2">RPK (Disetujui) *</label>
+                <option value="">Pilih Tahun</option>
+                @for($i = date('Y') + 5; $i >= 2020; $i--)
+                    <option value="{{ $i }}">{{ $i }}</option>
+                @endfor
+            </select>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">RPK (Disetujui) *</label>
             <select name="rpk_id" id="${prefix}_rpk" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500" required>
                 <option value="">Pilih RPK</option>
                 @foreach($rpksDisetujui ?? $rpks ?? [] as $rpk)
-                    <option value="{{ $rpk->id }}">{{ $rpk->tahun }} - {{ $rpk->semester }} ({{ $rpk->user->name ?? '' }})</option>
+                    <option value="{{ $rpk->id }}" 
+                        data-kegiatan-id="{{ $rpk->kegiatans->first()->id ?? '' }}"
+                        data-kegiatan-nama="{{ $rpk->kegiatans->first()->judul_kegiatan ?? $rpk->kegiatans->first()->kegiatan ?? '' }}"
+                        data-kegiatan-tanggal="{{ $rpk->kegiatans->first()->tanggal ?? '' }}"
+                        data-kegiatan-kategori="{{ $rpk->kegiatans->first()->kategori ?? '' }}">
+                        {{ $rpk->tahun }} - {{ $rpk->semester }} ({{ $rpk->user->name ?? '' }})
+                    </option>
                 @endforeach
-            </select></div>
-        <div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-2">Kegiatan *</label>
-            <select name="kegiatan_id" id="${prefix}_kegiatan" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500" required>
-                <option value="">Pilih RPK terlebih dahulu</option>
-            </select></div>
+            </select>
+        </div>
+        
+        {{-- ⚡ KEGIATAN OTOMATIS DARI RPK --}}
+        <div class="mb-4">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Kegiatan (Otomatis)</label>
+            <input type="text" id="${prefix}_kegiatan_display" class="w-full bg-gray-100 border border-gray-300 text-gray-700 rounded-lg px-4 py-3 outline-none" readonly placeholder="Otomatis terisi dari RPK">
+            <input type="hidden" name="kegiatan_id" id="${prefix}_kegiatan">
+        </div>
+        
         <div class="grid grid-cols-2 gap-4 mb-4">
-            <div><label class="block text-xs font-semibold text-gray-500 mb-1">Tanggal (Otomatis)</label>
-                <input type="date" name="tanggal_kegiatan" id="${prefix}_tanggal" class="w-full bg-gray-50 border border-gray-300 text-gray-700 rounded-lg p-2 outline-none" readonly required></div>
-            <div><label class="block text-xs font-semibold text-gray-500 mb-1">Kategori (Otomatis)</label>
-                <input type="text" id="${prefix}_kategori_display" class="w-full bg-gray-50 border border-gray-300 text-gray-700 rounded-lg p-2 outline-none" readonly>
-                <input type="hidden" name="kategori" id="${prefix}_kategori"></div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 mb-1">Tanggal (Otomatis)</label>
+                <input type="date" name="tanggal_kegiatan" id="${prefix}_tanggal" class="w-full bg-gray-100 border border-gray-300 text-gray-700 rounded-lg p-2 outline-none" readonly required>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 mb-1">Kategori (Otomatis)</label>
+                <input type="text" id="${prefix}_kategori_display" class="w-full bg-gray-100 border border-gray-300 text-gray-700 rounded-lg p-2 outline-none" readonly>
+                <input type="hidden" name="kategori" id="${prefix}_kategori">
+            </div>
         </div>
 
-        {{-- HASIL, TINGKAT & POIN - SEIMBANG --}}
-<div class="grid grid-cols-12 gap-3 mb-4">
-    <div class="col-span-4"><label class="block text-sm font-semibold text-gray-700 mb-2">Hasil / Prestasi *</label>
-        <select name="prestasi_id" id="${prefix}_prestasi" class="w-full border border-gray-300 rounded-lg px-3 py-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm" required>
-            <option value="" data-poin="0" data-tingkat="">-- Pilih --</option>
-            @foreach($prestasis as $prestasi)
-                <option value="{{ $prestasi->id }}" data-poin="{{ $prestasi->poin }}" data-tingkat="{{ $prestasi->tingkat }}">{{ $prestasi->juara }}</option>
-            @endforeach
-        </select></div>
-    <div class="col-span-4"><label class="block text-sm font-semibold text-gray-700 mb-2">Tingkat</label>
-        <input type="text" id="${prefix}_tingkat_display"  class="w-full border border-gray-300 rounded-lg px-3 py-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm" readonly>
-        <input type="hidden" name="tingkat" id="${prefix}_tingkat" value=""></div>
-    <div class="col-span-4"><label class="block text-sm font-semibold text-gray-700 mb-2">Poin</label>
-        <input type="text" id="${prefix}_poin_display" class="w-full border border-gray-300 rounded-lg px-3 py-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm" readonly>
-        <input type="hidden" name="poin" id="${prefix}_poin" value="0"></div>
-</div>
+        {{-- HASIL, TINGKAT & POIN --}}
+        <div class="grid grid-cols-12 gap-3 mb-4">
+            <div class="col-span-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Hasil / Prestasi *</label>
+                <select name="prestasi_id" id="${prefix}_prestasi" class="w-full border border-gray-300 rounded-lg px-3 py-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm" required>
+                    <option value="" data-poin="0" data-tingkat="">-- Pilih --</option>
+                    @foreach($prestasis as $prestasi)
+                        <option value="{{ $prestasi->id }}" data-poin="{{ $prestasi->poin }}" data-tingkat="{{ $prestasi->tingkat }}">{{ $prestasi->juara }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-span-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Tingkat</label>
+                <input type="text" id="${prefix}_tingkat_display" class="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm" readonly>
+                <input type="hidden" name="tingkat" id="${prefix}_tingkat" value="">
+            </div>
+            <div class="col-span-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Poin</label>
+                <input type="text" id="${prefix}_poin_display" class="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm" readonly>
+                <input type="hidden" name="poin" id="${prefix}_poin" value="0">
+            </div>
+        </div>
 
-        <div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-2">Penyelenggara *</label>
-            <input type="text" name="penyelenggara" id="${prefix}_penyelenggara" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500" required></div>
-        <div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-2">URL Kegiatan (Opsional)</label>
-            <input type="url" name="url_kegiatan" id="${prefix}_url" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"></div>
-        <div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-2">Bukti (PDF max 5MB) *</label>
+        <div class="mb-4">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Penyelenggara *</label>
+            <input type="text" name="penyelenggara" id="${prefix}_penyelenggara" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500" required>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">URL Kegiatan (Opsional)</label>
+            <input type="url" name="url_kegiatan" id="${prefix}_url" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Bukti (PDF max 5MB) *</label>
             <input type="file" name="bukti" id="${prefix}_bukti" accept=".pdf" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500" ${prefix === 'add' ? 'required' : ''}>
-            ${prefix === 'edit' ? '<small class="text-gray-500 mt-1 block">Kosongkan jika tidak ingin mengubah file.</small>' : ''}</div>
-        <div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-2">Keterangan *</label>
-            <textarea name="keterangan" id="${prefix}_keterangan" rows="4" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500" required></textarea></div>
+            ${prefix === 'edit' ? '<small class="text-gray-500 mt-1 block">Kosongkan jika tidak ingin mengubah file.</small>' : ''}
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Keterangan *</label>
+            <textarea name="keterangan" id="${prefix}_keterangan" rows="4" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+        </div>
     `;
 }
 
 function bindLogikaForm(prefix) {
     const elRpk = document.getElementById(`${prefix}_rpk`);
     const elKegiatan = document.getElementById(`${prefix}_kegiatan`);
+    const elKegiatanDisplay = document.getElementById(`${prefix}_kegiatan_display`);
     const elTanggal = document.getElementById(`${prefix}_tanggal`);
     const elKategoriDisplay = document.getElementById(`${prefix}_kategori_display`);
     const elKategori = document.getElementById(`${prefix}_kategori`);
     const elPrestasi = document.getElementById(`${prefix}_prestasi`);
     const elPoinDisplay = document.getElementById(`${prefix}_poin_display`);
     const elPoin = document.getElementById(`${prefix}_poin`);
-    const elTingkatDisplay = document.getElementById(`${prefix}_tingkat_display`); // 🔧 TAMBAH
-    const elTingkat = document.getElementById(`${prefix}_tingkat`); // 🔧 TAMBAH
+    const elTingkatDisplay = document.getElementById(`${prefix}_tingkat_display`);
+    const elTingkat = document.getElementById(`${prefix}_tingkat`);
 
-    if(elRpk) elRpk.onchange = function() {
-        elKegiatan.innerHTML = '<option value="">Pilih Kegiatan</option>';
-        elTanggal.value = ''; elKategoriDisplay.value = ''; elKategori.value = '';
-        kegiatanData.forEach(k => {
-            if(k.rpk_id == this.value && k.rpk?.status === 'disetujui')
-                elKegiatan.innerHTML += `<option value="${k.id}" data-tanggal="${k.tanggal||''}" data-kategori="${k.kategori||''}">${k.judul_kegiatan||k.kegiatan}</option>`;
-        });
-    };
-    if(elKegiatan) elKegiatan.onchange = function() {
-        const opt = this.options[this.selectedIndex];
-        elTanggal.value = opt.dataset.tanggal || '';
-        elKategoriDisplay.value = opt.dataset.kategori || '';
-        elKategori.value = opt.dataset.kategori || '';
-    };
-    if(elPrestasi) elPrestasi.onchange = function() {
-        const opt = this.options[this.selectedIndex];
-        elPoinDisplay.value = opt.dataset.poin || '0';
-        elPoin.value = opt.dataset.poin || '0';
-        // 🔧 AUTO-FILL TINGKAT
-        elTingkatDisplay.value = opt.dataset.tingkat || '';
-        elTingkat.value = opt.dataset.tingkat || '';
-    };
+    // ⚡ SAAT RPK DIPILIH, OTOMATIS ISI KEGIATAN, TANGGAL, KATEGORI
+    if (elRpk) {
+        elRpk.onchange = function() {
+            const opt = this.options[this.selectedIndex];
+            const kegiatanId = opt.dataset.kegiatanId || '';
+            const kegiatanNama = opt.dataset.kegiatanNama || '';
+            const kegiatanTanggal = opt.dataset.kegiatanTanggal || '';
+            const kegiatanKategori = opt.dataset.kegiatanKategori || '';
+            
+            if (elKegiatan) elKegiatan.value = kegiatanId;
+            if (elKegiatanDisplay) elKegiatanDisplay.value = kegiatanNama || 'Tidak ada kegiatan';
+            if (elTanggal) elTanggal.value = kegiatanTanggal;
+            if (elKategoriDisplay) elKategoriDisplay.value = kegiatanKategori || '-';
+            if (elKategori) elKategori.value = kegiatanKategori;
+        };
+    }
+    
+    // ⚡ SAAT PRESTASI DIPILIH, OTOMATIS ISI TINGKAT & POIN
+    if (elPrestasi) {
+        elPrestasi.onchange = function() {
+            const opt = this.options[this.selectedIndex];
+            if (elPoinDisplay) elPoinDisplay.value = opt.dataset.poin || '0';
+            if (elPoin) elPoin.value = opt.dataset.poin || '0';
+            if (elTingkatDisplay) elTingkatDisplay.value = opt.dataset.tingkat || '';
+            if (elTingkat) elTingkat.value = opt.dataset.tingkat || '';
+        };
+    }
 }
 
 function validasiForm(prefix) {
+    const tahun = document.getElementById(`${prefix}_tahun`).value;
     const rpk = document.getElementById(`${prefix}_rpk`).value;
     const kegiatan = document.getElementById(`${prefix}_kegiatan`).value;
     const prestasi = document.getElementById(`${prefix}_prestasi`).value;
     const penyelenggara = document.getElementById(`${prefix}_penyelenggara`).value;
     const keterangan = document.getElementById(`${prefix}_keterangan`).value;
     const bukti = document.getElementById(`${prefix}_bukti`).value;
-    if(!rpk||!kegiatan||!prestasi||!penyelenggara||!keterangan) { Swal.showValidationMessage('Harap lengkapi semua field wajib!'); return false; }
-    if(prefix==='add'&&!bukti) { Swal.showValidationMessage('Harap upload file bukti!'); return false; }
+    
+    if (!tahun) { 
+        Swal.showValidationMessage('Harap pilih Tahun Pengajuan!'); 
+        return false; 
+    }
+    if (!rpk || !kegiatan || !prestasi || !penyelenggara || !keterangan) { 
+        Swal.showValidationMessage('Harap lengkapi semua field wajib!'); 
+        return false; 
+    }
+    if (prefix === 'add' && !bukti) { 
+        Swal.showValidationMessage('Harap upload file bukti!'); 
+        return false; 
+    }
     return true;
 }
 
 function bukaModalTambahSPK() {
     Swal.fire({
-        title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Tambah SPK</h2>', width: '650px',
+        title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Tambah SPK</h2>', 
+        width: '650px',
         html: `<form id="formAdd" action="{{ route('spks.store') }}" method="POST" enctype="multipart/form-data" class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">@csrf ${generateFormHTML('add')}</form>`,
-        showCancelButton: true, confirmButtonText: 'Simpan', cancelButtonText: 'Batal',
-        confirmButtonColor: '#2563EB', cancelButtonColor: '#9CA3AF', allowOutsideClick: false, allowEscapeKey: false,
-        customClass: { popup: 'rounded-2xl p-6' }, didOpen: () => bindLogikaForm('add'),
-        preConfirm: () => { if(validasiForm('add')) { Swal.showLoading(); document.getElementById('formAdd').submit(); return false; } return false; }
+        showCancelButton: true, 
+        confirmButtonText: 'Simpan', 
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#2563EB', 
+        cancelButtonColor: '#9CA3AF', 
+        allowOutsideClick: false, 
+        allowEscapeKey: false,
+        customClass: { popup: 'rounded-2xl p-6' }, 
+        didOpen: () => {
+            bindLogikaForm('add');
+        },
+        preConfirm: () => { 
+            if (validasiForm('add')) { 
+                Swal.showLoading(); 
+                document.getElementById('formAdd').submit(); 
+                return false; 
+            } 
+            return false; 
+        }
     });
 }
 
 function bukaModalEditSPK(button) {
-    const id = button.getAttribute('data-id'), catatan = button.getAttribute('data-catatan'), tahun = button.getAttribute('data-tahun');
-    const rpkId = button.getAttribute('data-rpk'), kegiatanId = button.getAttribute('data-kegiatan');
-    const tanggal = button.getAttribute('data-tanggal'), penyelenggara = button.getAttribute('data-penyelenggara');
-    const kategori = button.getAttribute('data-kategori'), url = button.getAttribute('data-url');
-    const bukti = button.getAttribute('data-bukti'), keterangan = button.getAttribute('data-keterangan');
-    const prestasiId = button.getAttribute('data-prestasi'), poin = button.getAttribute('data-poin');
-    const tingkat = button.getAttribute('data-tingkat'); // 🔧 TAMBAH
+    const id = button.getAttribute('data-id');
+    const catatan = button.getAttribute('data-catatan');
+    const tahun = button.getAttribute('data-tahun');
+    const rpkId = button.getAttribute('data-rpk');
+    const kegiatanId = button.getAttribute('data-kegiatan');
+    const tanggal = button.getAttribute('data-tanggal');
+    const penyelenggara = button.getAttribute('data-penyelenggara');
+    const kategori = button.getAttribute('data-kategori');
+    const url = button.getAttribute('data-url');
+    const bukti = button.getAttribute('data-bukti');
+    const keterangan = button.getAttribute('data-keterangan');
+    const prestasiId = button.getAttribute('data-prestasi');
+    const poin = button.getAttribute('data-poin');
+    const tingkat = button.getAttribute('data-tingkat');
+    
     let actionUrl = "{{ route('spks.update', ':id') }}".replace(':id', id);
-    let catatanHtml = (catatan && catatan!=='null') ? `<div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-4 text-sm"><strong>Catatan Dosen:</strong><br>${catatan}</div>` : '';
-    let buktiHtml = bukti ? `<div class="mb-2 text-sm"><a href="${bukti}" target="_blank" class="text-blue-600 underline"><i class="fas fa-file-pdf"></i> Lihat Bukti Saat Ini</a></div>` : '';
+    let catatanHtml = (catatan && catatan !== 'null') 
+        ? `<div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-4 text-sm"><strong>Catatan Dosen:</strong><br>${catatan}</div>` 
+        : '';
+    let buktiHtml = bukti 
+        ? `<div class="mb-2 text-sm"><a href="${bukti}" target="_blank" class="text-blue-600 underline"><i class="fas fa-file-pdf"></i> Lihat Bukti Saat Ini</a></div>` 
+        : '';
 
     Swal.fire({
-        title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Edit SPK</h2>', width: '650px',
+        title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Edit SPK</h2>', 
+        width: '650px',
         html: `<form id="formEdit" action="${actionUrl}" method="POST" enctype="multipart/form-data" class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">@csrf @method('PUT') ${catatanHtml} ${generateFormHTML('edit')}</form>`,
-        showCancelButton: true, confirmButtonText: 'Update', cancelButtonText: 'Batal',
-        confirmButtonColor: '#2563EB', cancelButtonColor: '#9CA3AF', allowOutsideClick: false, allowEscapeKey: false,
+        showCancelButton: true, 
+        confirmButtonText: 'Update', 
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#2563EB', 
+        cancelButtonColor: '#9CA3AF', 
+        allowOutsideClick: false, 
+        allowEscapeKey: false,
         customClass: { popup: 'rounded-2xl p-6' },
         didOpen: () => {
             bindLogikaForm('edit');
-            document.getElementById('edit_tahun').value = tahun;
+            
+            // Isi form
+            document.getElementById('edit_tahun').value = tahun || '';
             document.getElementById('edit_rpk').value = rpkId;
+            
+            // Trigger change untuk auto-fill kegiatan
             document.getElementById('edit_rpk').dispatchEvent(new Event('change'));
+            
             setTimeout(() => {
-                document.getElementById('edit_kegiatan').value = kegiatanId;
-                document.getElementById('edit_kegiatan').dispatchEvent(new Event('change'));
-                document.getElementById('edit_penyelenggara').value = penyelenggara;
-                document.getElementById('edit_url').value = (url==='null')?'':url;
-                document.getElementById('edit_keterangan').value = keterangan;
-                if(prestasiId) { 
-                    document.getElementById('edit_prestasi').value = prestasiId; 
-                    document.getElementById('edit_prestasi').dispatchEvent(new Event('change')); 
+                document.getElementById('edit_penyelenggara').value = penyelenggara || '';
+                document.getElementById('edit_url').value = (url === 'null' || !url) ? '' : url;
+                document.getElementById('edit_keterangan').value = keterangan || '';
+                
+                if (prestasiId && prestasiId !== 'null') { 
+                    const elPrestasi = document.getElementById('edit_prestasi');
+                    if (elPrestasi) {
+                        elPrestasi.value = prestasiId; 
+                        elPrestasi.dispatchEvent(new Event('change')); 
+                    }
                 }
-                if(buktiHtml) document.getElementById('edit_bukti').insertAdjacentHTML('beforebegin', buktiHtml);
-            }, 300);
+                
+                if (buktiHtml) {
+                    const elBukti = document.getElementById('edit_bukti');
+                    if (elBukti) {
+                        elBukti.insertAdjacentHTML('beforebegin', buktiHtml);
+                    }
+                }
+            }, 200);
         },
-        preConfirm: () => { if(validasiForm('edit')) { Swal.showLoading(); document.getElementById('formEdit').submit(); return false; } return false; }
+        preConfirm: () => { 
+            if (validasiForm('edit')) { 
+                Swal.showLoading(); 
+                document.getElementById('formEdit').submit(); 
+                return false; 
+            } 
+            return false; 
+        }
     });
 }
 </script>

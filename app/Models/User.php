@@ -3,13 +3,15 @@
 namespace App\Models;
 
 use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail; // 🔧 1. TAMBAHKAN IMPORT INI
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Spk;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+// 🔧 2. TAMBAHKAN "implements MustVerifyEmail" PADA CLASS INI
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasRoles;
@@ -27,7 +29,7 @@ class User extends Authenticatable
         'prodi',
         'dosen_pembimbing_id',
         'status',
-        'is_approved',      // 🔧 TAMBAH
+        'is_approved',      // (Opsional) Bisa dihapus nanti jika tabel database sudah di-update
     ];
 
     /**
@@ -50,7 +52,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'is_approved' => 'boolean',  // 🔧 TAMBAH CASTING
+            'is_approved' => 'boolean',  // (Opsional)
         ];
     }
 

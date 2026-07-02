@@ -8,68 +8,116 @@ use Illuminate\Http\Request;
 
 class ProgramStudiController extends Controller
 {
-   public function index(Request $request)
-{
-    $query = ProgramStudi::query();
+    public function index(Request $request)
+    {
+        $query = ProgramStudi::query();
 
-    // Pencarian Nama Program Studi
-    if ($request->filled('search')) {
-        $query->where('nama_prodi', 'like', '%' . $request->search . '%');
+        if ($request->filled('search')) {
+            $query->where('nama_prodi', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $prodis = $query->latest()->paginate(10)->withQueryString();
+
+        return view('admin.prodi.index', compact('prodis'));
     }
 
-    // Filter Status
-    if ($request->filled('status')) {
-        $query->where('status', $request->status);
+    /**
+     * Show single prodi for AJAX edit.
+     */
+    public function show(ProgramStudi $prodi)
+    {
+        // Kembalikan data prodi sebagai JSON
+        return response()->json($prodi);
     }
-
-    $prodis = $query
-        ->latest()
-        ->paginate(10)
-        ->withQueryString();
-
-    return view('admin.prodi.index', compact('prodis'));
-}
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validator = \Validator::make($request->all(), [
             'nama_prodi' => 'required|string|max:255|unique:program_studis,nama_prodi',
-            'status' => 'required'
+            'status' => 'required|in:aktif,tidak aktif'
+        ], [
+            'nama_prodi.required' => 'Nama program studi wajib diisi',
+            'nama_prodi.unique' => 'Nama program studi sudah terdaftar',
+            'status.required' => 'Status wajib dipilih',
         ]);
 
-        ProgramStudi::create([
-            'nama_prodi' => $request->nama_prodi,
-            'status' => $request->status
-        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
-        return redirect()
-            ->route('admin.prodi.index')
-            ->with('success', 'Program Studi berhasil ditambahkan');
+        try {
+            $prodi = ProgramStudi::create($request->all());
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Program Studi berhasil ditambahkan',
+                'data' => $prodi
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menambahkan data: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function update(Request $request, ProgramStudi $prodi)
     {
-        $request->validate([
+        $validator = \Validator::make($request->all(), [
             'nama_prodi' => 'required|string|max:255|unique:program_studis,nama_prodi,' . $prodi->id,
-            'status' => 'required'
+            'status' => 'required|in:aktif,tidak aktif'
+        ], [
+            'nama_prodi.required' => 'Nama program studi wajib diisi',
+            'nama_prodi.unique' => 'Nama program studi sudah terdaftar',
+            'status.required' => 'Status wajib dipilih',
         ]);
 
-        $prodi->update([
-            'nama_prodi' => $request->nama_prodi,
-            'status' => $request->status
-        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
-        return redirect()
-            ->route('admin.prodi.index')
-            ->with('success', 'Program Studi berhasil diupdate');
+        try {
+            $prodi->update($request->all());
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Program Studi berhasil diupdate',
+                'data' => $prodi
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengupdate data: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function destroy(ProgramStudi $prodi)
     {
-        $prodi->delete();
+        try {
+            $prodi->delete();
 
-        return redirect()
-            ->route('admin.prodi.index')
-            ->with('success', 'Program Studi berhasil dihapus');
+            return response()->json([
+                'success' => true,
+                'message' => 'Program Studi berhasil dihapus'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus data: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

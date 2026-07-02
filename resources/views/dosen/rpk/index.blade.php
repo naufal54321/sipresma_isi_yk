@@ -86,120 +86,130 @@ Swal.fire({
         </div>
         <div class="bg-white shadow-xl rounded-2xl overflow-hidden">
 
-            <table class="w-full text-sm text-left text-gray-600">
+    <table class="w-full text-sm text-left text-gray-600">
 
-                <thead class="bg-gray-50 uppercase text-xs tracking-wider">
-                    <tr>
-                        <th class="px-3 py-4 text-center">No</th>
-                        <th class="px-4 py-4">Mahasiswa</th>
-                        <th class="px-4 py-4">NIM</th>
-                        <th class="px-4 py-4">Prodi</th>
-                        <th class="px-4 py-4">Tahun</th>
-                        <th class="px-4 py-4">Semester</th>
-                        <th class="px-4 py-4">Kategori</th>
-                        <th class="px-4 py-4">Jumlah Kegiatan</th>
-                        <th class="px-4 py-4">Status</th>
-                        <th class="px-5 py-4 text-center">Aksi</th>
-                    </tr>
-                </thead>
+        <thead class="bg-gray-50 uppercase text-xs tracking-wider">
+            <tr>
+                <th class="px-3 py-4 text-center">No</th>
+                <th class="px-4 py-4">Mahasiswa</th>
+                <th class="px-4 py-4">NIM</th>
+                <th class="px-4 py-4">Prodi</th>
+                <th class="px-4 py-4">Tahun</th>
+                <th class="px-4 py-4">Semester</th>
+                <th class="px-4 py-4">Judul Kegiatan</th>
+                <th class="px-4 py-4">Kategori</th>
+                <th class="px-4 py-4">Status</th>
+                <th class="px-5 py-4 text-center">Aksi</th>
+            </tr>
+        </thead>
 
-                <tbody>
+        <tbody>
 
-                    @forelse($rpks as $rpk)
+            @forelse($rpks as $rpk)
 
-                    <tr class="border-b hover:bg-blue-50 transition">
+            <tr class="border-b hover:bg-blue-50 transition">
 
-                        <td class="px-3 py-4 text-center">
-                            {{ $loop->iteration }}
-                        </td>
+                <td class="px-3 py-4 text-center">
+                     {{ $loop->iteration }}
+                </td>
 
-                        <td class="px-4 py-4 font-medium text-gray-800">
-                            {{ $rpk->user->name }}
-                        </td>
+                <td class="px-4 py-4 font-medium text-gray-800">
+                    {{ $rpk->user->name }}
+                </td>
 
-                        <td class="px-4 py-4">
-                            {{ $rpk->user->nim }}
-                        </td>
+                <td class="px-4 py-4">
+                    {{ $rpk->user->nim }}
+                </td>
 
-                        <td class="px-4 py-4">
-                            {{ $rpk->user->prodi }}
-                        </td>
+                <td class="px-4 py-4">
+                    {{ $rpk->user->prodi }}
+                </td>
 
-                        <td class="px-4 py-4">
-                            {{ $rpk->tahun }}
-                        </td>
+                <td class="px-4 py-4">
+                    {{ $rpk->tahun }}
+                </td>
 
-                        <td class="px-4 py-4">
-                            {{ $rpk->semester }}
-                        </td>
+                <td class="px-4 py-4">
+                    {{ $rpk->semester }}
+                </td>
 
-                        <td class="px-4 py-4">
-                            {{ $rpk->kategori }}
-                        </td>
+                {{-- ✅ JUDUL KEGIATAN --}}
+                <td class="px-4 py-4 font-medium text-gray-800">
+                    @php
+                        $kegiatan = $rpk->kegiatans->first();
+                    @endphp
+                    {{ $kegiatan ? $kegiatan->judul_kegiatan : '-' }}
+                </td>
 
-                        <td class="px-4 py-4">
-                            {{ $rpk->kegiatans->count() }}
-                        </td>
+                {{-- ✅ KATEGORI --}}
+                <td class="px-4 py-4">
+                    @php
+                        $kegiatan = $rpk->kegiatans->first();
+                    @endphp
+                    @if($kegiatan)
+                        @if($kegiatan->kategori == 'Kelompok')
+                            <span>
+                            Kelompok
+                            </span>
+                        @else
+                            <span>
+                            Individu
+                            </span>
+                        @endif
+                    @else
+                        <span class="text-gray-400">-</span>
+                    @endif
+                </td>
 
-                        <td class="px-4 py-4">
+                {{-- ✅ STATUS --}}
+                <td class="px-4 py-4">
+                    @if($rpk->status == 'draft')
+                        <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-xs">
+                            Draft
+                        </span>
+                    @elseif($rpk->status == 'disetujui')
+                        <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs">
+                            Disetujui
+                        </span>
+                    @elseif($rpk->status == 'ditolak')
+                        <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs">
+                            Ditolak
+                        </span>
+                    @else
+                        <span class="bg-gray-500 text-white px-3 py-1 rounded-full text-xs">
+                            -
+                        </span>
+                    @endif
+                </td>
 
-                            @if($rpk->status == 'draft')
+                {{-- ✅ AKSI --}}
+                <td class="px-5 py-4">
+                    <div class="flex items-center gap-2">
+                        <a href="{{ route('dosen.rpk.show', $rpk->id) }}"
+                            title="Detail RPK"
+                            class="flex items-center justify-center w-9 h-9 bg-gray-400 text-white hover:bg-gray-500 border border-gray-200 rounded-lg transition shadow-sm">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </div>
+                </td>
 
-                                <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-xs">
-                                    Draft
-                                </span>
+            </tr>
 
-                            @elseif($rpk->status == 'disetujui')
+            @empty
 
-                                <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs">
-                                    Disetujui
-                                </span>
+            <tr>
+                <td colspan="10" class="text-center py-10 text-gray-400">
+                    Belum ada data RPK
+                </td>
+            </tr>
 
-                            @elseif($rpk->status == 'ditolak')
+            @endforelse
 
-                                <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs">
-                                    Ditolak
-                                </span>
+        </tbody>
 
-                            @else
+    </table>
 
-                                <span class="bg-gray-500 text-white px-3 py-1 rounded-full text-xs">
-                                    -
-                                </span>
-
-                            @endif
-
-                        </td>
-
-                        <td class="px-5 py-4">
-
-                            <div class="flex items-center gap-2">
-                                <a href="{{ route('dosen.rpk.show', $rpk->id) }}"
-                                    title="Detail RPK"
-                                    class="flex items-center justify-center w-9 h-9 bg-gray-400 text-white hover:bg-gray-500 border border-gray-200 rounded-lg transition shadow-sm">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-                    @empty
-
-                    <tr>
-                        <td colspan="10" class="text-center py-10 text-gray-400">
-                            Belum ada data RPK
-                        </td>
-                    </tr>
-
-                    @endforelse
-
-                </tbody>
-
-            </table>
-
-        </div>
+</div>
 
     </div>
 

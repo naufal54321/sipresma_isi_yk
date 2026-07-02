@@ -35,19 +35,29 @@
         <h1 class="text-3xl font-bold text-gray-900">Detail Kegiatan RPK</h1>
 
         <div class="flex items-center gap-3">
-            <a href="{{ route('rpks.index') }}"
-               class="inline-flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition">
-                ← Kembali
-            </a>
-            
-           {{-- ✅ Semua mahasiswa bisa tambah kegiatan --}}
-                @if($rpk->status == 'draft' || $rpk->status == 'ditolak')
-                <button onclick="bukaModalTambahKegiatan()"
-                    class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm font-semibold transition cursor-pointer">
-                    + Tambah Kegiatan
-                </button>
-                @endif
-        </div>
+    <a href="{{ route('rpks.index') }}"
+       class="inline-flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition">
+        ← Kembali
+    </a>
+    
+   {{-- ✅ HANYA TAMPILKAN TOMBOL JIKA BELUM ADA KEGIATAN --}}
+    @php
+        $jumlahKegiatan = $isAnggota 
+            ? $rpk->kegiatans->filter(function($k) use ($user) { 
+                return $k->kategori == 'Kelompok' && $k->anggota->contains('id', $user->id); 
+            })->count()
+            : $rpk->kegiatans->count();
+    @endphp
+    
+    @if($jumlahKegiatan < 1 && ($rpk->status == 'draft' || $rpk->status == 'ditolak'))
+        <button onclick="bukaModalTambahKegiatan()"
+            class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm font-semibold transition cursor-pointer">
+            + Tambah Kegiatan
+        </button>
+    @elseif($jumlahKegiatan >= 1)
+       
+    @endif
+</div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -64,7 +74,7 @@
                         <span class="text-sm font-bold text-gray-600">Nama</span>
                         <span class="col-span-2 text-sm text-gray-800 font-medium">
                             {{ $rpk->user->name }}
-                            @if($isPemilik)<span class="text-xs text-blue-500 ml-1">(Anda)</span>
+                            @if($isPemilik)<span class="text-xs text-blue-500 ml-1"></span>
                             @elseif($isAnggota)<span class="text-xs text-gray-400 ml-1">(Ketua)</span>@endif
                         </span>
                     </div>
@@ -89,16 +99,24 @@
                         <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->semester }}</span>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-2 pb-4">
-                        <span class="text-sm font-bold text-gray-600">Jumlah Kegiatan</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">
-                            @if($isAnggota)
-                                {{ $rpk->kegiatans->filter(function($k) use ($user) { return $k->anggota->contains('id', $user->id); })->count() }}
-                            @else
-                                {{ $rpk->kegiatans->count() }}
-                            @endif
-                        </span>
-                    </div>
+                   <div class="grid grid-cols-3 gap-2 pb-4">
+    <span class="text-sm font-bold text-gray-600">Kategori</span>
+    <span class="col-span-2 text-sm text-gray-800 font-medium">
+        @if($isAnggota)
+            @php
+                $kegiatanAnggota = $rpk->kegiatans->filter(function($k) use ($user) { 
+                    return $k->kategori == 'Kelompok' && $k->anggota->contains('id', $user->id); 
+                })->first();
+            @endphp
+            {{ $kegiatanAnggota ? $kegiatanAnggota->kategori : '-' }}
+        @else
+            @php
+                $kegiatanPertama = $rpk->kegiatans->first();
+            @endphp
+            {{ $kegiatanPertama ? $kegiatanPertama->kategori : '-' }}
+        @endif
+    </span>
+</div>
 
                     <div class="col-span-2 md:col-span-4 mt-2 pt-3 border-t border-gray-200">
                         <span class="text-sm font-bold text-gray-600">Status</span>
@@ -137,14 +155,10 @@
                             
                                 <table class="w-full text-sm text-left text-gray-600">
                                     <thead class="bg-gray-50 text-gray-700 uppercase text-xs tracking-wider border-b border-gray-200">
-                                                                        <tr>
-                                            @if($isPemilik && ($rpk->status == 'draft' || $rpk->status == 'ditolak'))
-                                                <th class="px-3 py-3 font-semibold text-center w-16">Aksi</th>
-                                            @endif
+                                        <tr>
                                             <th class="px-3 py-3 font-semibold text-center w-10">No</th>
                                             <th class="px-3 py-3 font-semibold">Judul Kegiatan</th>
                                             <th class="px-3 py-3 font-semibold">Nama Kegiatan</th>
-                                            <th class="px-3 py-3 font-semibold">Jenis</th>
                                             <th class="px-3 py-3 font-semibold text-center">Kategori</th>
                                             <th class="px-3 py-3 font-semibold text-center">Tanggal</th>
                                         </tr>
@@ -162,33 +176,15 @@
 
                                     @forelse($kegiatansTampil as $kegiatan)
                                     <tr class="bg-white hover:bg-gray-50">
-                                        @if($isPemilik && ($rpk->status == 'draft' || $rpk->status == 'ditolak'))
-                                            <td class="px-4 py-3 border-r border-gray-200">
-                                                <div class="flex gap-2">
-
-                                                    <form action="{{ route('kegiatans.destroy', $kegiatan->id) }}" method="POST">
-                                                        @csrf @method('DELETE')
-                                                        <button type="button" onclick="hapusKegiatan(this)" title="Hapus Kegiatan"
-                                                                class="flex items-center justify-center w-9 h-9 bg-red-500 text-white hover:bg-red-600 rounded-lg transition shadow-sm">
-                                                            <i class="fas fa-trash text-xs"></i>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        @endif
-                                        
                                         <td class="px-4 py-3 border-r border-gray-200 text-center">{{ $loop->iteration }}</td>
                                         <td class="px-4 py-3 border-r border-gray-200 font-medium text-gray-800">{{ $kegiatan->judul_kegiatan }}</td>
                                         <td class="px-4 py-3 border-r border-gray-200 font-medium text-gray-800">{{ $kegiatan->kegiatan }}</td>
-                                        <td class="px-4 py-3 border-r border-gray-200">{{ $kegiatan->jenis }}</td>
                                         <td class="px-4 py-3 border-r border-gray-200">
                                             @if($kegiatan->kategori == 'Kelompok')
-                                                <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs font-semibold">
-                                                    <i class="fas fa-users mr-1"></i>Kelompok
+                                                Kelompok
                                                 </span>
                                             @else
-                                                <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs font-semibold">
-                                                    <i class="fas fa-user mr-1"></i>Individu
+                                                Individu
                                                 </span>
                                             @endif
                                         </td>
@@ -355,130 +351,337 @@ window.hapusKegiatan = function(button) {
 
 window.anggotaTerpilih = {};
 
-// 🔧 FUNGSI TAMPILKAN PESAN ERROR (TANPA SWEETALERT)
+// 🔧 FUNGSI TAMPILKAN PESAN
 window.tampilkanPesanAnggota = function(prefix, pesan, tipe) {
     var elPesan = document.getElementById(`${prefix}_pesanAnggota`);
     if (elPesan) {
         elPesan.textContent = pesan;
-        elPesan.className = tipe === 'error' 
-            ? 'text-xs text-red-500 mt-1' 
-            : 'text-xs text-green-500 mt-1';
-        // Hilangkan pesan setelah 3 detik
+        elPesan.className = tipe === 'error' ? 'text-xs text-red-500 mt-1' : 'text-xs text-green-500 mt-1';
         setTimeout(() => { elPesan.textContent = ''; }, 3000);
     }
 };
 
+// ⚡ BUKA DROPDOWN SAAT FOCUS
+window.bukaDropdownAnggota = function(prefix) {
+    var dropdown = document.getElementById(`${prefix}_dropdownList`);
+    if (dropdown) {
+        dropdown.classList.remove('hidden');
+        window.filterAnggotaDropdown(prefix);
+    }
+};
+
+// ⚡ TUTUP DROPDOWN SAAT KLIK DI LUAR
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('[id$="_cariAnggota"]') && !e.target.closest('[id$="_dropdownList"]')) {
+        document.querySelectorAll('[id$="_dropdownList"]').forEach(function(el) {
+            el.classList.add('hidden');
+        });
+    }
+});
+
+// ⚡ FILTER DROPDOWN
+window.filterAnggotaDropdown = function(prefix) {
+    var input = document.getElementById(`${prefix}_cariAnggota`);
+    var dropdown = document.getElementById(`${prefix}_dropdownList`);
+    
+    if (!input || !dropdown) return;
+    
+    dropdown.classList.remove('hidden');
+    
+    var keyword = input.value.toLowerCase().trim();
+    var items = dropdown.querySelectorAll('div[data-value]');
+    
+    items.forEach(function(item) {
+        var nama = item.getAttribute('data-nama') || '';
+        var nim = item.getAttribute('data-nim') || '';
+        var text = item.textContent.toLowerCase();
+        
+        if (keyword === '' || nama.includes(keyword) || nim.includes(keyword) || text.includes(keyword)) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+};
+
+// ⚡ PILIH ANGGOTA DARI DROPDOWN
+window.pilihAnggota = function(prefix, id, text) {
+    var input = document.getElementById(`${prefix}_cariAnggota`);
+    var hiddenValue = document.getElementById(`${prefix}_anggotaDropdown`);
+    var hiddenText = document.getElementById(`${prefix}_anggotaText`);
+    var dropdown = document.getElementById(`${prefix}_dropdownList`);
+    
+    if (input) input.value = text;
+    if (hiddenValue) hiddenValue.value = id;
+    if (hiddenText) hiddenText.value = text;
+    if (dropdown) dropdown.classList.add('hidden');
+};
+
+// ⚡ TAMBAH ANGGOTA
+window.tambahAnggotaDirect = function(prefix) {
+    var hiddenValue = document.getElementById(`${prefix}_anggotaDropdown`);
+    var hiddenText = document.getElementById(`${prefix}_anggotaText`);
+    var elJumlah = document.getElementById(`${prefix}_jumlah`);
+    var inputCari = document.getElementById(`${prefix}_cariAnggota`);
+    
+    var sv = hiddenValue?.value || '';
+    var st = hiddenText?.value || '';
+    var max = parseInt(elJumlah?.value || 0);
+    
+    if (!window.anggotaTerpilih[prefix]) window.anggotaTerpilih[prefix] = [];
+    
+    if (!sv) { 
+        window.tampilkanPesanAnggota(prefix, 'Silakan cari dan pilih mahasiswa terlebih dahulu!', 'error');
+        return; 
+    }
+    if (window.anggotaTerpilih[prefix].find(a => a.id === sv)) { 
+        window.tampilkanPesanAnggota(prefix, 'Mahasiswa ini sudah ada dalam daftar!', 'error');
+        return; 
+    }
+    if (window.anggotaTerpilih[prefix].length >= max) { 
+        window.tampilkanPesanAnggota(prefix, `Maksimal ${max} anggota!`, 'error');
+        return; 
+    }
+    
+    window.anggotaTerpilih[prefix].push({id: sv, text: st}); 
+    window.renderAnggotaTerpilih(prefix); 
+    
+    // Reset
+    if (hiddenValue) hiddenValue.value = '';
+    if (hiddenText) hiddenText.value = '';
+    if (inputCari) {
+        inputCari.value = '';
+        inputCari.placeholder = '🔍 Cari dan pilih mahasiswa...';
+    }
+    
+    window.tampilkanPesanAnggota(prefix, 'Anggota berhasil ditambahkan', 'sukses');
+};
+
 window.bindLogikaForm = function(prefix) {
-    var elMaster = document.getElementById(`${prefix}_master`);
-    var elJenis = document.getElementById(`${prefix}_jenis`);
-    var elTingkat = document.getElementById(`${prefix}_tingkat`);
     var elKat = document.getElementById(`${prefix}_kategori`);
     var elPeran = document.getElementById(`${prefix}_peran`);
     var elPeranField = document.getElementById(`${prefix}_peranField`);
     var elJumlah = document.getElementById(`${prefix}_jumlah`);
     var elJumlahField = document.getElementById(`${prefix}_jumlahField`);
     var elAnggotaContainer = document.getElementById(`${prefix}_anggotaContainer`);
-    var elAnggotaDropdown = document.getElementById(`${prefix}_anggotaDropdown`);
-    var elBtnTambahAnggota = document.getElementById(`${prefix}_btnTambahAnggota`);
+    var elCariAnggota = document.getElementById(`${prefix}_cariAnggota`);
 
     window.anggotaTerpilih[prefix] = [];
+    
+    // Reset pencarian
+    if (elCariAnggota) {
+        elCariAnggota.value = '';
+        elCariAnggota.placeholder = '🔍 Cari dan pilih mahasiswa...';
+    }
 
-    if(elMaster) elMaster.onchange = function() { var s=this.options[this.selectedIndex]; elJenis.value=s.dataset.jenis||''; };
-    if(elKat) elKat.onchange = function() {
-        if(this.value==='Kelompok') elPeranField.classList.remove('hidden');
-        else { elPeranField.classList.add('hidden'); elJumlahField.classList.add('hidden'); if(elAnggotaContainer)elAnggotaContainer.classList.add('hidden'); elPeran.value=''; elJumlah.value=''; window.anggotaTerpilih[prefix]=[]; renderAnggotaTerpilih(prefix); }
-    };
-    if(elPeran) elPeran.onchange = function() {
-        if(this.value==='Ketua') elJumlahField.classList.remove('hidden');
-        else { elJumlahField.classList.add('hidden'); if(elAnggotaContainer)elAnggotaContainer.classList.add('hidden'); elJumlah.value=''; window.anggotaTerpilih[prefix]=[]; renderAnggotaTerpilih(prefix); }
-    };
-    if(elJumlah) elJumlah.onchange = function() {
-        var j=parseInt(this.value);
-        if(j>0) { if(elAnggotaContainer)elAnggotaContainer.classList.remove('hidden'); window.anggotaTerpilih[prefix]=[]; renderAnggotaTerpilih(prefix); }
-        else { if(elAnggotaContainer)elAnggotaContainer.classList.add('hidden'); window.anggotaTerpilih[prefix]=[]; renderAnggotaTerpilih(prefix); }
-    };
-    if(elBtnTambahAnggota) elBtnTambahAnggota.onclick = function() {
-        var d=elAnggotaDropdown, sv=d.value, st=d.options[d.selectedIndex].text, max=parseInt(elJumlah.value);
+    function updateAnggotaVisibility() {
+        var kat = elKat?.value;
+        var peran = elPeran?.value;
+        var jumlah = parseInt(elJumlah?.value || 0);
         
-        // 🔧 GANTI SWEETALERT DENGAN PESAN TEKS
-        if(!sv) { 
-            tampilkanPesanAnggota(prefix, 'Silakan pilih mahasiswa terlebih dahulu!', 'error');
-            return; 
+        if (kat === 'Kelompok' && peran === 'Ketua' && jumlah > 0) {
+            if (elAnggotaContainer) {
+                elAnggotaContainer.classList.remove('hidden');
+                if (elCariAnggota) {
+                    elCariAnggota.value = '';
+                    elCariAnggota.placeholder = '🔍 Cari dan pilih mahasiswa...';
+                }
+            }
+        } else {
+            if (elAnggotaContainer) elAnggotaContainer.classList.add('hidden');
+            window.anggotaTerpilih[prefix] = [];
+            window.renderAnggotaTerpilih(prefix);
         }
-        if(window.anggotaTerpilih[prefix].find(a=>a.id===sv)) { 
-            tampilkanPesanAnggota(prefix, 'Mahasiswa ini sudah ada dalam daftar!', 'error');
-            return; 
-        }
-        if(window.anggotaTerpilih[prefix].length>=max) { 
-            tampilkanPesanAnggota(prefix, `Maksimal ${max} anggota!`, 'error');
-            return; 
-        }
-        
-        window.anggotaTerpilih[prefix].push({id:sv,text:st}); 
-        renderAnggotaTerpilih(prefix); 
-        d.value='';
-        tampilkanPesanAnggota(prefix, 'Anggota berhasil ditambahkan', 'sukses');
-    };
+    }
+    
+    if (elKat) {
+        elKat.addEventListener('change', function() {
+            if (this.value === 'Kelompok') {
+                if (elPeranField) elPeranField.classList.remove('hidden');
+            } else { 
+                if (elPeranField) elPeranField.classList.add('hidden'); 
+                if (elJumlahField) elJumlahField.classList.add('hidden'); 
+                if (elAnggotaContainer) elAnggotaContainer.classList.add('hidden'); 
+                if (elPeran) elPeran.value = ''; 
+                if (elJumlah) elJumlah.value = ''; 
+                window.anggotaTerpilih[prefix] = []; 
+                window.renderAnggotaTerpilih(prefix); 
+            }
+        });
+    }
+    
+    if (elPeran) {
+        elPeran.addEventListener('change', function() {
+            if (this.value === 'Ketua') {
+                if (elJumlahField) elJumlahField.classList.remove('hidden');
+            } else { 
+                if (elJumlahField) elJumlahField.classList.add('hidden'); 
+                if (elAnggotaContainer) elAnggotaContainer.classList.add('hidden'); 
+                if (elJumlah) elJumlah.value = ''; 
+                window.anggotaTerpilih[prefix] = []; 
+                window.renderAnggotaTerpilih(prefix); 
+            }
+        });
+    }
+    
+    if (elJumlah) {
+        elJumlah.addEventListener('change', function() { updateAnggotaVisibility(); });
+        elJumlah.addEventListener('input', function() {
+            var j = parseInt(this.value);
+            if (j > 0 && elKat?.value === 'Kelompok' && elPeran?.value === 'Ketua') {
+                if (elAnggotaContainer) elAnggotaContainer.classList.remove('hidden');
+            }
+        });
+        elJumlah.addEventListener('blur', function() { updateAnggotaVisibility(); });
+    }
 };
 
 window.renderAnggotaTerpilih = function(prefix) {
-    var c=document.getElementById(`${prefix}_anggotaTerpilih`), hi=document.getElementById(`${prefix}_anggotaHidden`);
-    if(!c)return;
-    var h='', ids=[];
-    window.anggotaTerpilih[prefix].forEach(function(a,i){
-        ids.push(a.id);
-        h+=`<span class="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">${a.text}<button type="button" onclick="window.hapusAnggota('${prefix}',${i})" class="ml-1 text-blue-500 hover:text-red-500 transition"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></span>`;
-    });
-    c.innerHTML=h||'<span class="text-xs text-gray-400">Belum ada anggota dipilih</span>';
-    if(hi)hi.value=ids.join(',');
+    var c = document.getElementById(`${prefix}_anggotaTerpilih`);
+    var hi = document.getElementById(`${prefix}_anggotaHidden`);
+    if (!c) return;
+    
+    var h = '', ids = [];
+    if (window.anggotaTerpilih[prefix]) {
+        window.anggotaTerpilih[prefix].forEach(function(a, i) {
+            ids.push(a.id);
+            h += `<span class="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">${a.text}<button type="button" onclick="window.hapusAnggota('${prefix}',${i})" class="ml-1 text-blue-500 hover:text-red-500 transition"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></span>`;
+        });
+    }
+    c.innerHTML = h || '<span class="text-xs text-gray-400">Belum ada anggota dipilih</span>';
+    if (hi) hi.value = ids.join(',');
 };
 
-window.hapusAnggota = function(prefix, index) { window.anggotaTerpilih[prefix].splice(index,1); renderAnggotaTerpilih(prefix); };
+window.hapusAnggota = function(prefix, index) { 
+    if (window.anggotaTerpilih[prefix]) {
+        window.anggotaTerpilih[prefix].splice(index, 1); 
+    }
+    window.renderAnggotaTerpilih(prefix); 
+};
 
 window.validasiForm = function(prefix) {
-    var m=document.getElementById(`${prefix}_master`).value, j=document.getElementById(`${prefix}_judul`).value.trim(),
-        t=document.getElementById(`${prefix}_tanggal`).value, k=document.getElementById(`${prefix}_kategori`).value,
-        p=document.getElementById(`${prefix}_peran`).value, jml=document.getElementById(`${prefix}_jumlah`).value;
-    if(!m||!j||!t||!k) { Swal.showValidationMessage('Kegiatan, Judul, Tanggal, dan Kategori wajib diisi!'); return false; }
-    if(k==='Kelompok'&&!p) { Swal.showValidationMessage('Karena Kelompok, harap pilih Peran!'); return false; }
-    if(k==='Kelompok'&&p==='Ketua') {
-        if(!jml) { Swal.showValidationMessage('Karena Anda Ketua, harap isi Jumlah Anggota!'); return false; }
-        var dipilih=window.anggotaTerpilih[prefix].length, diminta=parseInt(jml);
-        if(dipilih<diminta) { Swal.showValidationMessage(`Harap pilih ${diminta} anggota! (Baru ${dipilih})`); return false; }
+    var m = document.getElementById(`${prefix}_master`)?.value;
+    var j = document.getElementById(`${prefix}_judul`)?.value?.trim();
+    var t = document.getElementById(`${prefix}_tanggal`)?.value;
+    var k = document.getElementById(`${prefix}_kategori`)?.value;
+    var p = document.getElementById(`${prefix}_peran`)?.value;
+    var jml = document.getElementById(`${prefix}_jumlah`)?.value;
+    
+    if (!m || !j || !t || !k) { 
+        Swal.showValidationMessage('Kegiatan, Judul, Tanggal, dan Kategori wajib diisi!'); 
+        return false; 
+    }
+    if (k === 'Kelompok' && !p) { 
+        Swal.showValidationMessage('Karena Kelompok, harap pilih Peran!'); 
+        return false; 
+    }
+    if (k === 'Kelompok' && p === 'Ketua') {
+        if (!jml) { 
+            Swal.showValidationMessage('Karena Anda Ketua, harap isi Jumlah Anggota!'); 
+            return false; 
+        }
+        var dipilih = (window.anggotaTerpilih[prefix] || []).length;
+        var diminta = parseInt(jml);
+        if (dipilih < diminta) { 
+            Swal.showValidationMessage(`Harap pilih ${diminta} anggota! (Baru ${dipilih})`); 
+            return false; 
+        }
     }
     return true;
 };
 
 window.generateFormHTML = function(prefix) {
     return `
-        <div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-2">Nama Kegiatan *</label>
+        <div class="mb-4">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Kegiatan *</label>
             <select name="master_kegiatan_id" id="${prefix}_master" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" required>
                 <option value="">Pilih Kegiatan</option>
-                @foreach($masterKegiatans as $item)<option value="{{ $item->id }}" data-jenis="{{ $item->jenis }}">{{ $item->nama_kegiatan }}</option>@endforeach
-            </select></div>
-        
-        <div class="mb-4">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Jenis</label>
-            <input type="text" id="${prefix}_jenis" class="w-full bg-gray-200 border border-gray-300 text-gray-700 rounded-lg px-4 py-3 outline-none" readonly>
+                @foreach($masterKegiatans as $item)
+                    <option value="{{ $item->id }}">{{ $item->nama_kegiatan }}</option>
+                @endforeach
+            </select>
         </div>
     
-        <div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-2">Judul Kegiatan *</label><input type="text" name="judul_kegiatan" id="${prefix}_judul" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Masukkan judul kegiatan" required></div>
-        <div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-2">Tanggal Kegiatan *</label><input type="date" name="tanggal" id="${prefix}_tanggal" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" required></div>
-        <div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-2">Kategori *</label>
+        <div class="mb-4">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Judul Kegiatan *</label>
+            <input type="text" name="judul_kegiatan" id="${prefix}_judul" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Masukkan judul kegiatan" required>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Tanggal Kegiatan *</label>
+            <input type="date" name="tanggal" id="${prefix}_tanggal" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" required>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Kategori *</label>
             <select name="kategori" id="${prefix}_kategori" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" required>
-                <option value="">Pilih Kategori</option><option value="Individu">Individu</option><option value="Kelompok">Kelompok</option></select></div>
-        <div class="mb-4 hidden" id="${prefix}_peranField"><label class="block text-sm font-semibold text-gray-700 mb-2">Peran</label>
+                <option value="">Pilih Kategori</option>
+                <option value="Individu">Individu</option>
+                <option value="Kelompok">Kelompok</option>
+            </select>
+        </div>
+        
+        <div class="mb-4 hidden" id="${prefix}_peranField">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Peran</label>
             <select name="peran" id="${prefix}_peran" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition">
-                <option value="">Pilih Peran</option><option value="Ketua">Ketua</option></select></div>
-        <div class="mb-4 hidden" id="${prefix}_jumlahField"><label class="block text-sm font-semibold text-gray-700 mb-2">Jumlah Anggota</label><input type="number" id="${prefix}_jumlah" name="jumlah_anggota" min="1" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Masukkan jumlah anggota"></div>
-        <div class="mb-4 hidden" id="${prefix}_anggotaContainer"><label class="block text-sm font-semibold text-gray-700 mb-2">Tambah Anggota</label>
+                <option value="">Pilih Peran</option>
+                <option value="Ketua">Ketua</option>
+            </select>
+        </div>
+        
+        <div class="mb-4 hidden" id="${prefix}_jumlahField">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Jumlah Anggota</label>
+            <input type="number" id="${prefix}_jumlah" name="jumlah_anggota" min="1" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Masukkan jumlah anggota">
+        </div>
+        
+        <div class="mb-4 hidden" id="${prefix}_anggotaContainer">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Tambah Anggota</label>
+            
+            {{-- ⚡ DROPDOWN DENGAN PENCARIAN DI DALAMNYA --}}
             <div class="flex gap-2 mb-3">
-                <select id="${prefix}_anggotaDropdown" class="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition"><option value="">Pilih Mahasiswa</option>@foreach(\App\Models\User::role('Mahasiswa')->orderBy('name')->get() as $mhs)<option value="{{ $mhs->id }}">{{ $mhs->name }} ({{ $mhs->nim }})</option>@endforeach</select>
-                <button type="button" id="${prefix}_btnTambahAnggota" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-semibold transition whitespace-nowrap">+ Tambah</button></div>
-            {{-- 🔧 PESAN ERROR/SUKSES (TANPA SWEETALERT) --}}
+                <div class="relative flex-1">
+                    <input type="text" 
+                        id="${prefix}_cariAnggota" 
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition" 
+                        placeholder="Cari dan pilih mahasiswa..."
+                        onfocus="window.bukaDropdownAnggota('${prefix}')"
+                        oninput="window.filterAnggotaDropdown('${prefix}')"
+                        onclick="window.bukaDropdownAnggota('${prefix}')"
+                        autocomplete="off">
+                    
+                    <div id="${prefix}_dropdownList" 
+                        class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden">
+                        @foreach(\App\Models\User::role('Mahasiswa')->where('id', '!=', auth()->id())->orderBy('name')->get() as $mhs)
+                            <div class="px-4 py-2 text-sm hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0" 
+                                data-value="{{ $mhs->id }}" 
+                                data-text="{{ $mhs->name }} ({{ $mhs->nim }})"
+                                data-nama="{{ strtolower($mhs->name) }}" 
+                                data-nim="{{ $mhs->nim }}"
+                                onclick="window.pilihAnggota('${prefix}', '{{ $mhs->id }}', '{{ $mhs->name }} ({{ $mhs->nim }})')">
+                                {{ $mhs->name }} ({{ $mhs->nim }})
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+                <button type="button" onclick="window.tambahAnggotaDirect('${prefix}')" 
+                    class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-semibold transition whitespace-nowrap">
+                    + Tambah
+                </button>
+            </div>
+            
+            <input type="hidden" id="${prefix}_anggotaDropdown" value="">
+            <input type="hidden" id="${prefix}_anggotaText" value="">
+            
             <p id="${prefix}_pesanAnggota" class="text-xs mt-1"></p>
-            <div class="p-3 bg-gray-50 rounded-lg border border-gray-200 min-h-[50px]"><p class="text-xs text-gray-400 mb-2">Anggota terpilih:</p><div id="${prefix}_anggotaTerpilih" class="flex flex-wrap gap-2"><span class="text-xs text-gray-400">Belum ada anggota dipilih</span></div></div>
-            <input type="hidden" name="anggota_ids" id="${prefix}_anggotaHidden" value=""></div>`;
+            
+            <div class="p-3 bg-gray-50 rounded-lg border border-gray-200 min-h-[50px]">
+                <p class="text-xs text-gray-400 mb-2">Anggota terpilih:</p>
+                <div id="${prefix}_anggotaTerpilih" class="flex flex-wrap gap-2">
+                    <span class="text-xs text-gray-400">Belum ada anggota dipilih</span>
+                </div>
+            </div>
+            <input type="hidden" name="anggota_ids" id="${prefix}_anggotaHidden" value="">
+        </div>`;
 };
 
 window.bukaModalTambahKegiatan = function() {
@@ -503,11 +706,13 @@ window.bukaModalEditKegiatan = function(button) {
         didOpen: () => {
             window.bindLogikaForm('edit'); window.anggotaTerpilih['edit'] = [];
             document.getElementById('edit_master').value = button.getAttribute('data-master');
-            document.getElementById('edit_master').dispatchEvent(new Event('change'));
             document.getElementById('edit_judul').value = button.getAttribute('data-judul') || '';
             document.getElementById('edit_tanggal').value = button.getAttribute('data-tanggal') || '';
-            document.getElementById('edit_kategori').value = button.getAttribute('data-kategori');
-            if (button.getAttribute('data-kategori') === 'Kelompok') {
+            
+            var katValue = button.getAttribute('data-kategori');
+            document.getElementById('edit_kategori').value = katValue;
+            
+            if (katValue === 'Kelompok') {
                 document.getElementById('edit_peranField').classList.remove('hidden');
                 document.getElementById('edit_peran').value = button.getAttribute('data-peran');
                 if (button.getAttribute('data-peran') === 'Ketua') {
@@ -516,6 +721,13 @@ window.bukaModalEditKegiatan = function(button) {
                     document.getElementById('edit_anggotaContainer').classList.remove('hidden');
                 }
             }
+            
+            // Trigger change events
+            setTimeout(() => {
+                document.getElementById('edit_kategori').dispatchEvent(new Event('change'));
+                document.getElementById('edit_peran').dispatchEvent(new Event('change'));
+                document.getElementById('edit_jumlah').dispatchEvent(new Event('change'));
+            }, 100);
         },
         preConfirm: () => { if(window.validasiForm('edit')) { Swal.showLoading(); document.getElementById('formEdit').submit(); return false; } return false; }
     });

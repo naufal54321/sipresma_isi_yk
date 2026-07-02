@@ -49,12 +49,12 @@
                     </select>
 
                     <div class="flex gap-2 h-full">
-                        <button type="submit" class="flex-1 bg-slate-900 hover:bg-blue-600 text-white rounded-xl text-sm font-bold transition-colors shadow-sm flex items-center justify-center gap-2">
+                        <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors shadow-sm flex items-center justify-center gap-2">
                             <i class="fas fa-filter"></i> Terapkan
                         </button>
                         @if(request('search') || request('status') || request('dosen_id'))
-                            <a href="{{ route('admin.rpk.index') }}" class="px-4 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-sm font-bold flex items-center justify-center transition-colors tooltip" title="Reset Filter">
-                                <i class="fas fa-redo-alt"></i>
+                            <a href="{{ route('admin.rpk.index') }}" class="px-4 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-sm font-bold flex items-center justify-center transition-colors tooltip" title="Reset Filter">
+                                <i class="fas fa-redo-alt"></i> Reset
                             </a>
                         @endif
                     </div>

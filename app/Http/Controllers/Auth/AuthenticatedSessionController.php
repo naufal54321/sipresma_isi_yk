@@ -35,18 +35,9 @@ class AuthenticatedSessionController extends Controller
             ])->onlyInput('email');
         }
 
-        // 2. Cek status (pending / ditolak / approved)
-        if ($user->status === 'pending' || $user->is_approved == false) {
-            return back()->withErrors([
-                'email' => 'Akun Anda masih menunggu persetujuan admin.',
-            ])->onlyInput('email');
-        }
-
-        if ($user->status === 'ditolak') {
-            return back()->withErrors([
-                'email' => 'Akun Anda telah ditolak oleh admin.',
-            ])->onlyInput('email');
-        }
+        // 2. BLOK PENGECEKAN STATUS ADMIN TELAH DIHAPUS
+        // Sekarang, laravel akan langsung meloginkan user.
+        // Jika belum verifikasi email, rute /dashboard (middleware verified) yang akan mencegatnya.
 
         // 3. Login
         Auth::login($user, $request->boolean('remember'));

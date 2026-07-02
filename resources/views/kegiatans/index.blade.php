@@ -51,7 +51,6 @@
                     <tr>
                         <th class="px-6 py-4">No</th>
                         <th class="px-6 py-4">Kegiatan</th>
-                        <th class="px-6 py-4">Jenis</th>
                         <th class="px-6 py-4">Tingkat</th>
                         <th class="px-6 py-4">Kategori</th>
                         <th class="px-6 py-4">Status</th>
@@ -66,7 +65,6 @@
                     <tr class="border-b hover:bg-blue-50 transition">
                         <td class="px-6 py-4">{{ $loop->iteration }}</td>
                         <td class="px-6 py-4">{{ $kegiatan->kegiatan }}</td>
-                        <td class="px-6 py-4">{{ $kegiatan->jenis }}</td>
                         <td class="px-6 py-4">{{ $kegiatan->tingkat }}</td>
                         <td class="px-6 py-4">{{ $kegiatan->kategori }}</td>
                         <td class="px-6 py-4">

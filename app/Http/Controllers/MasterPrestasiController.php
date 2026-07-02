@@ -2,62 +2,111 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use App\Models\MasterPrestasi;
 use Illuminate\Http\Request;
 
 class MasterPrestasiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $prestasis = MasterPrestasi::latest()->paginate(10);
+        $query = MasterPrestasi::query();
+
+        if ($request->filled('search')) {
+            $query->where('juara', 'like', '%' . $request->search . '%');
+        }
+
+        $prestasis = $query->latest()->paginate(10)->withQueryString();
+
         return view('admin.master-prestasi.index', compact('prestasis'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validator = \Validator::make($request->all(), [
             'juara' => 'required|string|max:255',
             'poin' => 'required|integer|min:0',
-            'tingkat' => 'required|string|in:Universitas,Regional,Nasional,Internasional', // 🔧 Validasi tingkat
-            'is_active' => 'required|in:0,1',
+            'tingkat' => 'required|in:Universitas,Regional,Nasional,Internasional',
+            'is_active' => 'required|in:0,1'
         ]);
 
-        MasterPrestasi::create([
-            'juara' => $request->juara,
-            'poin' => $request->poin,
-            'tingkat' => $request->tingkat, // 🔧 Simpan tingkat
-            'is_active' => $request->is_active == 1,
-        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
-        return back()->with('success', 'Data Master Prestasi berhasil ditambahkan!');
+        try {
+            $prestasi = MasterPrestasi::create($request->all());
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Prestasi berhasil ditambahkan',
+                'data' => $prestasi
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menambahkan data: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, MasterPrestasi $masterPrestasi)
     {
-        $request->validate([
+        $validator = \Validator::make($request->all(), [
             'juara' => 'required|string|max:255',
             'poin' => 'required|integer|min:0',
-            'tingkat' => 'required|string|in:Universitas,Regional,Nasional,Internasional', // 🔧 Validasi tingkat
-            'is_active' => 'required|in:0,1',
+            'tingkat' => 'required|in:Universitas,Regional,Nasional,Internasional',
+            'is_active' => 'required|in:0,1'
         ]);
 
-        $prestasi = MasterPrestasi::findOrFail($id);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
-        $prestasi->update([
-            'juara' => $request->juara,
-            'poin' => $request->poin,
-            'tingkat' => $request->tingkat, // 🔧 Update tingkat
-            'is_active' => $request->is_active,
-        ]);
+        try {
+            $masterPrestasi->update($request->all());
 
-        return back()->with('success', 'Data berhasil diperbarui!');
+            return response()->json([
+                'success' => true,
+                'message' => 'Prestasi berhasil diupdate',
+                'data' => $masterPrestasi
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengupdate data: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
-    public function destroy($id)
+    public function destroy(MasterPrestasi $masterPrestasi)
     {
-        $prestasi = MasterPrestasi::findOrFail($id);
-        $prestasi->delete();
+        try {
+            $masterPrestasi->delete();
 
-        return back()->with('success', 'Data berhasil dihapus!');
+            return response()->json([
+                'success' => true,
+                'message' => 'Prestasi berhasil dihapus'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // MasterPrestasiController.php
+    public function show(MasterPrestasi $masterPrestasi)
+    {
+        return response()->json($masterPrestasi);
     }
 }

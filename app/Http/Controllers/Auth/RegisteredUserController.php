@@ -31,31 +31,35 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-    'name' => ['required', 'string', 'max:255'],
-    'nim' => ['required', 'string', 'max:30'],
-    'prodi' => ['required', 'string', 'max:100'],
-    'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users'],
-    'password' => ['required', 'confirmed', Rules\Password::defaults()],
-]);
+            'name' => ['required', 'string', 'max:255'],
+            'nim' => ['required', 'string', 'max:30'],
+            'prodi' => ['required', 'string', 'max:100'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
 
-$user = User::create([
-    'name' => $request->name,
-    'nim' => $request->nim,
-    'prodi' => $request->prodi,
-    'email' => $request->email,
-    'password' => Hash::make($request->password),
+        $user = User::create([
+            'name' => $request->name,
+            'nim' => $request->nim,
+            'prodi' => $request->prodi,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            
+            // 🔧 UBAH: Langsung aktifkan karena verifikasi sekarang diurus oleh Email
+            'status' => 'aktif',
+        ]);
 
-    // status default menunggu persetujuan
-    'status' => 'pending',
-]);
+        $user->assignRole('Mahasiswa');
 
-
-$user->assignRole('Mahasiswa');
-
+        // Ini yang akan mengirimkan email
         event(new Registered($user));
 
-return redirect()
-    ->route('login')
-    ->with('success_register', true);
-}
+        // 🔧 UBAH: Loginkan user secara otomatis setelah daftar
+        Auth::login($user);
+
+        // 🔧 UBAH: Arahkan ke dashboard. 
+        // Middleware 'verified' di routes/web.php akan otomatis mencegatnya 
+        // dan menampilkan halaman "Periksa Email Anda".
+        return redirect()->route('dashboard');
+    }
 }

@@ -10,7 +10,6 @@ class Kegiatan extends Model
         'rpk_id',
         'master_kegiatan_id',
         'kegiatan',
-        'jenis',
         'judul_kegiatan',
         'tanggal',
         'kategori',

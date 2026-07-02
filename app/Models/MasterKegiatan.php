@@ -8,7 +8,6 @@ class MasterKegiatan extends Model
 {
     protected $fillable = [
     'nama_kegiatan', 
-    'jenis',  
     'status'
 ];
 

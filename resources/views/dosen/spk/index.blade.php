@@ -74,7 +74,7 @@
                         <th class="px-6 py-4">Prodi</th>
                         <th class="px-6 py-4">Tahun</th>
                         <th class="px-6 py-4">RPK</th>
-                        <th class="px-6 py-4">Kegiatan</th>
+                        <th class="px-6 py-4">Judul Kegiatan</th>
                         <th class="px-6 py-4">Kategori</th>
                         <th class="px-6 py-4 text-center">Status</th>
                         <th class="px-6 py-4 text-center">Aksi</th>
@@ -116,7 +116,7 @@
                         
 
                         <td class="px-6 py-4">
-                            {{ $spk->kegiatan->kegiatan ?? '-' }}
+                            {{ $spk->kegiatan->judul_kegiatan ?? '-' }}
                         </td>
 
                         <td class="px-6 py-4">

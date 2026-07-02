@@ -18,13 +18,84 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+        <style>
+            /* ⚡ SEMBUNYIKAN ELEMEN DENGAN x-cloak */
+            [x-cloak] { 
+                display: none !important; 
+            }
+
+            /* ⚡ MATIKAN SEMUA ANIMASI & TRANSISI SAAT PRELOAD */
+            body.preload *,
+            body.preload *::before,
+            body.preload *::after {
+                animation-duration: 0s !important;
+                animation-delay: 0s !important;
+                transition-duration: 0s !important;
+                transition-delay: 0s !important;
+            }
+            
+            /* Loading bar */
+            #page-loader {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 3px;
+                z-index: 99999;
+                pointer-events: none;
+                opacity: 0;
+            }
+            
+            #page-loader.active {
+                opacity: 1;
+            }
+            
+            #page-loader .bar {
+                height: 100%;
+                width: 0;
+                background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+                box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+            }
+            
+            #page-loader .bar.animating {
+                animation: loadingProgress 1.2s ease-out forwards;
+            }
+            
+            @keyframes loadingProgress {
+                0% { width: 0; }
+                40% { width: 50%; }
+                100% { width: 90%; }
+            }
+
+            /* Fade in konten */
+            body.preload #content-wrapper {
+                opacity: 0;
+            }
+            
+            body:not(.preload) #content-wrapper {
+                opacity: 1;
+                transition: opacity 0.4s ease-out;
+            }
+        </style>
     </head>
 
     <body id="main-body" 
           class="preload font-sans antialiased bg-slate-50 text-slate-800 selection:bg-blue-200 selection:text-blue-900"
           x-data="{ sidebarKecil: localStorage.getItem('sidebarState') === 'true', siapAnimasi: false }" 
-          x-init="setTimeout(() => { document.body.classList.remove('preload'); siapAnimasi = true; }, 100)"
+          x-init="
+              setTimeout(() => { 
+                  document.body.classList.remove('preload'); 
+                  siapAnimasi = true; 
+              }, 500);
+              window.addEventListener('sidebar-toggle', (e) => {
+                  sidebarKecil = e.detail;
+              });
+          "
           @sidebar-toggle.window="sidebarKecil = $event.detail">
+
+        {{-- Loading bar --}}
+        <div id="page-loader"><div class="bar"></div></div>
 
         <div class="min-h-screen flex">
 
@@ -37,6 +108,7 @@
                      'transition-[margin] duration-300 ease-in-out': siapAnimasi
                  }">
 
+                {{-- Header --}}
                 <div class="w-full bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200 px-8 py-3 flex items-center justify-between sticky top-0 z-40">
                     <div class="flex-1"></div>
 
@@ -86,9 +158,10 @@
                     </div>
                 </div>
 
+                {{-- Konten Utama --}}
                 <div class="flex flex-col flex-1 relative">
                     
-                    <div id="content-wrapper" class="flex-1 w-full transition-all duration-300 ease-out flex flex-col" style="opacity: 1; transform: translateY(0);">
+                    <div id="content-wrapper" class="flex-1 w-full flex flex-col">
                         
                         @isset($header)
                             <header class="bg-white/50 backdrop-blur-sm border-b border-slate-200 shadow-sm w-full shrink-0">
@@ -99,166 +172,92 @@
                         <main class="p-8 w-full flex-1">
                             {{ $slot }}
                         </main>
-
-                        @if(session('success'))
-                        <script>
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil',
-                                text: '{{ session('success') }}',
-                                confirmButtonColor: '#3b82f6',
-                                timer: 2500,
-                                showConfirmButton: false,
-                                customClass: { popup: 'rounded-2xl' }
-                            });
-                        </script>
-                        @endif
-
-                        @if(session('error'))
-                        <script>
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops...',
-                                text: '{{ session('error') }}',
-                                confirmButtonColor: '#ef4444',
-                                customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl px-6' }
-                            });
-                        </script>
-                        @endif
                     </div>
+                    
                     <footer class="w-full py-5 text-center text-sm text-slate-500 border-t border-slate-200 bg-white/50 backdrop-blur-sm shrink-0">
                         &copy; 2026 UPA TIK Institut Seni Indonesia Yogyakarta
                     </footer>
 
                 </div>
-
             </div>
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+        {{-- Navigasi Script --}}
         <script>
-        document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
 
-            document.body.addEventListener('click', async function(e) {
+    const wrapper = document.getElementById('content-wrapper');
 
-                const link = e.target.closest('a');
-                if (!link) return;
+    // ⚡ LOADING BAR SELESAI
+    window.addEventListener('load', function() {
+        const bar = document.querySelector('#page-loader .bar');
+        const loader = document.getElementById('page-loader');
+        if (bar && loader) {
+            bar.style.width = '100%';
+            bar.classList.remove('animating');
+            setTimeout(() => {
+                loader.classList.remove('active');
+                bar.style.width = '0';
+            }, 300);
+        }
+    });
 
-                if (
-                    link.target === '_blank' ||
-                    link.hasAttribute('download') ||
-                    link.classList.contains('no-spa') ||
-                    !link.href.startsWith(window.location.origin) ||
-                    link.href.includes('#') ||
-                    link.href.includes('/export') ||
-                    link.href.includes('/export-pdf') ||
-                    link.href.includes('/download') ||
-                    link.href.includes('/logout')
-                ) {
-                    return;
-                }
+    // ⚡ FUNGSI NAVIGASI DENGAN ANIMASI
+    function navigateTo(url) {
+        const loader = document.getElementById('page-loader');
+        const bar = document.querySelector('#page-loader .bar');
+        
+        if (loader && bar) {
+            bar.classList.remove('animating');
+            bar.style.width = '0';
+            bar.offsetHeight;
+            bar.classList.add('animating');
+            loader.classList.add('active');
+        }
+        
+        if (wrapper) {
+            wrapper.style.opacity = '0.3';
+            wrapper.style.transition = 'opacity 0.15s ease-in';
+        }
+        
+        setTimeout(() => {
+            window.location.href = url;
+        }, 180);
+    }
 
-                e.preventDefault();
+    // ⚡ TANGKAP SEMUA KLIK LINK
+    document.body.addEventListener('click', function(e) {
+        const link = e.target.closest('a');
+        if (!link) return;
 
-                const wrapper = document.getElementById('content-wrapper');
+        // Abaikan link khusus
+        if (
+            link.target === '_blank' ||
+            link.hasAttribute('download') ||
+            link.href === '#' ||
+            link.href === '' ||
+            !link.href ||
+            link.hasAttribute('onclick') ||
+            link.getAttribute('onclick') ||
+            (link.href && link.href.startsWith('javascript:')) ||
+            !link.href.startsWith(window.location.origin) ||
+            link.href.includes('#') ||
+            link.href.includes('/logout')
+        ) {
+            return;
+        }
 
-                if (!wrapper) {
-                    window.location.href = link.href;
-                    return;
-                }
+        e.preventDefault();
+        navigateTo(link.href);
+    });
 
-                wrapper.style.transition = 'all .25s ease';
-                wrapper.style.opacity = '.3';
-                wrapper.style.transform = 'translateY(10px)';
+    window.addEventListener('popstate', () => {
+        location.reload();
+    });
 
-                try {
-
-                    const response = await fetch(link.href, {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    });
-
-                    const type = response.headers.get('content-type');
-
-                    if (!type || !type.includes('text/html')) {
-                        window.location.href = link.href;
-                        return;
-                    }
-
-                    const html = await response.text();
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const newWrapper = doc.getElementById('content-wrapper');
-
-                    if (!newWrapper) {
-                        window.location.href = link.href;
-                        return;
-                    }
-
-                    wrapper.innerHTML = newWrapper.innerHTML;
-
-                    const currentNavLinks = document.querySelectorAll('nav a, nav button, aside a');
-                    const newNavLinks = doc.querySelectorAll('nav a, nav button, aside a');
-
-                    if (currentNavLinks.length === newNavLinks.length) {
-                       const stateClasses = [
-                            'bg-blue-500/15', 'bg-blue-500/10', 'bg-slate-800/50', 
-                            'text-blue-400', 'text-white', 'font-semibold', 'shadow-sm',
-                            'text-slate-400', 'text-slate-500', 
-                            'hover:bg-slate-800/60', 'hover:bg-slate-800/50', 
-                            'hover:text-slate-200', 'hover:text-slate-300'
-                        ];
-
-                        currentNavLinks.forEach((el, index) => {
-                            stateClasses.forEach(cls => {
-                                if (newNavLinks[index] && newNavLinks[index].classList.contains(cls)) {
-                                    el.classList.add(cls);
-                                } else {
-                                    el.classList.remove(cls);
-                                }
-                            });
-                        });
-                    }
-
-                    document.title = doc.title;
-                    history.pushState({}, '', link.href);
-
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
-                    });
-
-                    wrapper.querySelectorAll("script").forEach(oldScript => {
-                        const newScript = document.createElement("script");
-
-                        if (oldScript.src) {
-                            newScript.src = oldScript.src;
-                        } else {
-                            newScript.textContent = oldScript.textContent;
-                        }
-
-                        document.body.appendChild(newScript);
-                        document.body.removeChild(newScript);
-                    });
-
-                    wrapper.style.opacity = '1';
-                    wrapper.style.transform = 'translateY(0)';
-
-                } catch (err) {
-                    wrapper.style.opacity = '1';
-                    wrapper.style.transform = 'translateY(0)';
-                    window.location.href = link.href;
-                }
-
-            });
-
-            window.addEventListener('popstate', () => {
-                location.reload();
-            });
-
-        });
-        </script>
+});
+</script>
     </body>
 </html>

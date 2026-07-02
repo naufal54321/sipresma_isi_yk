@@ -220,10 +220,6 @@
                                         <td class="px-6 py-4 font-medium text-gray-800">{{ $spk->judul_kegiatan ?? $spk->kegiatan->judul_kegiatan ?? $spk->kegiatan->kegiatan ?? '-' }}</td>
                                     </tr>
                                     <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                        <td class="px-6 py-4 font-bold text-gray-700 w-1/3 bg-gray-50/50">Jenis Kegiatan</td>
-                                        <td class="px-6 py-4 font-medium text-gray-800">{{ $spk->kegiatan->jenis ?? '-' }}</td>
-                                    </tr>
-                                    <tr class="border-b border-gray-200 hover:bg-gray-50">
                                         <td class="px-6 py-4 font-bold text-gray-700 w-1/3 bg-gray-50/50">Kategori</td>
                                         <td class="px-6 py-4 font-medium text-gray-800">
                                             @if($spk->kategori == 'Kelompok')

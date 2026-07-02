@@ -137,8 +137,6 @@
                                         <th class="px-4 py-3 font-semibold text-center w-12">No</th>
                                         <th class="px-4 py-3 font-semibold">Judul Kegiatan</th>
                                         <th class="px-4 py-3 font-semibold">Nama Kegiatan</th>
-                                        <th class="px-4 py-3 font-semibold">Jenis</th>
-                                        <th class="px-4 py-3 font-semibold">Tingkat</th>
                                         <th class="px-4 py-3 font-semibold text-center">Kategori</th>
                                         <th class="px-4 py-3 font-semibold">Tanggal</th>
                                     </tr>
@@ -149,8 +147,6 @@
                                         <td class="px-4 py-3 border-r border-slate-200 text-center font-semibold">{{ $loop->iteration }}</td>
                                         <td class="px-4 py-3 border-r border-slate-200 font-bold text-slate-800">{{ $kegiatan->judul_kegiatan ?? '-' }}</td>
                                         <td class="px-4 py-3 border-r border-slate-200">{{ $kegiatan->kegiatan }}</td>
-                                        <td class="px-4 py-3 border-r border-slate-200">{{ $kegiatan->jenis }}</td>
-                                        <td class="px-4 py-3 border-r border-slate-200">{{ $kegiatan->tingkat }}</td>
                                         <td class="px-4 py-3 border-r border-slate-200 text-center">
                                             @if($kegiatan->kategori == 'Kelompok')
                                                 <span class=" text-purple-700 text-xs font-semibold">

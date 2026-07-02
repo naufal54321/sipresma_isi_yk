@@ -266,9 +266,9 @@
         createSafeChart('donutChart', {
             type: 'doughnut',
             data: {
-                labels: @json($jenisLabels),
+                labels: @json($kategoriLabels),
                 datasets: [{
-                    data: @json($jenisData),
+                    data: @json($kategoriData),
                     backgroundColor: modernPalette,
                     borderWidth: 0,
                     hoverOffset: 4

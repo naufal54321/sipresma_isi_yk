@@ -33,6 +33,8 @@
     </script>
     @endif
 
+    {{-- ⚡ WRAPPER UNTUK NONAKTIFKAN SPA DI HALAMAN INI --}}
+    <div data-no-spa>
     <div class="py-6">
         <div class="max-w-8xl mx-auto py-6">
 
@@ -91,7 +93,6 @@
                         
                         @if(request('search') || request('status'))
                             <a href="{{ route('admin.kegiatan.index') }}" 
-                               onclick="return confirm('Reset semua filter?')"
                                class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-xl text-sm font-semibold transition duration-150 flex items-center justify-center w-full md:w-auto whitespace-nowrap gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
@@ -120,30 +121,19 @@
                             <tr>
                                 <th class="px-6 py-4 text-center w-16">No</th>
                                 <th class="px-6 py-4">Nama Kegiatan</th>
-                                <th class="px-6 py-4">Jenis</th>
                                 <th class="px-8 py-4 text-center">Status</th>
                                 <th class="px-6 py-4 text-center w-32">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
                             @forelse($kegiatans as $index => $kegiatan)
-                            <tr class="border-b hover:bg-blue-50 transition duration-150">
-                                {{-- Nomor --}}
+                            <tr id="row-{{ $kegiatan->id }}" class="border-b hover:bg-blue-50 transition duration-150">
                                 <td class="px-6 py-4 text-center">
                                     {{ ($kegiatans->currentPage() - 1) * $kegiatans->perPage() + $loop->iteration }}
                                 </td>
-                                
-                                {{-- Nama Kegiatan --}}
                                 <td class="px-6 py-4 font-medium text-gray-800">
                                     {{ $kegiatan->nama_kegiatan }}
                                 </td>
-                                
-                                {{-- Jenis --}}
-                                <td class="px-6 py-4">
-                                    {{ $kegiatan->jenis }}
-                                </td>
-                                
-                                {{-- Status --}}
                                 <td class="px-6 py-4 text-center">
                                     @if($kegiatan->status == 'aktif')
                                         <span class="inline-flex items-center gap-1 min-w-[100px] justify-center bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
@@ -157,43 +147,29 @@
                                         </span>
                                     @endif
                                 </td>
-                                
-                                {{-- Aksi --}}
                                 <td class="px-6 py-4 text-center">
                                     <div class="flex justify-center gap-2">
-                                        
-                                        {{-- Edit Button --}}
                                         <button type="button"
                                                 onclick="bukaModalEditMaster(this)"
                                                 data-id="{{ $kegiatan->id }}"
                                                 data-nama="{{ e($kegiatan->nama_kegiatan) }}"
-                                                data-jenis="{{ e($kegiatan->jenis) }}"
                                                 data-status="{{ $kegiatan->status }}"
                                                 title="Edit Kegiatan"
                                                 class="flex items-center justify-center w-9 h-9 bg-yellow-500 hover:bg-yellow-400 text-white rounded-lg transition shadow-sm">
                                             <i class="fas fa-pen"></i>
                                         </button>
-
-                                        {{-- Delete Button --}}
-                                        <form action="{{ route('admin.kegiatan.destroy', $kegiatan->id) }}" 
-                                              method="POST" 
-                                              class="delete-form m-0">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="button"
-                                                    onclick="hapusKegiatan(this, '{{ e($kegiatan->nama_kegiatan) }}')"
-                                                    title="Hapus Kegiatan"
-                                                    class="flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-500 text-white rounded-lg transition shadow-sm">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-
+                                        <button type="button"
+                                                onclick="hapusKegiatan({{ $kegiatan->id }}, '{{ e($kegiatan->nama_kegiatan) }}')"
+                                                title="Hapus Kegiatan"
+                                                class="flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-500 text-white rounded-lg transition shadow-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="text-center py-10 text-gray-400">
+                                <td colspan="4" class="text-center py-10 text-gray-400">
                                     Belum ada data kegiatan
                                 </td>
                             </tr>
@@ -210,6 +186,7 @@
 
         </div>
     </div>
+    </div>{{-- END data-no-spa --}}
 
     {{-- Font Awesome --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -217,178 +194,253 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-    // ============================================
-    // FUNGSI HAPUS KEGIATAN
-    // ============================================
-    function hapusKegiatan(button, namaKegiatan) {
-        Swal.fire({
-            title: 'Hapus Kegiatan?',
-            html: `Anda akan menghapus kegiatan <strong>"${namaKegiatan}"</strong>.<br>Data yang dihapus tidak dapat dikembalikan.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc2626',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: 'Ya, Hapus',
-            cancelButtonText: 'Batal',
-            reverseButtons: true,
-            allowOutsideClick: false, 
-            allowEscapeKey: false, 
-            customClass: {
-                popup: 'rounded-2xl',
-                confirmButton: 'rounded-xl font-semibold',
-                cancelButton: 'rounded-xl font-semibold'
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'Menghapus...',
-                    text: 'Mohon tunggu sebentar',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    showConfirmButton: false,
-                    didOpen: () => { Swal.showLoading(); }
-                });
-                button.closest('form').submit();
-            }
-        });
-    }
-
-    // ============================================
-    // FUNGSI VALIDASI FORM (DIPERBAIKI)
-    // ============================================
-    function validasiFormMaster(prefix) {
-        const nama = document.getElementById(`${prefix}_nama`).value.trim();
-        const jenis = document.getElementById(`${prefix}_jenis`).value.trim();
-        const status = document.getElementById(`${prefix}_status`).value;
-
-        // 🔧 HANYA 3 FIELD: nama, jenis, status
-        if (!nama || !jenis || !status) {
-            Swal.showValidationMessage('Harap lengkapi semua field wajib (bertanda *)');
-            return false;
+    (function() {
+        // ============================================
+        // KONFIGURASI
+        // ============================================
+        const csrfToken = '{{ csrf_token() }}';
+        const baseUrl = '{{ route("admin.kegiatan.index") }}';
+        
+        function getAjaxHeaders() {
+            return {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            };
         }
 
-        return true;
-    }
-
-    // ============================================
-    // FUNGSI GENERATE HTML FORM
-    // ============================================
-    function generateFormMasterHTML(prefix) {
-        return `
-            <div class="mb-4">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Kegiatan *</label>
-                <input type="text" name="nama_kegiatan" id="${prefix}_nama" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring focus:ring-blue-200" required>
-            </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Jenis *</label>
-                <input type="text" name="jenis" id="${prefix}_jenis" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring focus:ring-blue-200" required>
-            </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Status Kegiatan *</label>
-                <select name="status" id="${prefix}_status" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring focus:ring-blue-200" required>
-                    <option value="aktif">Aktif</option>
-                    <option value="tidak aktif">Tidak Aktif</option>
-                </select>
-            </div>
-        `;
-    }
-
-    // ============================================
-    // FUNGSI TAMBAH KEGIATAN
-    // ============================================
-    function bukaModalTambahMaster() {
-        Swal.fire({
-            title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Tambah Master Kegiatan</h2>',
-            width: '600px',
-            html: `
-                <form id="formTambahMaster" action="{{ route('admin.kegiatan.store') }}" method="POST" class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">
-                    @csrf
-                    ${generateFormMasterHTML('add')}
-                </form>
-            `,
-            showCancelButton: true,
-            confirmButtonText: 'Simpan',
-            cancelButtonText: 'Batal',
-            confirmButtonColor: '#2563EB',
-            cancelButtonColor: '#9CA3AF',
-            allowOutsideClick: false, 
-            allowEscapeKey: false, 
-            customClass: { popup: 'rounded-2xl p-4' },
-            didOpen: () => {
-                setTimeout(() => {
-                    const input = document.getElementById('add_nama');
-                    if (input) input.focus();
-                }, 100);
-            },
-            preConfirm: () => {
-                if (validasiFormMaster('add')) {
-                    Swal.showLoading();
-                    document.getElementById('formTambahMaster').submit();
-                    return false; 
+        // ============================================
+        // FUNGSI HAPUS KEGIATAN (AJAX)
+        // ============================================
+        window.hapusKegiatan = function(id, namaKegiatan) {
+            Swal.fire({
+                title: 'Hapus Kegiatan?',
+                html: `Anda akan menghapus kegiatan <strong>"${namaKegiatan}"</strong>.<br>Data yang dihapus tidak dapat dikembalikan.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Hapus',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'rounded-2xl',
+                    confirmButton: 'rounded-xl font-semibold',
+                    cancelButton: 'rounded-xl font-semibold'
                 }
-                return false; 
-            }
-        });
-    }
-
-    // ============================================
-    // FUNGSI EDIT KEGIATAN
-    // ============================================
-    function bukaModalEditMaster(button) {
-        const id = button.getAttribute('data-id');
-        const nama = button.getAttribute('data-nama');
-        const jenis = button.getAttribute('data-jenis');
-        const status = button.getAttribute('data-status');
-
-        let actionUrl = "{{ route('admin.kegiatan.update', ':id') }}".replace(':id', id);
-
-        Swal.fire({
-            title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Edit Master Kegiatan</h2>',
-            width: '600px',
-            html: `
-                <form id="formEditMaster" action="${actionUrl}" method="POST" class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">
-                    @csrf
-                    @method('PUT')
-                    ${generateFormMasterHTML('edit')}
-                </form>
-            `,
-            showCancelButton: true,
-            confirmButtonText: 'Perbarui',
-            cancelButtonText: 'Batal',
-            confirmButtonColor: '#2563EB',
-            cancelButtonColor: '#9CA3AF',
-            allowOutsideClick: false, 
-            allowEscapeKey: false, 
-            customClass: { popup: 'rounded-2xl p-4' },
-            didOpen: () => {
-                document.getElementById('edit_nama').value = nama;
-                document.getElementById('edit_jenis').value = jenis;
-                document.getElementById('edit_status').value = status;
-                
-                setTimeout(() => {
-                    const input = document.getElementById('edit_nama');
-                    if (input) input.focus();
-                }, 100);
-            },
-            preConfirm: () => {
-                if (validasiFormMaster('edit')) {
-                    Swal.showLoading();
-                    document.getElementById('formEditMaster').submit();
-                    return false; 
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Menghapus...',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+                    
+                    fetch(`${baseUrl}/${id}`, {
+                        method: 'DELETE',
+                        headers: getAjaxHeaders()
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const row = document.getElementById(`row-${id}`);
+                            if (row) row.remove();
+                            
+                            window.resetTableNumber();
+                            
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: data.message || 'Kegiatan berhasil dihapus',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            
+                            const remainingRows = document.querySelectorAll('tbody tr[id]').length;
+                            if (remainingRows === 0) location.reload();
+                        } else {
+                            Swal.fire({ icon: 'error', title: 'Gagal!', text: data.message || 'Gagal menghapus kegiatan' });
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire({ icon: 'error', title: 'Error!', text: 'Terjadi kesalahan saat menghapus data' });
+                    });
                 }
-                return false; 
-            }
-        });
-    }
+            });
+        };
 
-    // ============================================
-    // AUTO SUBMIT FILTER SAAT STATUS BERUBAH
-    // ============================================
-    document.getElementById('statusFilter')?.addEventListener('change', function() {
-        document.getElementById('filterForm').submit();
-    });
-</script>
+        // ============================================
+        // FUNGSI VALIDASI FORM
+        // ============================================
+        window.validasiFormMaster = function(prefix) {
+            const nama = document.getElementById(`${prefix}_nama`)?.value?.trim();
+            const status = document.getElementById(`${prefix}_status`)?.value;
+            
+            if (!nama) { Swal.showValidationMessage('Nama kegiatan wajib diisi'); return false; }
+            if (!status) { Swal.showValidationMessage('Status wajib dipilih'); return false; }
+            return true;
+        };
+
+        // ============================================
+        // FUNGSI GENERATE HTML FORM
+        // ============================================
+        window.generateFormMasterHTML = function(prefix) {
+            return `
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Kegiatan *</label>
+                    <input type="text" name="nama_kegiatan" id="${prefix}_nama" 
+                        class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring focus:ring-blue-200" 
+                        placeholder="Masukkan nama kegiatan" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Status Kegiatan *</label>
+                    <select name="status" id="${prefix}_status" 
+                        class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring focus:ring-blue-200" required>
+                        <option value="">Pilih Status</option>
+                        <option value="aktif">Aktif</option>
+                        <option value="tidak aktif">Tidak Aktif</option>
+                    </select>
+                </div>
+            `;
+        };
+
+        // ============================================
+        // FUNGSI TAMBAH KEGIATAN (AJAX)
+        // ============================================
+        window.bukaModalTambahMaster = function() {
+            Swal.fire({
+                title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Tambah Master Kegiatan</h2>',
+                width: '600px',
+                html: `<div class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">${window.generateFormMasterHTML('add')}</div>`,
+                showCancelButton: true, confirmButtonText: 'Simpan', cancelButtonText: 'Batal',
+                confirmButtonColor: '#2563EB', cancelButtonColor: '#9CA3AF',
+                allowOutsideClick: false, allowEscapeKey: false,
+                customClass: { popup: 'rounded-2xl p-4' },
+                didOpen: () => { setTimeout(() => { const input = document.getElementById('add_nama'); if (input) input.focus(); }, 100); },
+                preConfirm: () => {
+                    if (!window.validasiFormMaster('add')) return false;
+                    
+                    const formData = { 
+                        nama_kegiatan: document.getElementById('add_nama').value.trim(), 
+                        status: document.getElementById('add_status').value, 
+                        _token: csrfToken 
+                    };
+                    
+                    Swal.showLoading();
+                    
+                    return fetch(baseUrl, { method: 'POST', headers: getAjaxHeaders(), body: JSON.stringify(formData) })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) { 
+                            let errorMessage = data.message || 'Gagal menambahkan data'; 
+                            if (data.errors) errorMessage = Object.values(data.errors).flat().join('<br>'); 
+                            Swal.showValidationMessage(errorMessage); 
+                            return false; 
+                        }
+                        return data;
+                    })
+                    .catch(error => { Swal.showValidationMessage('Terjadi kesalahan: ' + error.message); return false; });
+                }
+            }).then((result) => {
+                if (result.isConfirmed && result.value) {
+                    Swal.fire({ icon: 'success', title: 'Berhasil!', text: result.value.message || 'Kegiatan berhasil ditambahkan', timer: 2000, showConfirmButton: false })
+                    .then(() => location.reload());
+                }
+            });
+        };
+
+        // ============================================
+        // FUNGSI EDIT KEGIATAN (AJAX)
+        // ============================================
+        window.bukaModalEditMaster = function(button) {
+            const id = button.getAttribute('data-id');
+            const nama = button.getAttribute('data-nama');
+            const status = button.getAttribute('data-status');
+
+            Swal.fire({
+                title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Edit Master Kegiatan</h2>',
+                width: '600px',
+                html: `<div class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">${window.generateFormMasterHTML('edit')}</div>`,
+                showCancelButton: true, confirmButtonText: 'Perbarui', cancelButtonText: 'Batal',
+                confirmButtonColor: '#2563EB', cancelButtonColor: '#9CA3AF',
+                allowOutsideClick: false, allowEscapeKey: false,
+                customClass: { popup: 'rounded-2xl p-4' },
+                didOpen: () => {
+                    document.getElementById('edit_nama').value = nama;
+                    document.getElementById('edit_status').value = status;
+                    setTimeout(() => { const input = document.getElementById('edit_nama'); if (input) input.focus(); }, 100);
+                },
+                preConfirm: () => {
+                    if (!window.validasiFormMaster('edit')) return false;
+                    
+                    const formData = { 
+                        nama_kegiatan: document.getElementById('edit_nama').value.trim(), 
+                        status: document.getElementById('edit_status').value, 
+                        _token: csrfToken, 
+                        _method: 'PUT' 
+                    };
+                    
+                    Swal.showLoading();
+                    
+                    return fetch(`${baseUrl}/${id}`, { method: 'POST', headers: getAjaxHeaders(), body: JSON.stringify(formData) })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) { 
+                            let errorMessage = data.message || 'Gagal memperbarui data'; 
+                            if (data.errors) errorMessage = Object.values(data.errors).flat().join('<br>'); 
+                            Swal.showValidationMessage(errorMessage); 
+                            return false; 
+                        }
+                        return { ...data, formData };
+                    })
+                    .catch(error => { Swal.showValidationMessage('Terjadi kesalahan: ' + error.message); return false; });
+                }
+            }).then((result) => {
+                if (result.isConfirmed && result.value) {
+                    const row = document.getElementById(`row-${id}`);
+                    if (row) {
+                        const fd = result.value.formData;
+                        
+                        // Update nama kegiatan (kolom index 1)
+                        row.children[1].innerText = fd.nama_kegiatan;
+                        
+                        // Update status (kolom index 2)
+                        const statusBadge = fd.status === 'aktif' 
+                            ? '<span class="inline-flex items-center gap-1 min-w-[100px] justify-center bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold"><span class="w-2 h-2 bg-green-500 rounded-full"></span>Aktif</span>'
+                            : '<span class="inline-flex items-center gap-1 min-w-[100px] justify-center bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold"><span class="w-2 h-2 bg-red-500 rounded-full"></span>Tidak Aktif</span>';
+                        row.children[2].innerHTML = statusBadge;
+                        
+                        // Update data attributes
+                        button.setAttribute('data-nama', fd.nama_kegiatan);
+                        button.setAttribute('data-status', fd.status);
+                    }
+                    
+                    Swal.fire({ icon: 'success', title: 'Berhasil!', text: result.value.message || 'Kegiatan berhasil diperbarui', timer: 2000, showConfirmButton: false });
+                }
+            });
+        };
+
+        // ============================================
+        // RESET NOMOR TABEL
+        // ============================================
+        window.resetTableNumber = function() {
+            const rows = document.querySelectorAll('tbody tr[id]');
+            let counter = 1;
+            rows.forEach((row) => { 
+                const firstCell = row.querySelector('td:first-child'); 
+                if (firstCell) { firstCell.innerText = counter; counter++; } 
+            });
+        };
+
+        // ============================================
+        // AUTO SUBMIT FILTER SAAT STATUS BERUBAH
+        // ============================================
+        document.getElementById('statusFilter')?.addEventListener('change', function() {
+            document.getElementById('filterForm').submit();
+        });
+
+    })();
+    </script>
 
 </x-app-layout>

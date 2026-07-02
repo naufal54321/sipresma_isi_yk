@@ -42,9 +42,6 @@
                             </td>
                             <td class="px-6 py-4 font-semibold text-gray-800">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-sm">
-                                        {{ strtoupper(substr($user->name, 0, 1)) }}
-                                    </div>
                                     {{ $user->name }}
                                 </div>
                             </td>

@@ -21,7 +21,6 @@ use App\Models\User;
 use App\Models\Spk;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\LaporanDosenController;
-use App\Http\Controllers\AdminUserApprovalController;
 use App\Http\Controllers\AdminRpkController;
 
 /*
@@ -29,14 +28,15 @@ use App\Http\Controllers\AdminRpkController;
 | PUBLIC ROUTE (BERANDA SIPRESMA)
 |--------------------------------------------------------------------------
 */
+
 Route::get('/', function () {
-    $totalMahasiswa = User::role('Mahasiswa')->count(); 
+    $totalMahasiswa = User::role('Mahasiswa')->count();
     $spkDraft = Spk::where('status', 'draft')->count();
     $spkDisetujui = Spk::where('status', 'disetujui')->count();
-    
+
     $mahasiswaBerprestasi = Spk::where('status', 'disetujui')
-                                ->distinct('user_id')
-                                ->count('user_id');
+        ->distinct('user_id')
+        ->count('user_id');
 
     // Mengambil data SPK disetujui beserta relasi user & kegiatan
     $spkDisetujuiData = Spk::with(['user', 'kegiatan'])->where('status', 'disetujui')->get();
@@ -45,21 +45,21 @@ Route::get('/', function () {
     $rekapPrestasi = $spkDisetujuiData->sortByDesc('updated_at')->take(10);
 
     // Data Chart 1: Prodi
-    $prodiGrup = $spkDisetujuiData->groupBy(function($spk) {
+    $prodiGrup = $spkDisetujuiData->groupBy(function ($spk) {
         return $spk->user->prodi ?? 'Lainnya';
     });
     $chartLabels = $prodiGrup->keys()->toArray();
     $chartData = $prodiGrup->map->count()->values()->toArray();
 
     // Data Chart 2: Tingkat Kegiatan
-    $tingkatGrup = $spkDisetujuiData->groupBy(function($spk) {
+    $tingkatGrup = $spkDisetujuiData->groupBy(function ($spk) {
         return $spk->kegiatan->tingkat ?? 'Lainnya';
     });
     $tingkatLabels = $tingkatGrup->keys()->toArray();
     $tingkatData = $tingkatGrup->map->count()->values()->toArray();
 
     // Data Chart 3: Jenis Kegiatan
-    $jenisGrup = $spkDisetujuiData->groupBy(function($spk) {
+    $jenisGrup = $spkDisetujuiData->groupBy(function ($spk) {
         return $spk->kegiatan->jenis ?? 'Lainnya';
     });
     $jenisLabels = $jenisGrup->keys()->toArray();
@@ -85,6 +85,7 @@ Route::get('/', function () {
 | AUTH & PROFILE ROUTES (SEMUA USER LOGIN)
 |--------------------------------------------------------------------------
 */
+// ⚡ Dashboard dikunci dengan verified
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
@@ -102,99 +103,41 @@ Route::middleware('auth')->group(function () {
 */
 Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->group(function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Dashboard
-    |--------------------------------------------------------------------------
-    */
     Route::get('/', function () {
         $users = User::with('roles')->latest()->paginate(10);
-
         return view('admin.dashboard', compact('users'));
     })->name('dashboard');
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Manajemen User
-    |--------------------------------------------------------------------------
-    */
+    /* Manajemen User */
     Route::resource('users', UserController::class);
+    Route::post('/users/{user}/role', [UserRoleController::class, 'update'])->name('users.role.update');
 
-    Route::post('/users/{user}/role', [UserRoleController::class, 'update'])
-        ->name('users.role.update');
+    /* Dosen Pembimbing */
+    Route::get('/pembimbing', [UserController::class, 'pembimbingIndex'])->name('pembimbing.index');
+    Route::post('/pembimbing/set', [UserController::class, 'setPembimbing'])->name('pembimbing.set');
 
+    /* Master Kegiatan */
+    Route::resource('kegiatan', MasterKegiatanController::class)->except(['show']);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Approval User
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/approval-users', [AdminUserApprovalController::class, 'index'])
-        ->name('users.approval');
+    /* Master Prestasi (Dibersihkan dari duplikasi) */
+    Route::resource('master-prestasi', MasterPrestasiController::class)->except(['create', 'edit']); 
 
-    Route::put('/approval-users/{user}/approve', [AdminUserApprovalController::class, 'approve'])
-        ->name('users.approve');
+    /* Program Studi */
+    Route::resource('prodi', ProgramStudiController::class)->except(['create', 'edit'])->parameters(['prodi' => 'prodi']);
+    Route::get('prodi/check-name', [ProgramStudiController::class, 'checkName'])->name('prodi.check-name');
+    Route::patch('prodi/{prodi}/toggle-status', [ProgramStudiController::class, 'toggleStatus'])->name('prodi.toggle-status');
+    Route::post('prodi/bulk-delete', [ProgramStudiController::class, 'bulkDelete'])->name('prodi.bulk-delete');
+    Route::get('prodi/export', [ProgramStudiController::class, 'export'])->name('prodi.export');
 
-    Route::delete('/approval-users/{user}/reject', [AdminUserApprovalController::class, 'reject'])
-        ->name('users.reject');
+    /* Laporan */
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::get('/laporan/export', [LaporanController::class, 'export'])->name('laporan.export');
+    Route::get('/laporan/export-pdf', [LaporanController::class, 'exportPdf'])->name('laporan.export-pdf');
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Dosen Pembimbing
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/pembimbing', [UserController::class, 'pembimbingIndex'])
-        ->name('pembimbing.index');
-
-    Route::post('/pembimbing/set', [UserController::class, 'setPembimbing'])
-        ->name('pembimbing.set');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Master Kegiatan
-    |--------------------------------------------------------------------------
-    */
-    Route::resource('kegiatan', MasterKegiatanController::class)
-        ->except(['show']);
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Program Studi
-    |--------------------------------------------------------------------------
-    */
-    Route::resource('prodi', ProgramStudiController::class)
-        ->except(['create', 'edit', 'show']);
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Laporan
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/laporan', [LaporanController::class, 'index'])
-        ->name('laporan.index');
-
-    Route::get('/laporan/export', [LaporanController::class, 'export'])
-        ->name('laporan.export');
-
-    Route::get('/laporan/export-pdf', [LaporanController::class, 'exportPdf'])
-        ->name('laporan.export-pdf');
-
-    /*
-    |--------------------------------------------------------------------------
-    | RPK Mahasiswa (VIEW OLEH ADMIN)
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/rpk', [App\Http\Controllers\AdminRpkController::class, 'index'])->name('rpk.index');
-    Route::get('/rpk/{rpk}', [App\Http\Controllers\AdminRpkController::class, 'show'])->name('rpk.show');
-    Route::patch('/rpk/{rpk}/status', [App\Http\Controllers\AdminRpkController::class, 'updateStatus'])->name('rpk.update-status');
-
-    Route::resource('master-prestasi', MasterPrestasiController::class)->except(['create', 'show', 'edit']);
-
+    /* RPK Mahasiswa (VIEW OLEH ADMIN) */
+    Route::get('/rpk', [AdminRpkController::class, 'index'])->name('rpk.index');
+    Route::get('/rpk/{rpk}', [AdminRpkController::class, 'show'])->name('rpk.show');
+    Route::patch('/rpk/{rpk}/status', [AdminRpkController::class, 'updateStatus'])->name('rpk.update-status');
 });
 
 /*
@@ -203,23 +146,18 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'role:Dosen'])->prefix('dosen')->name('dosen.')->group(function () {
-
-    // RPK
     Route::get('/rpk', [DosenRpkController::class, 'index'])->name('rpk.index');
     Route::get('/rpk/{rpk}', [DosenRpkController::class, 'show'])->name('rpk.show');
     Route::put('/rpk/{rpk}/approve', [DosenRpkController::class, 'approve'])->name('rpk.approve');
     Route::put('/rpk/{rpk}/reject', [DosenRpkController::class, 'reject'])->name('rpk.reject');
 
-    // Mahasiswa Bimbingan
     Route::get('/mahasiswa', [DosenMahasiswaController::class, 'index'])->name('mahasiswa.index');
 
-    // Persetujuan SPK
     Route::get('/spk', [DosenSpkController::class, 'index'])->name('spk.index');
     Route::get('/spk/{spk}', [DosenSpkController::class, 'show'])->name('spk.show');
     Route::put('/spk/{spk}/approve', [DosenSpkController::class, 'approve'])->name('spk.approve');
     Route::put('/spk/{spk}/reject', [DosenSpkController::class, 'reject'])->name('spk.reject');
 
-    // Laporan Dosen
     Route::get('/laporan', [LaporanDosenController::class, 'index'])->name('laporan.index');
     Route::get('/laporan/export', [LaporanDosenController::class, 'export'])->name('laporan.export');
     Route::get('/laporan/export-pdf', [LaporanDosenController::class, 'exportPdf'])->name('laporan.export-pdf');
@@ -227,14 +165,13 @@ Route::middleware(['auth', 'role:Dosen'])->prefix('dosen')->name('dosen.')->grou
 
 /*
 |--------------------------------------------------------------------------
-| 🔧 ROLE: MAHASISWA + CHECK ANGGOTA
+| 🔧 ROLE: MAHASISWA (DIKUNCI DENGAN VERIFIED)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:Mahasiswa'])->group(function () {
-    
+Route::middleware(['auth', 'verified', 'role:Mahasiswa'])->group(function () {
     // Rencana Kegiatan (RPK)
     Route::resource('rpks', RpkController::class);
-    
+
     // Item Kegiatan di dalam RPK
     Route::get('/rpks/{rpk}/kegiatans', [KegiatanController::class, 'index'])->name('kegiatans.index');
     Route::get('/rpks/{rpk}/kegiatans/create', [KegiatanController::class, 'create'])->name('kegiatans.create');
@@ -254,4 +191,4 @@ Route::middleware(['auth', 'role:Mahasiswa'])->group(function () {
 */
 Route::get('/users-data', [UserController::class, 'getUsersData']);
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

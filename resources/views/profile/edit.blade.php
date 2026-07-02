@@ -1,36 +1,52 @@
 <x-app-layout>
 
-    @if (session('status') === 'profile-updated')
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    Swal.fire({
-        icon: 'success',
-        title: 'Berhasil',
-        text: 'Profil berhasil diperbarui.',
-        timer: 2500,
-        timerProgressBar: true,   // Garis waktu animasi di bawah
-        showConfirmButton: false,
-        position: 'center',
+   @if (session('status') === 'profile-updated' || session('status') === 'password-updated')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tentukan teks berdasarkan status session
+            let alertText = '';
+            @if(session('status') === 'profile-updated')
+                alertText = 'Profil berhasil diperbarui';
+            @elseif(session('status') === 'password-updated')
+                alertText = 'Password berhasil diperbarui';
+            @endif
 
-        // Tweak Visual Modern:
-        width: '340px',           // Ukuran lebih ramping & proporsional
-        padding: '1.5rem',
-        color: '#0f172a',         // Warna teks Dark Slate (lebih lembut dari hitam pekat)
-        background: '#ffffff',
-        backdrop: 'rgba(0, 0, 0, 0.15)', // Overlay belakang transparan tipis
+            // Konfigurasi Toast Modern
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                background: '#ffffff',
+                color: '#0f172a',        // Slate 900 untuk teks
+                iconColor: '#10b981',    // Emerald 500 untuk ikon sukses
+                
+                // Animasi saat kursor diarahkan ke notifikasi
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    
+                    // Injeksi gaya modern
+                    toast.style.borderRadius = '16px';
+                    toast.style.padding = '12px 20px';
+                    toast.style.border = '1px solid #f1f5f9'; // Slate 100
+                    toast.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)';
+                }
+            });
 
-        // Injeksi CSS langsung ke dalam popup
-        didOpen: (popup) => {
-            popup.style.borderRadius = '24px';
-            popup.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)';
-        }
-    });
-</script>
-    @endif
+            // Eksekusi Toast
+            Toast.fire({
+                icon: 'success',
+                title: alertText
+            });
+        });
+    </script>
+@endif
 
     <div class="max-w-7xl mx-auto py-8">
 
-        <!-- Header -->
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-slate-800">
                 Kelola Profil
@@ -42,7 +58,6 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
-            <!-- SIDEBAR -->
             <div class="lg:col-span-1">
 
                 <div class="bg-white rounded-3xl shadow-lg border border-slate-100 p-8 sticky top-24">
@@ -105,10 +120,8 @@
 
             </div>
 
-            <!-- CONTENT -->
             <div class="lg:col-span-3 space-y-8">
 
-                <!-- INFORMASI -->
                 <div class="bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden">
 
                     <div class="px-8 py-5 border-b bg-gradient-to-r from-blue-600 to-indigo-600">
@@ -129,7 +142,6 @@
 
                 </div>
 
-                <!-- PASSWORD -->
                 <div class="bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden">
 
                     <div class="px-8 py-5 border-b bg-gradient-to-r from-emerald-600 to-teal-600">
@@ -150,7 +162,6 @@
 
                 </div>
 
-                <!-- DELETE -->
                 <div class="bg-white rounded-3xl shadow-lg border border-red-200 overflow-hidden">
 
                     <div class="px-8 py-5 border-b bg-gradient-to-r from-red-600 to-rose-600">

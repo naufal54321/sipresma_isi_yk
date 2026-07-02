@@ -40,8 +40,7 @@ class KegiatanController extends Controller
             'kategori' => 'required|in:Individu,Kelompok',
             'peran' => 'nullable|string|max:255',
             'jumlah_anggota' => 'nullable|integer|min:1',
-            'anggota_id' => 'nullable|array',
-            'anggota_id.*' => 'exists:users,id',
+            'anggota_ids' => 'nullable|string',
         ]);
 
         $master = MasterKegiatan::findOrFail($request->master_kegiatan_id);
@@ -50,7 +49,7 @@ class KegiatanController extends Controller
             'rpk_id' => $rpk->id,
             'master_kegiatan_id' => $master->id,
             'kegiatan' => $master->nama_kegiatan,
-            'jenis' => $master->jenis,
+            'jenis' => $master->jenis ?? '-', // ⚡ TAMBAHKAN INI
             'judul_kegiatan' => $request->judul_kegiatan,
             'tanggal' => $request->tanggal,
             'kategori' => $request->kategori,
@@ -58,9 +57,7 @@ class KegiatanController extends Controller
             'jumlah_anggota' => $request->kategori == 'Kelompok' ? $request->jumlah_anggota : null,
         ]);
 
-        // app/Http/Controllers/KegiatanController.php
-
-        // Method store
+        // Simpan anggota
         if ($request->filled('anggota_ids')) {
             $anggotaIds = explode(',', $request->anggota_ids);
             $anggotaIds = array_filter($anggotaIds);
@@ -68,7 +65,7 @@ class KegiatanController extends Controller
             if (!empty($anggotaIds)) {
                 $syncData = [];
                 foreach ($anggotaIds as $userId) {
-                    $syncData[$userId] = ['peran' => 'Anggota']; // 🔧 OTOMATIS ANGGOTA
+                    $syncData[$userId] = ['peran' => 'Anggota'];
                 }
                 $kegiatan->anggota()->sync($syncData);
             }
@@ -99,8 +96,7 @@ class KegiatanController extends Controller
             'kategori' => 'required|in:Individu,Kelompok',
             'peran' => 'nullable|string|max:255',
             'jumlah_anggota' => 'nullable|integer|min:1',
-            'anggota_id' => 'nullable|array',
-            'anggota_id.*' => 'exists:users,id',
+            'anggota_ids' => 'nullable|string',
         ]);
 
         $master = MasterKegiatan::findOrFail($request->master_kegiatan_id);
@@ -108,7 +104,7 @@ class KegiatanController extends Controller
         $kegiatan->update([
             'master_kegiatan_id' => $master->id,
             'kegiatan' => $master->nama_kegiatan,
-            'jenis' => $master->jenis,
+            'jenis' => $master->jenis ?? '-', // ⚡ TAMBAHKAN INI
             'judul_kegiatan' => $request->judul_kegiatan,
             'tanggal' => $request->tanggal,
             'kategori' => $request->kategori,
@@ -116,15 +112,22 @@ class KegiatanController extends Controller
             'jumlah_anggota' => $request->kategori == 'Kelompok' ? $request->jumlah_anggota : null,
         ]);
 
-        // 🔧 UPDATE ANGGOTA
-        if ($request->has('anggota_id')) {
-            $anggotaIds = array_filter($request->anggota_id);
+        // Update anggota
+        if ($request->filled('anggota_ids')) {
+            $anggotaIds = explode(',', $request->anggota_ids);
+            $anggotaIds = array_filter($anggotaIds);
 
             if (!empty($anggotaIds)) {
-                $kegiatan->anggota()->sync($anggotaIds);
+                $syncData = [];
+                foreach ($anggotaIds as $userId) {
+                    $syncData[$userId] = ['peran' => 'Anggota'];
+                }
+                $kegiatan->anggota()->sync($syncData);
             } else {
-                $kegiatan->anggota()->detach(); // Hapus semua anggota jika kosong
+                $kegiatan->anggota()->detach();
             }
+        } else {
+            $kegiatan->anggota()->detach();
         }
 
         $kegiatan->rpk->update(['status' => 'draft']);

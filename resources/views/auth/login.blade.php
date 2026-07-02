@@ -95,21 +95,20 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    @if(session('success_register'))
+    @if (session('status_verified'))
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-    Swal.fire({
-        icon: 'success',
-        title: 'Pendaftaran Berhasil',
-        html: `
-            <div style="text-align:center">
-                <p>Akun Anda berhasil didaftarkan.</p>
-                <br>
-                <p>Silakan tunggu persetujuan dari Admin sebelum dapat masuk ke sistem.</p>
-            </div>
-        `,
-        confirmButtonText: 'Oke',
-        confirmButtonColor: '#2563eb'
-    });
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: 'success',
+                title: 'Verifikasi Berhasil!',
+                text: "{{ session('status_verified') }}",
+                confirmButtonColor: '#2563eb',
+                customClass: {
+                    popup: 'rounded-2xl shadow-xl border border-gray-100'
+                }
+            });
+        });
     </script>
-    @endif
+@endif
 </x-guest-layout>

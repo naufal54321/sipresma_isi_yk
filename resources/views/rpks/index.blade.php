@@ -88,7 +88,8 @@
                         <th class="px-6 py-4">Prodi</th>
                         <th class="px-6 py-4">Tahun</th>
                         <th class="px-6 py-4">Semester</th>
-                        <th class="px-6 py-4">Jumlah Kegiatan</th>
+                        <th class="px-6 py-4">Judul Kegiatan</th>
+                        <th class="px-6 py-4">Kategori</th>
                         <th class="px-6 py-4">Status</th>
                         <th class="px-6 py-4 text-center">Aksi</th>
                     </tr>
@@ -133,14 +134,30 @@
                         <td class="px-6 py-4">
                             @php
                                 if($rpk->user_id == Auth::id()) {
-                                    $jumlahKegiatan = $rpk->kegiatans->count();
+                                    $kegiatanPertama = $rpk->kegiatans->first();
                                 } else {
-                                    $jumlahKegiatan = $rpk->kegiatans->filter(function($k) {
+                                    $kegiatanPertama = $rpk->kegiatans->filter(function($k) {
                                         return $k->anggota->contains('id', Auth::id());
-                                    })->count();
+                                    })->first();
                                 }
                             @endphp
-                            {{ $jumlahKegiatan }} Kegiatan
+                            {{ $kegiatanPertama ? $kegiatanPertama->judul_kegiatan : '-' }}
+                        </td>
+
+                        <td class="px-6 py-4 text-center">
+                            @if($kegiatanPertama)
+                                @if($kegiatanPertama->kategori == 'Kelompok')
+                                    <span>
+                                    Kelompok
+                                    </span>
+                                @else
+                                    <span>
+                                    Individu
+                                    </span>
+                                @endif
+                            @else
+                                <span class="text-gray-400">-</span>
+                            @endif
                         </td>
                         
                         <td class="px-6 py-4">
