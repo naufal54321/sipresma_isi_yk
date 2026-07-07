@@ -3,14 +3,13 @@
 namespace App\Models;
 
 use Database\Factories\UserFactory;
-use Illuminate\Contracts\Auth\MustVerifyEmail; // 🔧 1. TAMBAHKAN IMPORT INI
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Spk;
 use Spatie\Permission\Traits\HasRoles;
 
-// 🔧 2. TAMBAHKAN "implements MustVerifyEmail" PADA CLASS INI
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
@@ -27,9 +26,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'nim',
         'prodi',
+        'angkatan',              // ⚡ TAMBAH
+        'semester',              // ⚡ TAMBAH
         'dosen_pembimbing_id',
         'status',
-        'is_approved',      // (Opsional) Bisa dihapus nanti jika tabel database sudah di-update
+        'is_approved',
     ];
 
     /**
@@ -52,8 +53,26 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'is_approved' => 'boolean',  // (Opsional)
+            'is_approved' => 'boolean',
         ];
+    }
+
+    // ⚡ TAMBAH: Scope untuk filter berdasarkan angkatan
+    public function scopeAngkatan($query, $angkatan)
+    {
+        return $query->where('angkatan', $angkatan);
+    }
+
+    // ⚡ TAMBAH: Scope untuk filter berdasarkan semester
+    public function scopeSemester($query, $semester)
+    {
+        return $query->where('semester', $semester);
+    }
+
+    // ⚡ TAMBAH: Scope untuk mahasiswa saja
+    public function scopeMahasiswa($query)
+    {
+        return $query->role('Mahasiswa');
     }
 
     public function rpks()

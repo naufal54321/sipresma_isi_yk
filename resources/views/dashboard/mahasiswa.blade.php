@@ -4,32 +4,45 @@
     <div class="max-w-8xl mx-auto py-6">
 
         <div class="relative bg-slate-900 rounded-3xl p-8 sm:p-10 text-white shadow-2xl shadow-slate-900/20 mb-6 overflow-hidden border border-slate-800">
-            <div class="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-gradient-to-br from-blue-600 to-purple-600 opacity-20 rounded-full blur-[80px]"></div>
-            <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 bg-gradient-to-tr from-indigo-500 to-teal-400 opacity-20 rounded-full blur-[80px]"></div>
-            
-            <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNykiLz48L3N2Zz4=')] [mask-image:linear-gradient(to_bottom,white,transparent)]"></div>
-            
-            <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div class="flex-1 min-w-0">
-                    <p class="text-blue-300 font-bold tracking-[0.2em] text-xs uppercase mb-2 drop-shadow-sm">SIPRESMA ISI Yogyakarta</p>
-                    <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight truncate text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300">
-                        Selamat Datang, {{ Auth::user()->name }}
-                    </h1>
-                    <div class="mt-6 flex flex-wrap gap-3 text-xs font-medium">
-                        <span class="bg-white/5 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full flex items-center gap-2 shadow-inner">
-                            <i class="fas fa-id-card text-blue-400"></i> NIM: {{ Auth::user()->nim }}
-                        </span>
-                        <span class="bg-white/5 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full flex items-center gap-2 shadow-inner">
-                            <i class="fas fa-graduation-cap text-purple-400"></i> {{ Auth::user()->prodi }}
-                        </span>
-                    </div>
-                </div>
-                
-                <div class="hidden md:flex items-center justify-center w-28 h-28 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-full border border-white/10 shadow-[0_0_40px_rgba(59,130,246,0.15)] shrink-0 group hover:scale-105 transition-transform duration-500">
-                    <i class="fas fa-user-graduate text-5xl text-transparent bg-clip-text bg-gradient-to-br from-blue-200 to-purple-400 group-hover:from-white group-hover:to-blue-200 transition-colors"></i>
-                </div>
+    <div class="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-gradient-to-br from-blue-600 to-purple-600 opacity-20 rounded-full blur-[80px]"></div>
+    <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 bg-gradient-to-tr from-indigo-500 to-teal-400 opacity-20 rounded-full blur-[80px]"></div>
+    
+    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNykiLz48L3N2Zz4=')] [mask-image:linear-gradient(to_bottom,white,transparent)]"></div>
+    
+    <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="flex-1 min-w-0">
+            <p class="text-blue-300 font-semibold tracking-[0.15em] text-xs uppercase mb-2">SIPRESMA ISI Yogyakarta</p>
+            <h1 class="text-3xl sm:text-4xl font-bold tracking-normal text-white">
+                Selamat Datang, {{ Auth::user()->name }}
+            </h1>
+            <div class="mt-6 flex flex-wrap gap-3 text-sm font-medium">
+                <span class="bg-white/10 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full flex items-center gap-2">
+                    <i class="fas fa-id-card text-blue-400"></i> NIM: {{ Auth::user()->nim }}
+                </span>
+                <span class="bg-white/10 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full flex items-center gap-2">
+                    <i class="fas fa-graduation-cap text-purple-400"></i> {{ Auth::user()->prodi }}
+                </span>
             </div>
         </div>
+        
+        {{-- Logo Mahasiswa - Buku & Bintang Prestasi --}}
+        {{-- Gunungan Siluet --}}
+<div class="hidden md:flex items-center justify-center w-28 h-28 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-full border border-white/10 shadow-[0_0_40px_rgba(59,130,246,0.15)] shrink-0 group hover:scale-105 transition-transform duration-500">
+    <svg class="w-14 h-14" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2L20 9L18 18L12 22L6 18L4 9L12 2Z" fill="url(#grad-g4)" opacity="0.3"/>
+        <path d="M12 5L17 10L15.5 16L12 18.5L8.5 16L7 10L12 5Z" fill="url(#grad-g4)" opacity="0.6"/>
+        <circle cx="12" cy="9" r="2" fill="white" opacity="0.5"/>
+        <defs>
+            <linearGradient id="grad-g4" x1="4" y1="2" x2="20" y2="22">
+                <stop offset="0%" stop-color="#60a5fa"/>
+                <stop offset="50%" stop-color="#a78bfa"/>
+                <stop offset="100%" stop-color="#c084fc"/>
+            </linearGradient>
+        </defs>
+    </svg>
+</div>
+    </div>
+</div>
 
         <div class="relative bg-gradient-to-r from-indigo-50 to-white rounded-2xl shadow-sm border border-indigo-100 p-6 mb-8 flex items-center gap-5 hover:shadow-md transition-all duration-300 overflow-hidden group">
             <div class="absolute right-0 top-0 w-32 h-32 bg-indigo-100/50 rounded-bl-full opacity-50 group-hover:scale-110 transition-transform duration-500"></div>

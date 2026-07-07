@@ -11,17 +11,60 @@ class Kegiatan extends Model
         'master_kegiatan_id',
         'kegiatan',
         'judul_kegiatan',
-        'tanggal',
+        'tanggal_mulai',      // ⚡ UBAH: dari 'tanggal' ke 'tanggal_mulai'
+        'tanggal_selesai',    // ⚡ TAMBAH: 'tanggal_selesai'
         'kategori',
         'peran',
         'jumlah_anggota',
-        // ❌ HAPUS: 'status',
     ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'tanggal_mulai' => 'date',     // ⚡ TAMBAH: casting ke date
+        'tanggal_selesai' => 'date',   // ⚡ TAMBAH: casting ke date
+    ];
+
+    /**
+     * Get the formatted date range
+     *
+     * @return string
+     */
+    public function getTanggalRangeAttribute()
+    {
+        if ($this->tanggal_mulai && $this->tanggal_selesai) {
+            return $this->tanggal_mulai->format('d M Y') . ' - ' . $this->tanggal_selesai->format('d M Y');
+        }
+        
+        if ($this->tanggal_mulai) {
+            return $this->tanggal_mulai->format('d M Y');
+        }
+        
+        return '-';
+    }
+
+    /**
+     * Get the duration in days
+     *
+     * @return int|null
+     */
+    public function getDurasiHariAttribute()
+    {
+        if ($this->tanggal_mulai && $this->tanggal_selesai) {
+            return $this->tanggal_mulai->diffInDays($this->tanggal_selesai) + 1;
+        }
+        
+        return null;
+    }
 
     public function rpk()
     {
         return $this->belongsTo(Rpk::class);
     }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -37,12 +80,10 @@ class Kegiatan extends Model
         return $this->belongsTo(MasterKegiatan::class);
     }
 
-    // app/Models/Kegiatan.php
-
-public function anggota()
-{
-    return $this->belongsToMany(User::class, 'kegiatan_user')
-                ->withPivot('peran') // 🔧 PENTING: Ambil kolom peran
-                ->withTimestamps();
-}
+    public function anggota()
+    {
+        return $this->belongsToMany(User::class, 'kegiatan_user')
+                    ->withPivot('peran') // 🔧 PENTING: Ambil kolom peran
+                    ->withTimestamps();
+    }
 }

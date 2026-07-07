@@ -125,7 +125,7 @@
                                 <th class="px-6 py-4 text-center w-32">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200">
+                        <tbody id="tableBody" class="divide-y divide-gray-200">
                             @forelse($kegiatans as $index => $kegiatan)
                             <tr id="row-{{ $kegiatan->id }}" class="border-b hover:bg-blue-50 transition duration-150">
                                 <td class="px-6 py-4 text-center">
@@ -168,7 +168,7 @@
                                 </td>
                             </tr>
                             @empty
-                            <tr>
+                            <tr id="emptyRow">
                                 <td colspan="4" class="text-center py-10 text-gray-400">
                                     Belum ada data kegiatan
                                 </td>
@@ -210,7 +210,39 @@
         }
 
         // ============================================
-        // FUNGSI HAPUS KEGIATAN (AJAX)
+        // RENDER ROW KEGIATAN
+        // ============================================
+        function renderKegiatanRow(item) {
+            const statusBadge = item.status === 'aktif' 
+                ? '<span class="inline-flex items-center gap-1 min-w-[100px] justify-center bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold"><span class="w-2 h-2 bg-green-500 rounded-full"></span>Aktif</span>'
+                : '<span class="inline-flex items-center gap-1 min-w-[100px] justify-center bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold"><span class="w-2 h-2 bg-red-500 rounded-full"></span>Tidak Aktif</span>';
+
+            return `
+            <tr id="row-${item.id}" class="border-b hover:bg-blue-50 transition duration-150">
+                <td class="px-6 py-4 text-center">0</td>
+                <td class="px-6 py-4 font-medium text-gray-800">${item.nama_kegiatan}</td>
+                <td class="px-6 py-4 text-center">${statusBadge}</td>
+                <td class="px-6 py-4 text-center">
+                    <div class="flex justify-center gap-2">
+                        <button type="button" onclick="bukaModalEditMaster(this)"
+                            data-id="${item.id}" data-nama="${item.nama_kegiatan}" data-status="${item.status}"
+                            title="Edit Kegiatan"
+                            class="flex items-center justify-center w-9 h-9 bg-yellow-500 hover:bg-yellow-400 text-white rounded-lg transition shadow-sm">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                        <button type="button" onclick="hapusKegiatan(${item.id}, '${item.nama_kegiatan}')"
+                            title="Hapus Kegiatan"
+                            class="flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-500 text-white rounded-lg transition shadow-sm">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            `;
+        }
+
+        // ============================================
+        // FUNGSI HAPUS KEGIATAN (FULL AJAX)
         // ============================================
         window.hapusKegiatan = function(id, namaKegiatan) {
             Swal.fire({
@@ -249,6 +281,16 @@
                             
                             window.resetTableNumber();
                             
+                            // ⚡ Cek apakah tabel kosong
+                            const remainingRows = document.querySelectorAll('#tableBody tr[id]').length;
+                            if (remainingRows === 0) {
+                                document.getElementById('tableBody').innerHTML = `
+                                    <tr id="emptyRow">
+                                        <td colspan="4" class="text-center py-10 text-gray-400">Belum ada data kegiatan</td>
+                                    </tr>
+                                `;
+                            }
+                            
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Berhasil!',
@@ -256,9 +298,6 @@
                                 timer: 2000,
                                 showConfirmButton: false
                             });
-                            
-                            const remainingRows = document.querySelectorAll('tbody tr[id]').length;
-                            if (remainingRows === 0) location.reload();
                         } else {
                             Swal.fire({ icon: 'error', title: 'Gagal!', text: data.message || 'Gagal menghapus kegiatan' });
                         }
@@ -306,7 +345,7 @@
         };
 
         // ============================================
-        // FUNGSI TAMBAH KEGIATAN (AJAX)
+        // FUNGSI TAMBAH KEGIATAN (FULL AJAX)
         // ============================================
         window.bukaModalTambahMaster = function() {
             Swal.fire({
@@ -344,14 +383,21 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed && result.value) {
-                    Swal.fire({ icon: 'success', title: 'Berhasil!', text: result.value.message || 'Kegiatan berhasil ditambahkan', timer: 2000, showConfirmButton: false })
-                    .then(() => location.reload());
+                    // ⚡ FULL AJAX: Tambah row langsung
+                    const emptyRow = document.getElementById('emptyRow');
+                    if (emptyRow) emptyRow.remove();
+                    
+                    const tbody = document.getElementById('tableBody');
+                    tbody.insertAdjacentHTML('afterbegin', renderKegiatanRow(result.value.data || result.value.kegiatan));
+                    window.resetTableNumber();
+                    
+                    Swal.fire({ icon: 'success', title: 'Berhasil!', text: result.value.message || 'Kegiatan berhasil ditambahkan', timer: 2000, showConfirmButton: false });
                 }
             });
         };
 
         // ============================================
-        // FUNGSI EDIT KEGIATAN (AJAX)
+        // FUNGSI EDIT KEGIATAN (FULL AJAX)
         // ============================================
         window.bukaModalEditMaster = function(button) {
             const id = button.getAttribute('data-id');
@@ -401,17 +447,13 @@
                     const row = document.getElementById(`row-${id}`);
                     if (row) {
                         const fd = result.value.formData;
-                        
-                        // Update nama kegiatan (kolom index 1)
                         row.children[1].innerText = fd.nama_kegiatan;
                         
-                        // Update status (kolom index 2)
                         const statusBadge = fd.status === 'aktif' 
                             ? '<span class="inline-flex items-center gap-1 min-w-[100px] justify-center bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold"><span class="w-2 h-2 bg-green-500 rounded-full"></span>Aktif</span>'
                             : '<span class="inline-flex items-center gap-1 min-w-[100px] justify-center bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold"><span class="w-2 h-2 bg-red-500 rounded-full"></span>Tidak Aktif</span>';
                         row.children[2].innerHTML = statusBadge;
                         
-                        // Update data attributes
                         button.setAttribute('data-nama', fd.nama_kegiatan);
                         button.setAttribute('data-status', fd.status);
                     }
@@ -425,7 +467,7 @@
         // RESET NOMOR TABEL
         // ============================================
         window.resetTableNumber = function() {
-            const rows = document.querySelectorAll('tbody tr[id]');
+            const rows = document.querySelectorAll('#tableBody tr[id]');
             let counter = 1;
             rows.forEach((row) => { 
                 const firstCell = row.querySelector('td:first-child'); 

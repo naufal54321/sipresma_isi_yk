@@ -3,7 +3,6 @@
 
 @php
     \Carbon\Carbon::setLocale('id');
-    // Trik: Mengambil data prodi yang aktif langsung dari model
     $programStudis = \App\Models\ProgramStudi::where('status', 'aktif')
                         ->orderBy('nama_prodi', 'asc')
                         ->get();
@@ -17,7 +16,6 @@
             <p class="text-gray-500 mt-1">Kelola seluruh pengguna SIPRESMA</p>
         </div>
         
-
         <div class="bg-white overflow-hidden shadow-xl rounded-2xl">
 
     <div class="p-6 border-b border-gray-100">
@@ -83,7 +81,11 @@
                             <th class="px-4 py-4 text-center">No</th>
                             <th class="px-4 py-4">Nama</th>
                             <th class="px-4 py-4">NIM / NIP</th>
-                            <th class="px-4 py-4">Program Studi / Fakultas</th>
+                            <th class="px-4 py-4">Program Studi</th>
+                            {{-- ⚡ KOLOM ANGKATAN --}}
+                            <th class="px-4 py-4 text-center">Angkatan</th>
+                            {{-- ⚡ KOLOM SEMESTER --}}
+                            <th class="px-4 py-4 text-center">Semester</th>
                             <th class="px-4 py-4">Email</th>
                             <th class="px-4 py-4 text-center">Role</th>
                             <th class="px-4 py-4">Tanggal Daftar</th>
@@ -92,16 +94,18 @@
                     </thead>
 
                     <tbody id="userTable">
-                        @forelse ($users->where('status', 'aktif') as $user)
+                        @forelse ($users as $user)
                         <tr id="row-{{ $user->id }}" class="border-b hover:bg-blue-50 transition duration-200">
                             <td class="px-4 py-4 text-center font-semibold text-gray-800">
                                 {{ method_exists($users, 'firstItem') ? $users->firstItem() + $loop->index : $loop->iteration }}
                             </td>
                             <td class="px-4 py-4 font-semibold text-gray-800">{{ $user->name }}</td>
                             <td class="px-4 py-4">{{ $user->nim }}</td>
-                            <td class="px-4 py-4">
-                                {{ $user->prodi ?: '-' }}
-                            </td>
+                            <td class="px-4 py-4">{{ $user->prodi ?: '-' }}</td>
+                            {{-- ⚡ ANGKATAN --}}
+                            <td class="px-4 py-4 text-center">{{ $user->angkatan ?: '-' }}</td>
+                            {{-- ⚡ SEMESTER --}}
+                            <td class="px-4 py-4 text-center">{{ $user->semester ?: '-' }}</td>
                             <td class="px-4 py-4">{{ $user->email }}</td>
                             <td class="px-4 py-4 text-center">
                                 @foreach ($user->roles as $role)
@@ -136,7 +140,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="8" class="text-center py-10 text-gray-400">Belum ada pengguna</td>
+                            <td colspan="10" class="text-center py-10 text-gray-400">Belum ada pengguna</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -169,6 +173,18 @@ function getProdiOptions(selectedValue) {
     return options;
 }
 
+// ⚡ FUNGSI HELPER: GENERATE DROPDOWN SEMESTER
+function getSemesterOptions(selectedValue) {
+    let selected = selectedValue || '';
+    let options = '<option value="" disabled ' + (!selected ? 'selected' : '') + '>Pilih Semester</option>';
+    
+    for (let i = 1; i <= 14; i++) {
+        options += '<option value="' + i + '" ' + (selected == i ? 'selected' : '') + '>Semester ' + i + '</option>';
+    }
+
+    return options;
+}
+
 // =============================================
 // RENDER USER
 // =============================================
@@ -180,9 +196,11 @@ function renderUser(user) {
 
     let roleColor = 'bg-blue-100 text-blue-700';
     if (roleName === 'Admin') roleColor = 'bg-red-100 text-red-700';
-    if (roleName === 'Dosen') roleColor = 'bg-green-100 text-green-700';
+    if (roleName === 'Dosen') roleColor = 'bg-purple-100 text-purple-700';
 
     let prodiName = user.prodi ? user.prodi : '-';
+    let angkatan = user.angkatan ? user.angkatan : '-';
+    let semester = user.semester ? user.semester : '-';
 
     return `
     <tr id="row-${user.id}" class="border-b hover:bg-blue-50 transition duration-200">
@@ -190,6 +208,8 @@ function renderUser(user) {
         <td class="px-4 py-4 font-semibold text-gray-800">${user.name}</td>
         <td class="px-4 py-4">${user.nim}</td>
         <td class="px-4 py-4">${prodiName}</td>
+        <td class="px-4 py-4 text-center">${angkatan}</td>
+        <td class="px-4 py-4 text-center">${semester}</td>
         <td class="px-4 py-4">${user.email}</td>
         <td class="px-4 py-4 text-center">
             <span class="${roleColor} px-3 py-1 rounded-full text-xs font-semibold">${roleName}</span>
@@ -212,9 +232,11 @@ function renderUser(user) {
 }
 
 // =============================================
-// ADD USER (DESAIN AWAL + FIX SYNTAX)
+// ADD USER
 // =============================================
 function addUser() {
+    const currentYear = new Date().getFullYear();
+    
     Swal.fire({
         title: 'Tambahkan Pengguna',
         width: '600px',
@@ -270,6 +292,7 @@ function addUser() {
                 border: 1px solid #ccc !important; border-radius: 4px !important;
                 padding: 8px 25px !important; font-size: 14px !important;
             }
+            .hidden-row { display: none; }
         </style>
 
         <div class="form-row">
@@ -300,6 +323,26 @@ function addUser() {
             <div class="input-wrapper" id="prodiWrapper">
                 <select id="prodi" class="custom-input">
                     ${getProdiOptions()}
+                </select>
+            </div>
+        </div>
+        {{-- ⚡ ANGKATAN & SEMESTER (untuk Mahasiswa) --}}
+        <div class="form-row mahasiswa-only">
+            <label>Angkatan <span>*</span></label>
+            <div class="input-wrapper">
+                <select id="angkatan" class="custom-input">
+                    <option value="" disabled selected>Pilih Angkatan</option>
+                    ${Array.from({length: currentYear - 2014}, (_, i) => currentYear - i).map(year => 
+                        `<option value="${year}">${year}</option>`
+                    ).join('')}
+                </select>
+            </div>
+        </div>
+        <div class="form-row mahasiswa-only">
+            <label>Semester <span>*</span></label>
+            <div class="input-wrapper">
+                <select id="semester" class="custom-input">
+                    ${getSemesterOptions()}
                 </select>
             </div>
         </div>
@@ -337,6 +380,21 @@ function addUser() {
 
             const roleSelect = document.getElementById('role');
             const prodiWrapper = document.getElementById('prodiWrapper');
+            const mahasiswaRows = document.querySelectorAll('.mahasiswa-only');
+
+            // ⚡ Toggle tampilan angkatan/semester & prodi berdasarkan role
+            function toggleMahasiswaFields() {
+                const isMahasiswa = roleSelect.value === 'Mahasiswa';
+                mahasiswaRows.forEach(row => {
+                    row.style.display = isMahasiswa ? 'flex' : 'none';
+                });
+                
+                // Set required untuk input angkatan/semester
+                const angkatanInput = document.getElementById('angkatan');
+                const semesterInput = document.getElementById('semester');
+                if (angkatanInput) angkatanInput.required = isMahasiswa;
+                if (semesterInput) semesterInput.required = isMahasiswa;
+            }
 
             if (roleSelect && prodiWrapper) {
                 roleSelect.addEventListener('change', function () {
@@ -345,18 +403,33 @@ function addUser() {
                     } else {
                         prodiWrapper.innerHTML = '<select id="prodi" class="custom-input">' + getProdiOptions() + '</select>';
                     }
+                    toggleMahasiswaFields();
                 });
+                
+                // Initial state
+                toggleMahasiswaFields();
             }
         },
 
-        preConfirm: () => ({
-            name:     document.getElementById('name').value,
-            nim:      document.getElementById('nim').value,
-            prodi:    document.getElementById('prodi').value,
-            email:    document.getElementById('email').value,
-            password: document.getElementById('password').value,
-            role:     document.getElementById('role').value
-        })
+        preConfirm: () => {
+            const role = document.getElementById('role').value;
+            const data = {
+                name:     document.getElementById('name').value,
+                nim:      document.getElementById('nim').value,
+                prodi:    document.getElementById('prodi').value,
+                email:    document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                role:     role
+            };
+            
+            // ⚡ Tambah angkatan & semester jika role Mahasiswa
+            if (role === 'Mahasiswa') {
+                data.angkatan = document.getElementById('angkatan').value;
+                data.semester = document.getElementById('semester').value;
+            }
+            
+            return data;
+        }
 
     }).then(result => {
         if (!result.isConfirmed) return;
@@ -394,9 +467,11 @@ function addUser() {
 }
 
 // =============================================
-// EDIT USER (DESAIN AWAL + FIX SYNTAX + FORMDATA)
+// EDIT USER
 // =============================================
 function editUser(id) {
+    const currentYear = new Date().getFullYear();
+    
     fetch(`/admin/users/${id}`, {
         headers: { 'Accept': 'application/json' }
     })
@@ -414,6 +489,10 @@ function editUser(id) {
         let prodiHTML = isManualInput 
             ? `<input id="prodi" type="text" class="custom-input" value="${user.prodi || ''}" placeholder="Masukkan Program Studi / Fakultas">`
             : `<select id="prodi" class="custom-input">${getProdiOptions(user.prodi)}</select>`;
+
+        // ⚡ Angkatan & Semester
+        let angkatanValue = user.angkatan || '';
+        let semesterValue = user.semester || '';
 
         Swal.fire({
             title: 'Edit Data Pengguna',
@@ -492,6 +571,27 @@ function editUser(id) {
                     ${prodiHTML}
                 </div>
             </div>
+            {{-- ⚡ ANGKATAN --}}
+            <div class="form-row mahasiswa-only" style="display: ${currentRole === 'Mahasiswa' ? 'flex' : 'none'};">
+                <label>Angkatan <span>*</span></label>
+                <div class="input-wrapper">
+                    <select id="angkatan" class="custom-input">
+                        <option value="" disabled ${!angkatanValue ? 'selected' : ''}>Pilih Angkatan</option>
+                        ${Array.from({length: currentYear - 2014}, (_, i) => currentYear - i).map(year => 
+                            `<option value="${year}" ${angkatanValue == year ? 'selected' : ''}>${year}</option>`
+                        ).join('')}
+                    </select>
+                </div>
+            </div>
+            {{-- ⚡ SEMESTER --}}
+            <div class="form-row mahasiswa-only" style="display: ${currentRole === 'Mahasiswa' ? 'flex' : 'none'};">
+                <label>Semester <span>*</span></label>
+                <div class="input-wrapper">
+                    <select id="semester" class="custom-input">
+                        ${getSemesterOptions(semesterValue)}
+                    </select>
+                </div>
+            </div>
             <div class="form-row">
                 <label>Email <span>*</span></label>
                 <div class="input-wrapper">
@@ -503,24 +603,45 @@ function editUser(id) {
             didOpen: () => {
                 const roleSelect = document.getElementById('role');
                 const prodiWrapper = document.getElementById('prodiWrapper');
+                const mahasiswaRows = document.querySelectorAll('.mahasiswa-only');
+
+                function toggleMahasiswaFields() {
+                    const isMahasiswa = roleSelect.value === 'Mahasiswa';
+                    mahasiswaRows.forEach(row => {
+                        row.style.display = isMahasiswa ? 'flex' : 'none';
+                    });
+                }
+
                 if (roleSelect && prodiWrapper) {
                     roleSelect.addEventListener('change', function () {
                         if (this.value === 'Admin' || this.value === 'Dosen') {
                             prodiWrapper.innerHTML = `<input id="prodi" type="text" class="custom-input" value="${user.prodi || ''}" placeholder="Masukkan Program Studi / Fakultas secara manual">`;
                         } else {
-                            prodiWrapper.innerHTML = `<select id="prodi" class="custom-input">${getProdiOptions()}</select>`;
+                            prodiWrapper.innerHTML = `<select id="prodi" class="custom-input">${getProdiOptions(user.prodi)}</select>`;
                         }
+                        toggleMahasiswaFields();
                     });
                 }
             },
 
-            preConfirm: () => ({
-                name:  document.getElementById('name').value,
-                nim:   document.getElementById('nim').value,
-                prodi: document.getElementById('prodi').value,
-                email: document.getElementById('email').value,
-                role:  document.getElementById('role').value
-            })
+            preConfirm: () => {
+                const role = document.getElementById('role').value;
+                const data = {
+                    name:  document.getElementById('name').value,
+                    nim:   document.getElementById('nim').value,
+                    prodi: document.getElementById('prodi').value,
+                    email: document.getElementById('email').value,
+                    role:  role
+                };
+                
+                // ⚡ Tambah angkatan & semester jika role Mahasiswa
+                if (role === 'Mahasiswa') {
+                    data.angkatan = document.getElementById('angkatan').value;
+                    data.semester = document.getElementById('semester').value;
+                }
+                
+                return data;
+            }
 
         }).then(result => {
             if (!result.isConfirmed) return;
@@ -532,6 +653,12 @@ function editUser(id) {
             formData.append('prodi', result.value.prodi || '');
             formData.append('email', result.value.email);
             formData.append('role', result.value.role);
+            
+            // ⚡ Tambah angkatan & semester
+            if (result.value.role === 'Mahasiswa') {
+                formData.append('angkatan', result.value.angkatan || '');
+                formData.append('semester', result.value.semester || '');
+            }
 
             fetch(`/admin/users/${id}`, {
                 method: 'POST', 
@@ -555,14 +682,17 @@ function editUser(id) {
                     row.children[1].innerText = result.value.name;
                     row.children[2].innerText = result.value.nim;
                     row.children[3].innerText = result.value.prodi || '-';
-                    row.children[4].innerText = result.value.email;
+                    // ⚡ Update angkatan & semester
+                    row.children[4].innerText = result.value.role === 'Mahasiswa' ? (result.value.angkatan || '-') : '-';
+                    row.children[5].innerText = result.value.role === 'Mahasiswa' ? (result.value.semester || '-') : '-';
+                    row.children[6].innerText = result.value.email;
 
                     let roleName  = result.value.role;
                     let roleColor = 'bg-blue-100 text-blue-700';
                     if (roleName === 'Admin') roleColor = 'bg-red-100 text-red-700';
                     if (roleName === 'Dosen') roleColor = 'bg-purple-100 text-purple-700';
 
-                    row.children[5].innerHTML = `<span class="${roleColor} px-3 py-1 rounded-full text-xs font-semibold">${roleName}</span>`;
+                    row.children[7].innerHTML = `<span class="${roleColor} px-3 py-1 rounded-full text-xs font-semibold">${roleName}</span>`;
                 }
 
                 Swal.fire('Sukses', 'User berhasil diupdate', 'success');

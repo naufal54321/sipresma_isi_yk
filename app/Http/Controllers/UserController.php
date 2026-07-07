@@ -24,32 +24,34 @@ class UserController extends Controller
     |-----------------------------------
     */
     public function index(Request $request)
-{
-    $query = User::with('roles')
-        ->where('status', 'aktif')  // Hanya aktif
-        ->whereNotNull('status')     // Tidak null
-        ->where('status', '!=', 'pending') // Bukan pending
-        ->where('status', '!=', 'ditolak') // Bukan ditolak
-        ->latest();
+    {
+        $query = User::with('roles')
+            ->where('status', 'aktif')
+            ->whereNotNull('status')
+            ->where('status', '!=', 'pending')
+            ->where('status', '!=', 'ditolak')
+            ->whereNotNull('email_verified_at')
+            ->latest();
 
-    if ($request->filled('search')) {
-        $search = $request->search;
-        $query->where(function ($q) use ($search) {
-            $q->where('name', 'like', '%' . $search . '%')
-              ->orWhere('nim', 'like', '%' . $search . '%')
-              ->orWhere('email', 'like', '%' . $search . '%')
-              ->orWhere('prodi', 'like', '%' . $search . '%');
-        });
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('nim', 'like', '%' . $search . '%')
+                    ->orWhere('email', 'like', '%' . $search . '%')
+                    ->orWhere('prodi', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($request->filled('role')) {
+            $query->role($request->role);
+        }
+
+        $users = $query->paginate(10)->appends($request->all());
+
+        return view('admin.daftar_pengguna.index', compact('users'));
     }
 
-    if ($request->filled('role')) {
-        $query->role($request->role);
-    }
-
-    $users = $query->paginate(10)->appends($request->all());
-
-    return view('admin.dashboard', compact('users'));
-}
 
     /*
     |-----------------------------------
@@ -58,14 +60,23 @@ class UserController extends Controller
     */
     public function store(Request $request)
     {
-        $request->validate([
+        $rules = [
             'name' => 'required',
             'nim' => 'required|unique:users,nim',
             'prodi' => 'nullable',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6',
             'role' => 'required',
-        ]);
+        ];
+
+        // ⚡ Validasi tambahan untuk Mahasiswa
+        if ($request->role === 'Mahasiswa') {
+            $rules['prodi'] = 'required';
+            $rules['angkatan'] = 'required|string|max:4';
+            $rules['semester'] = 'required|string|max:2';
+        }
+
+        $request->validate($rules);
 
         if ($request->role === 'Mahasiswa' && empty($request->prodi)) {
             return response()->json([
@@ -77,6 +88,8 @@ class UserController extends Controller
             'name' => $request->name,
             'nim' => $request->nim,
             'prodi' => $request->prodi,
+            'angkatan' => $request->angkatan,        // ⚡ TAMBAH
+            'semester' => $request->semester,        // ⚡ TAMBAH
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'email_verified_at' => now(),
@@ -111,13 +124,22 @@ class UserController extends Controller
     */
     public function update(Request $request, User $user)
     {
-        $request->validate([
+        $rules = [
             'name' => 'required',
             'nim' => 'required',
             'prodi' => 'nullable',
             'email' => 'required|email',
             'role' => 'required',
-        ]);
+        ];
+
+        // ⚡ Validasi tambahan untuk Mahasiswa
+        if ($request->role === 'Mahasiswa') {
+            $rules['prodi'] = 'required';
+            $rules['angkatan'] = 'required|string|max:4';
+            $rules['semester'] = 'required|string|max:2';
+        }
+
+        $request->validate($rules);
 
         if ($request->role === 'Mahasiswa' && empty($request->prodi)) {
             return response()->json([
@@ -125,12 +147,25 @@ class UserController extends Controller
             ], 422);
         }
 
-        $user->update([
+        // ⚡ Update data termasuk angkatan & semester
+        $updateData = [
             'name' => $request->name,
             'nim' => $request->nim,
             'prodi' => $request->prodi,
             'email' => $request->email,
-        ]);
+        ];
+
+        // ⚡ Jika role Mahasiswa, update angkatan & semester
+        if ($request->role === 'Mahasiswa') {
+            $updateData['angkatan'] = $request->angkatan;
+            $updateData['semester'] = $request->semester;
+        } else {
+            // Jika bukan Mahasiswa, kosongkan
+            $updateData['angkatan'] = null;
+            $updateData['semester'] = null;
+        }
+
+        $user->update($updateData);
 
         $user->syncRoles([$request->role]);
 
@@ -163,7 +198,6 @@ class UserController extends Controller
     {
         $dosen = User::role('Dosen')->get();
 
-        // 🔧 Hanya mahasiswa dengan status 'aktif'
         $query = User::role('Mahasiswa')
             ->where('status', 'aktif')
             ->with('dosenPembimbing');
@@ -185,25 +219,43 @@ class UserController extends Controller
     {
         $request->validate([
             'mahasiswa_id' => 'required|exists:users,id',
-            'dosen_id'     => 'nullable|exists:users,id'
-        ], [
-            'mahasiswa_id.required' => 'Harap pilih mahasiswa terlebih dahulu.',
+            'dosen_id'     => 'nullable'  // ⚡ Hapus exists, validasi manual
         ]);
 
+        // ⚡ Validasi manual untuk dosen_id
+        if ($request->dosen_id && !User::where('id', $request->dosen_id)->exists()) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Dosen tidak ditemukan'
+                ], 422);
+            }
+            return back()->withErrors(['dosen_id' => 'Dosen tidak ditemukan']);
+        }
+
         $mahasiswa = User::findOrFail($request->mahasiswa_id);
-        $mahasiswa->dosen_pembimbing_id = $request->dosen_id;
+        $mahasiswa->dosen_pembimbing_id = $request->dosen_id ?: null;  // ⚡ '' jadi null
         $mahasiswa->save();
 
         $pesan = $request->dosen_id
             ? 'Dosen pembimbing berhasil diatur.'
             : 'Dosen pembimbing berhasil dihapus.';
 
+        // ⚡ Return JSON untuk AJAX request
+        if ($request->ajax() || $request->wantsJson()) {
+            $dosen = $request->dosen_id ? User::find($request->dosen_id) : null;
+            return response()->json([
+                'success' => true,
+                'message' => $pesan,
+                'dosen_name' => $dosen->name ?? null
+            ]);
+        }
+
         return back()->with('success', $pesan);
     }
 
     public function getUsersData()
     {
-        // 🔧 Hanya user aktif
         $users = User::where('status', 'aktif')->orderBy('created_at', 'desc')->get();
         return response()->json($users);
     }

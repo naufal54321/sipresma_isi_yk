@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\MasterKegiatan;
 
-
 class RpkController extends Controller
 {
     /**
@@ -24,19 +23,15 @@ class RpkController extends Controller
         // Jika mahasiswa, tampilkan RPK miliknya DAN RPK di mana dia anggota
         if (Auth::user()->hasRole('Mahasiswa')) {
             $userId = Auth::id();
-            
-            $query->where(function($q) use ($userId) {
-                // RPK milik sendiri
+
+            $query->where(function ($q) use ($userId) {
                 $q->where('user_id', $userId);
-                
-                // 🔧 ATAU RPK di mana user adalah anggota
-                $q->orWhereHas('kegiatans.anggota', function($subQ) use ($userId) {
+                $q->orWhereHas('kegiatans.anggota', function ($subQ) use ($userId) {
                     $subQ->where('user_id', $userId);
                 });
             });
         }
 
-        // Filter
         if ($filterTahun) {
             $query->where('tahun', $filterTahun);
         }
@@ -60,12 +55,11 @@ class RpkController extends Controller
     public function create()
     {
         $masterKegiatans = MasterKegiatan::where('status', 'aktif')->get();
-
         return view('rpks.create', compact('masterKegiatans'));
     }
 
     /**
-     * Simpan RPK
+     * Simpan RPK (SUPPORT AJAX)
      */
     public function store(Request $request)
     {
@@ -74,78 +68,77 @@ class RpkController extends Controller
             'semester' => 'required',
         ]);
 
-        Rpk::create([
+        $rpk = Rpk::create([
             'user_id' => Auth::id(),
             'tahun' => $request->tahun,
             'semester' => $request->semester,
             'status' => 'draft',
         ]);
 
-        return redirect()
-            ->route('rpks.index')
-            ->with('success', 'RPK berhasil dibuat');
+        // ⚡ Return JSON untuk AJAX
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'RPK berhasil dibuat',
+                'data' => $rpk->load('user')
+            ]);
+        }
+
+        return redirect()->route('rpks.index')->with('success', 'RPK berhasil dibuat');
     }
 
     /**
      * Detail RPK + daftar kegiatan
      */
-    // app/Http/Controllers/RpkController.php
+    public function show(Rpk $rpk)
+    {
+        $user = Auth::user();
 
-public function show(Rpk $rpk)
-{
-    $user = Auth::user();
-    
-    // Admin & Dosen bisa lihat semua
-    if ($user->hasRole(['Admin', 'Dosen'])) {
-        $rpk->load(['user', 'kegiatans.masterKegiatan.anggota']);
+        if ($user->hasRole(['Admin', 'Dosen'])) {
+            $rpk->load(['user', 'kegiatans.masterKegiatan.anggota']);
+            $masterKegiatans = MasterKegiatan::where('status', 'aktif')->get();
+            $isPemilik = false;
+            $isAnggota = false;
+
+            return view('rpks.show', compact('rpk', 'masterKegiatans', 'isPemilik', 'isAnggota'));
+        }
+
+        $isPemilik = $rpk->user_id == $user->id;
+        $isAnggota = !$isPemilik && $rpk->kegiatans()
+            ->whereHas('anggota', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            })->exists();
+
+        if (!$isPemilik && !$isAnggota) {
+            abort(403, 'Anda tidak memiliki akses ke RPK ini.');
+        }
+
+        $rpk->load([
+            'user',
+            'kegiatans' => function ($q) use ($user, $isAnggota) {
+                if ($isAnggota) {
+                    $q->whereHas('anggota', function ($subQ) use ($user) {
+                        $subQ->where('user_id', $user->id);
+                    });
+                }
+                $q->with(['masterKegiatan', 'anggota']);
+            }
+        ]);
+
         $masterKegiatans = MasterKegiatan::where('status', 'aktif')->get();
-        $isPemilik = false;
-        $isAnggota = false;
-        
+
         return view('rpks.show', compact('rpk', 'masterKegiatans', 'isPemilik', 'isAnggota'));
     }
-    
-    // Cek peran
-    $isPemilik = $rpk->user_id == $user->id;
-    $isAnggota = !$isPemilik && $rpk->kegiatans()
-        ->whereHas('anggota', function($q) use ($user) {
-            $q->where('user_id', $user->id);
-        })->exists();
-    
-    if (!$isPemilik && !$isAnggota) {
-        abort(403, 'Anda tidak memiliki akses ke RPK ini.');
-    }
-
-    // Load data
-    $rpk->load([
-        'user',
-        'kegiatans' => function($q) use ($user, $isAnggota) {
-            if ($isAnggota) {
-                // 🔧 Anggota hanya lihat kegiatan kelompoknya
-                $q->whereHas('anggota', function($subQ) use ($user) {
-                    $subQ->where('user_id', $user->id);
-                });
-            }
-            $q->with(['masterKegiatan', 'anggota']);
-        }
-    ]);
-    
-    $masterKegiatans = MasterKegiatan::where('status', 'aktif')->get();
-
-    return view('rpks.show', compact('rpk', 'masterKegiatans', 'isPemilik', 'isAnggota'));
-}
 
     /**
      * Form edit RPK
      */
     public function edit(Rpk $rpk)
     {
-        // 🔧 Hanya pemilik yang bisa edit
         if (Auth::user()->hasRole('Mahasiswa') && $rpk->user_id != Auth::id()) {
             abort(403, 'Anda tidak dapat mengedit RPK ini.');
         }
-        
-        // 🔧 Hanya bisa edit jika status draft atau ditolak
+
         if (!in_array($rpk->status, ['draft', 'ditolak'])) {
             return back()->with('error', 'RPK yang sudah diajukan/disetujui tidak dapat diedit.');
         }
@@ -158,7 +151,6 @@ public function show(Rpk $rpk)
      */
     public function update(Request $request, Rpk $rpk)
     {
-        // 🔧 Hanya pemilik yang bisa update
         if (Auth::user()->hasRole('Mahasiswa') && $rpk->user_id != Auth::id()) {
             abort(403, 'Anda tidak dapat mengupdate RPK ini.');
         }
@@ -173,28 +165,38 @@ public function show(Rpk $rpk)
             'tahun' => $request->tahun,
             'semester' => $request->semester,
             'kategori' => $request->kategori,
-            'status' => 'draft', // 🔧 Kembali ke draft jika diupdate
+            'status' => 'draft',
         ]);
 
-        return redirect()
-            ->route('rpks.index')
-            ->with('success', 'RPK berhasil diupdate');
+        return redirect()->route('rpks.index')->with('success', 'RPK berhasil diupdate');
     }
 
     /**
-     * Hapus RPK
+     * Hapus RPK (SUPPORT AJAX)
      */
     public function destroy(Rpk $rpk)
     {
-        // 🔧 Hanya pemilik yang bisa hapus
+        // Cek izin
         if (Auth::user()->hasRole('Mahasiswa') && $rpk->user_id != Auth::id()) {
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak dapat menghapus RPK ini.'
+                ], 403);
+            }
             abort(403, 'Anda tidak dapat menghapus RPK ini.');
         }
 
         $rpk->delete();
 
-        return redirect()
-            ->route('rpks.index')
-            ->with('success', 'RPK berhasil dihapus');
+        // ⚡ Return JSON untuk AJAX
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'RPK berhasil dihapus'
+            ]);
+        }
+
+        return redirect()->route('rpks.index')->with('success', 'RPK berhasil dihapus');
     }
 }

@@ -8,28 +8,43 @@
 <div class="max-w-8xl mx-auto py-6">
 
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <h1 class="text-3xl font-bold text-gray-900">Detail SPK</h1>
+        <h1 class="text-3xl font-bold text-gray-900">Detail SPK (Admin)</h1>
 
         <div class="flex items-center gap-3">
-            <a href="{{ route('spks.index') }}"
-                class="inline-flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition">
+            <a href="{{ route('admin.spk.index') }}"
+               class="inline-flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
                 Kembali
             </a>
 
-           
-
-            {{-- Tombol Verifikasi untuk Dosen/Admin --}}
-            @if(Auth::user()->hasRole(['Admin', 'Dosen']) && in_array($spk->status, ['draft', 'diajukan']))
-                <button onclick="approveSpk({{ $spk->id }})"
-                        class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
-                    <i class="fas fa-check mr-1"></i> Setujui
+            {{-- ⚡ TOMBOL TAMBAH POIN - MUNCUL JIKA SPK DISETUJUI & BELUM ADA POIN --}}
+            @if($spk->status === 'disetujui' && !$spk->hasPoin())
+                <button onclick="tambahPoinSweetAlert({{ $spk->id }}, '{{ addslashes($spk->judul_kegiatan) }}')"
+                        class="inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Tambah Poin
                 </button>
+            @endif
+
+            @if(in_array($spk->status, ['draft', 'diajukan']))
+                <button onclick="approveSpk({{ $spk->id }})"
+                        class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    SPK Disetujui
+                </button>
+
                 <button onclick="rejectSpk({{ $spk->id }})"
-                        class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
-                    <i class="fas fa-times mr-1"></i> Tolak
+                        class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    SPK Ditolak
                 </button>
             @endif
         </div>
@@ -80,10 +95,8 @@
                         <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->rpk->tahun ?? '-' }} - {{ $spk->rpk->semester ?? '-' }}</span>
                     </div>
 
-                    
-
                     <div class="grid grid-cols-3 gap-2">
-                        <span class="text-sm font-bold text-gray-600">URL</span>
+                        <span class="text-sm font-bold text-gray-600">URL Kegiatan</span>
                         <span class="col-span-2 text-sm text-blue-600 break-words">
                             @if($spk->url_kegiatan)
                                 <a href="{{ $spk->url_kegiatan }}" target="_blank" class="hover:underline">Buka Tautan</a>
@@ -111,7 +124,7 @@
                         <span class="col-span-2 text-sm text-gray-800">{{ $spk->keterangan }}</span>
                     </div>
 
-                     <div class="grid grid-cols-3 gap-2">
+                    <div class="grid grid-cols-3 gap-2">
                         <span class="text-sm font-bold text-gray-600">Status</span>
                         <div class="mt-1">
                             @if($spk->status == 'draft')
@@ -124,13 +137,56 @@
                         </div>
                     </div>
 
+                    {{-- ⚡ INFORMASI POIN --}}
+                    <div class="pt-3 border-t border-gray-200">
+                        <span class="text-sm font-bold text-gray-600">Poin</span>
+                        <div class="mt-2">
+                            @if($spk->hasPoin())
+                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-2xl font-bold text-yellow-600">{{ $spk->poin }}</span>
+                                        <span class="text-sm text-gray-600">Poin</span>
+                                    </div>
+                                    @if($spk->poin_added_at)
+                                    <p class="text-xs text-gray-500 mt-2">
+                                        Ditambahkan oleh: {{ $spk->poinAddedBy->name ?? 'Admin' }}<br>
+                                        Tanggal: {{ $spk->poin_added_at->format('d/m/Y H:i') }}
+                                    </p>
+                                    @endif
+                                </div>
+                            @elseif($spk->status === 'disetujui')
+                                <button onclick="tambahPoinSweetAlert({{ $spk->id }}, '{{ addslashes($spk->judul_kegiatan) }}')"
+                                        class="w-full bg-yellow-500 hover:bg-yellow-400 text-white px-4 py-2 rounded-lg text-sm font-semibold transition cursor-pointer">
+                                    <i class="fas fa-plus-circle mr-1"></i> Tambah Poin
+                                </button>
+                            @else
+                                <span class="text-sm text-gray-400">- (SPK belum disetujui)</span>
+                            @endif
+                        </div>
+                    </div>
+
                     @if($spk->catatan_dosen)
                     <div class="pt-3 border-t border-gray-200">
-                        <span class="text-sm font-bold text-gray-600">Catatan Dosen</span>
+                        <span class="text-sm font-bold text-gray-600">Catatan</span>
                         <p class="text-sm text-red-600 mt-1 bg-red-50 p-2 rounded-lg">{{ $spk->catatan_dosen }}</p>
                     </div>
                     @endif
                 </div>
+            </div>
+
+            {{-- Info Admin --}}
+            <div class="mt-6 bg-blue-50 border border-blue-100 rounded-xl p-6 shadow-sm">
+                <h3 class="text-xl text-blue-800 mb-3 flex items-center gap-2">
+                    <i class="fas fa-info-circle"></i> Info Admin
+                </h3>
+                <p class="text-sm text-blue-700 leading-relaxed mb-4">
+                    Anda login sebagai <strong>Admin</strong>. Keputusan persetujuan atau penolakan di halaman ini bersifat mutlak dan akan menimpa keputusan Dosen Pembimbing.
+                </p>
+                <div class="border-t border-blue-200/60 my-4"></div>
+                <p class="text-sm text-red-500 leading-relaxed">
+                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                    Pastikan data sudah sesuai sebelum melakukan validasi.
+                </p>
             </div>
         </div>
 
@@ -152,7 +208,7 @@
 
                 <div class="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar scroll-smooth flex-grow" id="tab-content-container">
                     
-                        {{-- TAB 1: DESKRIPSI --}}
+                    {{-- TAB 1: DESKRIPSI --}}
                     <div class="w-full flex-shrink-0 snap-start p-6">
                         {{-- Header Section --}}
                         <div class="flex items-center gap-3 mb-6">
@@ -360,7 +416,7 @@
                         @endif
                     </div>
 
-                     {{-- TAB 2: DOKUMEN --}}
+                    {{-- TAB 2: DOKUMEN --}}
                     <div class="w-full flex-shrink-0 snap-start p-6">
                         <h3 class="text-gray-800 font-extrabold mb-5 flex items-center gap-2">
                             <span class="p-1.5 rounded-lg bg-orange-50 text-orange-500">
@@ -535,9 +591,135 @@
 
 </div>
 
+{{-- ⚡ SWEET ALERT --}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
+// ⚡ FUNGSI TAMBAH POIN DENGAN SWEET ALERT
+window.tambahPoinSweetAlert = function(spkId, judulKegiatan) {
+    Swal.fire({
+        title: 'Tambah Poin SPK',
+        html: `
+            <div class="text-left">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                    <p class="text-sm text-blue-800">
+                        <strong>Judul Kegiatan:</strong><br>
+                        ${judulKegiatan}
+                    </p>
+                </div>
+                <div class="mb-4">
+                    <label for="swal-poin" class="block text-sm font-bold text-gray-700 mb-2">
+                        Jumlah Poin <span class="text-red-500">*</span>
+                    </label>
+                    <div class="flex rounded-lg shadow-sm">
+                        <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-yellow-50 text-yellow-600">
+                            
+                        </span>
+                        <input type="number" 
+                               id="swal-poin" 
+                               class="flex-1 block w-full rounded-none rounded-r-lg border border-gray-300 px-4 py-2 text-gray-900 focus:ring-yellow-500 focus:border-yellow-500" 
+                               placeholder="" 
+                               min="1" 
+                               max="100"
+                               value="1"
+                               required>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Masukkan poin</p>
+                </div>
+            </div>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#eab308',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Simpan Poin',
+        cancelButtonText: 'Batal',
+        customClass: {
+            confirmButton: 'rounded-lg px-6 py-2 font-semibold',
+            cancelButton: 'rounded-lg px-6 py-2 font-semibold'
+        },
+        didOpen: () => {
+            setTimeout(() => {
+                document.getElementById('swal-poin').focus();
+            }, 100);
+        },
+        preConfirm: () => {
+            const poin = document.getElementById('swal-poin').value;
+            
+            if (!poin || poin < 1 || poin > 100) {
+                Swal.showValidationMessage('Poin harus diisi antara 1 - 100');
+                return false;
+            }
+            
+            return poin;
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const poin = result.value;
+            
+            // Tampilkan loading
+            Swal.fire({
+                title: 'Menyimpan Poin...',
+                text: 'Sedang memproses penambahan poin',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Kirim request AJAX
+            fetch(`/admin/spk/${spkId}/tambah-poin`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ poin: poin })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: data.message,
+                        showConfirmButton: true,
+                        timer: 3000
+                    }).then(() => {
+                        // Reload halaman
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: data.message || 'Terjadi kesalahan'
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Terjadi kesalahan saat menyimpan poin'
+                });
+            });
+        }
+    });
+};
+
+// Validasi input poin di Sweet Alert
+document.addEventListener('input', function(e) {
+    if (e.target.id === 'swal-poin') {
+        let val = parseInt(e.target.value);
+        if (isNaN(val)) val = 1;
+        if (val < 1) e.target.value = 1;
+        if (val > 100) e.target.value = 100;
+    }
+});
+
+// ⚡ FUNGSI TAB (Tetap seperti sebelumnya)
 window.geserTab = function(index) {
     var container = document.getElementById('tab-content-container');
     if (!container) return;
@@ -548,49 +730,109 @@ window.geserTab = function(index) {
 window.updateGayaTab = function(index) {
     var buttons = document.querySelectorAll('.tab-btn');
     buttons.forEach((btn, i) => {
-        if (i === index) btn.className = "tab-btn bg-white border-t border-l border-r border-gray-200 rounded-t-lg px-6 py-3 -mb-[1px] relative z-10 font-bold text-gray-800 whitespace-nowrap transition cursor-pointer";
-        else btn.className = "tab-btn px-6 py-3 text-gray-500 font-bold hover:text-gray-700 whitespace-nowrap border-b border-transparent transition cursor-pointer";
+        if (i === index) {
+            btn.className = "tab-btn bg-white border-t border-l border-r border-gray-200 rounded-t-lg px-6 py-3 -mb-[1px] relative z-10 font-bold text-gray-800 whitespace-nowrap transition cursor-pointer";
+        } else {
+            btn.className = "tab-btn px-6 py-3 text-gray-500 font-bold hover:text-gray-700 whitespace-nowrap border-b border-transparent transition cursor-pointer";
+        }
     });
 };
 
 (function() {
     var container = document.getElementById('tab-content-container');
-    if (container) container.onscroll = function() { var i = Math.round(container.scrollLeft / container.clientWidth); window.updateGayaTab(i); };
+    if (container) {
+        container.onscroll = function() {
+            var indexAktif = Math.round(container.scrollLeft / container.clientWidth);
+            window.updateGayaTab(indexAktif);
+        };
+    }
 })();
 
+// ⚡ FUNGSI APPROVE & REJECT (Update pakai AJAX/POST)
 window.approveSpk = function(id) {
     Swal.fire({
-        title: 'Alasan Persetujuan', input: 'textarea', inputLabel: 'Catatan Dosen',
-        inputPlaceholder: 'Masukkan alasan...', showCancelButton: true,
-        confirmButtonText: 'Setujui', confirmButtonColor: '#16a34a',
-        inputValidator: (value) => { if (!value) return 'Alasan wajib diisi'; }
+        title: 'Setujui SPK (Admin)',
+        input: 'textarea',
+        inputLabel: 'Catatan Admin (Opsional)',
+        inputPlaceholder: 'Masukkan catatan persetujuan...',
+        showCancelButton: true,
+        confirmButtonText: 'Setujui',
+        confirmButtonColor: '#16a34a',
+        cancelButtonText: 'Batal'
     }).then((result) => {
         if(result.isConfirmed) {
-            let form = document.createElement('form');
-            form.method = 'POST'; form.action = '/dosen/spk/' + id + '/approve';
-            form.innerHTML = `@csrf <input type="hidden" name="_method" value="PUT"> <input type="hidden" name="catatan_dosen" value="${result.value}">`;
-            document.body.appendChild(form); form.submit();
+            fetch(`/admin/spk/${id}/approve`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ catatan: result.value || '' })
+            })
+            .then(response => response.json())
+            .then(data => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: data.message || 'SPK berhasil disetujui',
+                    timer: 2000
+                }).then(() => location.reload());
+            })
+            .catch(() => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Terjadi kesalahan'
+                });
+            });
         }
     });
 };
 
 window.rejectSpk = function(id) {
     Swal.fire({
-        title: 'Alasan Penolakan', input: 'textarea', inputLabel: 'Catatan Dosen',
-        inputPlaceholder: 'Masukkan alasan...', showCancelButton: true,
-        confirmButtonText: 'Tolak', confirmButtonColor: '#dc2626',
-        inputValidator: (value) => { if (!value) return 'Alasan wajib diisi'; }
+        title: 'Tolak SPK (Admin)',
+        input: 'textarea',
+        inputLabel: 'Alasan Penolakan (Wajib)',
+        inputPlaceholder: 'Masukkan alasan penolakan...',
+        showCancelButton: true,
+        confirmButtonText: 'Tolak',
+        confirmButtonColor: '#dc2626',
+        cancelButtonText: 'Batal',
+        inputValidator: (value) => {
+            if (!value) return 'Alasan wajib diisi';
+        }
     }).then((result) => {
         if(result.isConfirmed) {
-            let form = document.createElement('form');
-            form.method = 'POST'; form.action = '/dosen/spk/' + id + '/reject';
-            form.innerHTML = `@csrf <input type="hidden" name="_method" value="PUT"> <input type="hidden" name="catatan_dosen" value="${result.value}">`;
-            document.body.appendChild(form); form.submit();
+            fetch(`/admin/spk/${id}/reject`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ catatan: result.value })
+            })
+            .then(response => response.json())
+            .then(data => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: data.message || 'SPK berhasil ditolak',
+                    timer: 2000
+                }).then(() => location.reload());
+            })
+            .catch(() => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Terjadi kesalahan'
+                });
+            });
         }
     });
 };
 </script>
-
-
 
 </x-app-layout>

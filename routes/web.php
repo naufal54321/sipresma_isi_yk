@@ -22,6 +22,7 @@ use App\Models\Spk;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\LaporanDosenController;
 use App\Http\Controllers\AdminRpkController;
+use App\Http\Controllers\AdminSpkController;
 
 /*
 |--------------------------------------------------------------------------
@@ -104,8 +105,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/', function () {
-        $users = User::with('roles')->latest()->paginate(10);
-        return view('admin.dashboard', compact('users'));
+        return redirect()->route('admin.users.index');
     })->name('dashboard');
 
     /* Manajemen User */
@@ -120,7 +120,7 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('kegiatan', MasterKegiatanController::class)->except(['show']);
 
     /* Master Prestasi (Dibersihkan dari duplikasi) */
-    Route::resource('master-prestasi', MasterPrestasiController::class)->except(['create', 'edit']); 
+    Route::resource('master-prestasi', MasterPrestasiController::class)->except(['create', 'edit']);
 
     /* Program Studi */
     Route::resource('prodi', ProgramStudiController::class)->except(['create', 'edit'])->parameters(['prodi' => 'prodi']);
@@ -138,6 +138,26 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/rpk', [AdminRpkController::class, 'index'])->name('rpk.index');
     Route::get('/rpk/{rpk}', [AdminRpkController::class, 'show'])->name('rpk.show');
     Route::patch('/rpk/{rpk}/status', [AdminRpkController::class, 'updateStatus'])->name('rpk.update-status');
+
+    /* ⚡ SPK Management (Admin) - SEMUA METHOD DI AdminSpkController */
+    Route::prefix('spk')->name('spk.')->group(function () {
+        // List & Kelola Poin
+        Route::get('/', [AdminSpkController::class, 'index'])->name('index');
+        Route::get('/kelola-poin', [AdminSpkController::class, 'kelolaPoin'])->name('kelola-poin');
+
+        // Detail SPK
+        Route::get('/{spk}', [AdminSpkController::class, 'show'])->name('show');
+
+        // ⚡ UBAH: Approve & Reject pakai POST (bukan PATCH) untuk kompatibel AJAX
+        Route::post('/{spk}/approve', [AdminSpkController::class, 'approve'])->name('approve');
+        Route::post('/{spk}/reject', [AdminSpkController::class, 'reject'])->name('reject');
+
+        // Delete
+        Route::delete('/{spk}', [AdminSpkController::class, 'destroy'])->name('destroy');
+
+        // ⚡ TAMBAH POIN: Sekarang di AdminSpkController
+        Route::post('/{spk}/tambah-poin', [AdminSpkController::class, 'tambahPoin'])->name('tambah-poin');
+    });
 });
 
 /*

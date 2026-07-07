@@ -66,6 +66,16 @@
                         <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->user->prodi ?? '-' }}</span>
                     </div>
 
+                    <div class="grid grid-cols-3 gap-2 pb-4">
+                        <span class="col-span-1 text-sm font-bold text-slate-500">Angkatan</span>
+                        <span class="col-span-2 text-sm text-slate-800 font-bold">{{ $rpk->user->angkatan ?? '-' }}</span>
+                    </div>
+
+                     <div class="grid grid-cols-3 gap-2 pb-4 border-b border-slate-100">
+                        <span class="col-span-1 text-sm font-bold text-slate-500">Semester</span>
+                        <span class="col-span-2 text-sm text-slate-800 font-bold">{{ $rpk->user->semester ?? '-' }}</span>
+                    </div>
+
                     <div class="grid grid-cols-3 gap-2 pt-2">
                         <span class="col-span-1 text-sm font-bold text-gray-600">Tahun RPK</span>
                         <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->tahun }}</span>
@@ -96,19 +106,35 @@
                 </div>
             </div>
 
-            <div class="mt-6 bg-cyan-50 border border-cyan-100 rounded-xl p-6 shadow-sm">
-                <h3 class="text-xl text-slate-600 mb-3">Catatan!</h3>
-                <p class="text-sm text-slate-600 leading-relaxed mb-4">
-                    Pastikan Dosen Pembimbing mengecek kesesuaian data yang diajukan dengan ketentuan kegiatan sebelum melakukan VALIDASI.<br>
-                    Apabila terdapat poin yang tidak sesuai Dosen Pembimbing dapat meminta REVISI dan menulis pesan kepada Mahasiswa ybs.
-                </p>
-                
-                <div class="border-t border-cyan-200/60 my-4"></div>
-                
-                <p class="text-sm text-red-500 leading-relaxed">
-                    Note: Kesalahan prosedural dan/atau ketidakcermatan akan mengakibatkan proses penyelesaian semakin sulit dan lama.
-                </p>
-            </div>
+            <div class="mt-6 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+    {{-- Header --}}
+    <div class="flex items-center gap-3 mb-4">
+        <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
+            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/>
+            </svg>
+        </div>
+        <h3 class="text-sm font-bold text-gray-800">Catatan Penting</h3>
+    </div>
+
+    {{-- Content --}}
+    <div class="space-y-3 text-sm text-gray-600 leading-relaxed">
+        <p>
+            Dosen Pembimbing dimohon untuk meninjau dan memastikan kesesuaian data yang diajukan dengan ketentuan kegiatan sebelum melakukan proses <span class="font-semibold text-gray-800">VALIDASI</span>.
+        </p>
+        <p>
+            Apabila ditemukan ketidaksesuaian, Dosen Pembimbing berwenang untuk meminta <span class="font-semibold text-gray-800">REVISI</span> dengan menyertakan catatan perbaikan kepada mahasiswa yang bersangkutan.
+        </p>
+    </div>
+
+    {{-- Divider --}}
+    <div class="border-t border-gray-100 my-4"></div>
+
+    {{-- Warning --}}
+    <p class="text-sm text-red-500 leading-relaxed">
+        Kekeliruan prosedural maupun ketidakcermatan dalam pemeriksaan data dapat menghambat kelancaran dan memperpanjang estimasi waktu penyelesaian proses administrasi.
+    </p>
+</div>
         </div>
 
         {{-- TABEL KEGIATAN --}}
@@ -127,49 +153,59 @@
                 <div class="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar scroll-smooth flex-grow" id="tab-content-container">
                     
                     {{-- TAB 1: RENCANA KEGIATAN --}}
-                    <div class="w-full flex-shrink-0 snap-start p-6">
-                        <h3 class="text-gray-600 font-medium mb-4">Daftar Rencana Kegiatan</h3>
-                        
-                        <div class="border border-gray-200 rounded-lg overflow-hidden mb-6">
-                            <table class="w-full text-sm text-left text-gray-600">
-                                <thead class="bg-gray-50 text-gray-700 uppercase text-xs tracking-wider border-b border-gray-200">
-                                    <tr>
-                                        <th class="px-4 py-3 font-semibold text-center w-12">No</th>
-                                        <th class="px-4 py-3 font-semibold">Judul Kegiatan</th>
-                                        <th class="px-4 py-3 font-semibold">Nama Kegiatan</th>
-                                        <th class="px-4 py-3 font-semibold text-center">Kategori</th>
-                                        <th class="px-4 py-3 font-semibold">Tanggal</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-100">
-                                    @forelse($rpk->kegiatans as $kegiatan)
-                                    <tr class="bg-white hover:bg-gray-50">
-                                        <td class="px-4 py-3 border-r border-slate-200 text-center font-semibold">{{ $loop->iteration }}</td>
-                                        <td class="px-4 py-3 border-r border-slate-200 font-bold text-slate-800">{{ $kegiatan->judul_kegiatan ?? '-' }}</td>
-                                        <td class="px-4 py-3 border-r border-slate-200">{{ $kegiatan->kegiatan }}</td>
-                                        <td class="px-4 py-3 border-r border-slate-200 text-center">
-                                            @if($kegiatan->kategori == 'Kelompok')
-                                                <span class=" text-purple-700 text-xs font-semibold">
-                                                    <i class="fas fa-users mr-1"></i>Kelompok
-                                                </span>
-                                            @else
-                                                <span class="text-gray-600 text-xs font-semibold">
-                                                    <i class="fas fa-user mr-1"></i>Individu
-                                                </span>
-                                            @endif
-                                        </td>
-                                        <td class="px-4 py-4">{{ $kegiatan->tanggal ? \Carbon\Carbon::parse($kegiatan->tanggal)->format('d M Y') : '-' }}</td>
-                                    </tr>
-                                    @empty
-                                    <tr>
-                                        <td colspan="7" class="text-center py-6 text-gray-500">
-                                            Belum ada kegiatan pada RPK ini
-                                        </td>
-                                    </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
+            <div class="w-full flex-shrink-0 snap-start p-6">
+                <h3 class="text-gray-600 font-medium mb-4">Daftar Rencana Kegiatan</h3>
+                
+                <div class="border border-gray-200 rounded-lg overflow-hidden mb-6">
+                    <table class="w-full text-sm text-left text-gray-600">
+                        <thead class="bg-gray-50 text-gray-700 uppercase text-xs tracking-wider border-b border-gray-200">
+                            <tr>
+                                <th class="px-4 py-3 font-semibold text-center w-12">No</th>
+                                <th class="px-4 py-3 font-semibold">Judul Kegiatan</th>
+                                <th class="px-4 py-3 font-semibold">Nama Kegiatan</th>
+                                <th class="px-4 py-3 font-semibold text-center">Kategori</th>
+                                <th class="px-4 py-3 font-semibold">Tanggal</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            @forelse($rpk->kegiatans as $kegiatan)
+                            <tr class="bg-white hover:bg-gray-50">
+                                <td class="px-4 py-3 border-r border-slate-200 text-center font-semibold">{{ $loop->iteration }}</td>
+                                <td class="px-4 py-3 border-r border-slate-200 font-bold text-slate-800">{{ $kegiatan->judul_kegiatan ?? '-' }}</td>
+                                <td class="px-4 py-3 border-r border-slate-200">{{ $kegiatan->kegiatan }}</td>
+                                <td class="px-4 py-3 border-r border-slate-200 text-center">
+                                    @if($kegiatan->kategori == 'Kelompok')
+                                        <span class="text-purple-700 text-xs font-semibold">
+                                            <i class="fas fa-users mr-1"></i>Kelompok
+                                        </span>
+                                    @else
+                                        <span class="text-gray-600 text-xs font-semibold">
+                                            <i class="fas fa-user mr-1"></i>Individu
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-4">
+                                    @if($kegiatan->tanggal_mulai && $kegiatan->tanggal_selesai)
+                                        {{ \Carbon\Carbon::parse($kegiatan->tanggal_mulai)->translatedFormat('d F Y') }} - {{ \Carbon\Carbon::parse($kegiatan->tanggal_selesai)->translatedFormat('d F Y') }}
+                                    @elseif($kegiatan->tanggal_mulai)
+                                        {{ \Carbon\Carbon::parse($kegiatan->tanggal_mulai)->translatedFormat('d F Y') }}
+                                    @elseif($kegiatan->tanggal)
+                                        {{ \Carbon\Carbon::parse($kegiatan->tanggal)->translatedFormat('d F Y') }}
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="5" class="text-center py-6 text-gray-500">
+                                    Belum ada kegiatan pada RPK ini
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
 
                         {{-- 🔧 DAFTAR ANGGOTA KELOMPOK --}}
                         @php

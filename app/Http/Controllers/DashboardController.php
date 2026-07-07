@@ -199,33 +199,62 @@ class DashboardController extends Controller
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | Dashboard Dosen
-        |--------------------------------------------------------------------------
-        */
+|--------------------------------------------------------------------------
+| Dashboard Dosen
+|--------------------------------------------------------------------------
+*/
 
         if ($user->roles->contains('name', 'Dosen')) {
 
-            $totalMahasiswa = User::where('dosen_pembimbing_id', $user->id)->count();
+            // Ambil ID mahasiswa bimbingan
+            $mahasiswaBimbinganIds = User::where('dosen_pembimbing_id', $user->id)->pluck('id');
 
-            // RPK
-            $rpkMenunggu = Rpk::where('status', 'draft')->count();
-            $rpkDisetujui = Rpk::where('status', 'disetujui')
-                ->whereIn('user_id', User::where('dosen_pembimbing_id', $user->id)->pluck('id'))
+            $totalMahasiswa = $mahasiswaBimbinganIds->count();
+
+            // ⚡ RPK - filter per status
+            $rpkDraft = Rpk::whereIn('user_id', $mahasiswaBimbinganIds)
+                ->where('status', 'draft')
                 ->count();
 
-            // SPK
-            $spkMenunggu = Spk::where('status', 'draft')->count();
-            $spkDisetujui = Spk::where('status', 'disetujui')
-                ->whereIn('user_id', User::where('dosen_pembimbing_id', $user->id)->pluck('id'))
+            $rpkDisetujui = Rpk::whereIn('user_id', $mahasiswaBimbinganIds)
+                ->where('status', 'disetujui')
                 ->count();
+
+            $rpkDitolak = Rpk::whereIn('user_id', $mahasiswaBimbinganIds)
+                ->where('status', 'ditolak')
+                ->count();
+
+            // ⚡ SPK - filter per status
+            $spkDraft = Spk::whereIn('user_id', $mahasiswaBimbinganIds)
+                ->where('status', 'draft')
+                ->count();
+
+            $spkDisetujui = Spk::whereIn('user_id', $mahasiswaBimbinganIds)
+                ->where('status', 'disetujui')
+                ->count();
+
+            $spkDitolak = Spk::whereIn('user_id', $mahasiswaBimbinganIds)
+                ->where('status', 'ditolak')
+                ->count();
+
+            // ⚡ DEBUG: Cek nilai di log
+            \Log::info('Dashboard Dosen Debug', [
+                'user_id' => $user->id,
+                'mahasiswa_ids' => $mahasiswaBimbinganIds->toArray(),
+                'rpkDraft' => $rpkDraft,
+                'rpkDisetujui' => $rpkDisetujui,
+                'spkDraft' => $spkDraft,
+                'spkDisetujui' => $spkDisetujui,
+            ]);
 
             return view('dashboard.dosen', compact(
                 'totalMahasiswa',
-                'rpkMenunggu',
+                'rpkDraft',
                 'rpkDisetujui',
-                'spkMenunggu',
-                'spkDisetujui'
+                'rpkDitolak',
+                'spkDraft',
+                'spkDisetujui',
+                'spkDitolak'
             ));
         }
 
@@ -245,12 +274,10 @@ class DashboardController extends Controller
 
         // CARD STATISTIK (dari RPK & SPK milik sendiri)
         $rpkDraft = Rpk::where('user_id', $user->id)->where('status', 'draft')->count();
-        $rpkDiajukan = Rpk::where('user_id', $user->id)->where('status', 'diajukan')->count();
         $rpkDisetujui = Rpk::where('user_id', $user->id)->where('status', 'disetujui')->count();
         $rpkDitolak = Rpk::where('user_id', $user->id)->where('status', 'ditolak')->count();
 
         $spkDraft = Spk::where('user_id', $user->id)->where('status', 'draft')->count();
-        $spkDiajukan = Spk::where('user_id', $user->id)->where('status', 'diajukan')->count();
         $spkDisetujui = Spk::where('user_id', $user->id)->where('status', 'disetujui')->count();
         $spkDitolak = Spk::where('user_id', $user->id)->where('status', 'ditolak')->count();
 

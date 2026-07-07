@@ -46,7 +46,7 @@
         <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-800 rounded-2xl flex items-center gap-3 shadow-sm">
             <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
             <div>
-                <p class="text-sm font-extrabold">Mahasiswa Tanpa Dosen Pembimbing!</p>
+                <p class="text-sm font-bold">Mahasiswa Tanpa Dosen Pembimbing!</p>
                 <p class="text-xs font-medium mt-0.5">Admin berhak melakukan validasi dan memberikan keputusan mutlak untuk dokumen ini.</p>
             </div>
         </div>
@@ -58,13 +58,13 @@
         <div class="lg:col-span-4 space-y-6">
             <div class="bg-slate-50 border border-slate-200 shadow-sm rounded-3xl overflow-hidden">
                 <div class="px-6 py-5 border-b border-slate-200 bg-white">
-                    <h2 class="text-lg font-extrabold text-slate-900">Detail & Periode</h2>
+                    <h2 class="text-lg font-bold text-slate-900">Detail & Periode</h2>
                 </div>
                 
                 <div class="p-6 bg-white space-y-4">
                     <div class="grid grid-cols-3 gap-2">
                         <span class="col-span-1 text-sm font-bold text-slate-500">Nama</span>
-                        <span class="col-span-2 text-sm text-slate-800 font-extrabold">{{ $rpk->user->name ?? '-' }}</span>
+                        <span class="col-span-2 text-sm text-slate-800 font-bold">{{ $rpk->user->name ?? '-' }}</span>
                     </div>
                     
                     <div class="grid grid-cols-3 gap-2 pb-4">
@@ -72,9 +72,19 @@
                         <span class="col-span-2 text-sm text-slate-800 font-bold">{{ $rpk->user->nim ?? '-' }}</span>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-2 pb-4 border-b border-slate-100">
+                    <div class="grid grid-cols-3 gap-2 pb-4">
                         <span class="col-span-1 text-sm font-bold text-slate-500">Prodi</span>
                         <span class="col-span-2 text-sm text-slate-800 font-bold">{{ $rpk->user->prodi ?? '-' }}</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 pb-4">
+                        <span class="col-span-1 text-sm font-bold text-slate-500">Angkatan</span>
+                        <span class="col-span-2 text-sm text-slate-800 font-bold">{{ $rpk->user->angkatan ?? '-' }}</span>
+                    </div>
+
+                     <div class="grid grid-cols-3 gap-2 pb-4 border-b border-slate-100">
+                        <span class="col-span-1 text-sm font-bold text-slate-500">Semester</span>
+                        <span class="col-span-2 text-sm text-slate-800 font-bold">{{ $rpk->user->semester ?? '-' }}</span>
                     </div>
 
                     <div class="grid grid-cols-3 gap-2 pt-2">
@@ -102,13 +112,11 @@
                     <div class="col-span-2 md:col-span-4 mt-2 pt-4 border-t border-slate-100 flex items-center justify-between">
                         <span class="text-sm font-bold text-slate-500">Status Saat Ini</span>
                         @if($rpk->status == 'draft')
-                            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wider uppercase border border-amber-200">Draft</span>
-                        @elseif($rpk->status == 'diajukan')
-                            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wider uppercase border border-blue-200">Diajukan</span>
+                            <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-[11px] font-bold tracking-wider border border-blue-200">Diajukan</span>
                         @elseif($rpk->status == 'disetujui')
-                            <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wider uppercase border border-emerald-200">Disetujui</span>
+                            <span class="bg-green-500 text-white px-3 py-1 rounded-full text-[11px] font-bold tracking-wider border border-emerald-200">Disetujui</span>
                         @else
-                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wider uppercase border border-red-200">Ditolak</span>
+                            <span class="bg-red-500 text-white px-3 py-1 rounded-full text-[11px] font-bold tracking-wider border border-red-200">Ditolak</span>
                         @endif
                     </div>
                 </div>
@@ -127,7 +135,7 @@
             <div class="bg-white border border-slate-200 shadow-sm rounded-3xl overflow-hidden flex flex-col h-full">
                 
                 <div class="flex border-b border-slate-200 bg-slate-50/50 px-2 pt-2 overflow-x-auto hide-scrollbar" id="tab-headers">
-                    <button onclick="geserTab(0)" class="tab-btn bg-white border-t border-l border-r border-slate-200 rounded-t-xl px-6 py-3 -mb-[1px] relative z-10 font-extrabold text-slate-800 whitespace-nowrap transition cursor-pointer">
+                    <button onclick="geserTab(0)" class="tab-btn bg-white border-t border-l border-r border-slate-200 rounded-t-xl px-6 py-3 -mb-[1px] relative z-10 font-bold text-slate-800 whitespace-nowrap transition cursor-pointer">
                         Rencana Kegiatan
                     </button>
                     <button onclick="geserTab(1)" class="tab-btn px-6 py-3 text-slate-500 font-bold hover:text-slate-700 whitespace-nowrap border-b border-transparent transition cursor-pointer">
@@ -140,12 +148,12 @@
                     {{-- TAB 1: RENCANA KEGIATAN --}}
                     <div class="w-full flex-shrink-0 snap-start p-6">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-slate-800 font-extrabold">Daftar Rencana Kegiatan</h3>
+                            <h3 class="text-slate-800 font-bold">Daftar Rencana Kegiatan</h3>
                         </div>
                         
                         <div class="border border-slate-200 rounded-xl overflow-hidden">
                             <table class="min-w-full text-sm text-left text-slate-600">
-                                <thead class="bg-slate-50 border-b border-slate-200 uppercase text-[10px] font-extrabold tracking-wider text-slate-500">
+                                <thead class="bg-slate-50 border-b border-slate-200 uppercase text-[10px] font-bold tracking-wider text-slate-500">
                                     <tr>
                                         <th class="px-4 py-3 border-r border-slate-200 w-10 text-center">No</th>
                                         <th class="px-4 py-3 border-r border-slate-200">Judul Kegiatan</th>
@@ -162,7 +170,7 @@
                                         <td class="px-4 py-3 border-r border-slate-200">{{ $kegiatan->kegiatan }}</td>
                                         <td class="px-4 py-3 border-r border-slate-200 text-center">
                                             @if($kegiatan->kategori == 'Kelompok')
-                                                <span class=" text-purple-700 text-xs font-semibold">
+                                                <span class="text-purple-700 text-xs font-semibold">
                                                     <i class="fas fa-users mr-1"></i>Kelompok
                                                 </span>
                                             @else
@@ -171,11 +179,21 @@
                                                 </span>
                                             @endif
                                         </td>
-                                        <td class="px-4 py-3 border-r border-slate-200">{{ $kegiatan->tanggal ? \Carbon\Carbon::parse($kegiatan->tanggal)->format('d M Y') : '-' }}</td>
+                                        <td class="px-4 py-3 border-r border-slate-200">
+                                            @if($kegiatan->tanggal_mulai && $kegiatan->tanggal_selesai)
+                                                {{ \Carbon\Carbon::parse($kegiatan->tanggal_mulai)->translatedFormat('d F Y') }} - {{ \Carbon\Carbon::parse($kegiatan->tanggal_selesai)->translatedFormat('d F Y') }}
+                                            @elseif($kegiatan->tanggal_mulai)
+                                                {{ \Carbon\Carbon::parse($kegiatan->tanggal_mulai)->translatedFormat('d F Y') }}
+                                            @elseif($kegiatan->tanggal)
+                                                {{ \Carbon\Carbon::parse($kegiatan->tanggal)->translatedFormat('d F Y') }}
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="7" class="text-center py-10 text-slate-400">
+                                        <td colspan="5" class="text-center py-10 text-slate-400">
                                             <i class="fas fa-folder-open text-3xl mb-2 text-slate-200"></i>
                                             <p class="text-sm font-medium">Belum ada kegiatan pada RPK ini.</p>
                                         </td>
@@ -185,13 +203,13 @@
                             </table>
                         </div>
 
-                        {{-- 🔧 DAFTAR ANGGOTA KELOMPOK --}}
+                        {{-- DAFTAR ANGGOTA KELOMPOK --}}
                         @php
                             $kegiatanKelompok = $rpk->kegiatans->where('kategori', 'Kelompok');
                         @endphp
                         @if($kegiatanKelompok->count() > 0)
                         <div class="mt-6">
-                            <h3 class="text-slate-800 font-extrabold mb-3">
+                            <h3 class="text-slate-800 font-bold mb-3">
                                 <i class="fas fa-users text-blue-500 mr-2"></i>Daftar Anggota Kelompok
                             </h3>
                             <div class="space-y-4">
@@ -202,10 +220,17 @@
                                             <div class="flex items-center gap-2 mt-1 text-xs text-slate-500">
                                                 <span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs font-semibold">Kelompok</span>
                                                 <span>{{ $kegiatan->anggota->count() }} anggota</span>
+                                                @if($kegiatan->tanggal_mulai && $kegiatan->tanggal_selesai)
+                                                    <span class="text-slate-400">•</span>
+                                                    <span>{{ \Carbon\Carbon::parse($kegiatan->tanggal_mulai)->translatedFormat('d M Y') }} - {{ \Carbon\Carbon::parse($kegiatan->tanggal_selesai)->translatedFormat('d M Y') }}</span>
+                                                @elseif($kegiatan->tanggal_mulai)
+                                                    <span class="text-slate-400">•</span>
+                                                    <span>{{ \Carbon\Carbon::parse($kegiatan->tanggal_mulai)->translatedFormat('d M Y') }}</span>
+                                                @endif
                                             </div>
                                         </div>
                                         <table class="w-full text-sm">
-                                            <thead class="bg-gray-100 text-xs uppercase text-slate-500">
+                                            <thead class="bg-gray-100 text-xs uppercase text-slate-500 font-bold">
                                                 <tr>
                                                     <th class="px-4 py-2 text-center w-12">No</th>
                                                     <th class="px-4 py-2 text-left">Nama</th>
@@ -251,13 +276,13 @@
 
                     {{-- TAB 2: RIWAYAT --}}
                     <div class="w-full flex-shrink-0 snap-start p-6">
-                        <h3 class="text-slate-800 font-extrabold mb-6">Timeline Riwayat Pengajuan</h3>
+                        <h3 class="text-slate-800 font-bold mb-6">Timeline Riwayat Pengajuan</h3>
                         
                         <div class="relative border-l-2 border-blue-200 ml-3 space-y-8">
                             <div class="relative pl-6">
                                 <div class="absolute w-4 h-4 bg-blue-500 rounded-full -left-[9px] top-1 border-2 border-white shadow"></div>
-                                <p class="text-[10px] font-extrabold text-blue-600 uppercase tracking-widest mb-1">Status Terkini</p>
-                                <h4 class="font-extrabold text-slate-800">Dokumen: {{ ucfirst($rpk->status) }}</h4>
+                                <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1">Status Terkini</p>
+                                <h4 class="font-bold text-slate-800">Dokumen: {{ ucfirst($rpk->status) }}</h4>
                                 <div class="mt-2 bg-slate-50 p-4 rounded-xl border border-slate-100">
                                     <p class="text-xs text-slate-600 font-medium">
                                         Catatan: {{ $rpk->catatan_dosen ?? 'Tidak ada catatan.' }}
@@ -267,8 +292,8 @@
 
                             <div class="relative pl-6">
                                 <div class="absolute w-4 h-4 bg-slate-300 rounded-full -left-[9px] top-1 border-2 border-white shadow"></div>
-                                <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">
-                                    {{ $rpk->created_at ? $rpk->created_at->format('d M Y - H:i') : '-' }}
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                                    {{ $rpk->created_at ? $rpk->created_at->translatedFormat('d F Y - H:i') : '-' }}
                                 </p>
                                 <h4 class="font-bold text-slate-800">Kegiatan Diajukan</h4>
                                 <p class="text-xs text-slate-500 mt-1">
@@ -303,7 +328,7 @@ window.updateGayaTab = function(index) {
     var buttons = document.querySelectorAll('.tab-btn');
     buttons.forEach((btn, i) => {
         if (i === index) {
-            btn.className = "tab-btn bg-white border-t border-l border-r border-slate-200 rounded-t-xl px-6 py-3 -mb-[1px] relative z-10 font-extrabold text-slate-800 whitespace-nowrap transition cursor-pointer";
+            btn.className = "tab-btn bg-white border-t border-l border-r border-slate-200 rounded-t-xl px-6 py-3 -mb-[1px] relative z-10 font-bold text-slate-800 whitespace-nowrap transition cursor-pointer";
         } else {
             btn.className = "tab-btn px-6 py-3 text-slate-500 font-bold hover:text-slate-700 whitespace-nowrap border-b border-transparent transition cursor-pointer";
         }

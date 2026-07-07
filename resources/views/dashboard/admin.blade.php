@@ -1,6 +1,6 @@
 <x-app-layout>
 
-<div class="py-6 overflow-x-hidden">
+<div class="py-1 overflow-x-hidden">
     <div class="max-w-8xl mx-auto py-6">
 
         <div class="relative bg-slate-900 rounded-3xl p-8 sm:p-10 text-white shadow-2xl shadow-slate-900/20 mb-8 overflow-hidden border border-slate-800">

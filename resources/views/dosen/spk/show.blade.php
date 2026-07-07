@@ -19,7 +19,7 @@
                 Kembali
             </a>
 
-            @if(in_array($spk->status, ['draft', 'diajukan']))
+            @if(in_array($spk->status, ['draft']))
                 <button onclick="approveSpk({{ $spk->id }})"
                         class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -64,6 +64,16 @@
                         <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->user->prodi ?? '-' }}</span>
                     </div>
 
+                    <div class="grid grid-cols-3 gap-2">
+                        <span class="text-sm font-bold text-gray-600">Angkatan</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->user->angkatan ?? '-' }}</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
+                        <span class="text-sm font-bold text-gray-600">Semester</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->user->semester ?? '-' }}</span>
+                    </div>
+
                     <div class="grid grid-cols-3 gap-2 pt-2">
                         <span class="text-sm font-bold text-gray-600">Tahun</span>
                         <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->tahun }}</span>
@@ -74,57 +84,26 @@
                         <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->rpk->tahun ?? '-' }} - {{ $spk->rpk->semester ?? '-' }}</span>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-2">
-                        <span class="text-sm font-bold text-gray-600">Kegiatan</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->kegiatan->kegiatan ?? '-' }}</span>
-                    </div>
+                    
 
                     <div class="grid grid-cols-3 gap-2">
-                        <span class="text-sm font-bold text-gray-600">Judul</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->kegiatan->judul_kegiatan ?? '-' }}</span>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-2">
-                        <span class="text-sm font-bold text-gray-600">Tanggal</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ \Carbon\Carbon::parse($spk->tanggal_kegiatan)->format('d M Y') }}</span>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-2">
-                        <span class="text-sm font-bold text-gray-600">Penyelenggara</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->penyelenggara }}</span>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-2">
-                        <span class="text-sm font-bold text-gray-600">Kategori</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">
-                            @if($spk->kategori == 'Kelompok')
-                                <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs font-semibold">
-                                    <i class="fas fa-users mr-1"></i>Kelompok
-                                </span>
+                        <span class="text-sm font-bold text-gray-600">URL Kegiatan</span>
+                        <span class="col-span-2 text-sm text-blue-600 break-words">
+                            @if($spk->url_kegiatan)
+                                <a href="{{ $spk->url_kegiatan }}" target="_blank" class="hover:underline">Buka Tautan</a>
                             @else
-                                <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs font-semibold">
-                                    <i class="fas fa-user mr-1"></i>Individu
-                                </span>
+                                <span class="text-gray-400">-</span>
                             @endif
                         </span>
                     </div>
 
-                    {{-- 🔧 HASIL & POIN --}}
-                    <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
-                        <span class="text-sm font-bold text-gray-600">Hasil</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->hasil ?? '-' }}</span>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
-                        <span class="text-sm font-bold text-gray-600">Poin</span>
-                        <span class="col-span-2 text-sm font-bold text-blue-600">{{ $spk->poin ?? '0' }}</span>
-                    </div>
-
                     <div class="grid grid-cols-3 gap-2">
-                        <span class="text-sm font-bold text-gray-600">URL</span>
+                        <span class="text-sm font-bold text-gray-600">Link Drive</span>
                         <span class="col-span-2 text-sm text-blue-600 break-words">
-                            @if($spk->url_kegiatan)
-                                <a href="{{ $spk->url_kegiatan }}" target="_blank" class="hover:underline">Buka Tautan</a>
+                            @if($spk->link_drive)
+                                <a href="{{ $spk->link_drive }}" target="_blank" class="hover:underline">
+                                    <i class="fab fa-google-drive mr-1"></i>Buka Drive
+                                </a>
                             @else
                                 <span class="text-gray-400">-</span>
                             @endif
@@ -136,13 +115,11 @@
                         <span class="col-span-2 text-sm text-gray-800">{{ $spk->keterangan }}</span>
                     </div>
 
-                    <div class="pt-3 border-t border-gray-200">
+                   <div class="grid grid-cols-3 gap-2">
                         <span class="text-sm font-bold text-gray-600">Status</span>
                         <div class="mt-1">
                             @if($spk->status == 'draft')
                                 <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">Draft</span>
-                            @elseif($spk->status == 'diajukan')
-                                <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-semibold">Diajukan</span>
                             @elseif($spk->status == 'disetujui')
                                 <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">Disetujui</span>
                             @else
@@ -150,20 +127,45 @@
                             @endif
                         </div>
                     </div>
+
+                    @if($spk->catatan_dosen)
+                    <div class="pt-3 border-t border-gray-200">
+                        <span class="text-sm font-bold text-gray-600">Catatan Dosen</span>
+                        <p class="text-sm text-red-600 mt-1 bg-red-50 p-2 rounded-lg">{{ $spk->catatan_dosen }}</p>
+                    </div>
+                    @endif
                 </div>
             </div>
 
-            <div class="mt-6 bg-cyan-50 border border-cyan-100 rounded-xl p-6 shadow-sm">
-                <h3 class="text-xl text-slate-600 mb-3">Catatan!</h3>
-                <p class="text-sm text-slate-600 leading-relaxed mb-4">
-                    Pastikan Dosen Pembimbing mengecek kesesuaian data yang diajukan dengan ketentuan kegiatan sebelum melakukan VALIDASI.<br>
-                    Apabila terdapat poin yang tidak sesuai Dosen Pembimbing dapat meminta REVISI dan menulis pesan kepada Mahasiswa ybs.
-                </p>
-                <div class="border-t border-cyan-200/60 my-4"></div>
-                <p class="text-sm text-red-500 leading-relaxed">
-                    Note: Kesalahan prosedural dan/atau ketidakcermatan akan mengakibatkan proses penyelesaian semakin sulit dan lama.
-                </p>
-            </div>
+            <div class="mt-6 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+    {{-- Header --}}
+    <div class="flex items-center gap-3 mb-4">
+        <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
+            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/>
+            </svg>
+        </div>
+        <h3 class="text-sm font-bold text-gray-800">Catatan Penting</h3>
+    </div>
+
+    {{-- Content --}}
+    <div class="space-y-3 text-sm text-gray-600 leading-relaxed">
+        <p>
+            Dosen Pembimbing dimohon untuk meninjau dan memastikan kesesuaian data yang diajukan dengan ketentuan kegiatan sebelum melakukan proses <span class="font-semibold text-gray-800">VALIDASI</span>.
+        </p>
+        <p>
+            Apabila ditemukan ketidaksesuaian, Dosen Pembimbing berwenang untuk meminta <span class="font-semibold text-gray-800">REVISI</span> dengan menyertakan catatan perbaikan kepada mahasiswa yang bersangkutan.
+        </p>
+    </div>
+
+    {{-- Divider --}}
+    <div class="border-t border-gray-100 my-4"></div>
+
+    {{-- Warning --}}
+    <p class="text-sm text-red-500 leading-relaxed">
+        Kekeliruan prosedural maupun ketidakcermatan dalam pemeriksaan data dapat menghambat kelancaran dan memperpanjang estimasi waktu penyelesaian proses administrasi.
+    </p>
+</div>
         </div>
 
         {{-- CONTENT --}}
@@ -175,7 +177,7 @@
                         Deskripsi Kegiatan
                     </button>
                     <button onclick="geserTab(1)" class="tab-btn px-6 py-3 text-gray-500 font-bold hover:text-gray-700 whitespace-nowrap border-b border-transparent transition cursor-pointer">
-                        Bukti Kegiatan
+                        Dokumen
                     </button>
                     <button onclick="geserTab(2)" class="tab-btn px-6 py-3 text-gray-500 font-bold hover:text-gray-700 whitespace-nowrap border-b border-transparent transition cursor-pointer">
                         Riwayat SPK
@@ -184,138 +186,339 @@
 
                 <div class="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar scroll-smooth flex-grow" id="tab-content-container">
                     
-                    {{-- TAB 1: DESKRIPSI --}}
+                        {{-- TAB 1: DESKRIPSI --}}
                     <div class="w-full flex-shrink-0 snap-start p-6">
-                        <div class="border border-gray-200 rounded-lg overflow-hidden">
-                            <table class="w-full text-sm text-left text-gray-600">
-                                <tbody>
-                                    <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                        <td class="px-6 py-4 font-bold text-gray-700 w-1/3 bg-gray-50/50">Nama Kegiatan</td>
-                                        <td class="px-6 py-4 font-medium text-gray-800">{{ $spk->kegiatan->kegiatan ?? '-' }}</td>
-                                    </tr>
-                                    <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                        <td class="px-6 py-4 font-bold text-gray-700 w-1/3 bg-gray-50/50">Judul Kegiatan</td>
-                                        <td class="px-6 py-4 font-medium text-gray-800">{{ $spk->kegiatan->judul_kegiatan ?? '-' }}</td>
-                                    </tr>
-                                    <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                        <td class="px-6 py-4 font-bold text-gray-700 w-1/3 bg-gray-50/50">Jenis Kegiatan</td>
-                                        <td class="px-6 py-4 font-medium text-gray-800">{{ $spk->kegiatan->jenis ?? '-' }}</td>
-                                    </tr>
-                                    <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                        <td class="px-6 py-4 font-bold text-gray-700 w-1/3 bg-gray-50/50">Tingkat Kegiatan</td>
-                                        <td class="px-6 py-4 font-medium text-gray-800">{{ $spk->tingkat ?? '-' }}</td>
-                                    </tr>
-                                    <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                        <td class="px-6 py-4 font-bold text-gray-700 w-1/3 bg-gray-50/50">Kategori</td>
-                                        <td class="px-6 py-4 font-medium text-gray-800">
-                                            @if($spk->kategori == 'Kelompok')
-                                                <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs font-semibold">Kelompok</span>
-                                            @else
-                                                <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs font-semibold">Individu</span>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                    {{-- 🔧 HASIL & POIN --}}
-                                    <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                        <td class="px-6 py-4 font-bold text-gray-700 w-1/3 bg-gray-50/50">Hasil / Prestasi</td>
-                                        <td class="px-6 py-4 font-medium text-gray-800">{{ $spk->hasil ?? '-' }}</td>
-                                    </tr>
-                                    <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                        <td class="px-6 py-4 font-bold text-gray-700 w-1/3 bg-gray-50/50">Poin</td>
-                                        <td class="px-6 py-4 font-bold text-blue-600 text-lg">{{ $spk->poin ?? '0' }}</td>
-                                    </tr>
-                                    <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                        <td class="px-6 py-4 font-bold text-gray-700 w-1/3 bg-gray-50/50">Tanggal Pelaksanaan</td>
-                                        <td class="px-6 py-4 font-medium text-gray-800">{{ \Carbon\Carbon::parse($spk->tanggal_kegiatan)->format('d M Y') }}</td>
-                                    </tr>
-                                    <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                        <td class="px-6 py-4 font-bold text-gray-700 w-1/3 bg-gray-50/50">Penyelenggara</td>
-                                        <td class="px-6 py-4 font-medium text-gray-800">{{ $spk->penyelenggara }}</td>
-                                    </tr>
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 font-bold text-gray-700 w-1/3 bg-gray-50/50">Dokumen Bukti</td>
-                                        <td class="px-6 py-4 font-medium text-gray-800">
-                                            @if($spk->bukti)
-                                                <span class="text-green-600"><i class="fas fa-check-circle mr-1"></i>Tersedia (Lihat tab Bukti)</span>
-                                            @else
-                                                <span class="text-red-500">Tidak ada file</span>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        {{-- Header Section --}}
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-1 h-6 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full"></div>
+                            <h3 class="text-lg font-bold text-gray-800">Informasi Kegiatan</h3>
                         </div>
 
-                        {{-- 🔧 DAFTAR ANGGOTA KELOMPOK --}}
-                        @if($spk->kategori == 'Kelompok' && $spk->kegiatan && $spk->kegiatan->anggota->count() > 0)
-                        <div class="mt-6 border border-gray-200 rounded-lg overflow-hidden">
-                            <div class="px-4 py-3 bg-purple-50 border-b border-gray-200">
-                                <h4 class="text-sm font-bold text-gray-800">
-                                    <i class="fas fa-users text-purple-500 mr-2"></i>Anggota Kelompok
-                                </h4>
+                        {{-- Card Grid --}}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            {{-- Nama Kegiatan --}}
+                            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-50 transition-all duration-300 md:col-span-2">
+                                <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Nama Kegiatan</p>
+                                <p class="text-sm font-semibold text-gray-800 leading-relaxed">{{ $spk->kegiatan->kegiatan ?? '-' }}</p>
                             </div>
-                            <table class="w-full text-sm">
-                                <thead class="bg-gray-100 text-xs uppercase text-gray-500">
-                                    <tr>
-                                        <th class="px-4 py-2 text-center w-12">No</th>
-                                        <th class="px-4 py-2 text-left">Nama</th>
-                                        <th class="px-4 py-2 text-left">NIM</th>
-                                        <th class="px-4 py-2 text-left">Prodi</th>
-                                        <th class="px-4 py-2 text-center w-24">Peran</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-100">
-                                    <tr class="bg-blue-50">
-                                        <td class="px-4 py-2 text-center text-gray-500">1</td>
-                                        <td class="px-4 py-2 font-medium text-gray-800">{{ $spk->rpk->user->name ?? $spk->user->name }}</td>
-                                        <td class="px-4 py-2 text-gray-500">{{ $spk->rpk->user->nim ?? $spk->user->nim ?? '-' }}</td>
-                                        <td class="px-4 py-2 text-gray-500">{{ $spk->rpk->user->prodi ?? $spk->user->prodi ?? '-' }}</td>
-                                        <td class="px-4 py-2 text-center">
-                                            <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-semibold">Ketua</span>
-                                        </td>
-                                    </tr>
-                                    @foreach($spk->kegiatan->anggota as $index => $anggota)
-                                        <tr class="hover:bg-gray-50">
-                                            <td class="px-4 py-2 text-center text-gray-500">{{ $index + 2 }}</td>
-                                            <td class="px-4 py-2 font-medium text-gray-800">{{ $anggota->name }}</td>
-                                            <td class="px-4 py-2 text-gray-500">{{ $anggota->nim ?? '-' }}</td>
-                                            <td class="px-4 py-2 text-gray-500">{{ $anggota->prodi ?? '-' }}</td>
-                                            <td class="px-4 py-2 text-center">
-                                                <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-semibold">Anggota</span>
+
+                            {{-- Judul Kegiatan - Full Width --}}
+                            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-50 transition-all duration-300 md:col-span-2">
+                                <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Judul Kegiatan</p>
+                                <p class="text-sm font-semibold text-gray-800 leading-relaxed">{{ $spk->kegiatan->judul_kegiatan ?? '-' }}</p>
+                            </div>
+
+                            {{-- Tanggal Pelaksanaan --}}
+                            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-50 transition-all duration-300">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                    <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Tanggal Pelaksanaan</p>
+                                </div>
+                                <p class="text-sm font-semibold text-gray-800">
+                                    @if($spk->kegiatan && $spk->kegiatan->tanggal_mulai && $spk->kegiatan->tanggal_selesai)
+                                        {{ \Carbon\Carbon::parse($spk->kegiatan->tanggal_mulai)->translatedFormat('d F Y') }}
+                                        <span class="text-gray-300 mx-2">—</span>
+                                        {{ \Carbon\Carbon::parse($spk->kegiatan->tanggal_selesai)->translatedFormat('d F Y') }}
+                                    @elseif($spk->kegiatan && $spk->kegiatan->tanggal_mulai)
+                                        {{ \Carbon\Carbon::parse($spk->kegiatan->tanggal_mulai)->translatedFormat('d F Y') }}
+                                    @else
+                                        {{ $spk->tanggal_kegiatan ? \Carbon\Carbon::parse($spk->tanggal_kegiatan)->translatedFormat('d F Y') : '-' }}
+                                    @endif
+                                </p>
+                            </div>
+
+                            {{-- Tingkat Kegiatan --}}
+                            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-50 transition-all duration-300">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
+                                    </svg>
+                                    <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Tingkat Kegiatan</p>
+                                </div>
+                                <div>
+                                    @if($spk->tingkat)
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100">
+                                            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                                            {{ $spk->tingkat }}
+                                        </span>
+                                    @else
+                                        <span class="text-sm text-gray-400">-</span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            {{-- Kategori --}}
+                            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-50 transition-all duration-300">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                                    </svg>
+                                    <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Kategori</p>
+                                </div>
+                                <div>
+                                    @if($spk->kategori == 'Kelompok')
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-100">
+                                            <span class="w-1.5 h-1.5 bg-purple-500 rounded-full"></span>
+                                            Kelompok
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 text-gray-600 border border-gray-200">
+                                            <span class="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                                            Individu
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            {{-- Hasil / Prestasi --}}
+                            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-50 transition-all duration-300">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                                    </svg>
+                                    <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Hasil / Prestasi</p>
+                                </div>
+                                <p class="text-sm font-semibold text-gray-800">{{ $spk->hasil ?? '-' }}</p>
+                            </div>
+
+                            {{-- Poin --}}
+                            <div class="group bg-gradient-to-br from-blue-50 to-white border border-blue-100 rounded-xl p-5 hover:shadow-lg hover:shadow-blue-50 transition-all duration-300">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <svg class="w-3.5 h-3.5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                    </svg>
+                                    <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Poin</p>
+                                </div>
+                                <p class="text-3xl font-bold text-blue-600">{{ $spk->poin ?? '0' }}</p>
+                            </div>
+
+                            {{-- Penyelenggara --}}
+                            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-50 transition-all duration-300">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                    </svg>
+                                    <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Penyelenggara</p>
+                                </div>
+                                <p class="text-sm font-semibold text-gray-800">{{ $spk->penyelenggara }}</p>
+                            </div>
+
+                            {{-- Dokumen --}}
+                            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-emerald-300 hover:shadow-lg hover:shadow-emerald-50 transition-all duration-300">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                    <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Dokumen</p>
+                                </div>
+                                <p class="text-sm font-semibold text-emerald-600 flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                                    Tersedia (Lihat tab Dokumen)
+                                </p>
+                            </div>
+
+                            {{-- Keterangan --}}
+                            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-emerald-300 hover:shadow-lg hover:shadow-emerald-50 transition-all duration-300">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5 text-gray-400">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+                                    </svg>
+                                    <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Keterangan</p>
+                                </div>
+                                <p class="text-sm font-semibold text-gray-800">{{ $spk->keterangan }}</p>
+                            </div>
+                        </div>
+
+                        {{-- DAFTAR ANGGOTA KELOMPOK --}}
+                        @if($spk->kategori == 'Kelompok' && $spk->kegiatan && $spk->kegiatan->anggota->count() > 0)
+                        <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                            <div class="px-5 py-4 border-b border-gray-100 flex items-center gap-3">
+                                <div class="w-1 h-5 bg-purple-500 rounded-full"></div>
+                                <h4 class="text-sm font-bold text-gray-800">Anggota Kelompok</h4>
+                                <span class="text-xs text-gray-400 font-medium ml-auto">{{ $spk->kegiatan->anggota->count() + 1 }} orang</span>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm">
+                                    <thead>
+                                        <tr class="border-b border-gray-50">
+                                            <th class="px-5 py-3 text-center w-12 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">No</th>
+                                            <th class="px-5 py-3 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Nama</th>
+                                            <th class="px-5 py-3 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">NIM</th>
+                                            <th class="px-5 py-3 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Prodi</th>
+                                            <th class="px-5 py-3 text-center w-24 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Peran</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-50">
+                                        <tr class="bg-blue-50/30">
+                                            <td class="px-5 py-3 text-center text-gray-500 font-medium">1</td>
+                                            <td class="px-5 py-3 font-semibold text-gray-800">
+                                                {{ $spk->rpk->user->name ?? $spk->user->name }}
+                                                @if($spk->rpk->user_id == Auth::id() || $spk->user_id == Auth::id())
+                                                    <span class="text-[11px] text-blue-500 font-medium ml-1.5">(Anda)</span>
+                                                @endif
+                                            </td>
+                                            <td class="px-5 py-3 text-gray-500 font-medium">{{ $spk->rpk->user->nim ?? $spk->user->nim ?? '-' }}</td>
+                                            <td class="px-5 py-3 text-gray-500 font-medium">{{ $spk->rpk->user->prodi ?? $spk->user->prodi ?? '-' }}</td>
+                                            <td class="px-5 py-3 text-center">
+                                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100">
+                                                    <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                                                    Ketua
+                                                </span>
                                             </td>
                                         </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                                        @foreach($spk->kegiatan->anggota as $index => $anggota)
+                                            <tr class="hover:bg-gray-50/50 transition-colors duration-150 @if($anggota->id == Auth::id()) bg-yellow-50/30 @endif">
+                                                <td class="px-5 py-3 text-center text-gray-500 font-medium">{{ $index + 2 }}</td>
+                                                <td class="px-5 py-3 font-semibold text-gray-800">
+                                                    {{ $anggota->name }}
+                                                    @if($anggota->id == Auth::id())
+                                                        <span class="text-[11px] text-blue-500 font-medium ml-1.5">(Anda)</span>
+                                                    @endif
+                                                </td>
+                                                <td class="px-5 py-3 text-gray-500 font-medium">{{ $anggota->nim ?? '-' }}</td>
+                                                <td class="px-5 py-3 text-gray-500 font-medium">{{ $anggota->prodi ?? '-' }}</td>
+                                                <td class="px-5 py-3 text-center">
+                                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                                                        Anggota
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         @endif
                     </div>
 
-                    {{-- TAB 2: BUKTI --}}
-                    <div class="w-full flex-shrink-0 snap-start p-6 flex flex-col">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-gray-700 font-bold">Preview Dokumen Bukti</h3>
-                            @if($spk->bukti)
-                            <a href="{{ asset('storage/' . $spk->bukti) }}" target="_blank" class="text-sm text-blue-600 font-semibold hover:underline flex items-center gap-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                </svg>
-                                Buka di Tab Baru
-                            </a>
-                            @endif
-                        </div>
+                    {{-- TAB 2: DOKUMEN --}}
+                    <div class="w-full flex-shrink-0 snap-start p-6">
+                        <h3 class="text-gray-800 font-extrabold mb-5 flex items-center gap-2">
+                            <span class="p-1.5 rounded-lg bg-orange-50 text-orange-500">
+                                <i class="fas fa-folder-open"></i>
+                            </span>
+                            Dokumen Kegiatan
+                        </h3>
                         
-                        <div class="flex-grow w-full rounded-lg overflow-hidden border border-gray-200 bg-gray-100 relative min-h-[500px]">
-                            @if($spk->bukti)
-                                <iframe src="{{ asset('storage/' . $spk->bukti) }}" class="absolute inset-0 w-full h-full border-0"></iframe>
-                            @else
-                                <div class="flex flex-col items-center justify-center h-full text-gray-400">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-3 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                    <p>File bukti tidak dilampirkan.</p>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            {{-- Surat Tugas --}}
+                            <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                <div class="px-4 py-3 bg-gradient-to-r from-blue-50 to-blue-100/50 border-b border-gray-200 flex justify-between items-center">
+                                    <h4 class="text-sm font-extrabold text-gray-800 flex items-center gap-2">
+                                        <span class="w-7 h-7 bg-blue-500 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-file-contract text-white text-xs"></i>
+                                        </span>
+                                        Surat Tugas
+                                    </h4>
+                                    @if($spk->surat_tugas)
+                                    <a href="{{ asset('storage/' . $spk->surat_tugas) }}" target="_blank" 
+                                    class="inline-flex items-center gap-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                                        <i class="fas fa-eye"></i> Tinjau
+                                    </a>
+                                    @endif
                                 </div>
-                            @endif
+                                <div class="bg-gray-100 min-h-[250px] relative">
+                                    @if($spk->surat_tugas)
+                                        <iframe src="{{ asset('storage/' . $spk->surat_tugas) }}" class="w-full h-[250px] border-0"></iframe>
+                                    @else
+                                        <div class="flex flex-col items-center justify-center h-[250px] text-gray-400">
+                                            <i class="fas fa-file-pdf text-4xl mb-2 text-gray-300"></i>
+                                            <span class="text-sm font-medium">Belum diupload</span>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+
+                            {{-- Sertifikat / Foto Piala --}}
+                            <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                <div class="px-4 py-3 bg-gradient-to-r from-yellow-50 to-yellow-100/50 border-b border-gray-200 flex justify-between items-center">
+                                    <h4 class="text-sm font-extrabold text-gray-800 flex items-center gap-2">
+                                        <span class="w-7 h-7 bg-yellow-500 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-certificate text-white text-xs"></i>
+                                        </span>
+                                        Sertifikat / Foto Piala
+                                    </h4>
+                                    @if($spk->sertifikat)
+                                    <a href="{{ asset('storage/' . $spk->sertifikat) }}" target="_blank" 
+                                    class="inline-flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                                        <i class="fas fa-eye"></i> Tinjau
+                                    </a>
+                                    @endif
+                                </div>
+                                <div class="bg-gray-100 min-h-[250px] flex items-center justify-center">
+                                    @if($spk->sertifikat)
+                                        @if(in_array(pathinfo($spk->sertifikat, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
+                                            <img src="{{ asset('storage/' . $spk->sertifikat) }}" class="max-w-full max-h-[350px] object-contain rounded-lg">
+                                        @else
+                                            <iframe src="{{ asset('storage/' . $spk->sertifikat) }}" class="w-full h-[250px] border-0"></iframe>
+                                        @endif
+                                    @else
+                                        <div class="flex flex-col items-center justify-center h-[250px] text-gray-400">
+                                            <i class="fas fa-image text-4xl mb-2 text-gray-300"></i>
+                                            <span class="text-sm font-medium">Belum diupload</span>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+
+                            {{-- Foto Penyerahan --}}
+                            <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                <div class="px-4 py-3 bg-gradient-to-r from-purple-50 to-purple-100/50 border-b border-gray-200 flex justify-between items-center">
+                                    <h4 class="text-sm font-extrabold text-gray-800 flex items-center gap-2">
+                                        <span class="w-7 h-7 bg-purple-500 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-camera text-white text-xs"></i>
+                                        </span>
+                                        Foto Penyerahan Piagam
+                                    </h4>
+                                    @if($spk->foto_penyerahan)
+                                    <a href="{{ asset('storage/' . $spk->foto_penyerahan) }}" target="_blank" 
+                                    class="inline-flex items-center gap-1 bg-purple-500 hover:bg-purple-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                                        <i class="fas fa-eye"></i> Tinjau
+                                    </a>
+                                    @endif
+                                </div>
+                                <div class="bg-gray-100 min-h-[250px] flex items-center justify-center">
+                                    @if($spk->foto_penyerahan)
+                                        <img src="{{ asset('storage/' . $spk->foto_penyerahan) }}" class="max-w-full max-h-[350px] object-contain rounded-lg">
+                                    @else
+                                        <div class="flex flex-col items-center justify-center h-[250px] text-gray-400">
+                                            <i class="fas fa-camera-retro text-4xl mb-2 text-gray-300"></i>
+                                            <span class="text-sm font-medium">Belum diupload</span>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+
+                            {{-- Laporan --}}
+                            <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                <div class="px-4 py-3 bg-gradient-to-r from-orange-50 to-orange-100/50 border-b border-gray-200 flex justify-between items-center">
+                                    <h4 class="text-sm font-extrabold text-gray-800 flex items-center gap-2">
+                                        <span class="w-7 h-7 bg-orange-500 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-file-alt text-white text-xs"></i>
+                                        </span>
+                                        Laporan (Format Template)
+                                    </h4>
+                                    @if($spk->laporan)
+                                    <a href="{{ asset('storage/' . $spk->laporan) }}" target="_blank" 
+                                    class="inline-flex items-center gap-1 bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                                        <i class="fas fa-eye"></i> Tinjau
+                                    </a>
+                                    @endif
+                                </div>
+                                <div class="bg-gray-100 min-h-[250px] relative">
+                                    @if($spk->laporan)
+                                        <iframe src="{{ asset('storage/' . $spk->laporan) }}" class="w-full h-[250px] border-0"></iframe>
+                                    @else
+                                        <div class="flex flex-col items-center justify-center h-[250px] text-gray-400">
+                                            <i class="fas fa-file-alt text-4xl mb-2 text-gray-300"></i>
+                                            <span class="text-sm font-medium">Belum diupload</span>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -328,9 +531,20 @@
                                 <div class="absolute w-4 h-4 bg-blue-500 rounded-full -left-[9px] top-1 border-2 border-white shadow"></div>
                                 <p class="text-xs font-semibold text-blue-600 mb-1">Status Terkini</p>
                                 <h4 class="font-bold text-gray-800">SPK: {{ ucfirst($spk->status) }}</h4>
+                                
+                                {{-- ⚡ TAMPILKAN INFO POIN DI TIMELINE --}}
+                                @if($spk->hasPoin())
+                                <div class="mt-2 bg-yellow-50 border border-yellow-200 rounded-lg p-2">
+                                    <p class="text-sm text-yellow-700">
+                                        Poin: <strong>{{ $spk->poin }}</strong> 
+                                        ({{ $spk->poin_added_at->format('d/m/Y H:i') }})
+                                    </p>
+                                </div>
+                                @endif
+                                
                                 @if($spk->catatan_dosen)
                                 <p class="text-sm text-gray-600 mt-1 bg-gray-50 p-3 rounded-lg border border-gray-100">
-                                    <span class="font-semibold">Catatan Dosen:</span><br>
+                                    <span class="font-semibold">Catatan:</span><br>
                                     {{ $spk->catatan_dosen }}
                                 </p>
                                 @endif
@@ -338,10 +552,10 @@
 
                             <div class="relative pl-6">
                                 <div class="absolute w-4 h-4 bg-gray-300 rounded-full -left-[9px] top-1 border-2 border-white shadow"></div>
-                                <p class="text-xs font-semibold text-gray-500 mb-1">{{ $spk->created_at ? $spk->created_at->format('d M Y - H:i') : '-' }}</p>
+                                <p class="text-xs font-semibold text-gray-500 mb-1">{{ $spk->created_at ? $spk->created_at->translatedFormat('d F Y - H:i') : '-' }}</p>
                                 <h4 class="font-bold text-gray-800">SPK Diajukan</h4>
                                 <p class="text-sm text-gray-600 mt-1">
-                                    Mahasiswa mengajukan SPK beserta bukti kegiatan.
+                                    Mahasiswa mengajukan SPK beserta dokumen kegiatan.
                                 </p>
                             </div>
                         </div>

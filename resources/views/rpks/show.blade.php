@@ -89,6 +89,16 @@
                         <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->user->prodi ?? '-' }}</span>
                     </div>
 
+                    <div class="grid grid-cols-3 gap-2 pb-4">
+                        <span class="col-span-1 text-sm font-bold text-slate-500">Angkatan</span>
+                        <span class="col-span-2 text-sm text-slate-800 font-bold">{{ $rpk->user->angkatan ?? '-' }}</span>
+                    </div>
+
+                     <div class="grid grid-cols-3 gap-2 pb-4 border-b border-slate-100">
+                        <span class="col-span-1 text-sm font-bold text-slate-500">Semester</span>
+                        <span class="col-span-2 text-sm text-slate-800 font-bold">{{ $rpk->user->semester ?? '-' }}</span>
+                    </div>
+
                     <div class="grid grid-cols-3 gap-2 pt-2">
                         <span class="text-sm font-bold text-gray-600">Tahun RPK</span>
                         <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->tahun }}</span>
@@ -148,59 +158,72 @@
                 <div class="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar scroll-smooth flex-grow" id="tab-content-container">
                     
                     {{-- TAB 1: RENCANA KEGIATAN --}}
-                    <div class="w-full flex-shrink-0 snap-start p-6">
-                        <h3 class="text-gray-600 font-medium mb-4">Daftar Rencana Kegiatan</h3>
-                        
-                        <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden mb-6">
-                            
-                                <table class="w-full text-sm text-left text-gray-600">
-                                    <thead class="bg-gray-50 text-gray-700 uppercase text-xs tracking-wider border-b border-gray-200">
-                                        <tr>
-                                            <th class="px-3 py-3 font-semibold text-center w-10">No</th>
-                                            <th class="px-3 py-3 font-semibold">Judul Kegiatan</th>
-                                            <th class="px-3 py-3 font-semibold">Nama Kegiatan</th>
-                                            <th class="px-3 py-3 font-semibold text-center">Kategori</th>
-                                            <th class="px-3 py-3 font-semibold text-center">Tanggal</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    @php
-                                        if($isAnggota) {
-                                            $kegiatansTampil = $rpk->kegiatans->filter(function($k) use ($user) {
-                                                return $k->kategori == 'Kelompok' && $k->anggota->contains('id', $user->id);
-                                            });
-                                        } else {
-                                            $kegiatansTampil = $rpk->kegiatans;
-                                        }
-                                    @endphp
+{{-- TAB 1: RENCANA KEGIATAN --}}
+<div class="w-full flex-shrink-0 snap-start p-6">
+    <h3 class="text-gray-600 font-medium mb-4">Daftar Rencana Kegiatan</h3>
+    
+    <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden mb-6">
+        
+            <table class="w-full text-sm text-left text-gray-600">
+                <thead class="bg-gray-50 text-gray-700 uppercase text-xs tracking-wider border-b border-gray-200">
+                    <tr>
+                        <th class="px-3 py-3 font-semibold text-center w-10">No</th>
+                        <th class="px-3 py-3 font-semibold">Judul Kegiatan</th>
+                        <th class="px-3 py-3 font-semibold">Nama Kegiatan</th>
+                        <th class="px-3 py-3 font-semibold text-center">Kategori</th>
+                        <th class="px-3 py-3 font-semibold text-center">Tanggal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @php
+                    if($isAnggota) {
+                        $kegiatansTampil = $rpk->kegiatans->filter(function($k) use ($user) {
+                            return $k->kategori == 'Kelompok' && $k->anggota->contains('id', $user->id);
+                        });
+                    } else {
+                        $kegiatansTampil = $rpk->kegiatans;
+                    }
+                @endphp
 
-                                    @forelse($kegiatansTampil as $kegiatan)
-                                    <tr class="bg-white hover:bg-gray-50">
-                                        <td class="px-4 py-3 border-r border-gray-200 text-center">{{ $loop->iteration }}</td>
-                                        <td class="px-4 py-3 border-r border-gray-200 font-medium text-gray-800">{{ $kegiatan->judul_kegiatan }}</td>
-                                        <td class="px-4 py-3 border-r border-gray-200 font-medium text-gray-800">{{ $kegiatan->kegiatan }}</td>
-                                        <td class="px-4 py-3 border-r border-gray-200">
-                                            @if($kegiatan->kategori == 'Kelompok')
-                                                Kelompok
-                                                </span>
-                                            @else
-                                                Individu
-                                                </span>
-                                            @endif
-                                        </td>
-                                        <td class="px-4 py-3">{{ $kegiatan->tanggal ? \Carbon\Carbon::parse($kegiatan->tanggal)->format('d M Y') : '-' }}</td>
-                                    </tr>
-                                    @empty
-                                    <tr>
-                                        <td colspan="{{ $isPemilik && ($rpk->status == 'draft' || $rpk->status == 'ditolak') ? '8' : '7' }}" class="text-center py-4 text-gray-500">
-                                            Belum ada kegiatan pada RPK ini
-                                        </td>
-                                    </tr>
-                                    @endforelse
-                                    </tbody>
-                                </table>
-                            
-                        </div>
+                @forelse($kegiatansTampil as $kegiatan)
+                <tr class="bg-white hover:bg-gray-50">
+                    <td class="px-4 py-3 border-r border-gray-200 text-center">{{ $loop->iteration }}</td>
+                    <td class="px-4 py-3 border-r border-gray-200 font-medium text-gray-800">{{ $kegiatan->judul_kegiatan }}</td>
+                    <td class="px-4 py-3 border-r border-gray-200 font-medium text-gray-800">{{ $kegiatan->kegiatan }}</td>
+                    <td class="px-4 py-3 border-r border-gray-200">
+                        @if($kegiatan->kategori == 'Kelompok')
+                            Kelompok
+                            </span>
+                        @else
+                            Individu
+                            </span>
+                        @endif
+                    </td>
+                    <td class="px-4 py-3">
+                        @if($kegiatan->tanggal_mulai && $kegiatan->tanggal_selesai)
+                            {{ \Carbon\Carbon::parse($kegiatan->tanggal_mulai)->translatedFormat('d F Y') }} - {{ \Carbon\Carbon::parse($kegiatan->tanggal_selesai)->translatedFormat('d F Y') }}
+                        @elseif($kegiatan->tanggal_mulai)
+                            {{ \Carbon\Carbon::parse($kegiatan->tanggal_mulai)->translatedFormat('d F Y') }}
+                        @elseif($kegiatan->tanggal)
+                            {{ \Carbon\Carbon::parse($kegiatan->tanggal)->translatedFormat('d F Y') }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="{{ $isPemilik && ($rpk->status == 'draft' || $rpk->status == 'ditolak') ? '8' : '7' }}" class="text-center py-4 text-gray-500">
+                        Belum ada kegiatan pada RPK ini
+                    </td>
+                </tr>
+                @endforelse
+                </tbody>
+            </table>
+        
+    </div>
+
+
 
                         {{-- DAFTAR ANGGOTA KELOMPOK --}}
                         @if($isPemilik || $isAnggota)    {{-- 🔧 TAMPILKAN UNTUK PEMILIK & ANGGOTA --}}
@@ -309,6 +332,11 @@
 
 </div>
 
+{{-- CSS & JS Flatpickr --}}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 {{-- SCRIPT TABS --}}
@@ -335,16 +363,31 @@ window.updateGayaTab = function(index) {
 {{-- SCRIPT FORM MODAL (HANYA UNTUK PEMILIK) --}}
 @if($isPemilik && ($rpk->status == 'draft' || $rpk->status == 'ditolak'))
 <script>
-window.hapusKegiatan = function(button) {
+window.hapusKegiatan = function(id) {
     Swal.fire({
         title: 'Hapus Kegiatan?', text: 'Data yang dihapus tidak dapat dikembalikan.', icon: 'warning',
         showCancelButton: true, confirmButtonColor: '#dc2626', cancelButtonColor: '#6b7280',
-        confirmButtonText: 'Ya, Hapus', cancelButtonText: 'Batal', allowOutsideClick: false, allowEscapeKey: false,
-        customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl font-semibold', cancelButton: 'rounded-xl font-semibold' }
+        confirmButtonText: 'Ya, Hapus', cancelButtonText: 'Batal'
     }).then((result) => {
         if (result.isConfirmed) {
-            Swal.fire({ title: 'Menghapus...', text: 'Mohon tunggu sebentar', allowOutsideClick: false, showConfirmButton: false, didOpen: () => Swal.showLoading() });
-            button.closest('form').submit();
+            Swal.fire({ title: 'Menghapus...', allowOutsideClick: false, showConfirmButton: false, didOpen: () => Swal.showLoading() });
+            
+            // ⚡ AJAX DELETE
+            const formData = new FormData();
+            formData.append('_method', 'DELETE');
+            formData.append('_token', '{{ csrf_token() }}');
+            
+            fetch(`/kegiatans/${id}`, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) location.reload();
+                else throw new Error(data.message || 'Gagal');
+            })
+            .catch(err => Swal.fire({ icon: 'error', title: 'Gagal!', text: err.message }));
         }
     });
 };
@@ -457,6 +500,47 @@ window.tambahAnggotaDirect = function(prefix) {
     window.tampilkanPesanAnggota(prefix, 'Anggota berhasil ditambahkan', 'sukses');
 };
 
+// 📅 INISIALISASI DATE RANGE PICKER
+window.initDateRangePicker = function(prefix) {
+    var dateInput = document.getElementById(`${prefix}_tanggal_range`);
+    var mulaiHidden = document.getElementById(`${prefix}_tanggal_mulai`);
+    var selesaiHidden = document.getElementById(`${prefix}_tanggal_selesai`);
+    
+    if (!dateInput) return;
+    
+    // Hancurkan instance flatpickr jika sudah ada
+    if (dateInput._flatpickr) {
+        dateInput._flatpickr.destroy();
+    }
+    
+    flatpickr(dateInput, {
+        mode: "range",
+        dateFormat: "d-m-Y",
+        locale: "id",
+        onChange: function(selectedDates, dateStr, instance) {
+            if (selectedDates.length === 2) {
+                var mulai = instance.formatDate(selectedDates[0], "Y-m-d");
+                var selesai = instance.formatDate(selectedDates[1], "Y-m-d");
+                
+                if (mulaiHidden) mulaiHidden.value = mulai;
+                if (selesaiHidden) selesaiHidden.value = selesai;
+                
+                dateInput.value = instance.formatDate(selectedDates[0], "d M Y") + " - " + instance.formatDate(selectedDates[1], "d M Y");
+            } else if (selectedDates.length === 1) {
+                // Jika baru pilih 1 tanggal
+                var mulai = instance.formatDate(selectedDates[0], "Y-m-d");
+                if (mulaiHidden) mulaiHidden.value = mulai;
+                if (selesaiHidden) selesaiHidden.value = '';
+            } else {
+                // Jika clear
+                if (mulaiHidden) mulaiHidden.value = '';
+                if (selesaiHidden) selesaiHidden.value = '';
+            }
+        },
+    });
+};
+
+// 📋 BIND LOGIKA FORM
 window.bindLogikaForm = function(prefix) {
     var elKat = document.getElementById(`${prefix}_kategori`);
     var elPeran = document.getElementById(`${prefix}_peran`);
@@ -467,6 +551,11 @@ window.bindLogikaForm = function(prefix) {
     var elCariAnggota = document.getElementById(`${prefix}_cariAnggota`);
 
     window.anggotaTerpilih[prefix] = [];
+    
+    // Inisialisasi date range picker
+    setTimeout(() => {
+        window.initDateRangePicker(prefix);
+    }, 100);
     
     // Reset pencarian
     if (elCariAnggota) {
@@ -536,6 +625,7 @@ window.bindLogikaForm = function(prefix) {
     }
 };
 
+// 🏷️ RENDER ANGGOTA TERPILIH
 window.renderAnggotaTerpilih = function(prefix) {
     var c = document.getElementById(`${prefix}_anggotaTerpilih`);
     var hi = document.getElementById(`${prefix}_anggotaHidden`);
@@ -552,6 +642,7 @@ window.renderAnggotaTerpilih = function(prefix) {
     if (hi) hi.value = ids.join(',');
 };
 
+// ❌ HAPUS ANGGOTA
 window.hapusAnggota = function(prefix, index) { 
     if (window.anggotaTerpilih[prefix]) {
         window.anggotaTerpilih[prefix].splice(index, 1); 
@@ -559,18 +650,32 @@ window.hapusAnggota = function(prefix, index) {
     window.renderAnggotaTerpilih(prefix); 
 };
 
+// ✅ VALIDASI FORM
 window.validasiForm = function(prefix) {
     var m = document.getElementById(`${prefix}_master`)?.value;
     var j = document.getElementById(`${prefix}_judul`)?.value?.trim();
-    var t = document.getElementById(`${prefix}_tanggal`)?.value;
+    var tMulai = document.getElementById(`${prefix}_tanggal_mulai`)?.value;
+    var tSelesai = document.getElementById(`${prefix}_tanggal_selesai`)?.value;
+    var tRange = document.getElementById(`${prefix}_tanggal_range`)?.value;
     var k = document.getElementById(`${prefix}_kategori`)?.value;
     var p = document.getElementById(`${prefix}_peran`)?.value;
     var jml = document.getElementById(`${prefix}_jumlah`)?.value;
     
-    if (!m || !j || !t || !k) { 
+    if (!m || !j || !tRange || !k) { 
         Swal.showValidationMessage('Kegiatan, Judul, Tanggal, dan Kategori wajib diisi!'); 
         return false; 
     }
+    
+    if (!tMulai || !tSelesai) {
+        Swal.showValidationMessage('Harap pilih rentang tanggal dengan lengkap (tanggal mulai dan selesai)!');
+        return false;
+    }
+    
+    if (tSelesai < tMulai) {
+        Swal.showValidationMessage('Tanggal selesai tidak boleh lebih kecil dari tanggal mulai!');
+        return false;
+    }
+    
     if (k === 'Kelompok' && !p) { 
         Swal.showValidationMessage('Karena Kelompok, harap pilih Peran!'); 
         return false; 
@@ -590,6 +695,7 @@ window.validasiForm = function(prefix) {
     return true;
 };
 
+// 📝 GENERATE FORM HTML
 window.generateFormHTML = function(prefix) {
     return `
         <div class="mb-4">
@@ -609,7 +715,18 @@ window.generateFormHTML = function(prefix) {
         
         <div class="mb-4">
             <label class="block text-sm font-semibold text-gray-700 mb-2">Tanggal Kegiatan *</label>
-            <input type="date" name="tanggal" id="${prefix}_tanggal" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" required>
+            <div class="relative">
+                <input type="text" 
+                    name="tanggal_range" 
+                    id="${prefix}_tanggal_range" 
+                    class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer bg-white" 
+                    placeholder="📅 Pilih rentang tanggal" 
+                    readonly 
+                    required>
+                <input type="hidden" name="tanggal_mulai" id="${prefix}_tanggal_mulai">
+                <input type="hidden" name="tanggal_selesai" id="${prefix}_tanggal_selesai">
+            </div>
+            <p class="text-xs text-gray-400 mt-1">Klik untuk memilih rentang tanggal</p>
         </div>
         
         <div class="mb-4">
@@ -637,13 +754,12 @@ window.generateFormHTML = function(prefix) {
         <div class="mb-4 hidden" id="${prefix}_anggotaContainer">
             <label class="block text-sm font-semibold text-gray-700 mb-2">Tambah Anggota</label>
             
-            {{-- ⚡ DROPDOWN DENGAN PENCARIAN DI DALAMNYA --}}
             <div class="flex gap-2 mb-3">
                 <div class="relative flex-1">
                     <input type="text" 
                         id="${prefix}_cariAnggota" 
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition" 
-                        placeholder="Cari dan pilih mahasiswa..."
+                        placeholder="🔍 Cari dan pilih mahasiswa..."
                         onfocus="window.bukaDropdownAnggota('${prefix}')"
                         oninput="window.filterAnggotaDropdown('${prefix}')"
                         onclick="window.bukaDropdownAnggota('${prefix}')"
@@ -684,30 +800,101 @@ window.generateFormHTML = function(prefix) {
         </div>`;
 };
 
+// ➕ BUKA MODAL TAMBAH KEGIATAN (FULL AJAX)
 window.bukaModalTambahKegiatan = function() {
     Swal.fire({
-        title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Tambah Kegiatan</h2>', width: '650px',
-        html: `<form id="formAdd" action="{{ route('kegiatans.store', $rpk->id) }}" method="POST" class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">@csrf ${window.generateFormHTML('add')}</form>`,
-        showCancelButton: true, confirmButtonText: 'Simpan', cancelButtonText: 'Batal', confirmButtonColor: '#2563EB', cancelButtonColor: '#9CA3AF',
-        allowOutsideClick: false, allowEscapeKey: false, customClass: { popup: 'rounded-2xl p-6' },
-        didOpen: () => { window.bindLogikaForm('add'); window.anggotaTerpilih['add'] = []; },
-        preConfirm: () => { if(window.validasiForm('add')) { Swal.showLoading(); document.getElementById('formAdd').submit(); return false; } return false; }
+        title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Tambah Kegiatan</h2>',  // ⚡ TAMBAH
+        width: '650px',  // ⚡ TAMBAH
+        html: `<div class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">${window.generateFormHTML('add')}</div>`,  // ⚡ TAMBAH (tanpa <form>)
+        showCancelButton: true,  // ⚡ TAMBAH
+        confirmButtonText: 'Simpan',  // ⚡ TAMBAH
+        cancelButtonText: 'Batal',  // ⚡ TAMBAH
+        confirmButtonColor: '#2563EB',  // ⚡ TAMBAH
+        cancelButtonColor: '#9CA3AF',  // ⚡ TAMBAH
+        allowOutsideClick: false,  // ⚡ TAMBAH
+        customClass: { popup: 'rounded-2xl p-6' },  // ⚡ TAMBAH
+        didOpen: () => { 
+            window.bindLogikaForm('add'); 
+            window.anggotaTerpilih['add'] = []; 
+        },
+        preConfirm: () => { 
+            if(!window.validasiForm('add')) return false;
+            
+            Swal.showLoading();
+            
+            const formData = new FormData();
+            formData.append('_token', '{{ csrf_token() }}');
+            formData.append('master_kegiatan_id', document.getElementById('add_master').value);
+            formData.append('judul_kegiatan', document.getElementById('add_judul').value);
+            formData.append('tanggal_mulai', document.getElementById('add_tanggal_mulai').value);
+            formData.append('tanggal_selesai', document.getElementById('add_tanggal_selesai').value);
+            formData.append('kategori', document.getElementById('add_kategori').value);
+            formData.append('peran', document.getElementById('add_peran')?.value || '');
+            formData.append('jumlah_anggota', document.getElementById('add_jumlah')?.value || '');
+            formData.append('anggota_ids', document.getElementById('add_anggotaHidden')?.value || '');
+            
+            return fetch("{{ route('kegiatans.store', $rpk->id) }}", {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) return data;
+                throw new Error(data.message || 'Gagal');
+            })
+            .catch(err => { Swal.showValidationMessage(err.message); return false; });
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Kegiatan berhasil ditambahkan', timer: 2000, showConfirmButton: false })
+            .then(() => location.reload());
+        }
     });
 };
 
+// ✏️ BUKA MODAL EDIT KEGIATAN
 window.bukaModalEditKegiatan = function(button) {
     var id = button.getAttribute('data-id');
     var actionUrl = "{{ route('kegiatans.update', ':id') }}".replace(':id', id);
+    
     Swal.fire({
-        title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Edit Kegiatan</h2>', width: '650px',
+        title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Edit Kegiatan</h2>', 
+        width: '650px',
         html: `<form id="formEdit" action="${actionUrl}" method="POST" class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">@csrf @method('PUT') ${window.generateFormHTML('edit')}</form>`,
-        showCancelButton: true, confirmButtonText: 'Update', cancelButtonText: 'Batal', confirmButtonColor: '#2563EB', cancelButtonColor: '#9CA3AF',
-        allowOutsideClick: false, allowEscapeKey: false, customClass: { popup: 'rounded-2xl p-6' },
+        showCancelButton: true, 
+        confirmButtonText: 'Update', 
+        cancelButtonText: 'Batal', 
+        confirmButtonColor: '#2563EB', 
+        cancelButtonColor: '#9CA3AF',
+        allowOutsideClick: false, 
+        allowEscapeKey: false, 
+        customClass: { popup: 'rounded-2xl p-6' },
         didOpen: () => {
-            window.bindLogikaForm('edit'); window.anggotaTerpilih['edit'] = [];
+            window.bindLogikaForm('edit'); 
+            window.anggotaTerpilih['edit'] = [];
+            
+            // Isi data form
             document.getElementById('edit_master').value = button.getAttribute('data-master');
             document.getElementById('edit_judul').value = button.getAttribute('data-judul') || '';
-            document.getElementById('edit_tanggal').value = button.getAttribute('data-tanggal') || '';
+            
+            // Isi hidden input tanggal
+            var tMulai = button.getAttribute('data-tanggal-mulai') || '';
+            var tSelesai = button.getAttribute('data-tanggal-selesai') || '';
+            
+            document.getElementById('edit_tanggal_mulai').value = tMulai;
+            document.getElementById('edit_tanggal_selesai').value = tSelesai;
+            
+            // Set flatpickr value
+            setTimeout(() => {
+                if (tMulai && tSelesai) {
+                    var dateRangeInput = document.getElementById('edit_tanggal_range');
+                    var fp = dateRangeInput._flatpickr;
+                    if (fp) {
+                        fp.setDate([tMulai, tSelesai]);
+                    }
+                }
+            }, 200);
             
             var katValue = button.getAttribute('data-kategori');
             document.getElementById('edit_kategori').value = katValue;
@@ -715,11 +902,19 @@ window.bukaModalEditKegiatan = function(button) {
             if (katValue === 'Kelompok') {
                 document.getElementById('edit_peranField').classList.remove('hidden');
                 document.getElementById('edit_peran').value = button.getAttribute('data-peran');
+                
                 if (button.getAttribute('data-peran') === 'Ketua') {
                     document.getElementById('edit_jumlahField').classList.remove('hidden');
                     document.getElementById('edit_jumlah').value = button.getAttribute('data-jumlah');
                     document.getElementById('edit_anggotaContainer').classList.remove('hidden');
                 }
+            }
+            
+            // Load anggota terpilih jika ada
+            var anggotaIds = button.getAttribute('data-anggota-ids');
+            if (anggotaIds) {
+                // Anda perlu menambahkan logic untuk load anggota yang sudah ada
+                // Ini tergantung struktur data Anda
             }
             
             // Trigger change events
@@ -729,7 +924,14 @@ window.bukaModalEditKegiatan = function(button) {
                 document.getElementById('edit_jumlah').dispatchEvent(new Event('change'));
             }, 100);
         },
-        preConfirm: () => { if(window.validasiForm('edit')) { Swal.showLoading(); document.getElementById('formEdit').submit(); return false; } return false; }
+        preConfirm: () => { 
+            if(window.validasiForm('edit')) { 
+                Swal.showLoading(); 
+                document.getElementById('formEdit').submit(); 
+                return false; 
+            } 
+            return false; 
+        }
     });
 };
 </script>

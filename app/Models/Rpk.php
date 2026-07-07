@@ -10,7 +10,6 @@ class Rpk extends Model
     'user_id',
     'tahun',
     'semester',
-    'kategori',
     'status',
     'catatan_dosen'
 ];

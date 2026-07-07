@@ -25,7 +25,6 @@ class MasterPrestasiController extends Controller
     {
         $validator = \Validator::make($request->all(), [
             'juara' => 'required|string|max:255',
-            'poin' => 'required|integer|min:0',
             'tingkat' => 'required|in:Universitas,Regional,Nasional,Internasional',
             'is_active' => 'required|in:0,1'
         ]);
@@ -58,7 +57,6 @@ class MasterPrestasiController extends Controller
     {
         $validator = \Validator::make($request->all(), [
             'juara' => 'required|string|max:255',
-            'poin' => 'required|integer|min:0',
             'tingkat' => 'required|in:Universitas,Regional,Nasional,Internasional',
             'is_active' => 'required|in:0,1'
         ]);

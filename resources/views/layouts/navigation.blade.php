@@ -64,20 +64,20 @@
              'transition-all duration-300': siapAnimasi
          }">
         
-        <div x-show="!collapsed" class="whitespace-nowrap overflow-hidden">
-            <h2 class="font-semibold text-sm text-white truncate">{{ auth()->user()->name }}</h2>
-            <p class="text-xs mt-1 font-medium flex flex-wrap gap-1">
-                @foreach(auth()->user()->roles as $role)
-                    @if($role->name == 'Admin')
-                        <span class="text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded-md">{{ $role->name }}</span>
-                    @elseif($role->name == 'Dosen')
-                        <span class="text-purple-400 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded-md">{{ $role->name }}</span>
-                    @else
-                        <span class="text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-md">{{ $role->name }}</span>
-                    @endif
-                @endforeach
-            </p>
-        </div>
+       <div x-show="!collapsed" class="overflow-hidden">
+    <h2 class="font-semibold text-sm text-white break-words">{{ auth()->user()->name }}</h2>
+    <p class="text-xs mt-1 font-medium flex flex-wrap gap-1">
+        @foreach(auth()->user()->roles as $role)
+            @if($role->name == 'Admin')
+                <span class="text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded-md">{{ $role->name }}</span>
+            @elseif($role->name == 'Dosen')
+                <span class="text-purple-400 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded-md">{{ $role->name }}</span>
+            @else
+                <span class="text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-md">{{ $role->name }}</span>
+            @endif
+        @endforeach
+    </p>
+</div>
 
         <div x-show="collapsed" title="{{ auth()->user()->name }}" class="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold shadow-inner">
             {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
@@ -124,7 +124,7 @@
         --}}
 
         <a href="{{ route('admin.rpk.index') }}" title="RPK"
-           class="flex items-center rounded-xl transform ease-out active:scale-95 {{ request()->routeIs('admin.rpk.index') ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"
+           class="flex items-center rounded-xl transform ease-out active:scale-95 {{ request()->routeIs('admin.rpk.*') ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"
            :class="{
                'justify-center p-3': collapsed,
                'gap-3 px-3 py-2.5 hover:translate-x-1.5': !collapsed,
@@ -136,17 +136,17 @@
             <span x-show="!collapsed" class="font-medium text-sm whitespace-nowrap">RPK</span>
         </a>
 
-        <a href="{{ route('admin.dashboard') }}" title="Daftar Pengguna"
-           class="flex items-center rounded-xl transform ease-out active:scale-95 {{ request()->routeIs('admin.dashboard') ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"
+        <a href="{{ route('admin.spk.index') }}" title="SPK"
+           class="flex items-center rounded-xl transform ease-out active:scale-95 {{ request()->routeIs('admin.spk.*') ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"
            :class="{
                'justify-center p-3': collapsed,
                'gap-3 px-3 py-2.5 hover:translate-x-1.5': !collapsed,
                'transition-all duration-300': siapAnimasi
            }">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 shrink-0">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 shrink-0">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0 1 18 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3 1.5 1.5 3-3.75" />
             </svg>
-            <span x-show="!collapsed" class="font-medium text-sm whitespace-nowrap">Daftar Pengguna</span>
+            <span x-show="!collapsed" class="font-medium text-sm whitespace-nowrap">SPK</span>
         </a>
 
         <a href="{{ route('admin.pembimbing.index') }}" title="Dosen Pembimbing"
@@ -161,6 +161,21 @@
             </svg>
             <span x-show="!collapsed" class="font-medium text-sm whitespace-nowrap">Dosen Pembimbing</span>
         </a>
+
+        <a href="{{ route('admin.users.index') }}" title="Daftar Pengguna"
+           class="flex items-center rounded-xl transform ease-out active:scale-95 {{ request()->routeIs('admin.users.index') ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"
+           :class="{
+               'justify-center p-3': collapsed,
+               'gap-3 px-3 py-2.5 hover:translate-x-1.5': !collapsed,
+               'transition-all duration-300': siapAnimasi
+           }">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 shrink-0">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+            </svg>
+            <span x-show="!collapsed" class="font-medium text-sm whitespace-nowrap">Daftar Pengguna</span>
+        </a>
+
+        
 
         <a href="{{ route('admin.kegiatan.index') }}" title="Master Kegiatan"
            class="flex items-center rounded-xl transform ease-out active:scale-95 {{ request()->routeIs('admin.kegiatan.*') ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"

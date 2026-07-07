@@ -34,6 +34,8 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'nim' => ['required', 'string', 'max:30'],
             'prodi' => ['required', 'string', 'max:100'],
+            'angkatan' => ['required', 'string', 'max:4'],    // ⚡ TAMBAH
+            'semester' => ['required', 'string', 'max:2'],    // ⚡ TAMBAH
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
@@ -42,6 +44,8 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'nim' => $request->nim,
             'prodi' => $request->prodi,
+            'angkatan' => $request->angkatan,    // ⚡ TAMBAH
+            'semester' => $request->semester,    // ⚡ TAMBAH
             'email' => $request->email,
             'password' => Hash::make($request->password),
             

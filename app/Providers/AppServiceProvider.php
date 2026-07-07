@@ -4,13 +4,28 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\Notifications\VerifyEmail;
-use Illuminate\Auth\Notifications\ResetPassword; // Tambahkan ini
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Notifications\Messages\MailMessage;
+use Carbon\Carbon;
 
 class AppServiceProvider extends ServiceProvider
 {
+    /**
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        //
+    }
+
+    /**
+     * Bootstrap any application services.
+     */
     public function boot(): void
     {
+        // 🔧 Set Carbon ke Bahasa Indonesia
+        Carbon::setLocale('id');
+        
         // Konfigurasi Email Verifikasi
         VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
             return (new MailMessage)

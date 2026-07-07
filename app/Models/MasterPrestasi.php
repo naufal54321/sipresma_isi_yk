@@ -12,7 +12,6 @@ class MasterPrestasi extends Model
     // 🔧 PASTIKAN is_active ADA DI $fillable
     protected $fillable = [
         'juara',
-        'poin',
         'tingkat', 
         'is_active', // ⚡ HARUS ADA
     ];

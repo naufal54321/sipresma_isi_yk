@@ -104,9 +104,9 @@
                 <div class="flex items-center gap-3 mb-2">
                     <span class="relative flex h-3 w-3">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
                     </span>
-                    <p class="text-blue-600 font-extrabold tracking-[0.2em] text-xs uppercase">Portal Publik</p>
+                    <p class="text-black font-extrabold tracking-[0.2em] text-xs uppercase">Portal Publik</p>
                 </div>
                 <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 truncate">
                     Dashboard SIPRESMA
