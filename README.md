@@ -3,7 +3,6 @@
 
 <div align="center">
 
-![SIPRESMA](public/images/logo_isi_dashboard.png)
 
 **Institut Seni Indonesia Yogyakarta**
 
@@ -142,7 +141,7 @@ Akses di browser: `http://localhost:8000`
 
 | Status | Keterangan |
 |--------|------------|
-| `draft` | Masih dalam proses pengisian |
+| `draft` | Menunggu Validasi |
 | `disetujui` | Telah diverifikasi |
 | `ditolak` | Ditolak dengan catatan |
 
@@ -220,7 +219,7 @@ Proyek ini dikembangkan untuk **Institut Seni Indonesia Yogyakarta**.
 ---
 
 <div align="center">
-Made with ❤️ for ISI Yogyakarta
+Made with for ISI Yogyakarta
 </div>
 ```
 
