@@ -3,13 +3,14 @@
 
 <div align="center">
 
+![SIPRESMA](public/images/logo_isi_dashboard.png)
 
 **Institut Seni Indonesia Yogyakarta**
 
-[![Laravel](https://img.shields.io/badge/Laravel-11.x-FF2D20?style=flat&logo=laravel)](https://laravel.com)
-[![PHP](https://img.shields.io/badge/PHP-8.2-777BB4?style=flat&logo=php)](https://php.net)
+[![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?style=flat&logo=laravel)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=flat&logo=php)](https://php.net)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.x-06B6D4?style=flat&logo=tailwindcss)](https://tailwindcss.com)
-[![Tests](https://img.shields.io/badge/Tests-9%20Passed-brightgreen?style=flat)](https://github.com/your-repo)
+[![Tests](https://img.shields.io/badge/Tests-9%20Passed-brightgreen?style=flat)]()
 
 </div>
 
@@ -46,23 +47,25 @@ SIPRESMA adalah sistem informasi yang digunakan untuk mengelola prestasi mahasis
 
 ## 🛠️ Teknologi
 
-- **Backend**: Laravel 11.x
-- **Frontend**: TailwindCSS, Alpine.js
-- **Database**: MySQL / SQLite
-- **Authentication**: Laravel Breeze
-- **Authorization**: Spatie Laravel Permission
-- **Icons**: Font Awesome
-- **Alerts**: SweetAlert2
-- **Charts**: Chart.js
-- **Date Picker**: Flatpickr
-- **Testing**: Pest PHP
+| Teknologi | Versi |
+|-----------|-------|
+| **Laravel** | 12.x |
+| **PHP** | 8.2+ |
+| **TailwindCSS** | 3.x |
+| **Alpine.js** | 3.x |
+| **MySQL** | 5.7+ |
+| **Spatie Permission** | 6.x |
+| **SweetAlert2** | 11.x |
+| **Chart.js** | 4.x |
+| **Flatpickr** | 4.x |
+| **Pest PHP** | 3.x |
 
 ## 📋 Persyaratan
 
 - PHP 8.2 atau lebih tinggi
-- Composer
-- MySQL 5.7+ atau SQLite
-- Node.js & NPM (opsional)
+- Composer 2.x
+- MySQL 5.7+ / SQLite 3.x
+- Node.js & NPM (untuk asset building)
 
 ## 🚀 Instalasi
 
@@ -133,17 +136,17 @@ Akses di browser: `http://localhost:8000`
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | admin@example.com | password |
-| Dosen | dosen@example.com | password |
-| Mahasiswa | mahasiswa@example.com | password |
+| Admin | admin@isi.ac.id | password |
+| Dosen | dosen@isi.ac.id | password |
+| Mahasiswa | mahasiswa@isi.ac.id | password |
 
 ## 📊 Status RPK & SPK
 
 | Status | Keterangan |
 |--------|------------|
 | `draft` | Menunggu Validasi |
-| `disetujui` | Telah diverifikasi |
-| `ditolak` | Ditolak dengan catatan |
+| `disetujui` | Telah diverifikasi dan disetujui |
+| `ditolak` | Ditolak dengan catatan perbaikan |
 
 ## 🧪 Testing
 
@@ -157,9 +160,24 @@ Tests:    9 passed (13 assertions)
 Duration: 1.07s
 ```
 
+### Daftar Test:
+
+| # | Test | Status |
+|---|------|--------|
+| 1 | `Unit\ExampleTest` | ✅ |
+| 2 | `Feature\ExampleTest` | ✅ |
+| 3 | `Feature\Auth\LoginTest` | ✅ |
+| 4 | `Feature\ProdiTest` - create | ✅ |
+| 5 | `Feature\ProdiTest` - view | ✅ |
+| 6 | `Feature\RpkTest` - create | ✅ |
+| 7 | `Feature\RpkTest` - dashboard | ✅ |
+| 8 | `Feature\UserTest` - create | ✅ |
+| 9 | `Feature\UserTest` - assign role | ✅ |
+
 ## 📁 Struktur Folder
 
 ```
+sipresma/
 ├── app/
 │   ├── Http/
 │   │   └── Controllers/
@@ -171,46 +189,68 @@ Duration: 1.07s
 │   ├── migrations/
 │   └── seeders/
 ├── public/
+│   └── images/
 ├── resources/
 │   └── views/
 │       ├── admin/
+│       │   ├── spk/
+│       │   ├── rpk/
+│       │   └── daftar_pengguna/
 │       ├── dashboard/
 │       ├── dosen/
 │       ├── spks/
 │       └── rpks/
 ├── routes/
 │   └── web.php
-└── tests/
-    ├── Feature/
-    └── Unit/
+├── tests/
+│   ├── Feature/
+│   └── Unit/
+└── storage/
+    └── app/public/
 ```
 
 ## 🔧 Perintah Berguna
 
 ```bash
-# Clear cache
+# Clear all cache
 php artisan optimize:clear
 
-# Refresh database
+# Refresh database dengan seed
 php artisan migrate:fresh --seed
 
-# Run tests
+# Run all tests
 php artisan test
 
 # Run specific test
 php artisan test --filter=RpkTest
 
-# Check routes
+# Check all routes
 php artisan route:list
+
+# Check Laravel version
+php artisan --version
+
+# Run Laravel Pint (code formatter)
+./vendor/bin/pint
 ```
 
-## 📝 Catatan
+## 📝 Catatan Penting
 
-- Mahasiswa harus verifikasi email sebelum mengakses dashboard
-- Dosen hanya dapat melihat data mahasiswa bimbingannya
-- Admin dapat menambahkan poin pada SPK yang sudah disetujui
-- File upload maksimal 5MB
-- Format file yang didukung: PDF, JPG, PNG
+- **Email Verification**: Mahasiswa harus verifikasi email sebelum mengakses dashboard
+- **Dosen Bimbingan**: Dosen hanya dapat melihat data mahasiswa bimbingannya
+- **Poin SPK**: Admin dapat menambahkan poin pada SPK yang sudah disetujui
+- **File Upload**: Maksimal 5MB per file
+- **Format File**: PDF, JPG, PNG
+- **AJAX**: Semua operasi CRUD menggunakan AJAX tanpa reload halaman
+
+## 🎨 Fitur Tambahan
+
+- **Full AJAX**: Tambah, edit, hapus tanpa reload halaman
+- **SweetAlert2**: Notifikasi dan konfirmasi interaktif
+- **Chart.js**: Grafik statistik di dashboard
+- **Flatpickr**: Date picker untuk rentang tanggal
+- **Responsive Design**: Tampilan optimal di desktop dan mobile
+- **Motif Batik**: Tema tradisional Indonesia di hero section
 
 ## 📄 Lisensi
 
@@ -222,5 +262,3 @@ Proyek ini dikembangkan untuk **Institut Seni Indonesia Yogyakarta**.
 Made with for ISI Yogyakarta
 </div>
 ```
-
-README.md sudah siap! 🎉
