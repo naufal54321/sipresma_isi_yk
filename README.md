@@ -3,7 +3,6 @@
 
 <div align="center">
 
-![SIPRESMA]
 
 **Institut Seni Indonesia Yogyakarta**
 
