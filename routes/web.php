@@ -39,8 +39,10 @@ Route::get('/', function () {
         ->distinct('user_id')
         ->count('user_id');
 
-    // Mengambil data SPK disetujui beserta relasi user & kegiatan
-    $spkDisetujuiData = Spk::with(['user', 'kegiatan'])->where('status', 'disetujui')->get();
+    // ⚡ Load dengan relasi prestasi
+    $spkDisetujuiData = Spk::with(['user', 'kegiatan', 'prestasi'])
+        ->where('status', 'disetujui')
+        ->get();
 
     // Data List Rekap 10 Terbaru
     $rekapPrestasi = $spkDisetujuiData->sortByDesc('updated_at')->take(10);
@@ -52,16 +54,18 @@ Route::get('/', function () {
     $chartLabels = $prodiGrup->keys()->toArray();
     $chartData = $prodiGrup->map->count()->values()->toArray();
 
-    // Data Chart 2: Tingkat Kegiatan
+    // ⚡ Data Chart 2: Tingkat dari master_prestasis
     $tingkatGrup = $spkDisetujuiData->groupBy(function ($spk) {
-        return $spk->kegiatan->tingkat ?? 'Lainnya';
+        return $spk->prestasi->tingkat ?? $spk->tingkat ?? 'Lainnya';
     });
     $tingkatLabels = $tingkatGrup->keys()->toArray();
     $tingkatData = $tingkatGrup->map->count()->values()->toArray();
 
     // Data Chart 3: Jenis Kegiatan
     $jenisGrup = $spkDisetujuiData->groupBy(function ($spk) {
-        return $spk->kegiatan->jenis ?? 'Lainnya';
+        return $spk->kegiatan->kegiatan
+            ?? $spk->kegiatan->nama_kegiatan
+            ?? 'Lainnya';
     });
     $jenisLabels = $jenisGrup->keys()->toArray();
     $jenisData = $jenisGrup->map->count()->values()->toArray();

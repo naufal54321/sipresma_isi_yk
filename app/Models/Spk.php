@@ -80,9 +80,15 @@ class Spk extends Model
     // ⚡ TAMBAH: Scope untuk SPK tanpa poin
     public function scopeTanpaPoin($query)
     {
-        return $query->where(function($q) {
+        return $query->where(function ($q) {
             $q->whereNull('poin')
-              ->orWhere('poin', '<=', 0);
+                ->orWhere('poin', '<=', 0);
         });
+    }
+
+    // app/Models/Spk.php
+    public function prestasi()
+    {
+        return $this->belongsTo(MasterPrestasi::class, 'prestasi_id');
     }
 }

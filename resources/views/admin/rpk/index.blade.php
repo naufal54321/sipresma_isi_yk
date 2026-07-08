@@ -2,8 +2,8 @@
     <div class="max-w-8xl mx-auto py-6">
         
        <div class="mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Manajemen Seluruh RPK</h1>
-            <p class="text-gray-500 mt-1">Kelola seluruh RPK pengguna SIPRESMA</p>
+            <h1 class="text-3xl font-bold text-gray-800">Manajemen Semua RPK</h1>
+            <p class="text-gray-500 mt-1">Kelola Semua Rencana Prestasi Kemahasiswaan</p>
         </div>
             
         @if(session('success'))
@@ -63,115 +63,116 @@
         </div>
 
         <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-            <div class="overflow-x-auto w-full">
-                <table class="min-w-full text-sm text-left text-slate-600">
-                    <thead class="bg-slate-50/80 uppercase text-[10px] sm:text-[11px] font-extrabold tracking-wider text-slate-400 border-b border-slate-100">
-                        <tr>
-                            <th class="px-4 py-4 text-center w-10">No</th> 
-                            <th class="px-5 sm:px-6 py-4 whitespace-nowrap">Mahasiswa</th>
-                            <th class="px-5 sm:px-6 py-4">Program Studi</th>
-                            <th class="px-5 sm:px-6 py-4">Rencana Kegiatan</th>
-                            <th class="px-5 sm:px-6 py-4 whitespace-nowrap">Dosen Pembimbing</th>
-                            <th class="px-5 sm:px-6 py-4 text-center whitespace-nowrap">Status</th>
-                            <th class="px-5 sm:px-6 py-4 text-center whitespace-nowrap">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-50">
-                        @forelse($rpks as $item)
-                        <tr class="hover:bg-blue-50/30 transition-colors group">
-                            <td class="px-4 py-4 text-center font-bold text-black">
-                                {{ $loop->iteration }}
-                            </td>
+    <div class="w-full">
+        <table class="w-full table-fixed text-sm text-left text-slate-600">
+            <thead class="bg-slate-50/80 uppercase text-[10px] sm:text-[11px] font-extrabold tracking-wider text-slate-400 border-b border-slate-100">
+                <tr>
+                    <th class="px-3 py-4 text-center w-8">No</th> 
+                    <th class="px-3 py-4 w-[18%]">Mahasiswa</th>
+                    <th class="px-3 py-4 w-[12%]">Program Studi</th>
+                    <th class="px-3 py-4 w-[22%]">Rencana Kegiatan</th>
+                    <th class="px-3 py-4 text-center w-[10%]">Kategori</th>
+                    <th class="px-3 py-4 w-[15%]">Dosen Pembimbing</th>
+                    <th class="px-3 py-4 text-center w-[10%]">Status</th>
+                    <th class="px-3 py-4 text-center w-10">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+                @forelse($rpks as $item)
+                <tr class="hover:bg-blue-50/30 transition-colors group">
+                    <td class="px-3 py-4 text-center font-bold text-black text-sm">
+                        {{ $loop->iteration }}
+                    </td>
 
-                            <td class="px-5 sm:px-6 py-4 min-w-[200px]">
-                                <div class="flex items-center gap-3">
-                                    <div class="min-w-0">
-                                        <p class="font-bold text-slate-800 truncate group-hover:text-blue-600 transition-colors">{{ $item->user->name ?? '-' }}</p>
-                                        <p class="text-[15px] text-slate-400 font-semibold truncate">{{ $item->user->nim ?? '-' }}</p>
-                                    </div>
-                                </div>
-                            </td>
+                    <td class="px-3 py-4">
+                        <p class="font-bold text-slate-800 truncate group-hover:text-blue-600 transition-colors text-sm">{{ $item->user->name ?? '-' }}</p>
+                        <p class="text-sm text-slate-400 font-semibold truncate">{{ $item->user->nim ?? '-' }}</p>
+                    </td>
 
-                            <td class="px-4 py-4 font-semibold text-black">
-                                {{ $item->user->prodi ?? '-' }}
-                            </td>
+                    <td class="px-3 py-4 font-semibold text-black text-sm">
+                        {{ $item->user->prodi ?? '-' }}
+                    </td>
 
-                            <td class="px-5 sm:px-6 py-4 min-w-[250px] max-w-xs">
-                                {{-- Cek apakah RPK ini memiliki anak relasi kegiatan --}}
-                                @if($item->kegiatans && $item->kegiatans->count() > 0)
-                                    <!-- Menampilkan nama kegiatan yang pertama -->
-                                    <p class="font-semibold text-slate-700 line-clamp-1 leading-relaxed">
-                                        {{ $item->kegiatans->first()->kegiatan }}
-                                    </p>
-                                    
-                                    {{-- Jika kegiatannya ada banyak, munculkan info tambahan --}}
-                                    @if($item->kegiatans->count() > 1)
-                                        <span class="inline-flex items-center text-[10px] text-blue-600 font-bold bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded-md mt-1">
-                                            +{{ $item->kegiatans->count() - 1 }} Kegiatan Lainnya
-                                        </span>
-                                    @endif
-                                @else
-                                    {{-- Jika mahasiswa baru membuat kuota RPK tapi belum mengisi list kegiatannya --}}
-                                    <p class="font-semibold text-slate-400 text-xs italic">
-                                        RPK Smt {{ $item->semester ?? '-' }} (Thn {{ $item->tahun ?? '-' }})
-                                    </p>
-                                    <span class="inline-flex items-center text-[10px] text-slate-400 font-bold bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded-md mt-1">
-                                        Belum ada list kegiatan
-                                    </span>
-                                @endif
-                            </td>
+                    <td class="px-3 py-4">
+                        @if($item->kegiatans && $item->kegiatans->count() > 0)
+                            <p class="font-semibold text-slate-700 text-sm line-clamp-2 leading-relaxed">
+                                {{ $item->kegiatans->first()->kegiatan }}
+                            </p>
+                            @if($item->kegiatans->count() > 1)
+                                <span class="inline-flex items-center text-[10px] text-blue-600 font-bold bg-blue-50 border border-blue-100 px-1 py-0.5 rounded-md mt-1">
+                                    +{{ $item->kegiatans->count() - 1 }}
+                                </span>
+                            @endif
+                        @else
+                            <p class="font-semibold text-slate-400 text-sm italic">
+                                RPK Smt {{ $item->semester ?? '-' }}
+                            </p>
+                            <span class="text-[10px] text-slate-400 font-bold bg-slate-100 border border-slate-200 px-1 py-0.5 rounded-md mt-1 inline-block">
+                                Belum ada kegiatan
+                            </span>
+                        @endif
+                    </td>
 
-                            <td class="font-bold text-black px-5 sm:px-6 py-4 min-w-[180px]">
-                                @if($item->user && $item->user->dosenPembimbing)
-                                
-                                        <span class="truncate max-w-[120px]">{{ $item->user->dosenPembimbing->name }}</span>
-                                @else
-                                    <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold bg-red-50 text-red-600 border border-red-200 shadow-sm shadow-red-500/10 animate-pulse">
-                                        <i class="fas fa-exclamation-triangle"></i> Belum Ada
-                                    </div>
-                                @endif
-                            </td>
+                    <td class="px-3 py-4 text-center">
+                        @if($item->kegiatans && $item->kegiatans->count() > 0)
+                            @php $kategori = $item->kegiatans->first()->kategori ?? '-'; @endphp
+                            @if($kategori == 'Kelompok')
+                                <span class="inline-flex items-center gap-1 bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs font-semibold">
+                                    Kelompok
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-semibold">
+                                    Individu
+                                </span>
+                            @endif
+                        @else
+                            <span class="text-slate-400 text-sm">-</span>
+                        @endif
+                    </td>
 
-                            <td class="px-5 sm:px-6 py-4 text-center">
-                                @if($item->status == 'disetujui')
-                                    <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs">
-                                            Disetujui
-                                    </span>
-                                @elseif($item->status == 'ditolak')
-                                    <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs">
-                                            Ditolak
-                                        </span>
-                                @else
-                                    <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-xs">
-                                            Draft
-                                    </span>
-                                @endif
-                            </td>
-                            
+                    <td class="px-3 py-4 text-sm">
+                        @if($item->user && $item->user->dosenPembimbing)
+                            <span class="block">{{ $item->user->dosenPembimbing->name }}</span>
+                        @else
+                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold bg-red-50 text-red-600 border border-red-200">
+                                <i class="fas fa-exclamation-triangle text-[9px]"></i> Belum Ada
+                            </span>
+                        @endif
+                    </td>
 
-                            <td class="px-5 sm:px-6 py-4 text-center">
-                                <a href="{{ route('admin.rpk.show', $item->id) }}"
-                                    title="Detail RPK"
-                                            class="flex items-center justify-center w-9 h-9 bg-gray-400 text-white hover:bg-gray-500 border border-gray-200 rounded-lg transition shadow-sm">
-                                            <i class="fas fa-eye"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="6" class="text-center py-16">
-                                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-50 text-slate-300 mb-4">
-                                    <i class="fas fa-folder-open text-3xl"></i>
-                                </div>
-                                <h3 class="text-sm font-bold text-slate-700">Tidak Ada RPK</h3>
-                                <p class="text-xs text-slate-400 mt-1">Belum ada dokumen yang sesuai dengan filter pencarian Anda.</p>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                    <td class="px-3 py-4 text-center">
+                        @if($item->status == 'disetujui')
+                            <span class="bg-green-500 text-white px-2 py-0.5 rounded-full text-xs">Disetujui</span>
+                        @elseif($item->status == 'ditolak')
+                            <span class="bg-red-500 text-white px-2 py-0.5 rounded-full text-xs">Ditolak</span>
+                        @else
+                            <span class="bg-orange-500 text-white px-2 py-0.5 rounded-full text-xs">Draft</span>
+                        @endif
+                    </td>
+
+                    <td class="px-3 py-4 text-center">
+                        <a href="{{ route('admin.rpk.show', $item->id) }}"
+                            title="Detail RPK"
+                            class="inline-flex items-center justify-center w-7 h-7 bg-gray-400 text-white hover:bg-gray-500 border border-gray-200 rounded-lg transition shadow-sm">
+                            <i class="fas fa-eye text-xs"></i>
+                        </a>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="8" class="text-center py-16">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-50 text-slate-300 mb-4">
+                            <i class="fas fa-folder-open text-3xl"></i>
+                        </div>
+                        <h3 class="text-sm font-bold text-slate-700">Tidak Ada RPK</h3>
+                        <p class="text-xs text-slate-400 mt-1">Belum ada dokumen yang sesuai dengan filter pencarian Anda.</p>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
 
             @if($rpks->hasPages())
                 <div class="px-6 py-4 bg-slate-50/50 border-t border-slate-100">

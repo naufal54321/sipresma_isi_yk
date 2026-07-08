@@ -50,7 +50,7 @@ class SpkController extends Controller
 
         $prestasis = MasterPrestasi::where('is_active', true)->orderBy('juara')->get();
 
-        return view('spks.index', compact('spks', 'rpks', 'kegiatans', 'prestasis'));
+        return view('mahasiswa.spks.index', compact('spks', 'rpks', 'kegiatans', 'prestasis'));
     }
 
     public function create()
@@ -61,7 +61,7 @@ class SpkController extends Controller
             $query->where('user_id', Auth::id())->where('status', 'disetujui');
         })->select('id', 'rpk_id', 'kegiatan', 'judul_kegiatan', 'tanggal_mulai', 'tanggal_selesai', 'kategori')->get();
 
-        return view('spks.create', compact('rpks', 'kegiatans'));
+        return view('mahasiswa.spks.create', compact('rpks', 'kegiatans'));
     }
 
     /**
@@ -165,7 +165,7 @@ class SpkController extends Controller
             abort(403, 'Anda tidak memiliki akses ke SPK ini.');
         }
 
-        return view('spks.show', compact('spk'));
+        return view('mahasiswa.spks.show', compact('spk'));
     }
 
     /**
@@ -239,7 +239,7 @@ class SpkController extends Controller
         
         $prestasis = MasterPrestasi::where('is_active', true)->orderBy('juara')->get();
 
-        return view('spks.edit', compact('spk', 'rpks', 'kegiatans', 'prestasis'));
+        return view('mahasiswa.spks.edit', compact('spk', 'rpks', 'kegiatans', 'prestasis'));
     }
 
     /**

@@ -98,8 +98,8 @@
                     </div>
 
                     <div class="grid grid-cols-3 gap-2 pb-4">
-                        <span class="col-span-1 text-sm font-bold text-slate-500">Jumlah Kegiatan</span>
-                        <span class="col-span-2 text-sm text-slate-800 font-bold">{{ $rpk->kegiatans->count() }}</span>
+                        <span class="col-span-1 text-sm font-bold text-slate-500">Kategori</span>
+                        <span class="col-span-2 text-sm text-slate-800 font-bold">{{ $rpk->kegiatans->first()->kategori ?? '-' }}</span>
                     </div>
 
                     <div class="grid grid-cols-3 gap-2 pb-4 border-t border-slate-100 pt-4">
@@ -171,11 +171,11 @@
                                         <td class="px-4 py-3 border-r border-slate-200 text-center">
                                             @if($kegiatan->kategori == 'Kelompok')
                                                 <span class="text-purple-700 text-xs font-semibold">
-                                                    <i class="fas fa-users mr-1"></i>Kelompok
+                                                    Kelompok
                                                 </span>
                                             @else
                                                 <span class="text-gray-600 text-xs font-semibold">
-                                                    <i class="fas fa-user mr-1"></i>Individu
+                                                    Individu
                                                 </span>
                                             @endif
                                         </td>
@@ -216,7 +216,7 @@
                                 @foreach($kegiatanKelompok as $kegiatan)
                                     <div class="border border-slate-200 rounded-xl overflow-hidden">
                                         <div class="px-4 py-3 bg-slate-50 border-b border-slate-200">
-                                            <h4 class="text-sm font-bold text-slate-800">📋 {{ $kegiatan->judul_kegiatan }}</h4>
+                                            <h4 class="text-sm font-bold text-slate-800">{{ $kegiatan->judul_kegiatan }}</h4>
                                             <div class="flex items-center gap-2 mt-1 text-xs text-slate-500">
                                                 <span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs font-semibold">Kelompok</span>
                                                 <span>{{ $kegiatan->anggota->count() }} anggota</span>

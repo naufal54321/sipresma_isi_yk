@@ -3,7 +3,7 @@
 
         <!-- Header -->
         <div class="text-center mb-8">
-            <img src="{{ asset('images/logo-isi.png') }}" 
+            <img src="{{ asset('images/logo_isi_dashboard.png') }}" 
                  alt="Logo ISI Yogyakarta" 
                  class="w-21 h-20 mx-auto mb-4">
 

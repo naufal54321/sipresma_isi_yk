@@ -53,126 +53,139 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
         {{-- SIDEBAR --}}
-        <div class="lg:col-span-4">
-            <div class="bg-gray-50 border border-gray-200 shadow-sm rounded-xl overflow-hidden">
-                <div class="px-6 py-5 border-b border-gray-200 bg-white">
-                    <h2 class="text-lg font-bold text-gray-900">Detail SPK</h2>
-                </div>
-                
-                <div class="p-6 bg-white space-y-4">
-                    <div class="grid grid-cols-3 gap-2">
-                        <span class="text-sm font-bold text-gray-600">Nama</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->user->name }}</span>
-                    </div>
-                    
-                    <div class="grid grid-cols-3 gap-2">
-                        <span class="text-sm font-bold text-gray-600">NIM</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->user->nim ?? '-' }}</span>
-                    </div>
+<div class="lg:col-span-4">
+    <div class="bg-gray-50 border border-gray-200 shadow-sm rounded-xl overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-200 bg-white">
+            <h2 class="text-lg font-bold text-gray-900">Detail SPK</h2>
+        </div>
+        
+        <div class="p-6 bg-white space-y-4">
+            <div class="grid grid-cols-3 gap-2">
+                <span class="text-sm font-bold text-gray-600">Nama</span>
+                <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->user->name }}</span>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-2">
+                <span class="text-sm font-bold text-gray-600">NIM</span>
+                <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->user->nim ?? '-' }}</span>
+            </div>
 
-                    <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
-                        <span class="text-sm font-bold text-gray-600">Prodi</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->user->prodi ?? '-' }}</span>
-                    </div>
+            <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
+                <span class="text-sm font-bold text-gray-600">Prodi</span>
+                <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->user->prodi ?? '-' }}</span>
+            </div>
 
-                    <div class="grid grid-cols-3 gap-2">
-                        <span class="text-sm font-bold text-gray-600">Angkatan</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->user->angkatan ?? '-' }}</span>
-                    </div>
+            <div class="grid grid-cols-3 gap-2">
+                <span class="text-sm font-bold text-gray-600">Angkatan</span>
+                <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->user->angkatan ?? '-' }}</span>
+            </div>
 
-                    <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
-                        <span class="text-sm font-bold text-gray-600">Semester</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->user->semester ?? '-' }}</span>
-                    </div>
+            <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
+                <span class="text-sm font-bold text-gray-600">Semester</span>
+                <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->user->semester ?? '-' }}</span>
+            </div>
 
-                    <div class="grid grid-cols-3 gap-2 pt-2">
-                        <span class="text-sm font-bold text-gray-600">Tahun</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->tahun }}</span>
-                    </div>
+            {{-- ⚡ DOSEN PEMBIMBING --}}
+            <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
+                <span class="text-sm font-bold text-gray-600">Dosen Pembimbing</span>
+                <span class="col-span-2 text-sm text-gray-800 font-medium">
+                    @if($spk->user->dosenPembimbing)
+                        {{ $spk->user->dosenPembimbing->name }}
+                    @else
+                        <span class="text-red-500 italic text-xs">Belum ada</span>
+                    @endif
+                </span>
+            </div>
 
-                    <div class="grid grid-cols-3 gap-2">
-                        <span class="text-sm font-bold text-gray-600">RPK</span>
-                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->rpk->tahun ?? '-' }} - {{ $spk->rpk->semester ?? '-' }}</span>
-                    </div>
+            <div class="grid grid-cols-3 gap-2 pt-2">
+                <span class="text-sm font-bold text-gray-600">Tahun</span>
+                <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->tahun }}</span>
+            </div>
 
-                    <div class="grid grid-cols-3 gap-2">
-                        <span class="text-sm font-bold text-gray-600">URL Kegiatan</span>
-                        <span class="col-span-2 text-sm text-blue-600 break-words">
-                            @if($spk->url_kegiatan)
-                                <a href="{{ $spk->url_kegiatan }}" target="_blank" class="hover:underline">Buka Tautan</a>
-                            @else
-                                <span class="text-gray-400">-</span>
-                            @endif
-                        </span>
-                    </div>
+            <div class="grid grid-cols-3 gap-2">
+                <span class="text-sm font-bold text-gray-600">RPK</span>
+                <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->rpk->tahun ?? '-' }} - {{ $spk->rpk->semester ?? '-' }}</span>
+            </div>
 
-                    <div class="grid grid-cols-3 gap-2">
-                        <span class="text-sm font-bold text-gray-600">Link Drive</span>
-                        <span class="col-span-2 text-sm text-blue-600 break-words">
-                            @if($spk->link_drive)
-                                <a href="{{ $spk->link_drive }}" target="_blank" class="hover:underline">
-                                    <i class="fab fa-google-drive mr-1"></i>Buka Drive
-                                </a>
-                            @else
-                                <span class="text-gray-400">-</span>
-                            @endif
-                        </span>
-                    </div>
+            <div class="grid grid-cols-3 gap-2">
+                <span class="text-sm font-bold text-gray-600">URL Kegiatan</span>
+                <span class="col-span-2 text-sm text-blue-600 break-words">
+                    @if($spk->url_kegiatan)
+                        <a href="{{ $spk->url_kegiatan }}" target="_blank" class="hover:underline">Buka Tautan</a>
+                    @else
+                        <span class="text-gray-400">-</span>
+                    @endif
+                </span>
+            </div>
 
-                    <div class="grid grid-cols-3 gap-2">
-                        <span class="text-sm font-bold text-gray-600">Keterangan</span>
-                        <span class="col-span-2 text-sm text-gray-800">{{ $spk->keterangan }}</span>
-                    </div>
+            <div class="grid grid-cols-3 gap-2">
+                <span class="text-sm font-bold text-gray-600">Link Drive</span>
+                <span class="col-span-2 text-sm text-blue-600 break-words">
+                    @if($spk->link_drive)
+                        <a href="{{ $spk->link_drive }}" target="_blank" class="hover:underline">
+                            <i class="fab fa-google-drive mr-1"></i>Buka Drive
+                        </a>
+                    @else
+                        <span class="text-gray-400">-</span>
+                    @endif
+                </span>
+            </div>
 
-                    <div class="grid grid-cols-3 gap-2">
-                        <span class="text-sm font-bold text-gray-600">Status</span>
-                        <div class="mt-1">
-                            @if($spk->status == 'draft')
-                                <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">Draft</span>
-                            @elseif($spk->status == 'disetujui')
-                                <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">Disetujui</span>
-                            @else
-                                <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold">Ditolak</span>
-                            @endif
-                        </div>
-                    </div>
+            <div class="grid grid-cols-3 gap-2">
+                <span class="text-sm font-bold text-gray-600">Keterangan</span>
+                <span class="col-span-2 text-sm text-gray-800">{{ $spk->keterangan }}</span>
+            </div>
 
-                    {{-- ⚡ INFORMASI POIN --}}
-                    <div class="pt-3 border-t border-gray-200">
-                        <span class="text-sm font-bold text-gray-600">Poin</span>
-                        <div class="mt-2">
-                            @if($spk->hasPoin())
-                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-2xl font-bold text-yellow-600">{{ $spk->poin }}</span>
-                                        <span class="text-sm text-gray-600">Poin</span>
-                                    </div>
-                                    @if($spk->poin_added_at)
-                                    <p class="text-xs text-gray-500 mt-2">
-                                        Ditambahkan oleh: {{ $spk->poinAddedBy->name ?? 'Admin' }}<br>
-                                        Tanggal: {{ $spk->poin_added_at->format('d/m/Y H:i') }}
-                                    </p>
-                                    @endif
-                                </div>
-                            @elseif($spk->status === 'disetujui')
-                                <button onclick="tambahPoinSweetAlert({{ $spk->id }}, '{{ addslashes($spk->judul_kegiatan) }}')"
-                                        class="w-full bg-yellow-500 hover:bg-yellow-400 text-white px-4 py-2 rounded-lg text-sm font-semibold transition cursor-pointer">
-                                    <i class="fas fa-plus-circle mr-1"></i> Tambah Poin
-                                </button>
-                            @else
-                                <span class="text-sm text-gray-400">- (SPK belum disetujui)</span>
-                            @endif
-                        </div>
-                    </div>
-
-                    @if($spk->catatan_dosen)
-                    <div class="pt-3 border-t border-gray-200">
-                        <span class="text-sm font-bold text-gray-600">Catatan</span>
-                        <p class="text-sm text-red-600 mt-1 bg-red-50 p-2 rounded-lg">{{ $spk->catatan_dosen }}</p>
-                    </div>
+            <div class="grid grid-cols-3 gap-2">
+                <span class="text-sm font-bold text-gray-600">Status</span>
+                <div class="mt-1">
+                    @if($spk->status == 'draft')
+                        <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">Draft</span>
+                    @elseif($spk->status == 'disetujui')
+                        <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">Disetujui</span>
+                    @else
+                        <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold">Ditolak</span>
                     @endif
                 </div>
             </div>
+
+            {{-- ⚡ INFORMASI POIN --}}
+            <div class="pt-3 border-t border-gray-200">
+                <span class="text-sm font-bold text-gray-600">Poin</span>
+                <div class="mt-2">
+                    @if($spk->hasPoin())
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl font-bold text-yellow-600">{{ $spk->poin }}</span>
+                                <span class="text-sm text-gray-600">Poin</span>
+                            </div>
+                            @if($spk->poin_added_at)
+                            <p class="text-xs text-gray-500 mt-2">
+                                Ditambahkan oleh: {{ $spk->poinAddedBy->name ?? 'Admin' }}<br>
+                                Tanggal: {{ $spk->poin_added_at->format('d/m/Y H:i') }}
+                            </p>
+                            @endif
+                        </div>
+                    @elseif($spk->status === 'disetujui')
+                        <button onclick="tambahPoinSweetAlert({{ $spk->id }}, '{{ addslashes($spk->judul_kegiatan) }}')"
+                                class="w-full bg-yellow-500 hover:bg-yellow-400 text-white px-4 py-2 rounded-lg text-sm font-semibold transition cursor-pointer">
+                            <i class="fas fa-plus-circle mr-1"></i> Tambah Poin
+                        </button>
+                    @else
+                        <span class="text-sm text-gray-400">- (SPK belum disetujui)</span>
+                    @endif
+                </div>
+            </div>
+
+            @if($spk->catatan_dosen)
+            <div class="pt-3 border-t border-gray-200">
+                <span class="text-sm font-bold text-gray-600">Catatan</span>
+                <p class="text-sm text-red-600 mt-1 bg-red-50 p-2 rounded-lg">{{ $spk->catatan_dosen }}</p>
+            </div>
+            @endif
+        </div>
+    </div>
+
 
             {{-- Info Admin --}}
             <div class="mt-6 bg-blue-50 border border-blue-100 rounded-xl p-6 shadow-sm">
