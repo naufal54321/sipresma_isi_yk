@@ -67,9 +67,14 @@ class AdminRpkController extends Controller
         $rpk->update([
             'status' => $request->status,
             'catatan' => $request->catatan ?? $rpk->catatan,
-            // Opsional jika di table RPK Anda ada field penanda:
-            // 'divalidasi_oleh' => Auth::user()->name, 
         ]);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Status RPK berhasil diubah menjadi ' . strtoupper($request->status)
+            ]);
+        }
 
         return redirect()->route('admin.rpk.index')
             ->with('success', 'Status RPK milik ' . $rpk->user->name . ' berhasil diubah menjadi ' . strtoupper($request->status));

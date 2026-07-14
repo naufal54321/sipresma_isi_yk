@@ -20,6 +20,31 @@
             </div>
         </div>
 
+        <form method="GET" action="{{ route('admin.users.approval.index') }}" class="mb-4 flex flex-wrap gap-3 items-end">
+            <div class="flex-1 min-w-[200px]">
+                <label for="search" class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Cari</label>
+                <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="Nama, NIM, atau Email..."
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+            </div>
+            <div class="w-full md:w-40">
+                <label for="role" class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Role</label>
+                <select name="role" id="role" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition bg-white">
+                    <option value="">Semua Role</option>
+                    @foreach(['Mahasiswa','Dosen'] as $r)
+                        <option value="{{ $r }}" {{ request('role') == $r ? 'selected' : '' }}>{{ $r }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition">
+                <i class="fas fa-search mr-1"></i> Filter
+            </button>
+            @if(request('search') || request('role'))
+                <a href="{{ route('admin.users.approval.index') }}" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-5 py-2.5 rounded-xl text-sm font-semibold transition text-center">
+                    Reset
+                </a>
+            @endif
+        </form>
+
         <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-200">
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-left text-gray-600">
@@ -132,7 +157,7 @@
                 <p class="text-left text-sm text-gray-600">Akun akan ditolak dan dihapus permanen.</p>
                 <div class="mt-4 text-left">
                     <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" id="send_email" checked class="w-4 h-4 text-blue-600 rounded">
+                        <input type="checkbox" id="send_email_reject" checked class="w-4 h-4 text-blue-600 rounded">
                         <span class="text-sm">Kirim email notifikasi</span>
                     </label>
                 </div>
@@ -145,16 +170,23 @@
             cancelButtonText: 'Batal',
             customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl', cancelButton: 'rounded-xl' }
         }).then((result) => {
-            if (result.isConfirmed) {
-                const form = document.getElementById('reject-form-' + id);
-                const sendEmail = document.getElementById('send_email').checked ? 1 : 0;
-                let input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'send_email';
-                input.value = sendEmail;
-                form.appendChild(input);
-                form.submit();
-            }
+            if (!result.isConfirmed) return;
+
+            fetch('/admin/users/' + id + '/reject', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
+                body: JSON.stringify({ send_email: document.getElementById('send_email_reject').checked ? 1 : 0 })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({ icon: 'success', title: 'Berhasil', text: data.message, timer: 2000, showConfirmButton: false });
+                    setTimeout(() => location.reload(), 2200);
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Gagal', text: data.message });
+                }
+            })
+            .catch(() => Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan' }));
         });
     }
 
@@ -165,7 +197,7 @@
                 <p class="text-left text-sm text-gray-600">Mahasiswa akan dapat login ke sistem.</p>
                 <div class="mt-4 text-left">
                     <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" id="send_email" checked class="w-4 h-4 text-blue-600 rounded">
+                        <input type="checkbox" id="send_email_approve" checked class="w-4 h-4 text-blue-600 rounded">
                         <span class="text-sm">Kirim email notifikasi</span>
                     </label>
                 </div>
@@ -178,16 +210,23 @@
             cancelButtonText: 'Batal',
             customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl', cancelButton: 'rounded-xl' }
         }).then((result) => {
-            if (result.isConfirmed) {
-                const form = document.getElementById('approve-form-' + id);
-                const sendEmail = document.getElementById('send_email').checked ? 1 : 0;
-                let input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'send_email';
-                input.value = sendEmail;
-                form.appendChild(input);
-                form.submit();
-            }
+            if (!result.isConfirmed) return;
+
+            fetch('/admin/users/' + id + '/approve', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
+                body: JSON.stringify({ send_email: document.getElementById('send_email_approve').checked ? 1 : 0 })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({ icon: 'success', title: 'Berhasil', text: data.message, timer: 2000, showConfirmButton: false });
+                    setTimeout(() => location.reload(), 2200);
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Gagal', text: data.message });
+                }
+            })
+            .catch(() => Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan' }));
         });
     }
     </script>

@@ -9,6 +9,7 @@ use App\Models\MasterPrestasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class SpkController extends Controller
 {
@@ -53,6 +54,35 @@ class SpkController extends Controller
         return view('mahasiswa.spks.index', compact('spks', 'rpks', 'kegiatans', 'prestasis'));
     }
 
+    /**
+     * Format range tanggal dari kegiatan
+     */
+    private function formatTanggalKegiatan($kegiatan)
+    {
+        $tanggalMulai = $kegiatan->tanggal_mulai ? Carbon::parse($kegiatan->tanggal_mulai) : null;
+        $tanggalSelesai = $kegiatan->tanggal_selesai ? Carbon::parse($kegiatan->tanggal_selesai) : null;
+        
+        if ($tanggalMulai && $tanggalSelesai) {
+            if ($tanggalMulai->format('Y-m-d') === $tanggalSelesai->format('Y-m-d')) {
+                // Tanggal sama: "15 Januari 2025"
+                return $tanggalMulai->translatedFormat('d F Y');
+            } else if ($tanggalMulai->format('m-Y') === $tanggalSelesai->format('m-Y')) {
+                // Bulan sama: "15 - 17 Januari 2025"
+                return $tanggalMulai->translatedFormat('d') . ' - ' . $tanggalSelesai->translatedFormat('d F Y');
+            } else {
+                // Bulan berbeda: "30 Januari - 2 Februari 2025"
+                return $tanggalMulai->translatedFormat('d F') . ' - ' . $tanggalSelesai->translatedFormat('d F Y');
+            }
+        } elseif ($tanggalMulai) {
+            return $tanggalMulai->translatedFormat('d F Y');
+        } else {
+            return Carbon::now()->translatedFormat('d F Y');
+        }
+    }
+
+    /**
+     * Halaman create SPK
+     */
     public function create()
     {
         $rpks = Rpk::where('user_id', Auth::id())->get();
@@ -73,12 +103,14 @@ class SpkController extends Controller
             'tahun' => 'required',
             'rpk_id' => 'required',
             'kegiatan_id' => 'required',
-            'tanggal_kegiatan' => 'required|date',
             'penyelenggara' => 'required',
             'kategori' => 'required',
             'prestasi_id' => 'required|exists:master_prestasis,id',
             'tingkat' => 'nullable|string|max:255',
-            'keterangan' => 'required',
+            'judul_karya' => 'required|string|max:255',
+            'biografi' => 'nullable|string|max:2000',
+            'rincian' => 'nullable|string|max:3000',
+            'kebaruan' => 'nullable|string|max:2000',
             'url_kegiatan' => 'required|url|max:500',
             'link_drive' => 'required|url|max:500',
             'surat_tugas' => 'required|mimes:pdf|max:5120',
@@ -90,12 +122,22 @@ class SpkController extends Controller
             'url_kegiatan.url' => 'URL Kegiatan harus berupa URL yang valid',
             'link_drive.required' => 'Link Google Drive wajib diisi',
             'link_drive.url' => 'Link Google Drive harus berupa URL yang valid',
+            'judul_karya.required' => 'Judul Karya/Inovasi/Riset/Prestasi wajib diisi',
             'surat_tugas.required' => 'Surat Tugas wajib diupload',
+            'surat_tugas.mimes' => 'Surat Tugas harus berformat PDF',
+            'surat_tugas.max' => 'Ukuran Surat Tugas maksimal 5 MB',
             'sertifikat.required' => 'Sertifikat / Foto Piala wajib diupload',
+            'sertifikat.mimes' => 'Sertifikat harus berformat PDF, JPG, JPEG, atau PNG',
+            'sertifikat.max' => 'Ukuran Sertifikat maksimal 5 MB',
             'foto_penyerahan.required' => 'Foto Penyerahan Piagam wajib diupload',
+            'foto_penyerahan.mimes' => 'Foto Penyerahan harus berformat JPG, JPEG, atau PNG',
+            'foto_penyerahan.max' => 'Ukuran Foto Penyerahan maksimal 5 MB',
             'laporan.required' => 'Laporan wajib diupload',
+            'laporan.mimes' => 'Laporan harus berformat PDF',
+            'laporan.max' => 'Ukuran Laporan maksimal 5 MB',
         ]);
 
+        // ⚡ AMBIL KEGIATAN UNTUK MENDAPATKAN RANGE TANGGAL
         $kegiatan = Kegiatan::where('id', $request->kegiatan_id)
             ->where('rpk_id', $request->rpk_id)
             ->whereHas('rpk', function ($query) {
@@ -115,6 +157,9 @@ class SpkController extends Controller
             ])->withInput();
         }
 
+        // ⚡ FORMAT RANGE TANGGAL DARI KEGIATAN
+        $tanggalKegiatan = $this->formatTanggalKegiatan($kegiatan);
+
         $prestasi = MasterPrestasi::findOrFail($request->prestasi_id);
         
         $suratTugas = $request->file('surat_tugas')->store('surat-tugas', 'public');
@@ -127,7 +172,7 @@ class SpkController extends Controller
             'rpk_id' => $request->rpk_id,
             'kegiatan_id' => $request->kegiatan_id,
             'tahun' => $request->tahun,
-            'tanggal_kegiatan' => $request->tanggal_kegiatan,
+            'tanggal_kegiatan' => $tanggalKegiatan, // ⚡ RANGE TANGGAL OTOMATIS
             'penyelenggara' => $request->penyelenggara,
             'kategori' => $request->kategori,
             'prestasi_id' => $request->prestasi_id,
@@ -135,13 +180,16 @@ class SpkController extends Controller
             'judul_kegiatan' => $kegiatan->judul_kegiatan ?? $kegiatan->kegiatan,
             'poin' => 0,
             'tingkat' => $prestasi->tingkat,
+            'judul_karya' => $request->judul_karya,
+            'biografi' => $request->biografi,
+            'rincian' => $request->rincian,
+            'kebaruan' => $request->kebaruan,
             'url_kegiatan' => $request->url_kegiatan,
             'link_drive' => $request->link_drive,
             'surat_tugas' => $suratTugas,
             'sertifikat' => $sertifikat,
             'foto_penyerahan' => $fotoPenyerahan,
             'laporan' => $laporan,
-            'keterangan' => $request->keterangan,
             'status' => 'draft'
         ]);
 
@@ -155,6 +203,9 @@ class SpkController extends Controller
         return redirect()->route('spks.index')->with('success', 'SPK berhasil ditambahkan');
     }
 
+    /**
+     * Tampilkan detail SPK
+     */
     public function show(Spk $spk)
     {
         $user = Auth::user();
@@ -169,62 +220,8 @@ class SpkController extends Controller
     }
 
     /**
-     * Hapus SPK (SUPPORT AJAX)
+     * Edit SPK
      */
-    public function destroy(Spk $spk)
-    {
-        if ($spk->user_id != Auth::id()) {
-            if (request()->ajax() || request()->wantsJson()) {
-                return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
-            }
-            abort(403);
-        }
-
-        if (!in_array($spk->status, ['draft', 'ditolak'])) {
-            $message = 'SPK yang sudah disetujui tidak dapat dihapus.';
-            if (request()->ajax() || request()->wantsJson()) {
-                return response()->json(['success' => false, 'message' => $message], 422);
-            }
-            return back()->with('error', $message);
-        }
-
-        $files = ['surat_tugas', 'sertifikat', 'foto_penyerahan', 'laporan'];
-        foreach ($files as $field) {
-            if ($spk->$field && Storage::disk('public')->exists($spk->$field)) {
-                Storage::disk('public')->delete($spk->$field);
-            }
-        }
-
-        $spk->delete();
-
-        if (request()->ajax() || request()->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'SPK berhasil dihapus'
-            ]);
-        }
-
-        return redirect()->route('spks.index')->with('success', 'SPK berhasil dihapus.');
-    }
-
-    public function approve(Request $request, Spk $spk)
-    {
-        $spk->update([
-            'status' => 'disetujui',
-            'catatan_dosen' => $request->catatan_dosen
-        ]);
-        return back()->with('success', 'SPK disetujui');
-    }
-
-    public function reject(Request $request, Spk $spk)
-    {
-        $spk->update([
-            'status' => 'ditolak',
-            'catatan_dosen' => $request->catatan_dosen
-        ]);
-        return back()->with('success', 'SPK ditolak');
-    }
-
     public function edit(Spk $spk)
     {
         if ($spk->user_id != Auth::id()) {
@@ -254,16 +251,25 @@ class SpkController extends Controller
             abort(403);
         }
 
+        if (in_array($spk->status, ['disetujui', 'ditolak'])) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'SPK yang sudah ' . $spk->status . ' tidak dapat diubah'], 422);
+            }
+            return back()->with('error', 'SPK yang sudah ' . $spk->status . ' tidak dapat diubah');
+        }
+
         $request->validate([
             'tahun' => 'required',
             'rpk_id' => 'required',
             'kegiatan_id' => 'required',
-            'tanggal_kegiatan' => 'required|date',
             'penyelenggara' => 'required',
             'kategori' => 'required',
             'prestasi_id' => 'required|exists:master_prestasis,id',
             'tingkat' => 'nullable|string|max:255',
-            'keterangan' => 'required',
+            'judul_karya' => 'required|string|max:255',
+            'biografi' => 'nullable|string|max:2000',
+            'rincian' => 'nullable|string|max:3000',
+            'kebaruan' => 'nullable|string|max:2000',
             'url_kegiatan' => 'required|url|max:500',
             'link_drive' => 'required|url|max:500',
             'surat_tugas' => 'nullable|mimes:pdf|max:5120',
@@ -273,29 +279,42 @@ class SpkController extends Controller
         ], [
             'url_kegiatan.required' => 'URL Kegiatan wajib diisi',
             'link_drive.required' => 'Link Google Drive wajib diisi',
+            'judul_karya.required' => 'Judul Karya/Inovasi/Riset/Prestasi wajib diisi',
+            'surat_tugas.max' => 'Ukuran Surat Tugas maksimal 5 MB',
+            'sertifikat.max' => 'Ukuran Sertifikat maksimal 5 MB',
+            'foto_penyerahan.max' => 'Ukuran Foto Penyerahan maksimal 5 MB',
+            'laporan.max' => 'Ukuran Laporan maksimal 5 MB',
         ]);
 
+        // ⚡ AMBIL KEGIATAN UNTUK MENDAPATKAN RANGE TANGGAL
         $kegiatan = Kegiatan::findOrFail($request->kegiatan_id);
         $prestasi = MasterPrestasi::findOrFail($request->prestasi_id);
+
+        // ⚡ FORMAT RANGE TANGGAL DARI KEGIATAN
+        $tanggalKegiatan = $this->formatTanggalKegiatan($kegiatan);
 
         $data = [
             'tahun' => $request->tahun,
             'rpk_id' => $request->rpk_id,
             'kegiatan_id' => $request->kegiatan_id,
-            'tanggal_kegiatan' => $request->tanggal_kegiatan,
+            'tanggal_kegiatan' => $tanggalKegiatan, // ⚡ RANGE TANGGAL OTOMATIS
             'penyelenggara' => $request->penyelenggara,
             'kategori' => $request->kategori,
             'prestasi_id' => $request->prestasi_id,
             'hasil' => $prestasi->juara,
             'judul_kegiatan' => $kegiatan->judul_kegiatan ?? $kegiatan->kegiatan,
             'tingkat' => $prestasi->tingkat,
+            'judul_karya' => $request->judul_karya,
+            'biografi' => $request->biografi,
+            'rincian' => $request->rincian,
+            'kebaruan' => $request->kebaruan,
             'url_kegiatan' => $request->url_kegiatan,
             'link_drive' => $request->link_drive,
-            'keterangan' => $request->keterangan,
             'status' => 'draft',
             'catatan_dosen' => null
         ];
 
+        // Upload file baru jika ada
         if ($request->hasFile('surat_tugas')) {
             if ($spk->surat_tugas && Storage::disk('public')->exists($spk->surat_tugas)) {
                 Storage::disk('public')->delete($spk->surat_tugas);
@@ -337,114 +356,43 @@ class SpkController extends Controller
     }
 
     /**
-     * Tambah Poin (Admin only)
+     * Hapus SPK (SUPPORT AJAX)
      */
-    public function tambahPoin(Request $request, Spk $spk)
+    public function destroy(Spk $spk)
     {
-        if (!Auth::user()->hasRole('Admin')) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda tidak memiliki akses untuk menambah poin.'
-            ], 403);
+        if ($spk->user_id != Auth::id()) {
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+            }
+            abort(403);
         }
 
-        if ($spk->status !== 'disetujui') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Poin hanya dapat ditambahkan pada SPK yang sudah disetujui. Status saat ini: ' . ucfirst($spk->status)
-            ], 422);
+        if (!in_array($spk->status, ['draft', 'ditolak'])) {
+            $message = 'SPK yang sudah disetujui tidak dapat dihapus.';
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $message], 422);
+            }
+            return back()->with('error', $message);
         }
 
-        if ($spk->poin > 0) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Poin sudah ditambahkan sebelumnya sebesar ' . $spk->poin . ' poin oleh ' . ($spk->poinAddedBy->name ?? 'Admin') . '.'
-            ], 422);
+        $files = ['surat_tugas', 'sertifikat', 'foto_penyerahan', 'laporan'];
+        foreach ($files as $field) {
+            if ($spk->$field && Storage::disk('public')->exists($spk->$field)) {
+                Storage::disk('public')->delete($spk->$field);
+            }
         }
 
-        $validator = validator($request->all(), [
-            'poin' => 'required|integer|min:1|max:100'
-        ], [
-            'poin.required' => 'Jumlah poin harus diisi',
-            'poin.integer' => 'Poin harus berupa angka bulat',
-            'poin.min' => 'Poin minimal 1',
-            'poin.max' => 'Poin maksimal 100'
-        ]);
+        $spk->delete();
 
-        if ($validator->fails()) {
+        if (request()->ajax() || request()->wantsJson()) {
             return response()->json([
-                'success' => false,
-                'message' => $validator->errors()->first()
-            ], 422);
+                'success' => true,
+                'message' => 'SPK berhasil dihapus'
+            ]);
         }
 
-        $spk->update([
-            'poin' => $request->poin,
-            'poin_added_at' => now(),
-            'poin_added_by' => Auth::id()
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => "Poin sebesar {$request->poin} berhasil ditambahkan ke SPK {$spk->judul_kegiatan}!",
-            'data' => [
-                'poin' => $spk->poin,
-                'added_by' => Auth::user()->name,
-                'added_at' => $spk->poin_added_at->format('d/m/Y H:i')
-            ]
-        ]);
+        return redirect()->route('spks.index')->with('success', 'SPK berhasil dihapus.');
     }
 
-    /**
-     * Halaman kelola poin untuk Admin
-     */
-    public function kelolaPoin(Request $request)
-    {
-        $user = Auth::user();
-        
-        if (!$user->hasRole('Admin')) {
-            abort(403, 'Anda tidak memiliki akses ke halaman ini.');
-        }
 
-        $filterTahun = $request->tahun;
-        $filterStatus = $request->status_poin;
-        $search = $request->search;
-
-        $query = Spk::with(['user', 'rpk', 'kegiatan', 'poinAddedBy'])
-                    ->where('status', 'disetujui');
-
-        if ($filterTahun) {
-            $query->where('tahun', $filterTahun);
-        }
-
-        if ($filterStatus === 'sudah') {
-            $query->where('poin', '>', 0);
-        } elseif ($filterStatus === 'belum') {
-            $query->where(function($q) {
-                $q->whereNull('poin')->orWhere('poin', '<=', 0);
-            });
-        }
-
-        if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->where('judul_kegiatan', 'like', "%{$search}%")
-                  ->orWhereHas('user', function($userQ) use ($search) {
-                      $userQ->where('name', 'like', "%{$search}%");
-                  });
-            });
-        }
-
-        $spks = $query->latest()->paginate(20)->withQueryString();
-        
-        $totalDisetujui = Spk::where('status', 'disetujui')->count();
-        $totalDenganPoin = Spk::where('status', 'disetujui')->where('poin', '>', 0)->count();
-        $totalTanpaPoin = $totalDisetujui - $totalDenganPoin;
-        $totalPoin = Spk::where('status', 'disetujui')->sum('poin');
-        $listTahun = Spk::distinct()->orderBy('tahun', 'desc')->pluck('tahun');
-
-        return view('admin.spk.kelola-poin', compact(
-            'spks', 'totalDisetujui', 'totalDenganPoin', 'totalTanpaPoin',
-            'totalPoin', 'filterTahun', 'filterStatus', 'search', 'listTahun'
-        ));
-    }
 }

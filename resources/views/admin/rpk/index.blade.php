@@ -33,7 +33,7 @@
 
                     <select name="status" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors font-medium cursor-pointer">
                         <option value="">Semua Status</option>
-                        <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Menunggu (Draft)</option>
+                        <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
                         <option value="disetujui" {{ request('status') == 'disetujui' ? 'selected' : '' }}>Disetujui</option>
                         <option value="ditolak" {{ request('status') == 'ditolak' ? 'selected' : '' }}>Ditolak</option>
                     </select>
@@ -63,8 +63,8 @@
         </div>
 
         <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-    <div class="w-full">
-        <table class="w-full table-fixed text-sm text-left text-slate-600">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-slate-600">
             <thead class="bg-slate-50/80 uppercase text-[10px] sm:text-[11px] font-extrabold tracking-wider text-slate-400 border-b border-slate-100">
                 <tr>
                     <th class="px-3 py-4 text-center w-8">No</th> 

@@ -7,9 +7,60 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover, 
 input:-webkit-autofill:focus, 
 input:-webkit-autofill:active {
-    /* Menjaga teks tetap berwarna putih */
     -webkit-text-fill-color: white !important;
-    
-    /* Menahan perubahan warna background selama 5000 detik (trik agar tetap transparan) */
     transition: background-color 5000s ease-in-out 0s;
+}
+
+/* ⚡ LOADING BAR DI DALAM KONTEN */
+#page-loader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    z-index: 50;
+    pointer-events: none;
+    opacity: 0;
+}
+
+#page-loader.active {
+    opacity: 1;
+}
+
+#page-loader .bar {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+}
+
+#page-loader .bar.animating {
+    animation: loadingProgress 1.2s ease-out forwards;
+}
+
+@keyframes loadingProgress {
+    0% { width: 0; }
+    40% { width: 50%; }
+    100% { width: 90%; }
+}
+
+.transition-none {
+    transition: none !important;
+}
+
+/* ⚡ KEMBALIKAN NATIVE DATEPICKER (ditimpa @tailwindcss/forms) */
+input[type="date"] {
+    appearance: auto !important;
+    -webkit-appearance: auto !important;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    display: block !important;
+    opacity: 1 !important;
+    cursor: pointer;
+}
+
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-clear-button {
+    display: block !important;
 }

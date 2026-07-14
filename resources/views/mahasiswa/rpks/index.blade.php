@@ -40,17 +40,16 @@
                     <select name="status" class="w-full border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Semua Status</option>
                         <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
-                        <option value="diajukan" {{ request('status') == 'diajukan' ? 'selected' : '' }}>Diajukan</option>
                         <option value="disetujui" {{ request('status') == 'disetujui' ? 'selected' : '' }}>Disetujui</option>
                         <option value="ditolak" {{ request('status') == 'ditolak' ? 'selected' : '' }}>Ditolak</option>
                     </select>
                 </div>
                 <div class="flex gap-2 w-full md:w-auto">
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-400 text-white px-5 py-2 rounded-lg text-sm font-semibold transition w-full md:w-auto">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition w-full md:w-auto">
                         Terapkan Filter
                     </button>
                     @if(request('tahun') || request('semester') || request('status'))
-                        <a href="{{ route('rpks.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition text-center whitespace-nowrap">
+                        <a href="{{ route('rpks.index') }}" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-5 py-2.5 rounded-xl text-sm font-semibold transition text-center whitespace-nowrap">
                             Reset
                         </a>
                     @endif
@@ -108,8 +107,6 @@
                         <td class="px-6 py-4">
                             @if($rpk->status == 'draft')
                                 <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">Draft</span>
-                            @elseif($rpk->status == 'diajukan')
-                                <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-semibold">Diajukan</span>
                             @elseif($rpk->status == 'disetujui')
                                 <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">Disetujui</span>
                             @else

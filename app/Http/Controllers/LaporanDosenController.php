@@ -5,57 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\Spk;
 use App\Models\User;
 use App\Models\ProgramStudi;
+use App\Services\LaporanService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Barryvdh\DomPDF\Facade\Pdf;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class LaporanDosenController extends Controller
 {
-    /**
-     * Menerapkan semua filter
-     */
-    private function applyFilters($query, Request $request)
+    protected $laporanService;
+
+    public function __construct(LaporanService $laporanService)
     {
-        // Search
-        if ($request->filled('search')) {
-            $search = $request->search;
-
-            $query->where(function ($q) use ($search) {
-                $q->where('penyelenggara', 'like', "%{$search}%")
-                    ->orWhere('keterangan', 'like', "%{$search}%")
-                    ->orWhereHas('user', function ($user) use ($search) {
-                        $user->where('name', 'like', "%{$search}%")
-                            ->orWhere('nim', 'like', "%{$search}%");
-                    })
-                    ->orWhereHas('kegiatan', function ($kegiatan) use ($search) {
-                        $kegiatan->where('kegiatan', 'like', "%{$search}%");
-                    });
-            });
-        }
-
-        // Tahun
-        if ($request->filled('tahun')) {
-            $query->where('tahun', $request->tahun);
-        }
-
-        // Program Studi
-        if ($request->filled('prodi')) {
-            $query->whereHas('user', function ($q) use ($request) {
-                $q->where('prodi', $request->prodi);
-            });
-        }
-
-        // 🔧 PERBAIKAN: Tingkat dari SPKS, bukan kegiatans
-        if ($request->filled('tingkat')) {
-            $query->where('tingkat', $request->tingkat);
-        }
-
-        return $query;
+        $this->laporanService = $laporanService;
     }
 
-    /**
-     * Halaman laporan
-     */
     public function index(Request $request)
     {
         $dosenId = Auth::id();
@@ -66,52 +29,31 @@ class LaporanDosenController extends Controller
             })
             ->where('status', 'disetujui');
 
-        $query = $this->applyFilters($query, $request);
+        $query = $this->laporanService->applyFilters($query, $request);
 
-        $laporan = $query->latest()
-            ->paginate(10)
-            ->withQueryString();
+        if ($request->filled('fakultas')) {
+            $allData = $query->get();
+            $filteredIds = $allData->filter(function ($item) use ($request) {
+                return $this->laporanService->getFakultasFromProdi($item->user->prodi) === $request->fakultas;
+            })->pluck('id');
+            $query->whereIn('id', $filteredIds);
+        }
 
-        // Statistik
-        $totalBimbingan = User::where('dosen_pembimbing_id', $dosenId)->count();
+        $laporan = $query->latest()->paginate(10)->withQueryString();
 
-        $totalDisetujui = Spk::whereHas('user', function ($q) use ($dosenId) {
-                $q->where('dosen_pembimbing_id', $dosenId);
-            })
-            ->where('status', 'disetujui')
-            ->count();
-
-        $totalMenunggu = Spk::whereHas('user', function ($q) use ($dosenId) {
-                $q->where('dosen_pembimbing_id', $dosenId);
-            })
-            ->where('status', 'draft')
-            ->count();
-
-        // Dropdown Program Studi
-        $programStudis = ProgramStudi::where('status', 'aktif')
-            ->orderBy('nama_prodi')
-            ->get();
-
-        // 🔧 PERBAIKAN: Dropdown Tingkat dari SPKS
-        $tingkatList = Spk::select('tingkat')
-            ->distinct()
-            ->whereNotNull('tingkat')
-            ->orderBy('tingkat')
-            ->pluck('tingkat');
-
-        return view('dosen.laporan.index', compact(
-            'laporan',
-            'totalBimbingan',
-            'totalDisetujui',
-            'totalMenunggu',
-            'programStudis',
-            'tingkatList'
+        return view('dosen.laporan.index', array_merge(
+            compact('laporan'),
+            [
+                'totalBimbingan' => User::where('dosen_pembimbing_id', $dosenId)->count(),
+                'totalDisetujui' => Spk::whereHas('user', fn($q) => $q->where('dosen_pembimbing_id', $dosenId))->where('status', 'disetujui')->count(),
+                'totalMenunggu' => Spk::whereHas('user', fn($q) => $q->where('dosen_pembimbing_id', $dosenId))->where('status', 'draft')->count(),
+                'programStudis' => ProgramStudi::where('status', 'aktif')->orderBy('nama_prodi')->get(),
+                'fakultasList' => ProgramStudi::select('fakultas')->distinct()->whereNotNull('fakultas')->orderBy('fakultas')->pluck('fakultas'),
+                'tingkatList' => Spk::select('tingkat')->distinct()->whereNotNull('tingkat')->orderBy('tingkat')->pluck('tingkat'),
+            ]
         ));
     }
 
-    /**
-     * Export Excel
-     */
     public function export(Request $request)
     {
         $dosenId = Auth::id();
@@ -119,10 +61,17 @@ class LaporanDosenController extends Controller
         $query = Spk::with(['user', 'kegiatan.masterKegiatan'])
             ->whereHas('user', function ($q) use ($dosenId) {
                 $q->where('dosen_pembimbing_id', $dosenId);
-            })
-            ->where('status', 'disetujui');
+            })->where('status', 'disetujui');
 
-        $query = $this->applyFilters($query, $request);
+        $query = $this->laporanService->applyFilters($query, $request);
+
+        if ($request->filled('fakultas')) {
+            $allData = $query->get();
+            $filteredIds = $allData->filter(function ($item) use ($request) {
+                return $this->laporanService->getFakultasFromProdi($item->user->prodi) === $request->fakultas;
+            })->pluck('id');
+            $query->whereIn('id', $filteredIds);
+        }
 
         $laporan = $query->latest()->get();
 
@@ -133,43 +82,64 @@ class LaporanDosenController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
         ];
 
-        $callback = function () use ($laporan) {
-            $file = fopen('php://output', 'w');
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+        $csvHeaders = [
+            'Nama Mahasiswa', 'NIM', 'Prodi', 'Fakultas',
+            'Judul Kegiatan', 'Nama Kegiatan', 'Penyelenggara',
+            'Tingkat', 'Hasil', 'Poin', 'Tanggal Kegiatan'
+        ];
 
-            fputcsv($file, [
-                'Nama Mahasiswa',
-                'NIM',
-                'Program Studi',
-                'Kegiatan',
-                'Penyelenggara',
-                'Tingkat',
-                'Tahun',
-                'Poin'
-            ], ';');
-
-            foreach ($laporan as $item) {
-                fputcsv($file, [
-                    $item->user->name ?? '',
-                    $item->user->nim ?? '',
-                    $item->user->prodi ?? '',
-                    $item->kegiatan->kegiatan ?? '',
-                    $item->penyelenggara ?? '',
-                    $item->tingkat ?? '', // 🔧 PERBAIKAN: dari SPKS
-                    $item->tahun,
-                    $item->poin ?? 0, // 🔧 PERBAIKAN: dari SPKS langsung
-                ], ';');
-            }
-
-            fclose($file);
+        $mapper = function ($item) {
+            return [
+                $item->user->name ?? '',
+                $item->user->nim ?? '',
+                $item->user->prodi ?? '',
+                $this->laporanService->getFakultasFromProdi($item->user->prodi),
+                $item->judul_kegiatan ?? $item->kegiatan->kegiatan ?? '',
+                $item->kegiatan->kegiatan ?? '',
+                $item->penyelenggara ?? '',
+                $item->tingkat ?? '',
+                $item->hasil ?? '',
+                $item->poin ?? 0,
+                $this->laporanService->getTanggalSelesai($item),
+            ];
         };
+
+        $callback = $this->laporanService->generateCsv($laporan, $csvHeaders, $mapper);
 
         return response()->stream($callback, 200, $headers);
     }
 
-    /**
-     * Export PDF
-     */
+    public function exportExcel(Request $request)
+    {
+        try {
+            $dosenId = Auth::id();
+            $dosen = Auth::user();
+
+            $query = Spk::with(['user.dosenPembimbing', 'kegiatan.masterKegiatan'])
+                ->whereHas('user', function ($q) use ($dosenId) {
+                    $q->where('dosen_pembimbing_id', $dosenId);
+                })->where('status', 'disetujui');
+
+            $query = $this->laporanService->applyFilters($query, $request);
+            $laporan = $query->latest()->get();
+
+            $spreadsheet = $this->laporanService->generateExcelDosen($laporan, $dosen->name);
+
+            $fileName = 'laporan-prestasi-dosen-' . date('d-m-Y') . '.xlsx';
+
+            return response()->streamDownload(function () use ($spreadsheet) {
+                $writer = new Xlsx($spreadsheet);
+                $writer->save('php://output');
+            }, $fileName, [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Export Excel Dosen Error: ' . $e->getMessage());
+            \Log::error($e->getTraceAsString());
+            return back()->with('error', 'Gagal export Excel: ' . $e->getMessage());
+        }
+    }
+
     public function exportPdf(Request $request)
     {
         $dosenId = Auth::id();
@@ -177,18 +147,22 @@ class LaporanDosenController extends Controller
         $query = Spk::with(['user', 'kegiatan.masterKegiatan'])
             ->whereHas('user', function ($q) use ($dosenId) {
                 $q->where('dosen_pembimbing_id', $dosenId);
-            })
-            ->where('status', 'disetujui');
+            })->where('status', 'disetujui');
 
-        $query = $this->applyFilters($query, $request);
+        $query = $this->laporanService->applyFilters($query, $request);
+
+        if ($request->filled('fakultas')) {
+            $allData = $query->get();
+            $filteredIds = $allData->filter(function ($item) use ($request) {
+                return $this->laporanService->getFakultasFromProdi($item->user->prodi) === $request->fakultas;
+            })->pluck('id');
+            $query->whereIn('id', $filteredIds);
+        }
 
         $laporan = $query->latest()->get();
-
         $dosen = Auth::user();
 
-        $pdf = Pdf::loadView('dosen.laporan.pdf', compact('laporan', 'dosen'))
-            ->setPaper('A4', 'landscape');
-
-        return $pdf->download('laporan.pdf');
+        return $this->laporanService->generatePdf($laporan, 'dosen.laporan.pdf', ['dosen' => $dosen])
+            ->download('laporan.pdf');
     }
 }

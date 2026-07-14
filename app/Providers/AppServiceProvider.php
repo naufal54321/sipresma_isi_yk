@@ -29,9 +29,9 @@ class AppServiceProvider extends ServiceProvider
         // Konfigurasi Email Verifikasi
         VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
             return (new MailMessage)
-                ->subject('Verifikasi Alamat Email - SIPRESMA')
+                ->subject('Verifikasi Alamat Email - PRATAMA')
                 ->greeting('Halo, ' . $notifiable->name . '!')
-                ->line('Terima kasih telah mendaftar di SIPRESMA (Sistem Informasi Prestasi Mahasiswa).')
+                ->line('Terima kasih telah mendaftar di PRATAMA (Prestasi dan Talenta Mahasiswa).')
                 ->line('Silakan klik tombol di bawah ini untuk memverifikasi alamat email Anda:')
                 ->action('Verifikasi Email Saya', $url)
                 ->line('Jika Anda tidak merasa mendaftar di aplikasi ini, Anda tidak perlu melakukan tindakan apa pun.')
@@ -46,9 +46,9 @@ class AppServiceProvider extends ServiceProvider
             ], false));
 
             return (new MailMessage)
-                ->subject('Atur Ulang Kata Sandi - SIPRESMA')
+                ->subject('Atur Ulang Kata Sandi - PRATAMA')
                 ->greeting('Halo, ' . $notifiable->name . '!')
-                ->line('Kami menerima permintaan untuk mengatur ulang kata sandi akun SIPRESMA Anda.')
+                ->line('Kami menerima permintaan untuk mengatur ulang kata sandi akun PRATAMA Anda.')
                 ->action('Atur Ulang Kata Sandi', $url)
                 ->line('Tautan ini akan kedaluwarsa dalam 60 menit.')
                 ->line('Jika Anda tidak merasa mengajukan permintaan ini, silakan abaikan email ini.')

@@ -19,15 +19,21 @@
                 <i class="fas fa-arrow-left text-xs"></i> Kembali
             </a>
 
-            @if($rpk->status == 'draft' || $rpk->status == 'diajukan')
+            @if($rpk->status == 'draft')
                 <button onclick="approveKegiatan({{ $rpk->id }})"
-                        class="inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm shadow-emerald-500/20 transition flex-1 md:flex-none">
-                    <i class="fas fa-check-circle"></i> Setujui RPK
+                        class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    RPK Disetujui
                 </button>
 
                 <button onclick="rejectKegiatan({{ $rpk->id }})"
-                        class="inline-flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm shadow-red-500/20 transition flex-1 md:flex-none">
-                    <i class="fas fa-times-circle"></i> Tolak RPK
+                        class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    RPK Ditolak
                 </button>
             @else
                 <form action="{{ route('admin.rpk.update-status', $rpk->id) }}" method="POST" class="w-full md:w-auto flex">
@@ -72,9 +78,20 @@
                         <span class="col-span-2 text-sm text-slate-800 font-bold">{{ $rpk->user->nim ?? '-' }}</span>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-2 pb-4">
-                        <span class="col-span-1 text-sm font-bold text-slate-500">Prodi</span>
-                        <span class="col-span-2 text-sm text-slate-800 font-bold">{{ $rpk->user->prodi ?? '-' }}</span>
+                    <div class="grid grid-cols-3 gap-2">
+                        <span class="col-span-1 text-sm font-bold text-gray-600">Prodi</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->user->prodi ?? '-' }}</span>
+                    </div>
+
+                    {{-- ⚡ FAKULTAS (AMBIL DARI TABEL PROGRAM_STUDIS) --}}
+                    <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
+                        <span class="text-sm font-bold text-gray-600">Fakultas</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">
+                            @php
+                                $prodi = \App\Models\ProgramStudi::where('nama_prodi', $rpk->user->prodi)->first();
+                            @endphp
+                            {{ $prodi->fakultas ?? '-' }}
+                        </span>
                     </div>
 
                     <div class="grid grid-cols-3 gap-2 pb-4">
@@ -112,7 +129,7 @@
                     <div class="col-span-2 md:col-span-4 mt-2 pt-4 border-t border-slate-100 flex items-center justify-between">
                         <span class="text-sm font-bold text-slate-500">Status Saat Ini</span>
                         @if($rpk->status == 'draft')
-                            <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-[11px] font-bold tracking-wider border border-blue-200">Diajukan</span>
+                            <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-[11px] font-bold tracking-wider border border-blue-200">Draft</span>
                         @elseif($rpk->status == 'disetujui')
                             <span class="bg-green-500 text-white px-3 py-1 rounded-full text-[11px] font-bold tracking-wider border border-emerald-200">Disetujui</span>
                         @else
@@ -359,19 +376,27 @@ window.approveKegiatan = function(id) {
         confirmButtonColor: '#10b981',
         cancelButtonText: 'Batal'
     }).then((result) => {
-        if(result.isConfirmed) {
-            let form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/admin/rpk/' + id + '/status'; 
-            form.innerHTML = `
-                @csrf
-                <input type="hidden" name="_method" value="PATCH">
-                <input type="hidden" name="status" value="disetujui">
-                <input type="hidden" name="catatan" value="${result.value}">
-            `;
-            document.body.appendChild(form);
-            form.submit();
-        }
+        if (!result.isConfirmed) return;
+
+        fetch('/admin/rpk/' + id + '/status', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ status: 'disetujui', catatan: result.value || '' })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({ icon: 'success', title: 'Berhasil', text: data.message, timer: 2000, showConfirmButton: false });
+                setTimeout(() => location.reload(), 2200);
+            } else {
+                Swal.fire({ icon: 'error', title: 'Gagal', text: data.message });
+            }
+        })
+        .catch(() => Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan server' }));
     });
 };
 
@@ -389,19 +414,27 @@ window.rejectKegiatan = function(id) {
             if (!value) return 'Alasan penolakan wajib diisi oleh Admin!';
         }
     }).then((result) => {
-        if(result.isConfirmed) {
-            let form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/admin/rpk/' + id + '/status';
-            form.innerHTML = `
-                @csrf
-                <input type="hidden" name="_method" value="PATCH">
-                <input type="hidden" name="status" value="ditolak">
-                <input type="hidden" name="catatan" value="${result.value}">
-            `;
-            document.body.appendChild(form);
-            form.submit();
-        }
+        if (!result.isConfirmed) return;
+
+        fetch('/admin/rpk/' + id + '/status', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ status: 'ditolak', catatan: result.value })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({ icon: 'success', title: 'Berhasil', text: data.message, timer: 2000, showConfirmButton: false });
+                setTimeout(() => location.reload(), 2200);
+            } else {
+                Swal.fire({ icon: 'error', title: 'Gagal', text: data.message });
+            }
+        })
+        .catch(() => Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan server' }));
     });
 };
 </script>

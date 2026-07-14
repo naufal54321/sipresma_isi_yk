@@ -9,7 +9,6 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserRoleController;
 use App\Http\Controllers\RpkController;
 use App\Http\Controllers\KegiatanController;
-use App\Http\Controllers\DosenKegiatanController;
 use App\Http\Controllers\DosenRpkController;
 use App\Http\Controllers\DosenSpkController;
 use App\Http\Controllers\SpkController;
@@ -23,6 +22,7 @@ use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\LaporanDosenController;
 use App\Http\Controllers\AdminRpkController;
 use App\Http\Controllers\AdminSpkController;
+use App\Http\Controllers\AdminUserApprovalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,36 +39,60 @@ Route::get('/', function () {
         ->distinct('user_id')
         ->count('user_id');
 
-    // ⚡ Load dengan relasi prestasi
-    $spkDisetujuiData = Spk::with(['user', 'kegiatan', 'prestasi'])
+    // Rekap 10 Terbaru — query terbatas
+    $rekapPrestasi = Spk::with(['user', 'kegiatan', 'prestasi'])
         ->where('status', 'disetujui')
+        ->latest()
+        ->take(10)
         ->get();
 
-    // Data List Rekap 10 Terbaru
-    $rekapPrestasi = $spkDisetujuiData->sortByDesc('updated_at')->take(10);
+    // Chart 1: Prodi — DB-level groupBy
+    $prodiData = Spk::selectRaw('users.prodi, COUNT(*) as total')
+        ->join('users', 'spks.user_id', '=', 'users.id')
+        ->where('spks.status', 'disetujui')
+        ->groupBy('users.prodi')
+        ->get();
+    $chartLabels = $prodiData->pluck('prodi')->map(fn($v) => $v ?? 'Lainnya')->toArray();
+    $chartData = $prodiData->pluck('total')->toArray();
 
-    // Data Chart 1: Prodi
-    $prodiGrup = $spkDisetujuiData->groupBy(function ($spk) {
-        return $spk->user->prodi ?? 'Lainnya';
-    });
-    $chartLabels = $prodiGrup->keys()->toArray();
-    $chartData = $prodiGrup->map->count()->values()->toArray();
+    // Chart 2: Tingkat — DB-level groupBy
+    $tingkatData = Spk::selectRaw('COALESCE(tingkat, "Lainnya") as tingkat, COUNT(*) as total')
+        ->where('status', 'disetujui')
+        ->groupBy('tingkat')
+        ->get();
+    $tingkatLabels = $tingkatData->pluck('tingkat')->toArray();
+    $tingkatData = $tingkatData->pluck('total')->toArray();
 
-    // ⚡ Data Chart 2: Tingkat dari master_prestasis
-    $tingkatGrup = $spkDisetujuiData->groupBy(function ($spk) {
-        return $spk->prestasi->tingkat ?? $spk->tingkat ?? 'Lainnya';
-    });
-    $tingkatLabels = $tingkatGrup->keys()->toArray();
-    $tingkatData = $tingkatGrup->map->count()->values()->toArray();
+    // Chart 3: Jenis Kegiatan — DB-level groupBy via join
+    $jenisData = Spk::selectRaw('kegiatans.kegiatan, COUNT(*) as total')
+        ->join('kegiatans', 'spks.kegiatan_id', '=', 'kegiatans.id')
+        ->where('spks.status', 'disetujui')
+        ->groupBy('kegiatans.kegiatan')
+        ->get();
+    $jenisLabels = $jenisData->pluck('kegiatan')->toArray();
+    $jenisData = $jenisData->pluck('total')->toArray();
 
-    // Data Chart 3: Jenis Kegiatan
-    $jenisGrup = $spkDisetujuiData->groupBy(function ($spk) {
-        return $spk->kegiatan->kegiatan
-            ?? $spk->kegiatan->nama_kegiatan
-            ?? 'Lainnya';
-    });
-    $jenisLabels = $jenisGrup->keys()->toArray();
-    $jenisData = $jenisGrup->map->count()->values()->toArray();
+    // Tren Bulanan — 1 query grouped
+    $trenBulanLabels = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    $tahunSekarang = date('Y');
+    $trenBulanData = [];
+    for ($i = 1; $i <= 12; $i++) {
+        $trenBulanData[] = Spk::where('status', 'disetujui')
+            ->whereYear('created_at', $tahunSekarang)
+            ->whereMonth('created_at', $i)
+            ->count();
+    }
+
+    // Top 5 Penyelenggara — DB-level groupBy
+    $penyelenggaraData = Spk::selectRaw('penyelenggara, COUNT(*) as total')
+        ->where('status', 'disetujui')
+        ->whereNotNull('penyelenggara')
+        ->groupBy('penyelenggara')
+        ->orderByDesc('total')
+        ->take(5)
+        ->get();
+    $penyelenggaraLabels = $penyelenggaraData->pluck('penyelenggara')->toArray();
+    $penyelenggaraData = $penyelenggaraData->pluck('total')->toArray();
 
     return view('welcome', compact(
         'totalMahasiswa',
@@ -81,7 +105,11 @@ Route::get('/', function () {
         'tingkatLabels',
         'tingkatData',
         'jenisLabels',
-        'jenisData'
+        'jenisData',
+        'trenBulanLabels',
+        'trenBulanData',
+        'penyelenggaraLabels',
+        'penyelenggaraData'
     ));
 });
 
@@ -115,6 +143,8 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
     /* Manajemen User */
     Route::resource('users', UserController::class);
     Route::post('/users/{user}/role', [UserRoleController::class, 'update'])->name('users.role.update');
+    Route::put('/users/{user}/approve', [AdminUserApprovalController::class, 'approve'])->name('users.approve');
+    Route::delete('/users/{user}/reject', [AdminUserApprovalController::class, 'reject'])->name('users.reject');
 
     /* Dosen Pembimbing */
     Route::get('/pembimbing', [UserController::class, 'pembimbingIndex'])->name('pembimbing.index');
@@ -128,15 +158,13 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
 
     /* Program Studi */
     Route::resource('prodi', ProgramStudiController::class)->except(['create', 'edit'])->parameters(['prodi' => 'prodi']);
-    Route::get('prodi/check-name', [ProgramStudiController::class, 'checkName'])->name('prodi.check-name');
     Route::patch('prodi/{prodi}/toggle-status', [ProgramStudiController::class, 'toggleStatus'])->name('prodi.toggle-status');
-    Route::post('prodi/bulk-delete', [ProgramStudiController::class, 'bulkDelete'])->name('prodi.bulk-delete');
-    Route::get('prodi/export', [ProgramStudiController::class, 'export'])->name('prodi.export');
 
     /* Laporan */
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
     Route::get('/laporan/export', [LaporanController::class, 'export'])->name('laporan.export');
     Route::get('/laporan/export-pdf', [LaporanController::class, 'exportPdf'])->name('laporan.export-pdf');
+    Route::get('/laporan/export-excel', [LaporanController::class, 'exportExcel'])->name('laporan.export-excel');
 
     /* RPK Mahasiswa (VIEW OLEH ADMIN) */
     Route::get('/rpk', [AdminRpkController::class, 'index'])->name('rpk.index');
@@ -152,15 +180,16 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
         // Detail SPK
         Route::get('/{spk}', [AdminSpkController::class, 'show'])->name('show');
 
-        // ⚡ UBAH: Approve & Reject pakai POST (bukan PATCH) untuk kompatibel AJAX
+        // Approve & Reject
         Route::post('/{spk}/approve', [AdminSpkController::class, 'approve'])->name('approve');
         Route::post('/{spk}/reject', [AdminSpkController::class, 'reject'])->name('reject');
 
         // Delete
         Route::delete('/{spk}', [AdminSpkController::class, 'destroy'])->name('destroy');
 
-        // ⚡ TAMBAH POIN: Sekarang di AdminSpkController
+        // ⚡ POIN
         Route::post('/{spk}/tambah-poin', [AdminSpkController::class, 'tambahPoin'])->name('tambah-poin');
+        Route::post('/{spk}/edit-poin', [AdminSpkController::class, 'editPoin'])->name('edit-poin'); // ⚡ TAMBAH
     });
 });
 
@@ -184,6 +213,7 @@ Route::middleware(['auth', 'role:Dosen'])->prefix('dosen')->name('dosen.')->grou
 
     Route::get('/laporan', [LaporanDosenController::class, 'index'])->name('laporan.index');
     Route::get('/laporan/export', [LaporanDosenController::class, 'export'])->name('laporan.export');
+    Route::get('/laporan/export-excel', [LaporanDosenController::class, 'exportExcel'])->name('laporan.export-excel');
     Route::get('/laporan/export-pdf', [LaporanDosenController::class, 'exportPdf'])->name('laporan.export-pdf');
 });
 
@@ -213,6 +243,6 @@ Route::middleware(['auth', 'verified', 'role:Mahasiswa'])->group(function () {
 | MISCELLANEOUS / API
 |--------------------------------------------------------------------------
 */
-Route::get('/users-data', [UserController::class, 'getUsersData']);
+Route::get('/users-data', [UserController::class, 'getUsersData'])->middleware('auth');
 
 require __DIR__ . '/auth.php';

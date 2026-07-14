@@ -10,17 +10,18 @@
     
     if (auth()->check() && (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Dosen'))) {
         if (auth()->user()->hasRole('Admin')) {
-            $notifRpk = \App\Models\Rpk::whereIn('status', ['draft', 'diajukan'])->count();
-            $notifSpk = \App\Models\Spk::whereIn('status', ['draft', 'diajukan'])->count();
+            $notifRpk = \App\Models\Rpk::where('status', 'draft')->count();
+            $notifSpk = \App\Models\Spk::where('status', 'draft')->count();
         } elseif (auth()->user()->hasRole('Dosen')) {
             $mahasiswaIds = \App\Models\User::where('dosen_pembimbing_id', auth()->id())->pluck('id');
-            $notifRpk = \App\Models\Rpk::whereIn('user_id', $mahasiswaIds)->whereIn('status', ['draft', 'diajukan'])->count();
-            $notifSpk = \App\Models\Spk::whereIn('user_id', $mahasiswaIds)->whereIn('status', ['draft', 'diajukan'])->count();
+            $notifRpk = \App\Models\Rpk::whereIn('user_id', $mahasiswaIds)->where('status', 'draft')->count();
+            $notifSpk = \App\Models\Spk::whereIn('user_id', $mahasiswaIds)->where('status', 'draft')->count();
         }
     }
 @endphp
 
-<nav x-data="{ 
+<nav id="sidebar-nav"
+     x-data="{ 
         collapsed: {{ $sidebarCollapsed ? 'true' : 'false' }}, 
         siapAnimasi: false 
      }" 
@@ -30,17 +31,17 @@
             document.cookie = 'sidebar_collapsed=' + (val ? '1' : '0') + ';path=/;max-age=31536000;SameSite=Lax';
             window.dispatchEvent(new CustomEvent('sidebar-toggle', { detail: val }));
         });
-        setTimeout(() => {
+        window.addEventListener('sidebar-ready', () => {
             siapAnimasi = true;
             window.dispatchEvent(new CustomEvent('sidebar-toggle', { detail: collapsed }));
-        }, 500);
+        });
      "
      x-cloak
-     class="fixed top-0 left-0 z-50 bottom-0 bg-slate-900 text-slate-300 shadow-2xl flex flex-col font-sans w-64"
+     class="fixed top-0 left-0 z-50 bottom-0 bg-slate-900 text-slate-300 shadow-2xl flex flex-col font-sans w-64 transition-[width] duration-300 ease-in-out"
      :class="{
          'w-20': collapsed,
          'w-64': !collapsed,
-         'transition-[width] duration-300 ease-in-out': siapAnimasi
+         'transition-none': !siapAnimasi
      }">
 
     {{-- Logo & Toggle --}}
@@ -54,8 +55,8 @@
         <img src="{{ asset('images/logo_isi_dashboard.png') }}" class="w-11 h-11 object-contain shrink-0" alt="Logo">
         
         <div x-show="!collapsed" class="whitespace-nowrap overflow-hidden">
-            <h1 class="text-lg font-bold text-white tracking-tight leading-tight">SIPRESMA</h1>
-            <p class="text-[10px] text-slate-400 tracking-widest font-semibold mt-0.5">Sistem Prestasi Mahasiswa</p>
+            <h1 class="text-lg font-bold text-white tracking-tight leading-tight">PRATAMA</h1>
+            <p class="text-[8.9px] text-slate-400 tracking-widest font-semibold mt-0.5">Prestasi dan Talenta Mahasiswa</p>
         </div>
 
         <button @click="
@@ -71,7 +72,7 @@
     </div>
 
     {{-- User Info --}}
-    <div class="py-5 border-b border-slate-800 bg-slate-800/30"
+    <div class="py-5 border-b border-slate-800 bg-slate-800/30 overflow-hidden"
          :class="{
              'px-2 flex justify-center': collapsed,
              'px-6': !collapsed,
@@ -395,7 +396,7 @@
         @endrole
 
         {{-- Logout --}}
-        <div class="mt-6 pt-4 border-t border-slate-800"
+        <div class="mt-6 pt-4 border-t border-slate-800 overflow-hidden"
              :class="{
                  'px-0': collapsed,
                  'px-1': !collapsed,

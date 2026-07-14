@@ -8,7 +8,7 @@
     <h2>Selamat {{ $user->name }},</h2>
 
     <h3>
-        Akun SIPRESMA Anda telah disetujui oleh Admin.
+        Akun PRATAMA Anda telah disetujui oleh Admin.
     </h3>
 
     <p>Nama : {{ $user->name }}</p>

@@ -12,12 +12,26 @@
             <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div class="flex-1 min-w-0">
                     <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight truncate text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300">
-                        Dashboard SIPRESMA
+                        Dashboard PRATAMA
                     </h1>
                     <p class="mt-3 text-slate-400 max-w-2xl text-sm sm:text-base leading-relaxed line-clamp-2 sm:line-clamp-none">
-                        Sistem Informasi Prestasi Mahasiswa (SIPRESMA). Pantau seluruh aktivitas, data master, dan rekapitulasi sistem secara real-time.
+                        Pantau seluruh aktivitas, data master, dan rekapitulasi sistem secara real-time.
                     </p>
                     <div class="mt-6 flex flex-wrap gap-3 text-xs font-semibold">
+                         <span class="bg-white/10 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full flex items-center gap-2">
+                    <span class="relative flex h-2.5 w-2.5">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
+                    </span>
+                    Pemantauan Aktif
+                </span>
+                <span class="bg-white/5 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full flex items-center gap-2 text-slate-400 text-xs tracking-wider">
+                    <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    ISI YOGYAKARTA
+                </span>
                         <span class="bg-white/5 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full flex items-center gap-2 shadow-inner">
                             <i class="fas fa-users text-blue-400"></i> {{ $totalMahasiswa }} Mahasiswa
                         </span>
@@ -25,6 +39,7 @@
                             <i class="fas fa-chalkboard-teacher text-purple-400"></i> {{ $totalDosen }} Dosen
                         </span>
                     </div>
+                    
                 </div>
                 
                 <div class="hidden md:flex items-center justify-center w-28 h-28 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-full border border-white/10 shadow-[0_0_40px_rgba(59,130,246,0.15)] shrink-0 group hover:scale-105 transition-transform duration-500">
@@ -106,30 +121,37 @@
             </div>
         </div>
 
+        @php
+        $cfgRpk = json_encode(['type'=>'doughnut','data'=>['labels'=>['Draft','Disetujui','Ditolak'],'datasets'=>[['data'=>[$rpkDraft,$rpkDisetujui,$rpkDitolak],'backgroundColor'=>['#f59e0b','#10b981','#ef4444'],'borderWidth'=>0,'hoverOffset'=>4]]],'options'=>['responsive'=>true,'maintainAspectRatio'=>false,'cutout'=>'65%','plugins'=>['tooltip'=>['backgroundColor'=>'rgba(15,23,42,0.9)','padding'=>12,'cornerRadius'=>8],'legend'=>['position'=>'bottom','labels'=>['usePointStyle'=>true,'padding'=>20]]]]]);
+        $cfgSpk = json_encode(['type'=>'doughnut','data'=>['labels'=>['Draft','Disetujui','Ditolak'],'datasets'=>[['data'=>[$spkDraft,$spkDisetujui,$spkDitolak],'backgroundColor'=>['#f59e0b','#10b981','#ef4444'],'borderWidth'=>0,'hoverOffset'=>4]]],'options'=>['responsive'=>true,'maintainAspectRatio'=>false,'cutout'=>'65%','plugins'=>['tooltip'=>['backgroundColor'=>'rgba(15,23,42,0.9)','padding'=>12,'cornerRadius'=>8],'legend'=>['position'=>'bottom','labels'=>['usePointStyle'=>true,'padding'=>20]]]]]);
+        $cfgSummary = json_encode(['type'=>'bar','data'=>['labels'=>['Mahasiswa','Dosen','RPK','SPK'],'datasets'=>[['label'=>'Jumlah Data','data'=>[$totalMahasiswa,$totalDosen,$totalRpk,$totalSpk],'backgroundColor'=>['#3b82f6','#8b5cf6','#f59e0b','#10b981'],'borderRadius'=>6,'barPercentage'=>0.5]]],'options'=>['responsive'=>true,'maintainAspectRatio'=>false,'plugins'=>['tooltip'=>['backgroundColor'=>'rgba(15,23,42,0.9)','padding'=>12,'cornerRadius'=>8],'legend'=>['display'=>false]],'scales'=>['y'=>['beginAtZero'=>true,'ticks'=>['stepSize'=>1],'grid'=>['color'=>'#f1f5f9'],'border'=>['display'=>false]],'x'=>['grid'=>['display'=>false],'border'=>['display'=>false]]]]]);
+        $cfgTingkat = json_encode(['type'=>'bar','data'=>['labels'=>['Universitas','Regional','Nasional','Internasional'],'datasets'=>[['label'=>'Jumlah Prestasi','data'=>[$universitas,$regional,$nasional,$internasional],'backgroundColor'=>['#3b82f6','#10b981','#f59e0b','#8b5cf6'],'borderRadius'=>6,'barPercentage'=>0.5]]],'options'=>['responsive'=>true,'maintainAspectRatio'=>false,'plugins'=>['tooltip'=>['backgroundColor'=>'rgba(15,23,42,0.9)','padding'=>12,'cornerRadius'=>8],'legend'=>['display'=>false]],'scales'=>['y'=>['beginAtZero'=>true,'ticks'=>['stepSize'=>1],'grid'=>['color'=>'#f1f5f9'],'border'=>['display'=>false]],'x'=>['grid'=>['display'=>false],'border'=>['display'=>false]]]]]);
+        $cfgJenis = json_encode(['type'=>'doughnut','data'=>['labels'=>$kategoriLabels,'datasets'=>[['data'=>$kategoriData,'backgroundColor'=>['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#0ea5e9','#f43f5e','#14b8a6'],'borderWidth'=>0,'hoverOffset'=>4]]],'options'=>['responsive'=>true,'maintainAspectRatio'=>false,'cutout'=>'65%','plugins'=>['tooltip'=>['backgroundColor'=>'rgba(15,23,42,0.9)','padding'=>12,'cornerRadius'=>8],'legend'=>['position'=>'right','labels'=>['usePointStyle'=>true,'padding'=>15,'font'=>['size'=>11]]]]]]);
+        @endphp
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col min-h-[350px]">
                 <h2 class="font-bold text-slate-800 flex items-center gap-2 mb-4"><span class="p-1.5 rounded-lg bg-orange-50 text-orange-500"><i class="fas fa-chart-pie"></i></span> Status RPK</h2>
-                <div class="flex-1 relative w-full h-[250px]"><canvas id="rpkChart"></canvas></div>
+                <div class="flex-1 relative w-full h-[250px]"><canvas id="rpkChart" data-chart='{{ $cfgRpk }}'></canvas></div>
             </div>
             <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col min-h-[350px]">
                 <h2 class="font-bold text-slate-800 flex items-center gap-2 mb-4"><span class="p-1.5 rounded-lg bg-emerald-50 text-emerald-500"><i class="fas fa-chart-pie"></i></span> Status SPK</h2>
-                <div class="flex-1 relative w-full h-[250px]"><canvas id="spkChart"></canvas></div>
+                <div class="flex-1 relative w-full h-[250px]"><canvas id="spkChart" data-chart='{{ $cfgSpk }}'></canvas></div>
             </div>
         </div>
 
         <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-100 mb-6 flex flex-col min-h-[400px]">
             <h2 class="font-bold text-slate-800 flex items-center gap-2 mb-4"><span class="p-1.5 rounded-lg bg-blue-50 text-blue-500"><i class="fas fa-chart-bar"></i></span> Perbandingan Keseluruhan Data Sistem</h2>
-            <div class="flex-1 relative w-full h-[300px]"><canvas id="summaryChart"></canvas></div>
+            <div class="flex-1 relative w-full h-[300px]"><canvas id="summaryChart" data-chart='{{ $cfgSummary }}'></canvas></div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col min-h-[350px]">
                 <h2 class="font-bold text-slate-800 flex items-center gap-2 mb-4"><span class="p-1.5 rounded-lg bg-blue-50 text-blue-500"><i class="fas fa-layer-group"></i></span> Prestasi Berdasarkan Tingkat</h2>
-                <div class="flex-1 relative w-full h-[250px]"><canvas id="tingkatChart"></canvas></div>
+                <div class="flex-1 relative w-full h-[250px]"><canvas id="tingkatChart" data-chart='{{ $cfgTingkat }}'></canvas></div>
             </div>
             <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col min-h-[350px]">
                 <h2 class="font-bold text-slate-800 flex items-center gap-2 mb-4"><span class="p-1.5 rounded-lg bg-purple-50 text-purple-500"><i class="fas fa-shapes"></i></span> Distribusi Jenis Kegiatan</h2>
-                <div class="flex-1 relative w-full h-[250px]"><canvas id="jenisChart"></canvas></div>
+                <div class="flex-1 relative w-full h-[250px]"><canvas id="jenisChart" data-chart='{{ $cfgJenis }}'></canvas></div>
             </div>
         </div>
 
@@ -233,153 +255,5 @@
 
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-(function jalankanGrafikAdmin() {
-    
-    // Fungsi Cerdas: Menunggu sampai Chart.js dan Canvas benar-benar siap di layar
-    function inisialisasiSaatSiap() {
-        // Cek apakah library Chart.js sudah selesai di-download
-        if (typeof Chart === 'undefined') {
-            setTimeout(inisialisasiSaatSiap, 50); // Cek lagi dalam 50ms
-            return;
-        }
-
-        // Cek apakah elemen HTML canvas pertama sudah benar-benar ada di layar
-        const cekCanvas = document.getElementById('rpkChart');
-        if (!cekCanvas) {
-            setTimeout(inisialisasiSaatSiap, 50); // Cek lagi dalam 50ms
-            return;
-        }
-
-        // --- JIKA SEMUANYA SIAP, BARU JALANKAN GRAFIKNYA ---
-
-        Chart.defaults.font.family = "'Inter', sans-serif";
-        Chart.defaults.color = '#64748b';
-        
-        const commonOptions = {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', padding: 12, cornerRadius: 8 }
-            }
-        };
-
-        // FUNGSI SUPER AMAN: Menghancurkan memori grafik lama sebelum menggambar ulang (SPA Proof)
-        function createSafeChart(id, config) {
-            const canvas = document.getElementById(id);
-            if (!canvas) return;
-
-            const existingChart = Chart.getChart(id);
-            if (existingChart) {
-                existingChart.destroy();
-            }
-
-            return new Chart(canvas, config);
-        }
-
-        // 1. RPK Chart
-        createSafeChart('rpkChart', {
-            type: 'doughnut',
-            data: {
-                labels: ['Draft', 'Disetujui', 'Ditolak'],
-                datasets: [{
-                    data: [{{ $rpkDraft }}, {{ $rpkDisetujui }}, {{ $rpkDitolak }}],
-                    backgroundColor: ['#f59e0b', '#10b981', '#ef4444'],
-                    borderWidth: 0, hoverOffset: 4
-                }]
-            },
-            options: { ...commonOptions, cutout: '65%', plugins: { ...commonOptions.plugins, legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } } }
-        });
-
-        // 2. SPK Chart
-        createSafeChart('spkChart', {
-            type: 'doughnut',
-            data: {
-                labels: ['Draft', 'Disetujui', 'Ditolak'],
-                datasets: [{
-                    data: [{{ $spkDraft }}, {{ $spkDisetujui }}, {{ $spkDitolak }}],
-                    backgroundColor: ['#f59e0b', '#10b981', '#ef4444'],
-                    borderWidth: 0, hoverOffset: 4
-                }]
-            },
-            options: { ...commonOptions, cutout: '65%', plugins: { ...commonOptions.plugins, legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } } }
-        });
-
-        // 3. Summary Chart
-        createSafeChart('summaryChart', {
-            type: 'bar',
-            data: {
-                labels: ['Mahasiswa', 'Dosen', 'RPK', 'SPK'],
-                datasets: [{
-                    label: 'Jumlah Data',
-                    data: [{{ $totalMahasiswa }}, {{ $totalDosen }}, {{ $totalRpk }}, {{ $totalSpk }}],
-                    backgroundColor: ['#3b82f6', '#8b5cf6', '#f59e0b', '#10b981'],
-                    borderRadius: 6,
-                    barPercentage: 0.5
-                }]
-            },
-            options: {
-                ...commonOptions,
-                plugins: { ...commonOptions.plugins, legend: { display: false } },
-                scales: {
-                    y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f1f5f9' }, border: { display: false } },
-                    x: { grid: { display: false }, border: { display: false } }
-                }
-            }
-        });
-
-        // 4. Tingkat Chart
-        createSafeChart('tingkatChart', {
-            type: 'bar',
-            data: {
-                labels: ['Universitas', 'Regional', 'Nasional', 'Internasional'],
-                datasets: [{
-                    label: 'Jumlah Prestasi',
-                    data: [{{ $universitas }}, {{ $regional }}, {{ $nasional }}, {{ $internasional }}],
-                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'],
-                    borderRadius: 6,
-                    barPercentage: 0.5
-                }]
-            },
-            options: {
-                ...commonOptions,
-                plugins: { ...commonOptions.plugins, legend: { display: false } },
-                scales: {
-                    y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f1f5f9' }, border: { display: false } },
-                    x: { grid: { display: false }, border: { display: false } }
-                }
-            }
-        });
-
-        // 5. Jenis Chart
-        const modernPalette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#0ea5e9', '#f43f5e', '#14b8a6'];
-        createSafeChart('jenisChart', {
-            type: 'doughnut',
-            data: {
-                labels: @json($kategoriLabels),
-                datasets: [{
-                    data: @json($kategoriData),
-                    backgroundColor: modernPalette,
-                    borderWidth: 0, hoverOffset: 4
-                }]
-            },
-            options: {
-                ...commonOptions,
-                cutout: '65%',
-                plugins: { ...commonOptions.plugins, legend: { position: 'right', labels: { usePointStyle: true, padding: 15, font: { size: 11 } } } }
-            }
-        });
-    }
-
-    // Panggil fungsi pengeceknya (Start Polling)
-    inisialisasiSaatSiap();
-
-})();
-</script>
 
 </x-app-layout>

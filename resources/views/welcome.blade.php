@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name', 'SIPRESMA') }} · ISI Yogyakarta</title>
+    <title>{{ config('app.name', 'PRATAMA') }}</title>
 
     <link rel="icon" type="image/png" href="{{ asset('images/logo_isi_dashboard.png') }}">
     <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo_isi_dashboard.png') }}">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -20,7 +20,7 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Space Grotesk', 'sans-serif'] },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
                     animation: {
                         'fade-in': 'fadeIn 0.8s ease-out',
                         'fade-in-up': 'fadeInUp 0.8s ease-out',
@@ -93,8 +93,8 @@
                 <img src="{{ asset('images/logo_isi_welcome.png') }}" alt="Logo" class="h-9 w-auto object-contain">
             </div>
             <div>
-                <h1 class="font-bold text-xl text-slate-900 leading-none">SIPRESMA</h1>
-                <p class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-[0.2em]">Sistem Prestasi Mahasiswa</p>
+                <h1 class="font-bold text-xl text-slate-900 leading-none">PRATAMA</h1>
+                <p class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-[0.2em]">Prestasi dan Talenta Mahasiswa</p>
             </div>
         </div>
 
@@ -110,7 +110,7 @@
                         <div class="bg-rose-50 text-rose-500 w-10 h-10 rounded-xl flex items-center justify-center shrink-0 group-hover/link:scale-110 transition-transform"><i class="fab fa-youtube text-lg"></i></div>
                         <div><p class="text-sm font-bold text-slate-800">Video Tutorial</p><p class="text-[11px] text-slate-500 mt-0.5">Panduan penggunaan</p></div>
                     </a>
-                    <a href="{{ asset('panduan/Panduan_SIPRESMA.pdf') }}" target="_blank" class="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 group/link">
+                    <a href="{{ asset('panduan/Panduan_PRATAMA.pdf') }}" target="_blank" class="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 group/link">
                         <div class="bg-blue-50 text-blue-500 w-10 h-10 rounded-xl flex items-center justify-center shrink-0 group-hover/link:scale-110 transition-transform"><i class="fas fa-file-pdf text-lg"></i></div>
                         <div><p class="text-sm font-bold text-slate-800">Buku Panduan</p><p class="text-[11px] text-slate-500 mt-0.5">Unduh dokumen PDF</p></div>
                     </a>
@@ -153,10 +153,10 @@
                 <p class="text-blue-500 font-semibold tracking-[0.2em] text-xs uppercase">Portal Publik</p>
             </div>
             <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900">
-                Dashboard <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">SIPRESMA</span>
+                Dashboard <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">PRATAMA</span>
             </h1>
             <p class="mt-3 text-slate-500 max-w-2xl text-sm sm:text-base leading-relaxed">
-                Ringkasan data, persebaran, dan statistik pencapaian prestasi mahasiswa terkini di lingkungan kampus.
+                Ringkasan data, persebaran, dan statistik pencapaian prestasi dan talenta mahasiswa terkini di lingkungan kampus.
             </p>
         </div>
         <div class="hidden md:flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 shadow-lg shadow-blue-100 shrink-0 animate-float-slow">
@@ -167,20 +167,30 @@
     </div>
 </div>
 
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 mb-8">
-            @php $cards = [
-                ['label' => 'Total Mahasiswa', 'value' => number_format($totalMahasiswa, 0, ',', '.'), 'color' => 'blue', 'icon' => 'fa-users', 'delay' => '0.1s'],
-                ['label' => 'SPK (Draft / Disetujui)', 'value' => $spkDraft . ' / ' . $spkDisetujui, 'color' => 'orange', 'icon' => 'fa-medal', 'delay' => '0.2s'],
-                ['label' => 'Mahasiswa Berprestasi', 'value' => number_format($mahasiswaBerprestasi, 0, ',', '.'), 'color' => 'purple', 'icon' => 'fa-trophy', 'delay' => '0.3s'],
-            ]; @endphp
-            @foreach($cards as $card)
-            <div class="glass-neo rounded-2xl p-6 flex justify-between items-center group hover:-translate-y-2 hover:shadow-xl transition-all duration-300 relative overflow-hidden animate-fade-in-up" style="animation-delay: {{ $card['delay'] }}">
-                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-{{ $card['color'] }}-400 to-{{ $card['color'] }}-600 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
-                <div class="min-w-0"><p class="text-slate-400 text-[11px] font-bold mb-1 uppercase tracking-widest">{{ $card['label'] }}</p><p class="text-4xl font-extrabold text-slate-800 group-hover:text-{{ $card['color'] }}-600 transition-colors mt-1">{{ $card['value'] }}</p></div>
-                <div class="bg-gradient-to-br from-{{ $card['color'] }}-50 to-{{ $card['color'] }}-100/50 w-16 h-16 rounded-2xl flex items-center justify-center text-{{ $card['color'] }}-500 text-2xl shadow-inner shrink-0 group-hover:scale-110 group-hover:rotate-12 transition-transform"><i class="fas {{ $card['icon'] }}"></i></div>
+        <!-- Stats Cards - Full Width -->
+        <div class="w-screen relative left-1/2 -translate-x-1/2 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-50/50 to-white py-8 mb-8 border-y border-slate-100">
+            <div class="max-w-[1400px] mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
+                    @php
+                    $cards = [
+                        ['label' => 'Total Mahasiswa', 'value' => number_format($totalMahasiswa, 0, ',', '.'), 'color' => 'blue', 'icon' => 'fa-users', 'delay' => '0.1s'],
+                        ['label' => 'SPK (Draft / Disetujui)', 'value' => $spkDraft . ' / ' . $spkDisetujui, 'color' => 'orange', 'icon' => 'fa-medal', 'delay' => '0.2s'],
+                        ['label' => 'Mahasiswa Berprestasi', 'value' => number_format($mahasiswaBerprestasi, 0, ',', '.'), 'color' => 'purple', 'icon' => 'fa-trophy', 'delay' => '0.3s'],
+                    ];
+                    $welcomeGradientBar = ['blue' => 'from-blue-400 to-blue-600', 'orange' => 'from-orange-400 to-orange-600', 'purple' => 'from-purple-400 to-purple-600'];
+                    $welcomeHoverText = ['blue' => 'group-hover:text-blue-600', 'orange' => 'group-hover:text-orange-600', 'purple' => 'group-hover:text-purple-600'];
+                    $welcomeIconBg = ['blue' => 'from-blue-50 to-blue-100/50', 'orange' => 'from-orange-50 to-orange-100/50', 'purple' => 'from-purple-50 to-purple-100/50'];
+                    $welcomeIconColor = ['blue' => 'text-blue-500', 'orange' => 'text-orange-500', 'purple' => 'text-purple-500'];
+                    @endphp
+                    @foreach($cards as $card)
+                    <div class="glass-neo rounded-2xl p-6 flex justify-between items-center group hover:-translate-y-2 hover:shadow-xl transition-all duration-300 relative overflow-hidden animate-fade-in-up" style="animation-delay: {{ $card['delay'] }}">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r {{ $welcomeGradientBar[$card['color']] }} transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+                        <div class="min-w-0"><p class="text-slate-400 text-[11px] font-bold mb-1 uppercase tracking-widest">{{ $card['label'] }}</p><p class="text-4xl font-extrabold text-slate-800 {{ $welcomeHoverText[$card['color']] }} transition-colors mt-1">{{ $card['value'] }}</p></div>
+                        <div class="bg-gradient-to-br {{ $welcomeIconBg[$card['color']] }} {{ $welcomeIconColor[$card['color']] }} w-16 h-16 rounded-2xl flex items-center justify-center text-2xl shadow-inner shrink-0 group-hover:scale-110 group-hover:rotate-12 transition-transform"><i class="fas {{ $card['icon'] }}"></i></div>
+                    </div>
+                    @endforeach
+                </div>
             </div>
-            @endforeach
         </div>
 
         {{-- Chart Prodi --}}
@@ -216,6 +226,18 @@
             <div class="p-6 flex-1 w-full relative flex items-center justify-center"><canvas id="jenisChart"></canvas></div>
         </div>
 
+        {{-- Tren Bulanan & Penyelenggara --}}
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
+            <div class="xl:col-span-6 glass-neo rounded-3xl flex flex-col h-[400px] overflow-hidden hover:shadow-md transition-shadow animate-slide-in-left" style="animation-delay: 0.7s">
+                <div class="px-6 py-5 border-b border-gray-100"><h3 class="font-extrabold text-slate-800 flex items-center gap-2"><div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center"><i class="fas fa-chart-line"></i></div>Tren Prestasi Bulanan ({{ date('Y') }})</h3></div>
+                <div class="p-6 flex-1 w-full relative"><canvas id="trenChart"></canvas></div>
+            </div>
+            <div class="xl:col-span-6 glass-neo rounded-3xl flex flex-col h-[400px] overflow-hidden hover:shadow-md transition-shadow animate-slide-in-right" style="animation-delay: 0.75s">
+                <div class="px-6 py-5 border-b border-gray-100"><h3 class="font-extrabold text-slate-800 flex items-center gap-2"><div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center"><i class="fas fa-building"></i></div>Top Penyelenggara Kegiatan</h3></div>
+                <div class="p-6 flex-1 w-full relative"><canvas id="penyelenggaraChart"></canvas></div>
+            </div>
+        </div>
+
     </main>
 
     <footer class="w-full py-5 px-8 text-center text-sm text-slate-400 border-t border-gray-100 mt-auto bg-white/30 backdrop-blur-sm animate-fade-in">
@@ -226,7 +248,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const cp = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#0ea5e9', '#14b8a6'];
             const tp = ['#3b82f6', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444', '#ec4899', '#0ea5e9', '#14b8a6'];
-            Chart.defaults.font.family = "'Space Grotesk', sans-serif";
+            Chart.defaults.font.family = "'Inter', sans-serif";
             Chart.defaults.color = '#64748b';
             const tt = { backgroundColor: 'rgba(15, 23, 42, 0.95)', padding: 14, titleFont: { size: 13 }, bodyFont: { size: 15, weight: 'bold' }, cornerRadius: 12 };
 
@@ -244,6 +266,20 @@
             new Chart(document.getElementById('jenisChart'), {
                 type: 'doughnut', data: { labels: {!! json_encode($jenisLabels) !!}, datasets: [{ data: {!! json_encode($jenisData) !!}, backgroundColor: cp, borderWidth: 0, hoverOffset: 10 }] },
                 options: { responsive: true, maintainAspectRatio: false, animation: { animateScale: true, animateRotate: true, duration: 2000, easing: 'easeOutBounce' }, plugins: { legend: { position: 'right', labels: { padding: 20, usePointStyle: true, font: { size: 12 }, color: '#475569' } }, tooltip: tt }, cutout: '70%' }
+            });
+
+            const tbl = {!! json_encode($trenBulanLabels) !!};
+            const tbd = {!! json_encode($trenBulanData) !!};
+            new Chart(document.getElementById('trenChart'), {
+                type: 'line', data: { labels: tbl, datasets: [{ label: 'Prestasi', data: tbd, borderColor: '#f43f5e', backgroundColor: 'rgba(244,63,94,0.08)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#fff', pointBorderColor: '#f43f5e', pointBorderWidth: 2, pointRadius: 4, pointHoverRadius: 6 }] },
+                options: { responsive: true, maintainAspectRatio: false, animation: { duration: 1500, easing: 'easeOutQuart' }, plugins: { legend: { display: false }, tooltip: tt }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f1f5f9' }, border: { display: false } }, x: { grid: { display: false }, border: { display: false } } } }
+            });
+
+            const pyl = {!! json_encode($penyelenggaraLabels) !!};
+            const pyd = {!! json_encode($penyelenggaraData) !!};
+            new Chart(document.getElementById('penyelenggaraChart'), {
+                type: 'bar', data: { labels: pyl, datasets: [{ data: pyd, backgroundColor: ['#f59e0b','#d97706','#b45309','#92400e','#78350f'], borderRadius: 6, barPercentage: 0.5 }] },
+                options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', animation: { duration: 1500, easing: 'easeOutQuart' }, plugins: { legend: { display: false }, tooltip: { ...tt, callbacks: { label: c => ` ${c.raw} Kegiatan` } } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f1f5f9' }, border: { display: false } }, y: { grid: { display: false }, border: { display: false }, ticks: { font: { weight: '600' }, color: '#475569' } } } }
             });
         });
     </script>

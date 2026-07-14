@@ -65,7 +65,7 @@ class DosenRpkController extends Controller
             })
 
             ->latest()
-            ->get();
+            ->paginate(15);
 
         return view('dosen.rpk.index', compact('rpks', 'search'));
     }
@@ -84,10 +84,11 @@ class DosenRpkController extends Controller
             'catatan_dosen' => $request->catatan_dosen
         ]);
 
-        return back()->with(
-            'success',
-            'RPK berhasil disetujui'
-        );
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'RPK berhasil disetujui']);
+        }
+
+        return back()->with('success', 'RPK berhasil disetujui');
     }
 
     /**
@@ -104,10 +105,11 @@ class DosenRpkController extends Controller
             'catatan_dosen' => $request->catatan_dosen
         ]);
 
-        return back()->with(
-            'success',
-            'RPK berhasil ditolak'
-        );
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'RPK berhasil ditolak']);
+        }
+
+        return back()->with('success', 'RPK berhasil ditolak');
     }
 
     /**

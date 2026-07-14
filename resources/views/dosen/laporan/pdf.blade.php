@@ -5,70 +5,87 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan Prestasi Mahasiswa Bimbingan</title>
     <style>
+        @page {
+            size: A4 landscape;
+            margin: 5mm 5mm;
+        }
+
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 11px;
-            color: #333;
-            line-height: 1.4;
+            font-size: 5.5pt;
+            color: #000;
+            line-height: 1.1;
+            margin: 0;
+            padding: 0;
         }
+
         .header {
             text-align: center;
-            border-bottom: 2px solid #333;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
+            border-bottom: 2px solid #1a5276;
+            padding-bottom: 5px;
+            margin-bottom: 8px;
         }
         .header h1 {
             margin: 0;
-            font-size: 16px;
+            font-size: 10pt;
             text-transform: uppercase;
+            color: #1a5276;
         }
         .header p {
-            margin: 5px 0 0 0;
-            font-size: 11px;
+            margin: 2px 0 0 0;
+            font-size: 7pt;
             color: #555;
         }
+
         .info-dosen {
-            margin-bottom: 20px;
+            margin-bottom: 8px;
         }
         .info-dosen table {
-            width: 60%;
+            width: 100%;
             border-collapse: collapse;
         }
         .info-dosen td {
-            padding: 3px 0;
+            padding: 1px 3px;
+            font-size: 7pt;
             vertical-align: top;
         }
+
         .table-data {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 30px;
+            table-layout: fixed;
+            word-wrap: break-word;
+            margin-bottom: 15px;
         }
         .table-data th, .table-data td {
-            border: 1px solid #999;
-            padding: 6px;
+            border: 1px solid #000;
+            padding: 1px 2px;
             text-align: left;
-            font-size: 10px;
+            font-size: 5.5pt;
+            vertical-align: middle;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         .table-data th {
-            background-color: #f2f2f2;
+            background-color: #1a5276;
+            color: #ffffff;
             font-weight: bold;
             text-align: center;
+            font-size: 5.5pt;
         }
-        .text-center {
-            text-align: center;
-        }
+        .text-center { text-align: center; }
+
         .footer {
             width: 100%;
-            margin-top: 40px;
+            margin-top: 20px;
+            font-size: 8pt;
         }
         .ttd-box {
             float: right;
-            width: 250px;
+            width: 200px;
             text-align: center;
         }
-        .ttd-space {
-            height: 80px;
-        }
+        .ttd-space { height: 60px; }
     </style>
 </head>
 <body>
@@ -81,19 +98,15 @@
     <div class="info-dosen">
         <table>
             <tr>
-                <td width="35%"><strong>Dosen Pembimbing</strong></td>
-                <td width="5%">:</td>
-                <td width="60%">{{ $dosen->name ?? '-' }}</td>
-            </tr>
-            <tr>
-                <td><strong>NIP/NIDN</strong></td>
-                <td>:</td>
-                <td>{{ $dosen->nidn ?? '-' }}</td>
-            </tr>
-            <tr>
-                <td><strong>Total Data</strong></td>
-                <td>:</td>
-                <td>{{ count($laporan) }} Kegiatan</td>
+                <td width="12%"><strong>Dosen</strong></td>
+                <td width="2%">:</td>
+                <td width="30%">{{ $dosen->name ?? '-' }}</td>
+                <td width="12%"><strong>NIP/NIDN</strong></td>
+                <td width="2%">:</td>
+                <td width="30%">{{ $dosen->nim ?? '-' }}</td>
+                <td width="5%"><strong>Total</strong></td>
+                <td width="2%">:</td>
+                <td width="5%">{{ count($laporan) }} Data</td>
             </tr>
         </table>
     </div>
@@ -101,37 +114,76 @@
     <table class="table-data">
         <thead>
             <tr>
-                <th width="4%">No</th>
-                <th width="15%">Nama Mahasiswa</th>
-                <th width="10%">NIM</th>
-                <th width="18%">Judul Kegiatan</th>
-                <th width="15%">Nama Kegiatan</th>
-                <th width="10%">Tingkat</th>
-                <th width="10%">Hasil</th>
-                <th width="8%">Tahun</th>
-                <th width="5%">Poin</th>
+                <th style="width: 2%">No</th>
+                <th style="width: 7%">Waktu Perolehan Prestasi</th>
+                <th style="width: 7%">Capaian/Peringkat/Penghargaan</th>
+                <th style="width: 5%">Kategori</th>
+                <th style="width: 7%">Nama</th>
+                <th style="width: 6%">Prodi</th>
+                <th style="width: 5%">Angkatan/Smt</th>
+                <th style="width: 8%">Email</th>
+                <th style="width: 7%">Dosen Pembimbing</th>
+                <th style="width: 8%">Judul Karya/Inovasi/Riset/Prestasi</th>
+                <th style="width: 8%">Biografi/Latar Belakang</th>
+                <th style="width: 8%">Rincian Inovasi/Riset/Prestasi</th>
+                <th style="width: 7%">Kebaruan/Keunggulan</th>
+                <th style="width: 6%">Nama Ajang/Kegiatan</th>
+                <th style="width: 6%">Penyelenggara</th>
+                <th style="width: 5%">Tingkat</th>
             </tr>
         </thead>
         <tbody>
             @forelse($laporan as $index => $item)
+                @php
+                    $user = $item->user;
+                    $nama = ($user->name ?? '-') . ' (' . ($user->nim ?? '-') . ')';
+                    $prodi = $user->prodi ?? '-';
+                    $email = $user->email ?? '-';
+                    
+                    $angkatan = $user->angkatan ?? '';
+                    $semester = $user->semester ?? '';
+                    $angkatanSemester = trim($angkatan . ($semester ? '/' . $semester : ''));
+                    if (empty($angkatanSemester)) $angkatanSemester = '-';
+                    
+                    $dosenPembimbing = $user->dosenPembimbing->name ?? '-';
+                    
+                    $judulKegiatan = $item->judul_kegiatan ?? $item->kegiatan->judul_kegiatan ?? $item->kegiatan->kegiatan ?? '-';
+                    $namaKegiatan = $item->kegiatan->kegiatan ?? '-';
+                    $penyelenggara = $item->penyelenggara ?? '-';
+                    $tingkat = $item->tingkat ?? '-';
+                    $hasil = $item->hasil ?? '-';
+                    
+                    if ($item->kegiatan && $item->kegiatan->tanggal_selesai) {
+                        $tanggal = \Carbon\Carbon::parse($item->kegiatan->tanggal_selesai)->format('d/m/Y');
+                    } elseif ($item->kegiatan && $item->kegiatan->tanggal_mulai) {
+                        $tanggal = \Carbon\Carbon::parse($item->kegiatan->tanggal_mulai)->format('d/m/Y');
+                    } else {
+                        $tanggal = '-';
+                    }
+                    
+                    $kategori = $item->kegiatan->kategori ?? $item->kegiatan->masterKegiatan->kategori ?? 'Prestasi';
+                @endphp
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>
-                    <td>{{ $item->user->name ?? '-' }}</td>
-                    <td class="text-center">{{ $item->user->nim ?? '-' }}</td>
-                    {{-- 🔧 JUDUL KEGIATAN --}}
-                    <td>{{ $item->judul_kegiatan ?? $item->kegiatan->judul_kegiatan ?? $item->kegiatan->kegiatan ?? '-' }}</td>
-                    <td>{{ $item->kegiatan->kegiatan ?? '-' }}</td>
-                    {{-- 🔧 TINGKAT DARI SPK --}}
-                    <td class="text-center">{{ $item->tingkat ?? '-' }}</td>
-                    {{-- 🔧 HASIL DARI SPK --}}
-                    <td class="text-center">{{ $item->hasil ?? '-' }}</td>
-                    <td class="text-center">{{ $item->tahun ?? '-' }}</td>
-                    {{-- 🔧 POIN DARI SPK --}}
-                    <td class="text-center"><strong>{{ $item->poin ?? 0 }}</strong></td>
+                    <td class="text-center">{{ $tanggal }}</td>
+                    <td class="text-center">{{ $hasil }}</td>
+                    <td>{{ $kategori }}</td>
+                    <td>{{ $nama }}</td>
+                    <td>{{ $prodi }}</td>
+                    <td class="text-center">{{ $angkatanSemester }}</td>
+                    <td>{{ $email }}</td>
+                    <td>{{ $dosenPembimbing }}</td>
+                    <td>{{ $item->judul_karya ?? '-' }}</td>
+                    <td>{{ $item->biografi ?? '-' }}</td>
+                    <td>{{ $item->rincian ?? '-' }}</td>
+                    <td>{{ $item->kebaruan ?? '-' }}</td>
+                    <td>{{ $judulKegiatan }}</td>
+                    <td>{{ $penyelenggara }}</td>
+                    <td class="text-center">{{ $tingkat }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="9" class="text-center">Tidak ada data prestasi pada periode ini.</td>
+                    <td colspan="16" class="text-center" style="padding: 15px;">Tidak ada data prestasi pada periode ini.</td>
                 </tr>
             @endforelse
         </tbody>

@@ -25,16 +25,19 @@ class Spk extends Model
         'sertifikat',
         'foto_penyerahan',
         'laporan',
-        'keterangan',
+        'judul_karya',
+        'biografi',
+        'rincian',
+        'kebaruan',
         'status',
         'catatan_dosen',
-        'poin_added_at',    // ⚡ TAMBAH
-        'poin_added_by',    // ⚡ TAMBAH
+        'poin_added_at',
+        'poin_added_by',
     ];
 
     protected $casts = [
-        'tanggal_kegiatan' => 'date',
-        'poin_added_at' => 'datetime',  // ⚡ TAMBAH
+        // ❌ HAPUS: 'tanggal_kegiatan' => 'date',  
+        'poin_added_at' => 'datetime',
     ];
 
     // Relasi ke user
@@ -53,31 +56,31 @@ class Spk extends Model
         return $this->belongsTo(Kegiatan::class);
     }
 
-    // ⚡ TAMBAH: Relasi ke user yang menambahkan poin
+    // Relasi ke user yang menambahkan poin
     public function poinAddedBy()
     {
         return $this->belongsTo(User::class, 'poin_added_by');
     }
 
-    // ⚡ TAMBAH: Cek apakah poin sudah ditambahkan
+    // Cek apakah poin sudah ditambahkan
     public function hasPoin()
     {
         return !is_null($this->poin) && $this->poin > 0;
     }
 
-    // ⚡ TAMBAH: Scope untuk SPK disetujui
+    // Scope untuk SPK disetujui
     public function scopeDisetujui($query)
     {
         return $query->where('status', 'disetujui');
     }
 
-    // ⚡ TAMBAH: Scope untuk SPK dengan poin
+    // Scope untuk SPK dengan poin
     public function scopeDenganPoin($query)
     {
         return $query->where('poin', '>', 0);
     }
 
-    // ⚡ TAMBAH: Scope untuk SPK tanpa poin
+    // Scope untuk SPK tanpa poin
     public function scopeTanpaPoin($query)
     {
         return $query->where(function ($q) {
@@ -86,7 +89,7 @@ class Spk extends Model
         });
     }
 
-    // app/Models/Spk.php
+    // Relasi ke master prestasi
     public function prestasi()
     {
         return $this->belongsTo(MasterPrestasi::class, 'prestasi_id');

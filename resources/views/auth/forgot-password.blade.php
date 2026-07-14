@@ -8,7 +8,7 @@
                  class="w-21 h-20 mx-auto mb-4">
 
             <h1 class="text-2xl font-bold text-white mb-1">
-                SIPRESMA ISI Yogyakarta
+                PRATAMA
             </h1>
 
             <p class="text-white/80 text-sm">

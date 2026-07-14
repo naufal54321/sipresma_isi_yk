@@ -11,7 +11,7 @@
                 <h2 class="text-2xl font-bold text-slate-800 mb-3">Periksa Email Anda</h2>
 
                 <p class="text-sm text-slate-500 mb-8 leading-relaxed">
-                    Terima kasih telah mendaftar di SIPRESMA! Sebelum memulai, harap verifikasi alamat email Anda dengan mengeklik tautan yang baru saja kami kirimkan. 
+                    Terima kasih telah mendaftar di PRATAMA! Sebelum memulai, harap verifikasi alamat email Anda dengan mengeklik tautan yang baru saja kami kirimkan. 
                     Jika Anda tidak menerima email tersebut, kami akan mengirimkan ulang.
                 </p>
 

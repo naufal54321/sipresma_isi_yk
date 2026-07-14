@@ -44,18 +44,17 @@
                     <select name="status" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition bg-white">
                         <option value="">Semua Status</option>
                         <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
-                        <option value="diajukan" {{ request('status') == 'diajukan' ? 'selected' : '' }}>Diajukan</option>
                         <option value="disetujui" {{ request('status') == 'disetujui' ? 'selected' : '' }}>Disetujui</option>
                         <option value="ditolak" {{ request('status') == 'ditolak' ? 'selected' : '' }}>Ditolak</option>
                     </select>
                 </div>
 
                 <div class="flex gap-2 w-full md:w-auto">
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg text-sm font-semibold transition w-full md:w-auto">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition w-full md:w-auto">
                         Cari
                     </button>
                     @if(request('search') || request('tahun') || request('status'))
-                        <a href="{{ route('admin.spk.index') }}" class="bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition text-center flex items-center justify-center">
+                        <a href="{{ route('admin.spk.index') }}" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-5 py-2.5 rounded-xl text-sm font-semibold transition text-center flex items-center justify-center">
                             Reset
                         </a>
                     @endif
@@ -66,8 +65,8 @@
 
     {{-- Tabel SPK --}}
 <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-    <div class="w-full">
-        <table class="w-full table-fixed text-sm text-left text-slate-600">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-slate-600">
             <thead class="bg-slate-50/80 uppercase text-xs font-extrabold tracking-wider text-slate-400 border-b border-slate-100">
                 <tr>
                     <th class="px-2 py-3 text-center w-8">No</th>
@@ -76,7 +75,7 @@
                     <th class="px-2 py-3 w-[10%]">Prodi</th>
                     <th class="px-2 py-3 text-center w-[6%]">Tahun</th>
                     <th class="px-2 py-3 w-[8%]">RPK</th>
-                    <th class="px-2 py-3 w-[20%]">Judul Kegiatan</th>
+                    <th class="px-2 py-3 w-[15%]">Judul Kegiatan</th>
                     <th class="px-2 py-3 text-center w-[8%]">Kategori</th>
                     <th class="px-2 py-3 text-center w-[7%]">Poin</th>
                     <th class="px-2 py-3 text-center w-[8%]">Status</th>

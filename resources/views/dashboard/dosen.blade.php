@@ -23,7 +23,7 @@
                 Selamat Datang, {{ Auth::user()->name }}
             </h1>
             <p class="mt-3 text-slate-300 max-w-2xl text-sm sm:text-base leading-relaxed">
-                Pantau progres verifikasi dan perkembangan prestasi mahasiswa bimbingan Anda dengan mudah melalui ekosistem digital <span class="text-blue-300 font-semibold">SIPRESMA</span>.
+                Pantau progres verifikasi dan perkembangan prestasi dan talenta mahasiswa bimbingan Anda dengan mudah melalui ekosistem digital <span class="text-blue-300 font-semibold">PRATAMA</span>.
             </p>
             <div class="mt-6 flex flex-wrap gap-3 text-xs font-medium">
                 <span class="bg-white/10 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full flex items-center gap-2">
@@ -194,8 +194,9 @@
                             <p class="font-medium text-slate-500">Tidak ada data draft.</p>
                         </div>
                     @else
+                        @php $cfgPie = json_encode(['type'=>'doughnut','data'=>['labels'=>['Draft RPK','Draft SPK'],'datasets'=>[['data'=>[$rpkDraft,$spkDraft],'backgroundColor'=>['#f97316','#10b981'],'borderWidth'=>0,'hoverOffset'=>6]]],'options'=>['responsive'=>true,'maintainAspectRatio'=>false,'cutout'=>'70%','plugins'=>['legend'=>['position'=>'bottom','labels'=>['padding'=>20,'usePointStyle'=>true,'pointStyle'=>'circle']],'tooltip'=>['backgroundColor'=>'rgba(15,23,42,0.9)','padding'=>12,'cornerRadius'=>8]]]]); @endphp
                         <div class="w-full h-[280px]">
-                            <canvas id="pieChart"></canvas>
+                            <canvas id="pieChart" data-chart='{{ $cfgPie }}'></canvas>
                         </div>
                     @endif
                 </div>
@@ -206,8 +207,9 @@
                     <span class="p-1.5 rounded-lg bg-blue-50 text-blue-500"><i class="fas fa-chart-bar"></i></span>
                     Perbandingan Data
                 </h2>
+                @php $cfgBar = json_encode(['type'=>'bar','data'=>['labels'=>['Mahasiswa','Draft RPK','Draft SPK'],'datasets'=>[['label'=>'Jumlah','data'=>[$totalMahasiswa,$rpkDraft,$spkDraft],'backgroundColor'=>['#3b82f6','#f97316','#10b981'],'borderRadius'=>6,'barPercentage'=>0.5]]],'options'=>['responsive'=>true,'maintainAspectRatio'=>false,'plugins'=>['legend'=>['display'=>false],'tooltip'=>['backgroundColor'=>'rgba(15,23,42,0.9)','padding'=>12,'cornerRadius'=>8]],'scales'=>['y'=>['beginAtZero'=>true,'ticks'=>['stepSize'=>1],'grid'=>['color'=>'#f1f5f9','drawBorder'=>false],'border'=>['display'=>false]],'x'=>['grid'=>['display'=>false],'border'=>['display'=>false]]]]]); @endphp
                 <div class="flex-1 relative w-full h-[280px]">
-                    <canvas id="barChart"></canvas>
+                    <canvas id="barChart" data-chart='{{ $cfgBar }}'></canvas>
                 </div>
             </div>
 
@@ -262,114 +264,5 @@
 
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-(function jalankanGrafikDosen() {
-    
-    function inisialisasiSaatSiap() {
-        if (typeof Chart === 'undefined') {
-            setTimeout(inisialisasiSaatSiap, 50);
-            return;
-        }
-
-        const barCanvas = document.getElementById('barChart');
-        if (!barCanvas) {
-            setTimeout(inisialisasiSaatSiap, 50);
-            return;
-        }
-
-        Chart.defaults.font.family = "'Inter', sans-serif";
-        Chart.defaults.color = '#64748b';
-
-        function createSafeChart(id, config) {
-            const canvas = document.getElementById(id);
-            if (!canvas) return;
-
-            const existingChart = Chart.getChart(id);
-            if (existingChart) {
-                existingChart.destroy();
-            }
-
-            return new Chart(canvas, config);
-        }
-
-        @if($rpkDraft > 0 || $spkDraft > 0)
-        // Pie Chart
-        createSafeChart('pieChart', {
-            type: 'doughnut', 
-            data: {
-                labels: ['Draft RPK', 'Draft SPK'],
-                datasets: [{
-                    data: [{{ $rpkDraft }}, {{ $spkDraft }}],
-                    backgroundColor: ['#f97316', '#10b981'],
-                    borderWidth: 0,
-                    hoverOffset: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '70%', 
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: { padding: 20, usePointStyle: true, pointStyle: 'circle' }
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                        padding: 12,
-                        cornerRadius: 8
-                    }
-                }
-            }
-        });
-        @endif
-
-        // Bar Chart
-        createSafeChart('barChart', {
-            type: 'bar',
-            data: {
-                labels: ['Mahasiswa', 'Draft RPK', 'Draft SPK'],
-                datasets: [{
-                    label: 'Jumlah',
-                    data: [{{ $totalMahasiswa }}, {{ $rpkDraft }}, {{ $spkDraft }}],
-                    backgroundColor: ['#3b82f6', '#f97316', '#10b981'],
-                    borderRadius: 6,
-                    barPercentage: 0.5 
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }, 
-                    tooltip: {
-                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                        padding: 12,
-                        cornerRadius: 8
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { stepSize: 1 },
-                        grid: { color: '#f1f5f9', drawBorder: false },
-                        border: { display: false }
-                    },
-                    x: {
-                        grid: { display: false },
-                        border: { display: false }
-                    }
-                }
-            }
-        });
-    }
-
-    inisialisasiSaatSiap();
-
-})();
-</script>
 
 </x-app-layout>

@@ -85,23 +85,25 @@ class MasterPrestasiController extends Controller
         }
     }
 
-    public function destroy(MasterPrestasi $masterPrestasi)
-    {
-        try {
-            $masterPrestasi->delete();
+    public function destroy($id)
+{
+    try {
+        $prestasi = MasterPrestasi::findOrFail($id);
+        
+        // ⚡ Nonaktifkan daripada hapus
+        $prestasi->update(['is_active' => false]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Prestasi berhasil dihapus'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menghapus data: ' . $e->getMessage()
-            ], 500);
-        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Data prestasi berhasil dinonaktifkan'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal: ' . $e->getMessage()
+        ], 500);
     }
-
+}
     // MasterPrestasiController.php
     public function show(MasterPrestasi $masterPrestasi)
     {

@@ -46,6 +46,14 @@
                         </svg>
                     </div>
 
+                    {{-- ⚡ FILTER FAKULTAS --}}
+                    <select name="fakultas" class="w-full md:w-48 border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                        <option value="">Semua Fakultas</option>
+                        @foreach($fakultasList ?? [] as $fak)
+                            <option value="{{ $fak }}" {{ request('fakultas') == $fak ? 'selected' : '' }}>{{ $fak }}</option>
+                        @endforeach
+                    </select>
+
                     <select name="status" class="w-full md:w-48 border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
                         <option value="">Semua Status</option>
                         <option value="aktif" {{ request('status') == 'aktif' ? 'selected' : '' }}>Aktif</option>
@@ -57,7 +65,7 @@
                             Cari
                         </button>
             
-                        @if(request('search') || request('status'))
+                        @if(request('search') || request('status') || request('fakultas'))
                             <a href="{{ route('admin.prodi.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-xl text-sm font-semibold transition flex items-center justify-center w-full md:w-auto whitespace-nowrap">
                                 Reset
                             </a>
@@ -81,6 +89,7 @@
                         <tr>
                             <th class="px-6 py-4 text-center w-16">No</th>
                             <th class="px-6 py-4">Nama Program Studi</th>
+                            <th class="px-6 py-4">Fakultas</th> {{-- ⚡ KOLOM BARU --}}
                             <th class="px-6 py-4 text-center">Status</th>
                             <th class="px-6 py-4 text-center w-48">Aksi</th>
                         </tr>
@@ -94,6 +103,10 @@
                             </td>
                             <td class="px-6 py-4 font-medium text-gray-800">
                                 {{ $prodi->nama_prodi }}
+                            </td>
+                            {{-- ⚡ KOLOM FAKULTAS --}}
+                            <td class="px-6 py-4 text-gray-700">
+                                {{ $prodi->fakultas ?? '-' }}
                             </td>
                             <td class="px-6 py-4 text-center">
                                 @if($prodi->status == 'aktif')
@@ -122,7 +135,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" class="text-center py-10 text-gray-400">
+                            <td colspan="5" class="text-center py-10 text-gray-400">
                                 Belum ada data Program Studi
                             </td>
                         </tr>
@@ -155,6 +168,7 @@
             <tr id="row-${prodi.id}" class="border-b hover:bg-blue-50 transition">
                 <td class="px-6 py-4 text-center">0</td>
                 <td class="px-6 py-4 font-medium text-gray-800">${prodi.nama_prodi}</td>
+                <td class="px-6 py-4 text-gray-700">${prodi.fakultas ?? '-'}</td> {{-- ⚡ FAKULTAS --}}
                 <td class="px-6 py-4 text-center">${statusBadge}</td>
                 <td class="px-6 py-4 text-center">
                     <div class="flex justify-center gap-2">
@@ -183,6 +197,11 @@
                     <div class="mb-4 text-left">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Program Studi *</label>
                         <input type="text" id="add_nama" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none" placeholder="Contoh: S1 Teknik Informatika" required>
+                    </div>
+                    {{-- ⚡ FIELD FAKULTAS --}}
+                    <div class="mb-4 text-left">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Fakultas</label>
+                        <input type="text" id="add_fakultas" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none" placeholder="Contoh: Fakultas Teknik">
                     </div>
                     <div class="mb-4 text-left">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Status *</label>
@@ -215,6 +234,7 @@
                         },
                         body: JSON.stringify({
                             nama_prodi: nama,
+                            fakultas: document.getElementById('add_fakultas').value.trim(), // ⚡ FAKULTAS
                             status: document.getElementById('add_status').value
                         })
                     })
@@ -262,6 +282,11 @@
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Program Studi *</label>
                             <input type="text" id="edit_nama" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none" value="${prodi.nama_prodi}" required>
                         </div>
+                        {{-- ⚡ FIELD FAKULTAS --}}
+                        <div class="mb-4 text-left">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Fakultas</label>
+                            <input type="text" id="edit_fakultas" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none" value="${prodi.fakultas ?? ''}" placeholder="Contoh: Fakultas Teknik">
+                        </div>
                         <div class="mb-4 text-left">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Status *</label>
                             <select id="edit_status" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none" required>
@@ -287,6 +312,7 @@
                         const formData = new FormData();
                         formData.append('_method', 'PUT');
                         formData.append('nama_prodi', namaBaru);
+                        formData.append('fakultas', document.getElementById('edit_fakultas').value.trim()); // ⚡ FAKULTAS
                         formData.append('status', document.getElementById('edit_status').value);
                         
                         return fetch(`/admin/prodi/${id}`, {
@@ -303,7 +329,7 @@
                                 let errorText = data.errors ? Object.values(data.errors).map(e => e[0]).join('<br>') : data.message;
                                 throw new Error(errorText);
                             }
-                            return { ...data, namaBaru, statusBaru: document.getElementById('edit_status').value };
+                            return { ...data, namaBaru, fakultasBaru: document.getElementById('edit_fakultas').value.trim(), statusBaru: document.getElementById('edit_status').value };
                         });
                     }
                 }).then(result => {
@@ -312,11 +338,12 @@
                     const row = document.getElementById(`row-${id}`);
                     if (row) {
                         row.children[1].innerText = result.value.namaBaru;
+                        row.children[2].innerText = result.value.fakultasBaru || '-'; // ⚡ UPDATE FAKULTAS
                         
                         const statusBadge = result.value.statusBaru === 'aktif' 
                             ? '<span class="inline-block min-w-[90px] text-center bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">Aktif</span>'
                             : '<span class="inline-block min-w-[90px] text-center bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">Tidak Aktif</span>';
-                        row.children[2].innerHTML = statusBadge;
+                        row.children[3].innerHTML = statusBadge; // ⚡ INDEX BERUBAH KARENA ADA KOLOM FAKULTAS
                     }
                     
                     Swal.fire('Sukses', result.value.message || 'Program studi berhasil diupdate', 'success');

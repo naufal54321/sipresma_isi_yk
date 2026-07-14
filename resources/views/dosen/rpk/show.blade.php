@@ -21,7 +21,7 @@
                 Kembali
             </a>
 
-            @if($rpk->status == 'draft' || $rpk->status == 'diajukan')
+            @if($rpk->status == 'draft')
                 <button onclick="approveKegiatan({{ $rpk->id }})"
                         class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -61,9 +61,20 @@
                         <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->user->nim ?? '-' }}</span>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
+                    <div class="grid grid-cols-3 gap-2">
                         <span class="col-span-1 text-sm font-bold text-gray-600">Prodi</span>
                         <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->user->prodi ?? '-' }}</span>
+                    </div>
+
+                    {{-- ⚡ FAKULTAS (AMBIL DARI TABEL PROGRAM_STUDIS) --}}
+                    <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
+                        <span class="text-sm font-bold text-gray-600">Fakultas</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">
+                            @php
+                                $prodi = \App\Models\ProgramStudi::where('nama_prodi', $rpk->user->prodi)->first();
+                            @endphp
+                            {{ $prodi->fakultas ?? '-' }}
+                        </span>
                     </div>
 
                     <div class="grid grid-cols-3 gap-2 pb-4">
@@ -95,8 +106,6 @@
                         <span class="text-sm font-bold text-gray-600">Status Saat Ini</span>
                         @if($rpk->status == 'draft')
                             <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">Draft</span>
-                        @elseif($rpk->status == 'diajukan')
-                            <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-semibold">Diajukan</span>
                         @elseif($rpk->status == 'disetujui')
                             <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">Disetujui</span>
                         @else
@@ -142,7 +151,7 @@
             <div class="bg-white border border-gray-200 shadow-sm rounded-xl overflow-hidden flex flex-col h-full">
                 
                 <div class="flex border-b border-gray-200 bg-gray-50 px-2 pt-2 overflow-x-auto hide-scrollbar" id="tab-headers">
-                    <button onclick="geserTab(0)" class="tab-btn bg-white border-t border-l border-r border-gray-200 rounded-t-lg px-6 py-3 -mb-[1px] relative z-10 font-bold text-gray-800 whitespace-nowrap transition cursor-pointer">
+                    <button onclick="geserTab(0)" class="tab-btn bg-white border-t border-l border-r border-gray-200 rounded-t-xl px-6 py-3 -mb-[1px] relative z-10 font-bold text-gray-800 whitespace-nowrap transition cursor-pointer">
                         Rencana Kegiatan
                     </button>
                     <button onclick="geserTab(1)" class="tab-btn px-6 py-3 text-gray-500 font-bold hover:text-gray-700 whitespace-nowrap border-b border-transparent transition cursor-pointer">
@@ -318,7 +327,7 @@ window.updateGayaTab = function(index) {
     var buttons = document.querySelectorAll('.tab-btn');
     buttons.forEach((btn, i) => {
         if (i === index) {
-            btn.className = "tab-btn bg-white border-t border-l border-r border-gray-200 rounded-t-lg px-6 py-3 -mb-[1px] relative z-10 font-bold text-gray-800 whitespace-nowrap transition cursor-pointer";
+            btn.className = "tab-btn bg-white border-t border-l border-r border-gray-200 rounded-t-xl px-6 py-3 -mb-[1px] relative z-10 font-bold text-gray-800 whitespace-nowrap transition cursor-pointer";
         } else {
             btn.className = "tab-btn px-6 py-3 text-gray-500 font-bold hover:text-gray-700 whitespace-nowrap border-b border-transparent transition cursor-pointer";
         }
@@ -337,38 +346,46 @@ window.updateGayaTab = function(index) {
 
 window.approveKegiatan = function(id) {
     Swal.fire({
-        title: 'Alasan RPK Disetujui',
+        title: 'Setujui RPK',
         input: 'textarea',
-        inputLabel: 'Catatan Dosen',
-        inputPlaceholder: 'Masukkan alasan RPK disetujui...',
+        inputLabel: 'Catatan Dosen (opsional)',
+        inputPlaceholder: 'Catatan untuk mahasiswa...',
         showCancelButton: true,
         confirmButtonText: 'Setujui',
         confirmButtonColor: '#16a34a',
-        inputValidator: (value) => {
-            if (!value) return 'Alasan wajib diisi';
-        }
     }).then((result) => {
-        if(result.isConfirmed) {
-            let form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/dosen/rpk/' + id + '/approve';
-            form.innerHTML = `
-                @csrf
-                <input type="hidden" name="_method" value="PUT">
-                <input type="hidden" name="catatan_dosen" value="${result.value}">
-            `;
-            document.body.appendChild(form);
-            form.submit();
-        }
+        if (!result.isConfirmed) return;
+
+        fetch('/dosen/rpk/' + id + '/approve', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ catatan_dosen: result.value || '' })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({ icon: 'success', title: 'Berhasil', text: data.message, timer: 2000, showConfirmButton: false });
+                setTimeout(() => location.reload(), 2200);
+            } else {
+                Swal.fire({ icon: 'error', title: 'Gagal', text: data.message });
+            }
+        })
+        .catch(() => {
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan server' });
+        });
     });
 };
 
 window.rejectKegiatan = function(id) {
     Swal.fire({
-        title: 'Alasan RPK Ditolak',
+        title: 'Tolak RPK',
         input: 'textarea',
         inputLabel: 'Catatan Dosen',
-        inputPlaceholder: 'Masukkan alasan RPK ditolak...',
+        inputPlaceholder: 'Alasan RPK ditolak...',
         showCancelButton: true,
         confirmButtonText: 'Tolak',
         confirmButtonColor: '#dc2626',
@@ -376,18 +393,29 @@ window.rejectKegiatan = function(id) {
             if (!value) return 'Alasan wajib diisi';
         }
     }).then((result) => {
-        if(result.isConfirmed) {
-            let form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/dosen/rpk/' + id + '/reject';
-            form.innerHTML = `
-                @csrf
-                <input type="hidden" name="_method" value="PUT">
-                <input type="hidden" name="catatan_dosen" value="${result.value}">
-            `;
-            document.body.appendChild(form);
-            form.submit();
-        }
+        if (!result.isConfirmed) return;
+
+        fetch('/dosen/rpk/' + id + '/reject', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ catatan_dosen: result.value })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({ icon: 'success', title: 'Berhasil', text: data.message, timer: 2000, showConfirmButton: false });
+                setTimeout(() => location.reload(), 2200);
+            } else {
+                Swal.fire({ icon: 'error', title: 'Gagal', text: data.message });
+            }
+        })
+        .catch(() => {
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan server' });
+        });
     });
 };
 </script>

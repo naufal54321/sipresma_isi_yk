@@ -25,7 +25,8 @@ class ProgramStudi extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'nama_prodi', 
+        'nama_prodi',
+        'fakultas',   
         'status'
     ];
 

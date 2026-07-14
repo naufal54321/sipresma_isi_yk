@@ -5,7 +5,7 @@
 </head>
 <body>
 
-<h2>Informasi Pendaftaran SIPRESMA</h2>
+<h2>Informasi Pendaftaran PRATAMA</h2>
 
 <h3>Halo {{ $user->name }},</h3>
 

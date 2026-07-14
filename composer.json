@@ -10,6 +10,8 @@
         "barryvdh/laravel-dompdf": "^3.1",
         "laravel/framework": "^12.59",
         "laravel/tinker": "^2.10.1",
+        "openspout/openspout": "^5.7",
+        "phpoffice/phpspreadsheet": "^5.8",
         "spatie/laravel-permission": "^7.4"
     },
     "require-dev": {

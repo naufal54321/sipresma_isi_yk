@@ -92,7 +92,7 @@ class RpkController extends Controller
         $user = Auth::user();
 
         if ($user->hasRole(['Admin', 'Dosen'])) {
-            $rpk->load(['user', 'kegiatans.masterKegiatan.anggota']);
+            $rpk->load(['user', 'kegiatans.masterKegiatan']);
             $masterKegiatans = MasterKegiatan::where('status', 'aktif')->get();
             $isPemilik = false;
             $isAnggota = false;

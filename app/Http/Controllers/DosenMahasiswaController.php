@@ -12,9 +12,12 @@ class DosenMahasiswaController extends Controller
 {
     public function index(Request $request)
     {
+        $dosenId = Auth::id();
         $search = $request->search;
+        $filterAngkatan = $request->angkatan;
 
-        $mahasiswa = User::where('dosen_pembimbing_id', Auth::id())
+        $mahasiswa = User::where('dosen_pembimbing_id', $dosenId)
+            ->withCount(['rpks as total_rpk', 'spks as total_spk'])
 
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
@@ -24,17 +27,19 @@ class DosenMahasiswaController extends Controller
                 });
             })
 
-            ->get()
+            ->when($filterAngkatan, function ($query) use ($filterAngkatan) {
+                $query->where('angkatan', $filterAngkatan);
+            })
 
-            ->map(function ($mhs) {
+            ->get();
 
-                $mhs->total_rpk = Rpk::where('user_id', $mhs->id)->count();
+        $listAngkatan = User::where('dosen_pembimbing_id', $dosenId)
+            ->whereNotNull('angkatan')
+            ->where('angkatan', '!=', '')
+            ->distinct()
+            ->orderBy('angkatan', 'desc')
+            ->pluck('angkatan');
 
-                $mhs->total_spk = Spk::where('user_id', $mhs->id)->count();
-
-                return $mhs;
-            });
-
-        return view('dosen.mahasiswa.index', compact('mahasiswa'));
+        return view('dosen.mahasiswa.index', compact('mahasiswa', 'listAngkatan'));
     }
 }

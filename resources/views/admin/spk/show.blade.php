@@ -30,7 +30,7 @@
                 </button>
             @endif
 
-            @if(in_array($spk->status, ['draft', 'diajukan']))
+            @if($spk->status == 'draft')
                 <button onclick="approveSpk({{ $spk->id }})"
                         class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -53,32 +53,43 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
         {{-- SIDEBAR --}}
-<div class="lg:col-span-4">
-    <div class="bg-gray-50 border border-gray-200 shadow-sm rounded-xl overflow-hidden">
-        <div class="px-6 py-5 border-b border-gray-200 bg-white">
-            <h2 class="text-lg font-bold text-gray-900">Detail SPK</h2>
-        </div>
-        
-        <div class="p-6 bg-white space-y-4">
-            <div class="grid grid-cols-3 gap-2">
-                <span class="text-sm font-bold text-gray-600">Nama</span>
-                <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->user->name }}</span>
-            </div>
-            
-            <div class="grid grid-cols-3 gap-2">
-                <span class="text-sm font-bold text-gray-600">NIM</span>
-                <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->user->nim ?? '-' }}</span>
-            </div>
+        <div class="lg:col-span-4">
+            <div class="bg-gray-50 border border-gray-200 shadow-sm rounded-xl overflow-hidden">
+                <div class="px-6 py-5 border-b border-gray-200 bg-white">
+                    <h2 class="text-lg font-bold text-gray-900">Detail SPK</h2>
+                </div>
+                
+                <div class="p-6 bg-white space-y-4">
+                    <div class="grid grid-cols-3 gap-2">
+                        <span class="text-sm font-bold text-gray-600">Nama</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->user->name }}</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-2">
+                        <span class="text-sm font-bold text-gray-600">NIM</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->user->nim ?? '-' }}</span>
+                    </div>
 
-            <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
-                <span class="text-sm font-bold text-gray-600">Prodi</span>
-                <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->user->prodi ?? '-' }}</span>
-            </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <span class="text-sm font-bold text-gray-600">Prodi</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->user->prodi ?? '-' }}</span>
+                    </div>
 
-            <div class="grid grid-cols-3 gap-2">
-                <span class="text-sm font-bold text-gray-600">Angkatan</span>
-                <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->user->angkatan ?? '-' }}</span>
-            </div>
+                    {{-- ⚡ FAKULTAS (AMBIL DARI TABEL PROGRAM_STUDIS) --}}
+                    <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
+                        <span class="text-sm font-bold text-gray-600">Fakultas</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">
+                            @php
+                                $prodi = \App\Models\ProgramStudi::where('nama_prodi', $spk->user->prodi)->first();
+                            @endphp
+                            {{ $prodi->fakultas ?? '-' }}
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2">
+                        <span class="text-sm font-bold text-gray-600">Angkatan</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->user->angkatan ?? '-' }}</span>
+                    </div>
 
             <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
                 <span class="text-sm font-bold text-gray-600">Semester</span>
@@ -149,33 +160,42 @@
                 </div>
             </div>
 
-            {{-- ⚡ INFORMASI POIN --}}
-            <div class="pt-3 border-t border-gray-200">
-                <span class="text-sm font-bold text-gray-600">Poin</span>
-                <div class="mt-2">
-                    @if($spk->hasPoin())
-                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                            <div class="flex items-center gap-2">
-                                <span class="text-2xl font-bold text-yellow-600">{{ $spk->poin }}</span>
-                                <span class="text-sm text-gray-600">Poin</span>
-                            </div>
-                            @if($spk->poin_added_at)
-                            <p class="text-xs text-gray-500 mt-2">
-                                Ditambahkan oleh: {{ $spk->poinAddedBy->name ?? 'Admin' }}<br>
-                                Tanggal: {{ $spk->poin_added_at->format('d/m/Y H:i') }}
-                            </p>
+            {{-- ⚡ INFORMASI POIN (DENGAN EDIT) --}}
+                    <div class="pt-3 border-t border-gray-200">
+                        <span class="text-sm font-bold text-gray-600">Poin</span>
+                        <div class="mt-2">
+                            @if($spk->status === 'disetujui')
+                                @if($spk->hasPoin())
+                                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-2xl font-bold text-yellow-600">{{ $spk->poin }}</span>
+                                                <span class="text-sm text-gray-600">Poin</span>
+                                            </div>
+                                            {{-- ⚡ TOMBOL EDIT POIN --}}
+                                            <button onclick="editPoin({{ $spk->id }}, {{ $spk->poin }}, '{{ addslashes($spk->judul_kegiatan ?? $spk->kegiatan->judul_kegiatan ?? '') }}')"
+                                                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer">
+                                                <i class="fas fa-pen mr-1"></i> Edit
+                                            </button>
+                                        </div>
+                                        @if($spk->poin_added_at)
+                                        <p class="text-xs text-gray-500 mt-2">
+                                            Oleh: {{ $spk->poinAddedBy->name ?? 'Admin' }}<br>
+                                            {{ $spk->poin_added_at->format('d/m/Y H:i') }}
+                                        </p>
+                                        @endif
+                                    </div>
+                                @else
+                                    <button onclick="tambahPoinSweetAlert({{ $spk->id }}, '{{ addslashes($spk->judul_kegiatan ?? $spk->kegiatan->judul_kegiatan ?? '') }}')"
+                                            class="w-full bg-yellow-500 hover:bg-yellow-400 text-white px-4 py-2 rounded-lg text-sm font-semibold transition cursor-pointer">
+                                        <i class="fas fa-plus-circle mr-1"></i> Tambah Poin
+                                    </button>
+                                @endif
+                            @else
+                                <span class="text-sm text-gray-400">- (SPK belum disetujui)</span>
                             @endif
                         </div>
-                    @elseif($spk->status === 'disetujui')
-                        <button onclick="tambahPoinSweetAlert({{ $spk->id }}, '{{ addslashes($spk->judul_kegiatan) }}')"
-                                class="w-full bg-yellow-500 hover:bg-yellow-400 text-white px-4 py-2 rounded-lg text-sm font-semibold transition cursor-pointer">
-                            <i class="fas fa-plus-circle mr-1"></i> Tambah Poin
-                        </button>
-                    @else
-                        <span class="text-sm text-gray-400">- (SPK belum disetujui)</span>
-                    @endif
-                </div>
-            </div>
+                    </div>
 
             @if($spk->catatan_dosen)
             <div class="pt-3 border-t border-gray-200">
@@ -208,7 +228,7 @@
             <div class="bg-white border border-gray-200 shadow-sm rounded-xl overflow-hidden flex flex-col h-full">
                 
                 <div class="flex border-b border-gray-200 bg-gray-50 px-2 pt-2 overflow-x-auto hide-scrollbar" id="tab-headers">
-                    <button onclick="geserTab(0)" class="tab-btn bg-white border-t border-l border-r border-gray-200 rounded-t-lg px-6 py-3 -mb-[1px] relative z-10 font-bold text-gray-800 whitespace-nowrap transition cursor-pointer">
+                    <button onclick="geserTab(0)" class="tab-btn bg-white border-t border-l border-r border-gray-200 rounded-t-xl px-6 py-3 -mb-[1px] relative z-10 font-bold text-gray-800 whitespace-nowrap transition cursor-pointer">
                         Deskripsi Kegiatan
                     </button>
                     <button onclick="geserTab(1)" class="tab-btn px-6 py-3 text-gray-500 font-bold hover:text-gray-700 whitespace-nowrap border-b border-transparent transition cursor-pointer">
@@ -222,12 +242,12 @@
                 <div class="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar scroll-smooth flex-grow" id="tab-content-container">
                     
                     {{-- TAB 1: DESKRIPSI --}}
-                    <div class="w-full flex-shrink-0 snap-start p-6">
-                        {{-- Header Section --}}
-                        <div class="flex items-center gap-3 mb-6">
-                            <div class="w-1 h-6 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full"></div>
-                            <h3 class="text-lg font-bold text-gray-800">Informasi Kegiatan</h3>
-                        </div>
+                        <div class="w-full flex-shrink-0 snap-start p-6">
+                            {{-- Header Section --}}
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-1 h-6 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full"></div>
+                                <h3 class="text-lg font-bold text-gray-800">Informasi Kegiatan</h3>
+                            </div>
 
                         {{-- Card Grid --}}
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -237,10 +257,16 @@
                                 <p class="text-sm font-semibold text-gray-800 leading-relaxed">{{ $spk->kegiatan->kegiatan ?? '-' }}</p>
                             </div>
 
-                            {{-- Judul Kegiatan - Full Width --}}
+                            {{-- Judul Kegiatan --}}
                             <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-50 transition-all duration-300 md:col-span-2">
                                 <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Judul Kegiatan</p>
                                 <p class="text-sm font-semibold text-gray-800 leading-relaxed">{{ $spk->kegiatan->judul_kegiatan ?? '-' }}</p>
+                            </div>
+
+                            {{-- ⚡ Judul Karya/Inovasi/Riset/Prestasi --}}
+                            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-50 transition-all duration-300 md:col-span-2">
+                                <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Judul Karya/Inovasi/Riset/Prestasi</p>
+                                <p class="text-sm font-semibold text-gray-800 leading-relaxed">{{ $spk->judul_karya ?? '-' }}</p>
                             </div>
 
                             {{-- Tanggal Pelaksanaan --}}
@@ -252,15 +278,7 @@
                                     <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Tanggal Pelaksanaan</p>
                                 </div>
                                 <p class="text-sm font-semibold text-gray-800">
-                                    @if($spk->kegiatan && $spk->kegiatan->tanggal_mulai && $spk->kegiatan->tanggal_selesai)
-                                        {{ \Carbon\Carbon::parse($spk->kegiatan->tanggal_mulai)->translatedFormat('d F Y') }}
-                                        <span class="text-gray-300 mx-2">—</span>
-                                        {{ \Carbon\Carbon::parse($spk->kegiatan->tanggal_selesai)->translatedFormat('d F Y') }}
-                                    @elseif($spk->kegiatan && $spk->kegiatan->tanggal_mulai)
-                                        {{ \Carbon\Carbon::parse($spk->kegiatan->tanggal_mulai)->translatedFormat('d F Y') }}
-                                    @else
-                                        {{ $spk->tanggal_kegiatan ? \Carbon\Carbon::parse($spk->tanggal_kegiatan)->translatedFormat('d F Y') : '-' }}
-                                    @endif
+                                   {{ $spk->tanggal_kegiatan ?? '-' }}
                                 </p>
                             </div>
 
@@ -275,8 +293,7 @@
                                 <div>
                                     @if($spk->tingkat)
                                         <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100">
-                                            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                                            {{ $spk->tingkat }}
+                                            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>{{ $spk->tingkat }}
                                         </span>
                                     @else
                                         <span class="text-sm text-gray-400">-</span>
@@ -295,13 +312,11 @@
                                 <div>
                                     @if($spk->kategori == 'Kelompok')
                                         <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-100">
-                                            <span class="w-1.5 h-1.5 bg-purple-500 rounded-full"></span>
-                                            Kelompok
+                                            <span class="w-1.5 h-1.5 bg-purple-500 rounded-full"></span>Kelompok
                                         </span>
                                     @else
                                         <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 text-gray-600 border border-gray-200">
-                                            <span class="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-                                            Individu
+                                            <span class="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>Individu
                                         </span>
                                     @endif
                                 </div>
@@ -328,6 +343,7 @@
                                 </div>
                                 <p class="text-3xl font-bold text-blue-600">{{ $spk->poin ?? '0' }}</p>
                             </div>
+                            
 
                             {{-- Penyelenggara --}}
                             <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-50 transition-all duration-300">
@@ -349,21 +365,33 @@
                                     <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Dokumen</p>
                                 </div>
                                 <p class="text-sm font-semibold text-emerald-600 flex items-center gap-1.5">
-                                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                                    Tersedia (Lihat tab Dokumen)
+                                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>Tersedia (Lihat tab Dokumen)
                                 </p>
                             </div>
 
-                            {{-- Keterangan --}}
-                            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-emerald-300 hover:shadow-lg hover:shadow-emerald-50 transition-all duration-300">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5 text-gray-400">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
-                                    </svg>
-                                    <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Keterangan</p>
-                                </div>
-                                <p class="text-sm font-semibold text-gray-800">{{ $spk->keterangan }}</p>
+                            {{-- ⚡ BIOGRAFI --}}
+                            @if($spk->biografi)
+                            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-purple-300 hover:shadow-lg transition-all duration-300 md:col-span-2">
+                                <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Biografi/Latar Belakang Individu/Tim</p>
+                                <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{{ $spk->biografi }}</p>
                             </div>
+                            @endif
+
+                            {{-- ⚡ RINCIAN --}}
+                            @if($spk->rincian)
+                            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-purple-300 hover:shadow-lg transition-all duration-300 md:col-span-2">
+                                <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Rincian Inovasi/Riset/Prestasi</p>
+                                <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{{ $spk->rincian }}</p>
+                            </div>
+                            @endif
+
+                            {{-- ⚡ KEBARUAN --}}
+                            @if($spk->kebaruan)
+                            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-purple-300 hover:shadow-lg transition-all duration-300 md:col-span-2">
+                                <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Kebaruan/Keunggulan</p>
+                                <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{{ $spk->kebaruan }}</p>
+                            </div>
+                            @endif
                         </div>
 
                         {{-- DAFTAR ANGGOTA KELOMPOK --}}
@@ -744,7 +772,7 @@ window.updateGayaTab = function(index) {
     var buttons = document.querySelectorAll('.tab-btn');
     buttons.forEach((btn, i) => {
         if (i === index) {
-            btn.className = "tab-btn bg-white border-t border-l border-r border-gray-200 rounded-t-lg px-6 py-3 -mb-[1px] relative z-10 font-bold text-gray-800 whitespace-nowrap transition cursor-pointer";
+            btn.className = "tab-btn bg-white border-t border-l border-r border-gray-200 rounded-t-xl px-6 py-3 -mb-[1px] relative z-10 font-bold text-gray-800 whitespace-nowrap transition cursor-pointer";
         } else {
             btn.className = "tab-btn px-6 py-3 text-gray-500 font-bold hover:text-gray-700 whitespace-nowrap border-b border-transparent transition cursor-pointer";
         }
@@ -846,6 +874,93 @@ window.rejectSpk = function(id) {
         }
     });
 };
+
+// ⚡ TAMBAH POIN
+function tambahPoin(spkId, judulKegiatan) {
+    Swal.fire({
+        title: 'Tambah Poin SPK',
+        html: `
+            <div class="text-left">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                    <p class="text-sm text-blue-800"><strong>Judul:</strong><br>${judulKegiatan}</p>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Jumlah Poin <span class="text-red-500">*</span></label>
+                    <input type="number" id="swal-poin" class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm" placeholder="Masukkan poin (1-100)" min="1" max="100" value="1" required>
+                </div>
+            </div>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#eab308',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: '💾 Simpan Poin',
+        cancelButtonText: '❌ Batal',
+        didOpen: () => { setTimeout(() => document.getElementById('swal-poin').focus(), 100); },
+        preConfirm: () => {
+            const poin = document.getElementById('swal-poin').value;
+            if (!poin || poin < 1 || poin > 100) { Swal.showValidationMessage('Poin harus diisi antara 1 - 100'); return false; }
+            return poin;
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            fetch(`/admin/spk/${spkId}/tambah-poin`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: JSON.stringify({ poin: result.value })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) { Swal.fire({ icon: 'success', title: 'Berhasil!', text: data.message, timer: 2000, showConfirmButton: false }).then(() => location.reload()); }
+                else Swal.fire({ icon: 'error', title: 'Gagal!', text: data.message });
+            });
+        }
+    });
+}
+
+// ⚡ EDIT POIN
+function editPoin(spkId, poinSekarang, judulKegiatan) {
+    Swal.fire({
+        title: 'Edit Poin SPK',
+        html: `
+            <div class="text-left">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                    <p class="text-sm text-blue-800"><strong>Judul:</strong><br>${judulKegiatan}</p>
+                    <p class="text-sm text-blue-800 mt-1"><strong>Poin Saat Ini:</strong> ${poinSekarang}</p>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Jumlah Poin Baru <span class="text-red-500">*</span></label>
+                    <input type="number" id="swal-poin" class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm" min="1" max="100" value="${poinSekarang}" required>
+                </div>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonColor: '#3b82f6',
+        confirmButtonText: 'Update Poin',
+        preConfirm: () => {
+            const poin = document.getElementById('swal-poin').value;
+            if (!poin || poin < 1 || poin > 100) { Swal.showValidationMessage('Poin harus 1-100'); return false; }
+            return poin;
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({ title: 'Mengupdate...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            
+            // ⚡ PAKAI ROUTE edit-poin
+            fetch(`/admin/spk/${spkId}/edit-poin`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
+                body: JSON.stringify({ poin: result.value })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) { Swal.fire({ icon: 'success', title: 'Berhasil!', text: data.message, timer: 2000 }).then(() => location.reload()); }
+                else Swal.fire({ icon: 'error', title: 'Gagal!', text: data.message });
+            });
+        }
+    });
+}
 </script>
 
 </x-app-layout>

@@ -23,14 +23,19 @@
                 <h1 class="text-3xl font-bold text-gray-800">Laporan Prestasi Mahasiswa</h1>
                 <p class="text-slate-500 mt-1">Rekapitulasi seluruh data prestasi (SPK) mahasiswa di dalam sistem.</p>
             </div>
-            <div class="flex gap-2 w-full md:w-auto">
-                <a href="{{ route('admin.laporan.export', request()->query()) }}" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 w-full md:w-auto shadow-sm shadow-emerald-200">
+           <div class="flex gap-2 w-full md:w-auto">
+                {{-- Export Excel --}}
+                <button onclick="window.location.href='{{ route('admin.laporan.export-excel', request()->query()) }}'" 
+                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 w-full md:w-auto shadow-sm shadow-green-200 cursor-pointer">
                     <i class="fas fa-file-excel"></i> Export Excel
-                </a>
-                <a href="{{ route('admin.laporan.export-pdf', request()->query()) }}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 w-full md:w-auto shadow-sm shadow-red-200">
+                </button>
+                {{-- Export PDF --}}
+                <button onclick="window.location.href='{{ route('admin.laporan.export-pdf', request()->query()) }}'" 
+                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 w-full md:w-auto shadow-sm shadow-red-200 cursor-pointer">
                     <i class="fas fa-file-pdf"></i> Export PDF
-                </a>
+                </button>
             </div>
+        
         </div>
 
         {{-- Statistik Cards --}}
@@ -95,7 +100,7 @@
 
                     <div class="flex justify-end gap-2 w-full">
                         @if(request('search') || request('tahun') || request('prodi') || request('tingkat'))
-                            <a href="{{ route('admin.laporan.index') }}" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 whitespace-nowrap w-full md:w-auto">
+                            <a href="{{ route('admin.laporan.index') }}" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 whitespace-nowrap w-full md:w-auto">
                                 <i class="fas fa-sync-alt"></i> Reset
                             </a>
                         @endif
@@ -116,7 +121,7 @@
                             <th class="px-6 py-4">NIM</th>
                             <th class="px-6 py-4">Prodi</th>
                             <th class="px-6 py-4">Judul Kegiatan</th>
-                            <th class="px-6 py-4">Nama Kegiatan</th>
+                            <th class="px-6 py-4">Penyelenggara</th>
                             <th class="px-6 py-4">Tingkat</th>
                             <th class="px-6 py-4">Hasil</th>
                             <th class="px-6 py-4 text-center">Poin</th>
@@ -139,8 +144,8 @@
                                 {{ $item->judul_kegiatan ?? $item->kegiatan->judul_kegiatan ?? $item->kegiatan->kegiatan ?? '-' }}
                             </td>
                             <td class="px-6 py-4">
-                                {{ $item->kegiatan->kegiatan ?? '-' }}
-                                <div class="text-xs text-slate-400 font-normal mt-0.5">{{ $item->penyelenggara ?? '-' }} ({{ $item->tahun }})</div>
+                                {{ $item->penyelenggara ?? '-' }}
+                                <div class="text-xs text-slate-400 font-normal mt-0.5">({{ $item->tahun }})</div>
                             </td>
                             {{-- 🔧 TINGKAT DARI SPK --}}
                             <td class="px-6 py-4">
@@ -155,7 +160,7 @@
                             {{-- 🔧 POIN DARI SPK --}}
                             <td class="px-6 py-4 text-center font-bold text-blue-600">{{ $item->poin ?? 0 }}</td>
                             <td class="px-6 py-4 text-center">
-                                {{ $item->tanggal_kegiatan ? \Carbon\Carbon::parse($item->tanggal_kegiatan)->format('d-m-Y') : '-' }}
+                               {{ $item->tanggal_kegiatan ?? '-' }}
                             </td>
                         </tr>
                         @empty
@@ -181,5 +186,19 @@
         </div>
 
     </div>
+
+<script>
+function exportData(url) {
+    // Buka URL di tab baru
+    var newWindow = window.open(url, '_blank');
+    
+    // Tutup tab setelah file terdownload (untuk mencegah halaman putih)
+    setTimeout(function() {
+        if (newWindow) {
+            newWindow.close();
+        }
+    }, 1000);
+}
+</script>
 
 </x-app-layout>

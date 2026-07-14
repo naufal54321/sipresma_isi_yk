@@ -84,9 +84,20 @@
                         <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->user->nim ?? '-' }}</span>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
-                        <span class="text-sm font-bold text-gray-600">Prodi</span>
+                    <div class="grid grid-cols-3 gap-2">
+                        <span class="col-span-1 text-sm font-bold text-gray-600">Prodi</span>
                         <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $rpk->user->prodi ?? '-' }}</span>
+                    </div>
+
+                    {{-- ⚡ FAKULTAS (AMBIL DARI TABEL PROGRAM_STUDIS) --}}
+                    <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
+                        <span class="text-sm font-bold text-gray-600">Fakultas</span>
+                        <span class="col-span-2 text-sm text-gray-800 font-medium">
+                            @php
+                                $prodi = \App\Models\ProgramStudi::where('nama_prodi', $rpk->user->prodi)->first();
+                            @endphp
+                            {{ $prodi->fakultas ?? '-' }}
+                        </span>
                     </div>
 
                     <div class="grid grid-cols-3 gap-2 pb-4">
@@ -147,7 +158,7 @@
             <div class="bg-white border border-gray-200 shadow-sm rounded-xl overflow-hidden flex flex-col h-full">
                 
                 <div class="flex border-b border-gray-200 bg-gray-50 px-2 pt-2 overflow-x-auto hide-scrollbar" id="tab-headers">
-                    <button onclick="geserTab(0)" class="tab-btn bg-white border-t border-l border-r border-gray-200 rounded-t-lg px-6 py-3 -mb-[1px] relative z-10 font-bold text-gray-800 whitespace-nowrap transition cursor-pointer">
+                    <button onclick="geserTab(0)" class="tab-btn bg-white border-t border-l border-r border-gray-200 rounded-t-xl px-6 py-3 -mb-[1px] relative z-10 font-bold text-gray-800 whitespace-nowrap transition cursor-pointer">
                         Rencana Kegiatan
                     </button>
                     <button onclick="geserTab(1)" class="tab-btn px-6 py-3 text-gray-500 font-bold hover:text-gray-700 whitespace-nowrap border-b border-transparent transition cursor-pointer">
@@ -350,7 +361,7 @@ window.geserTab = function(index) {
 window.updateGayaTab = function(index) {
     var buttons = document.querySelectorAll('.tab-btn');
     buttons.forEach((btn, i) => {
-        if (i === index) btn.className = "tab-btn bg-white border-t border-l border-r border-gray-200 rounded-t-lg px-6 py-3 -mb-[1px] relative z-10 font-bold text-gray-800 whitespace-nowrap transition cursor-pointer";
+        if (i === index) btn.className = "tab-btn bg-white border-t border-l border-r border-gray-200 rounded-t-xl px-6 py-3 -mb-[1px] relative z-10 font-bold text-gray-800 whitespace-nowrap transition cursor-pointer";
         else btn.className = "tab-btn px-6 py-3 text-gray-500 font-bold hover:text-gray-700 whitespace-nowrap border-b border-transparent transition cursor-pointer";
     });
 };
@@ -699,7 +710,7 @@ window.validasiForm = function(prefix) {
 window.generateFormHTML = function(prefix) {
     return `
         <div class="mb-4">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Kegiatan *</label>
+           <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Kegiatan <span class="text-red-500">*</span></label>
             <select name="master_kegiatan_id" id="${prefix}_master" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" required>
                 <option value="">Pilih Kegiatan</option>
                 @foreach($masterKegiatans as $item)
@@ -709,12 +720,12 @@ window.generateFormHTML = function(prefix) {
         </div>
     
         <div class="mb-4">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Judul Kegiatan *</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Judul Kegiatan <span class="text-red-500">*</span></label>
             <input type="text" name="judul_kegiatan" id="${prefix}_judul" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Masukkan judul kegiatan" required>
         </div>
         
         <div class="mb-4">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Tanggal Kegiatan *</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Tanggal Kegiatan <span class="text-red-500">*</span></label>
             <div class="relative">
                 <input type="text" 
                     name="tanggal_range" 
@@ -730,7 +741,7 @@ window.generateFormHTML = function(prefix) {
         </div>
         
         <div class="mb-4">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Kategori *</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Kategori <span class="text-red-500">*</span></label>
             <select name="kategori" id="${prefix}_kategori" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" required>
                 <option value="">Pilih Kategori</option>
                 <option value="Individu">Individu</option>
@@ -739,7 +750,7 @@ window.generateFormHTML = function(prefix) {
         </div>
         
         <div class="mb-4 hidden" id="${prefix}_peranField">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Peran</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Peran <span class="text-red-500">*</span></label>
             <select name="peran" id="${prefix}_peran" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition">
                 <option value="">Pilih Peran</option>
                 <option value="Ketua">Ketua</option>
@@ -747,12 +758,12 @@ window.generateFormHTML = function(prefix) {
         </div>
         
         <div class="mb-4 hidden" id="${prefix}_jumlahField">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Jumlah Anggota</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Jumlah Anggota <span class="text-red-500">*</span></label>
             <input type="number" id="${prefix}_jumlah" name="jumlah_anggota" min="1" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Masukkan jumlah anggota">
         </div>
         
         <div class="mb-4 hidden" id="${prefix}_anggotaContainer">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Tambah Anggota</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Tambah Anggota <span class="text-red-500">*</span></label>
             
             <div class="flex gap-2 mb-3">
                 <div class="relative flex-1">

@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'SIPRESMA') }}</title>
+        <title>{{ config('app.name', 'PRATAMA') }}</title>
 
         <link rel="icon" type="image/png" href="{{ asset('images/logo_isi_dashboard.png') }}">
         <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo_isi_dashboard.png') }}">
@@ -16,8 +16,8 @@
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
         <style>
             /* ⚡ SEMBUNYIKAN ELEMEN DENGAN x-cloak */
@@ -35,78 +35,45 @@
                 transition-delay: 0s !important;
             }
             
-            /* Loading bar */
-            #page-loader {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 3px;
-                z-index: 99999;
-                pointer-events: none;
-                opacity: 0;
-            }
-            
-            #page-loader.active {
-                opacity: 1;
-            }
-            
-            #page-loader .bar {
-                height: 100%;
-                width: 0;
-                background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
-                box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
-            }
-            
-            #page-loader .bar.animating {
-                animation: loadingProgress 1.2s ease-out forwards;
-            }
-            
-            @keyframes loadingProgress {
-                0% { width: 0; }
-                40% { width: 50%; }
-                100% { width: 90%; }
-            }
-
-            /* Fade in konten */
             body.preload #content-wrapper {
                 opacity: 0;
             }
             
             body:not(.preload) #content-wrapper {
                 opacity: 1;
-                transition: opacity 0.4s ease-out;
+                transition: opacity 0.25s ease-out;
             }
         </style>
     </head>
 
-    <body id="main-body" 
+      <body id="main-body" 
           class="preload font-sans antialiased bg-slate-50 text-slate-800 selection:bg-blue-200 selection:text-blue-900"
           x-data="{ sidebarKecil: localStorage.getItem('sidebarState') === 'true', siapAnimasi: false }" 
           x-init="
-              setTimeout(() => { 
+              $nextTick(() => { 
                   document.body.classList.remove('preload'); 
                   siapAnimasi = true; 
-              }, 500);
+                  $dispatch('sidebar-ready');
+              });
               window.addEventListener('sidebar-toggle', (e) => {
                   sidebarKecil = e.detail;
               });
           "
           @sidebar-toggle.window="sidebarKecil = $event.detail">
 
-        {{-- Loading bar --}}
-        <div id="page-loader"><div class="bar"></div></div>
-
         <div class="min-h-screen flex">
 
             @include('layouts.navigation')
 
-            <div class="flex flex-col flex-1 min-w-0"
+            <div class="flex flex-col flex-1 min-w-0 transition-[margin] duration-300 ease-in-out relative"
                  :class="{
                      'ml-20': sidebarKecil,
                      'ml-64': !sidebarKecil,
-                     'transition-[margin] duration-300 ease-in-out': siapAnimasi
+                     'transition-none': !siapAnimasi
                  }">
+
+                {{-- Loading bar di dalam konten --}}
+                <div id="page-loader"><div class="bar"></div></div>
 
                 {{-- Header --}}
                 <div class="w-full bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200 px-8 py-3 flex items-center justify-between sticky top-0 z-40">
@@ -125,7 +92,7 @@
                                 </p>
                             </div>
                             <div class="relative">
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=eff6ff&color=2563eb&bold=true" class="w-10 h-10 rounded-full ring-2 ring-slate-100 object-cover shadow-sm">
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=eff6ff&color=2563eb&bold=true" alt="{{ auth()->user()->name }}" class="w-10 h-10 rounded-full ring-2 ring-slate-100 object-cover shadow-sm">
                                 <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></div>
                             </div>
                             <i class="fas fa-chevron-down text-slate-400 text-xs transition-transform duration-300 ml-1" :class="{'rotate-180': open}"></i>
@@ -183,17 +150,21 @@
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
         {{-- Navigasi Script --}}
         <script>
 document.addEventListener('DOMContentLoaded', () => {
 
+    const loader = document.getElementById('page-loader');
+    const bar = document.querySelector('#page-loader .bar');
     const wrapper = document.getElementById('content-wrapper');
+    const sidebar = document.getElementById('sidebar-nav');
+    const appShell = document.querySelector('.min-h-screen.flex');
 
     // ⚡ LOADING BAR SELESAI
     window.addEventListener('load', function() {
-        const bar = document.querySelector('#page-loader .bar');
-        const loader = document.getElementById('page-loader');
         if (bar && loader) {
             bar.style.width = '100%';
             bar.classList.remove('animating');
@@ -204,42 +175,108 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ⚡ FUNGSI NAVIGASI DENGAN ANIMASI
-    function navigateTo(url) {
-        const loader = document.getElementById('page-loader');
-        const bar = document.querySelector('#page-loader .bar');
-        
+    // ⚡ MULAI LOADING
+    function startLoading() {
         if (loader && bar) {
             bar.classList.remove('animating');
             bar.style.width = '0';
-            bar.offsetHeight;
+            void bar.offsetHeight;
             bar.classList.add('animating');
             loader.classList.add('active');
         }
-        
-        if (wrapper) {
-            wrapper.style.opacity = '0.3';
-            wrapper.style.transition = 'opacity 0.15s ease-in';
-        }
-        
-        setTimeout(() => {
-            window.location.href = url;
-        }, 180);
     }
 
-    // ⚡ TANGKAP SEMUA KLIK LINK
-    document.body.addEventListener('click', function(e) {
+    // ⚡ HENTIKAN LOADING
+    function stopLoading() {
+        if (bar && loader) {
+            bar.style.width = '100%';
+            bar.classList.remove('animating');
+            setTimeout(() => {
+                loader.classList.remove('active');
+                bar.style.width = '0';
+            }, 300);
+        }
+    }
+
+    // ⚡ INIT ULANG KONTEN + SIDEBAR + JALANKAN SCRIPT
+    function initNewContent(html) {
+        const temp = document.createElement('div');
+        temp.innerHTML = html;
+
+        const titleTag = temp.querySelector('title');
+        if (titleTag) document.title = titleTag.textContent;
+
+        // Swap sidebar
+        const newSidebar = temp.querySelector('#sidebar-nav');
+        if (newSidebar && sidebar) {
+            sidebar.innerHTML = newSidebar.innerHTML;
+            if (window.Alpine) Alpine.initTree(sidebar);
+        }
+
+        // Swap konten
+        const newWrapper = temp.querySelector('#content-wrapper');
+        if (!newWrapper) return false;
+        wrapper.innerHTML = newWrapper.innerHTML;
+        if (window.Alpine) Alpine.initTree(wrapper);
+
+        // Tunggu render DOM + Alpine selesai, baru eksekusi script
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                // Jalankan ulang script inline di konten
+                wrapper.querySelectorAll('script:not([src])').forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    Array.from(oldScript.attributes).forEach(attr => {
+                        newScript.setAttribute(attr.name, attr.value);
+                    });
+                    newScript.textContent = oldScript.textContent;
+                    oldScript.replaceWith(newScript);
+                });
+
+                // Beri waktu script inline jalan, baru trigger event + fix datepicker
+                setTimeout(() => {
+                    document.dispatchEvent(new CustomEvent('content-updated'));
+                    initCharts();
+                    initDatepickers();
+                }, 100);
+            });
+        });
+
+        return true;
+    }
+
+    // ⚡ FETCH + SWAP KONTEN
+    function navigateTo(url) {
+        startLoading();
+
+        fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => res.text())
+        .then(html => {
+            if (!initNewContent(html)) {
+                window.location.href = url;
+                return;
+            }
+            history.pushState({ url }, '', url);
+            stopLoading();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        })
+        .catch(() => {
+            window.location.href = url;
+        });
+    }
+
+    // ⚡ TANGKAP KLIK LINK DI SIDEBAR + KONTEN
+    appShell.addEventListener('click', function(e) {
         const link = e.target.closest('a');
         if (!link) return;
 
-        // Abaikan link khusus
         if (
             link.target === '_blank' ||
             link.hasAttribute('download') ||
             link.href === '#' ||
             link.href === '' ||
             !link.href ||
-            link.hasAttribute('onclick') ||
             link.getAttribute('onclick') ||
             (link.href && link.href.startsWith('javascript:')) ||
             !link.href.startsWith(window.location.origin) ||
@@ -250,14 +287,69 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         e.preventDefault();
-        navigateTo(link.href);
+        if (link.href !== window.location.href) {
+            navigateTo(link.href);
+        }
     });
 
-    window.addEventListener('popstate', () => {
-        location.reload();
+    // ⚡ BACK/FORWARD BROWSER
+    window.addEventListener('popstate', (e) => {
+        if (e.state && e.state.url) {
+            startLoading();
+            fetch(e.state.url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.text())
+            .then(html => {
+                if (!initNewContent(html)) {
+                    location.reload();
+                    return;
+                }
+                stopLoading();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            })
+            .catch(() => location.reload());
+        }
     });
 
 });
+
+// ⚡ FLATPICKR INIT
+function initDatepickers() {
+    if (typeof flatpickr === 'undefined') return;
+    document.querySelectorAll('.datepicker').forEach(el => {
+        if (el._flatpickr) el._flatpickr.destroy();
+        flatpickr(el, {
+            dateFormat: 'Y-m-d',
+            allowInput: true,
+            locale: { firstDayOfWeek: 1 },
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initDatepickers);
+document.addEventListener('content-updated', initDatepickers);
+
+// ⚡ CHART INIT DARI DATA ATTRIBUTE
+function initCharts() {
+    if (typeof Chart === 'undefined') return;
+
+    document.querySelectorAll('canvas[data-chart]').forEach(canvas => {
+        const id = canvas.id;
+        if (!id) return;
+        try {
+            const config = JSON.parse(canvas.dataset.chart);
+            const existing = Chart.getChart(id);
+            if (existing) existing.destroy();
+            new Chart(canvas, config);
+        } catch (e) {
+            console.warn('Chart init error:', id, e);
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initCharts);
+document.addEventListener('content-updated', initCharts);
 </script>
     </body>
 </html>

@@ -55,7 +55,7 @@ class DosenSpkController extends Controller
             })
 
             ->latest()
-            ->get();
+            ->paginate(15);
 
         return view('dosen.spk.index', compact(
             'spks',
@@ -68,7 +68,6 @@ class DosenSpkController extends Controller
      */
     public function approve(Request $request, Spk $spk)
     {
-        // Pastikan hanya dosen pembimbing yang bisa menyetujui
         if ($spk->user->dosen_pembimbing_id != Auth::id()) {
             abort(403, 'Anda tidak memiliki akses.');
         }
@@ -78,10 +77,11 @@ class DosenSpkController extends Controller
             'catatan_dosen' => $request->catatan_dosen
         ]);
 
-        return back()->with(
-            'success',
-            'SPK berhasil disetujui'
-        );
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'SPK berhasil disetujui']);
+        }
+
+        return back()->with('success', 'SPK berhasil disetujui');
     }
 
     /**
@@ -89,7 +89,6 @@ class DosenSpkController extends Controller
      */
     public function reject(Request $request, Spk $spk)
     {
-        // Pastikan hanya dosen pembimbing yang bisa menolak
         if ($spk->user->dosen_pembimbing_id != Auth::id()) {
             abort(403, 'Anda tidak memiliki akses.');
         }
@@ -99,10 +98,11 @@ class DosenSpkController extends Controller
             'catatan_dosen' => $request->catatan_dosen
         ]);
 
-        return back()->with(
-            'success',
-            'SPK berhasil ditolak'
-        );
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'SPK berhasil ditolak']);
+        }
+
+        return back()->with('success', 'SPK berhasil ditolak');
     }
 
     /**

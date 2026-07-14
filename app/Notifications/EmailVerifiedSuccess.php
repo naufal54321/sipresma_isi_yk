@@ -23,10 +23,10 @@ class EmailVerifiedSuccess extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Akun SIPRESMA Berhasil Diverifikasi! 🎉')
+            ->subject('Akun PRATAMA Berhasil Diverifikasi! 🎉')
             ->greeting('Selamat, ' . $notifiable->name . '!')
             ->line('Email Anda telah resmi diverifikasi oleh sistem.')
-            ->line('Sekarang Anda sudah memiliki akses penuh untuk menggunakan seluruh fitur di SIPRESMA (Sistem Informasi Prestasi Mahasiswa).')
+            ->line('Sekarang Anda sudah memiliki akses penuh untuk menggunakan seluruh fitur di PRATAMA (Prestasi dan Talenta Mahasiswa).')
             ->action('Masuk ke Dashboard', url('/login'))
             ->line('Selamat beraktivitas dan raih prestasimu!')
             ->salutation('Salam hormat, UPA TIK ISI Yogyakarta');

@@ -13,16 +13,31 @@ class ProgramStudiController extends Controller
         $query = ProgramStudi::query();
 
         if ($request->filled('search')) {
-            $query->where('nama_prodi', 'like', '%' . $request->search . '%');
+            $query->where(function ($q) use ($request) {
+                $q->where('nama_prodi', 'like', '%' . $request->search . '%')
+                  ->orWhere('fakultas', 'like', '%' . $request->search . '%'); // ⚡ TAMBAH: cari juga di fakultas
+            });
         }
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
+        // ⚡ TAMBAH: Filter fakultas
+        if ($request->filled('fakultas')) {
+            $query->where('fakultas', $request->fakultas);
+        }
+
         $prodis = $query->latest()->paginate(10)->withQueryString();
 
-        return view('admin.prodi.index', compact('prodis'));
+        // ⚡ TAMBAH: List fakultas untuk dropdown filter
+        $fakultasList = ProgramStudi::select('fakultas')
+            ->distinct()
+            ->whereNotNull('fakultas')
+            ->orderBy('fakultas')
+            ->pluck('fakultas');
+
+        return view('admin.prodi.index', compact('prodis', 'fakultasList'));
     }
 
     /**
@@ -30,7 +45,6 @@ class ProgramStudiController extends Controller
      */
     public function show(ProgramStudi $prodi)
     {
-        // Kembalikan data prodi sebagai JSON
         return response()->json($prodi);
     }
 
@@ -38,10 +52,12 @@ class ProgramStudiController extends Controller
     {
         $validator = \Validator::make($request->all(), [
             'nama_prodi' => 'required|string|max:255|unique:program_studis,nama_prodi',
+            'fakultas' => 'nullable|string|max:255', // ⚡ TAMBAH
             'status' => 'required|in:aktif,tidak aktif'
         ], [
             'nama_prodi.required' => 'Nama program studi wajib diisi',
             'nama_prodi.unique' => 'Nama program studi sudah terdaftar',
+            'fakultas.max' => 'Nama fakultas maksimal 255 karakter', // ⚡ TAMBAH
             'status.required' => 'Status wajib dipilih',
         ]);
 
@@ -54,7 +70,11 @@ class ProgramStudiController extends Controller
         }
 
         try {
-            $prodi = ProgramStudi::create($request->all());
+            $prodi = ProgramStudi::create([
+                'nama_prodi' => $request->nama_prodi,
+                'fakultas' => $request->fakultas, // ⚡ TAMBAH
+                'status' => $request->status,
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -73,10 +93,12 @@ class ProgramStudiController extends Controller
     {
         $validator = \Validator::make($request->all(), [
             'nama_prodi' => 'required|string|max:255|unique:program_studis,nama_prodi,' . $prodi->id,
+            'fakultas' => 'nullable|string|max:255', // ⚡ TAMBAH
             'status' => 'required|in:aktif,tidak aktif'
         ], [
             'nama_prodi.required' => 'Nama program studi wajib diisi',
             'nama_prodi.unique' => 'Nama program studi sudah terdaftar',
+            'fakultas.max' => 'Nama fakultas maksimal 255 karakter', // ⚡ TAMBAH
             'status.required' => 'Status wajib dipilih',
         ]);
 
@@ -89,7 +111,11 @@ class ProgramStudiController extends Controller
         }
 
         try {
-            $prodi->update($request->all());
+            $prodi->update([
+                'nama_prodi' => $request->nama_prodi,
+                'fakultas' => $request->fakultas, // ⚡ TAMBAH
+                'status' => $request->status,
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -119,5 +145,36 @@ class ProgramStudiController extends Controller
                 'message' => 'Gagal menghapus data: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function toggleStatus(ProgramStudi $prodi)
+    {
+        try {
+            $prodi->toggleStatus();
+            return response()->json([
+                'success' => true,
+                'message' => 'Status Program Studi berhasil diubah',
+                'data' => $prodi->fresh()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengubah status: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * ⚡ TAMBAH: Get list fakultas untuk dropdown
+     */
+    public function getFakultas()
+    {
+        $fakultas = ProgramStudi::select('fakultas')
+            ->distinct()
+            ->whereNotNull('fakultas')
+            ->orderBy('fakultas')
+            ->pluck('fakultas');
+
+        return response()->json($fakultas);
     }
 }

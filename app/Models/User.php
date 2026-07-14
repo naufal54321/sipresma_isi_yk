@@ -104,6 +104,12 @@ class User extends Authenticatable implements MustVerifyEmail
     public function kegiatanAnggota()
     {
         return $this->belongsToMany(Kegiatan::class, 'kegiatan_user')
-                    ->withTimestamps();
+            ->withTimestamps();
+    }
+
+    // app/Models/User.php
+    public function programStudi()
+    {
+        return $this->belongsTo(ProgramStudi::class, 'prodi', 'nama_prodi');
     }
 }
