@@ -14,6 +14,7 @@ jobs:
         run: composer validate --no-check-all
 
       - name: Deploy ke VPS via SSH
+        if: ${{ secrets.VPS_HOST != '' }}
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -35,3 +36,13 @@ jobs:
             php artisan storage:link --force
             sudo systemctl reload php8.3-fpm
             echo "✅ Deploy sukses: $(date)"
+
+      - name: Skip deploy (VPS belum dikonfigurasi)
+        if: ${{ secrets.VPS_HOST == '' }}
+        run: |
+          echo "⚠️  VPS_HOST belum di-set. Deploy ke VPS dilewati."
+          echo "   Untuk mengaktifkan auto deploy, set secrets berikut di GitHub:"
+          echo "   - VPS_HOST (IP server)"
+          echo "   - VPS_USER (ssh username)"
+          echo "   - VPS_SSH_KEY (private key)"
+          echo "✅ CI validation sukses!"
