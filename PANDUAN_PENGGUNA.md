@@ -110,9 +110,12 @@ Buka browser (Chrome, Edge, Firefox) dan akses alamat website PRATAMA.
 | Email | Email aktif (untuk verifikasi & notifikasi) |
 | Password | Minimal 6 karakter |
 | Konfirmasi Password | Ketik ulang password |
+| Email Wajib Aktif | Email akan digunakan untuk verifikasi akun |
 
-4. Klik **"Daftar"**
-5. Tunggu persetujuan dari Admin (notifikasi email akan dikirim jika admin mengirim email)
+4. Klik **"Daftar"** (tombol akan menampilkan loading spinner)
+5. **Cek email** yang Anda daftarkan — sistem akan mengirim link verifikasi
+6. Klik link verifikasi di email untuk mengaktifkan akun
+7. Setelah verifikasi, Anda bisa mengakses dashboard dan mulai menggunakan fitur PRATAMA
 
 ### 3.2 Login
 
@@ -491,9 +494,9 @@ Setelah login, admin akan melihat dashboard dengan:
 
 Di halaman login, klik **"Lupa Password?"**, masukkan email terdaftar, dan ikuti instruksi di email.
 
-### 10.2 Kenapa saya tidak bisa login setelah registrasi?
+### 10.2 Kenapa saya tidak bisa mengakses dashboard setelah registrasi?
 
-Akun baru harus disetujui oleh Admin terlebih dahulu. Silakan hubungi Admin atau tunggu email notifikasi persetujuan.
+Setelah daftar, Anda harus **verifikasi email** terlebih dahulu. Cek email masuk (atau folder spam) untuk link verifikasi. Klik link tersebut, lalu refresh halaman dashboard.
 
 ### 10.3 File upload SPK gagal. Kenapa?
 

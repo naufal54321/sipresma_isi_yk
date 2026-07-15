@@ -321,7 +321,7 @@
     Swal.fire({
         icon: 'success',
         title: 'Pendaftaran Berhasil',
-        html: `<div style="text-align:left"><p>Akun Anda berhasil didaftarkan.</p><br><p>Silakan tunggu persetujuan dari Admin sebelum dapat masuk ke sistem.</p></div>`,
+        html: `<div style="text-align:left"><p>Akun Anda berhasil didaftarkan.</p><br><p>Silakan cek email <b>{{ session('success_register') }}</b> untuk verifikasi.</p><br><p>Tidak menerima email? Periksa folder spam.</p></div>`,
         confirmButtonText: 'Baik',
         confirmButtonColor: '#2563eb'
     });

@@ -35,8 +35,8 @@ User ╶→ Buka Website (/)
 │  • Email                                                               │
 │  • Password + Konfirmasi Password (dengan toggle mata)                 │
 │  ﹖ Submit ﹖                                                          │
-│  → Sukses: "Akun berhasil didaftarkan. Silakan tunggu persetujuan."    │
-│  → Admin akan approve/tolak akun via halaman Persetujuan Akun          │
+│  → Sukses: Langsung login + cek email untuk verifikasi                 │
+│  → Klik link verifikasi di email → Dashboard terbuka                   │
 └────────────────────────────────────────────────────────────────────────┘
          ↓
 ┌─ LOGIN ────────────────────────────────────────────────────────────────┐

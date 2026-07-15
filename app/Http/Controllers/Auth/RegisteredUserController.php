@@ -61,6 +61,9 @@ class RegisteredUserController extends Controller
         // 🔧 UBAH: Loginkan user secara otomatis setelah daftar
         Auth::login($user);
 
+        // ⚡ Flash email untuk SweetAlert di halaman tujuan
+        session()->flash('success_register', $user->email);
+
         // 🔧 UBAH: Arahkan ke dashboard. 
         // Middleware 'verified' di routes/web.php akan otomatis mencegatnya 
         // dan menampilkan halaman "Periksa Email Anda".
