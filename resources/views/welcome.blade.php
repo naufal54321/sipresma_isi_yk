@@ -10,6 +10,7 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Montserrat:wght@600;700;900&amp;display=swap" rel="stylesheet"/>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
@@ -94,6 +95,14 @@
         .rekap-scroll::-webkit-scrollbar { width: 4px; }
         .rekap-scroll::-webkit-scrollbar-track { background: transparent; }
         .rekap-scroll::-webkit-scrollbar-thumb { background: #c5c6cf; border-radius: 10px; }
+        .carousel-container { scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+        .carousel-container > div { scroll-snap-align: start; }
+        .carousel-dot { transition: all 0.3s ease; }
+        .carousel-btn { transition: all 0.3s ease; opacity: 0; }
+        .carousel-wrapper:hover .carousel-btn { opacity: 1; }
+        .feature-icon { transition: all 0.3s ease; }
+        .feature-card:hover .feature-icon { transform: scale(1.1) rotate(5deg); }
+        .step-connector { height: 2px; flex: 1; background: linear-gradient(90deg, #D4AF37, #1A2B4C); }
     </style>
 </head>
 <body class="bg-background text-on-surface font-body-md min-h-screen flex flex-col antialiased selection:bg-secondary selection:text-white">
@@ -157,9 +166,170 @@
 <!-- Content Area -->
 <main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-8 flex-1 w-full">
 
-    <!-- Stats Cards - Full Width -->
+    {{-- ═══ 1. TENTANG PRATAMA ═══ --}}
+    <section id="tentang" class="scroll-mt-20 mb-12 animate-on-scroll">
+        <div class="modern-card p-8 md:p-12 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-secondary-fixed/10 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-48 h-48 bg-primary-fixed/10 rounded-full blur-3xl"></div>
+            <div class="relative z-10">
+                <span class="inline-block py-1 px-3 rounded-full bg-secondary-fixed/30 text-on-secondary-container font-label-md text-label-md mb-4">Tentang Platform</span>
+                <h2 class="font-display-lg-mobile md:font-headline-md text-headline-md text-primary mb-6">Apa itu <span class="text-gradient">PRATAMA</span>?</h2>
+                <p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl mb-8 leading-relaxed">
+                    <strong class="text-primary">PRATAMA</strong> (Prestasi dan Talenta Mahasiswa) adalah platform digital resmi 
+                    <strong class="text-primary">Institut Seni Indonesia Yogyakarta</strong> yang digunakan untuk mendokumentasikan, 
+                    mengelola, dan mengembangkan prestasi serta talenta mahasiswa secara profesional dan terstruktur.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="flex items-start gap-4 p-4 rounded-2xl hover:bg-surface-container-low/50 transition-colors">
+                        <div class="w-12 h-12 rounded-xl bg-secondary-fixed/30 text-secondary flex items-center justify-center shrink-0 feature-icon">
+                            <span class="material-symbols-outlined text-[28px]">emoji_events</span>
+                        </div>
+                        <div><h3 class="font-title-lg text-title-lg font-bold text-primary">Catat Prestasi</h3><p class="text-body-md text-body-md text-on-surface-variant mt-1">Dokumentasikan setiap pencapaian akademik dan non-akademik.</p></div>
+                    </div>
+                    <div class="flex items-start gap-4 p-4 rounded-2xl hover:bg-surface-container-low/50 transition-colors">
+                        <div class="w-12 h-12 rounded-xl bg-secondary-fixed/30 text-secondary flex items-center justify-center shrink-0 feature-icon">
+                            <span class="material-symbols-outlined text-[28px]">verified</span>
+                        </div>
+                        <div><h3 class="font-title-lg text-title-lg font-bold text-primary">Validasi Terpadu</h3><p class="text-body-md text-body-md text-on-surface-variant mt-1">Verifikasi oleh dosen pembimbing dan admin secara berjenjang.</p></div>
+                    </div>
+                    <div class="flex items-start gap-4 p-4 rounded-2xl hover:bg-surface-container-low/50 transition-colors">
+                        <div class="w-12 h-12 rounded-xl bg-secondary-fixed/30 text-secondary flex items-center justify-center shrink-0 feature-icon">
+                            <span class="material-symbols-outlined text-[28px]">bar_chart</span>
+                        </div>
+                        <div><h3 class="font-title-lg text-title-lg font-bold text-primary">Analisis Data</h3><p class="text-body-md text-body-md text-on-surface-variant mt-1">Lihat statistik dan laporan prestasi secara real-time.</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- ═══ 2. FITUR UTAMA ═══ --}}
+    <section class="scroll-mt-20 mb-12 animate-on-scroll" style="transition-delay: 0.1s">
+        <div class="text-center mb-8">
+            <span class="inline-block py-1 px-3 rounded-full bg-secondary-fixed/30 text-on-secondary-container font-label-md text-label-md mb-4">Fitur Platform</span>
+            <h2 class="font-display-lg-mobile md:font-headline-md text-headline-md text-primary">Fitur <span class="text-gradient">Utama</span></h2>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            @php
+            $fitur = [
+                ['icon' => 'description', 'title' => 'RPK', 'desc' => 'Rencana Prestasi Kemahasiswaan — catat rencana kegiatan semester'],
+                ['icon' => 'verified', 'title' => 'SPK', 'desc' => 'Sertifikat Prestasi Kegiatan — upload bukti prestasi dan sertifikat'],
+                ['icon' => 'upload_file', 'title' => 'Upload Dokumen', 'desc' => 'Upload PDF, JPG, PNG — surat tugas, sertifikat, foto, laporan'],
+                ['icon' => 'groups', 'title' => 'Kolaborasi Tim', 'desc' => 'Tambah anggota kelompok untuk kegiatan kategori kelompok'],
+                ['icon' => 'shield', 'title' => 'Validasi Berjenjang', 'desc' => 'Verifikasi oleh dosen pembimbing dan admin'],
+                ['icon' => 'bar_chart', 'title' => 'Laporan & Export', 'desc' => 'Export data ke CSV, Excel multi-sheet, dan PDF'],
+            ];
+            @endphp
+            @foreach($fitur as $f)
+            <div class="modern-card p-6 feature-card hover:-translate-y-2 cursor-default">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-secondary-fixed/40 to-secondary/10 text-secondary flex items-center justify-center mb-4 feature-icon">
+                    <span class="material-symbols-outlined text-[32px]">{{ $f['icon'] }}</span>
+                </div>
+                <h3 class="font-title-lg text-title-lg font-bold text-primary mb-2">{{ $f['title'] }}</h3>
+                <p class="text-body-md text-body-md text-on-surface-variant">{{ $f['desc'] }}</p>
+            </div>
+            @endforeach
+        </div>
+    </section>
+
+    {{-- ═══ 3. ALUR ═══ --}}
+    <section class="scroll-mt-20 mb-12 animate-on-scroll" style="transition-delay: 0.2s">
+        <div class="text-center mb-8">
+            <span class="inline-block py-1 px-3 rounded-full bg-secondary-fixed/30 text-on-secondary-container font-label-md text-label-md mb-4">Bagaimana Alurnya</span>
+            <h2 class="font-display-lg-mobile md:font-headline-md text-headline-md text-primary">Alur <span class="text-gradient">Penggunaan</span></h2>
+        </div>
+        <div class="modern-card p-8 md:p-10">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-4">
+                <div class="text-center flex-1">
+                    <div class="w-20 h-20 rounded-2xl bg-primary text-on-primary flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/20">
+                        <span class="material-symbols-outlined text-[40px]">person</span>
+                    </div>
+                    <span class="inline-block py-0.5 px-2 rounded-full bg-secondary-fixed/40 text-on-secondary-container font-label-md text-[11px] mb-2">Langkah 1</span>
+                    <h3 class="font-title-lg text-title-lg font-bold text-primary">Mahasiswa</h3>
+                    <p class="text-body-md text-body-md text-on-surface-variant mt-1">Buat RPK & SPK, upload dokumen prestasi</p>
+                </div>
+                <div class="hidden md:block">
+                    <span class="material-symbols-outlined text-4xl text-secondary">arrow_forward</span>
+                </div>
+                <div class="md:hidden">
+                    <span class="material-symbols-outlined text-3xl text-secondary rotate-90 block">arrow_forward</span>
+                </div>
+                <div class="text-center flex-1">
+                    <div class="w-20 h-20 rounded-2xl bg-secondary text-on-secondary flex items-center justify-center mx-auto mb-4 shadow-lg shadow-secondary/20">
+                        <span class="material-symbols-outlined text-[40px]">school</span>
+                    </div>
+                    <span class="inline-block py-0.5 px-2 rounded-full bg-secondary-fixed/40 text-on-secondary-container font-label-md text-[11px] mb-2">Langkah 2</span>
+                    <h3 class="font-title-lg text-title-lg font-bold text-primary">Dosen</h3>
+                    <p class="text-body-md text-body-md text-on-surface-variant mt-1">Verifikasi dan validasi RPK & SPK mahasiswa bimbingan</p>
+                </div>
+                <div class="hidden md:block">
+                    <span class="material-symbols-outlined text-4xl text-secondary">arrow_forward</span>
+                </div>
+                <div class="md:hidden">
+                    <span class="material-symbols-outlined text-3xl text-secondary rotate-90 block">arrow_forward</span>
+                </div>
+                <div class="text-center flex-1">
+                    <div class="w-20 h-20 rounded-2xl bg-primary-container text-primary flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/20">
+                        <span class="material-symbols-outlined text-[40px]">admin_panel_settings</span>
+                    </div>
+                    <span class="inline-block py-0.5 px-2 rounded-full bg-secondary-fixed/40 text-on-secondary-container font-label-md text-[11px] mb-2">Langkah 3</span>
+                    <h3 class="font-title-lg text-title-lg font-bold text-primary">Admin</h3>
+                    <p class="text-body-md text-body-md text-on-surface-variant mt-1">Kelola master data, poin, dan laporan prestasi</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- ═══ 4. CAROUSEL GAMBAR ═══ --}}
+    <section class="scroll-mt-20 mb-12 animate-on-scroll" style="transition-delay: 0.3s">
+        <div class="text-center mb-6">
+            <span class="inline-block py-1 px-3 rounded-full bg-secondary-fixed/30 text-on-secondary-container font-label-md text-label-md mb-4">Galeri</span>
+            <h2 class="font-display-lg-mobile md:font-headline-md text-headline-md text-primary">Suasana <span class="text-gradient">Kampus</span></h2>
+        </div>
+        <div class="modern-card p-4 relative carousel-wrapper" x-data="carousel()">
+            <div class="carousel-container flex overflow-x-auto scroll-smooth rounded-2xl" id="carouselTrack" x-ref="track">
+                @php
+                $images = [
+                    ['src' => 'https://images.unsplash.com/photo-1523050854058-8df90110c7f1?w=1200&q=80', 'alt' => 'Suasana Kampus ISI Yogyakarta'],
+                    ['src' => 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&q=80', 'alt' => 'Kegiatan Akademik Mahasiswa'],
+                    ['src' => 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=1200&q=80', 'alt' => 'Prestasi dan Penghargaan Mahasiswa'],
+                    ['src' => 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1200&q=80', 'alt' => 'Kolaborasi dan Kerja Tim'],
+                ];
+                @endphp
+                @foreach($images as $img)
+                <div class="w-full flex-shrink-0">
+                    <img src="{{ $img['src'] }}" alt="{{ $img['alt'] }}" class="w-full h-[350px] md:h-[450px] object-cover rounded-2xl" loading="lazy">
+                </div>
+                @endforeach
+            </div>
+
+            {{-- Nav buttons --}}
+            <button class="carousel-btn absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 shadow-lg flex items-center justify-center text-primary hover:bg-white transition-all cursor-pointer" @click="scrollTo($refs.track, 'prev')">
+                <span class="material-symbols-outlined">chevron_left</span>
+            </button>
+            <button class="carousel-btn absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 shadow-lg flex items-center justify-center text-primary hover:bg-white transition-all cursor-pointer" @click="scrollTo($refs.track, 'next')">
+                <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+
+            {{-- Dots --}}
+            <div class="flex justify-center gap-2 mt-4">
+                @foreach($images as $i => $img)
+                <button class="carousel-dot w-2.5 h-2.5 rounded-full transition-all duration-300" :class="activeDot === {{ $i }} ? 'bg-primary w-6' : 'bg-outline'" @click="goTo($refs.track, {{ $i }})"></button>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    {{-- ═══ 5. STATS + CHARTS (PALING BAWAH) ═══ --}}
+    <div id="statistik"></div>
+
+    {{-- Stats Cards --}}
     <div class="w-screen relative left-1/2 -translate-x-1/2 px-margin-mobile md:px-margin-desktop bg-surface-container-low/50 py-8 mb-8 border-y border-outline-variant/30">
         <div class="max-w-container-max mx-auto">
+            <div class="text-center mb-6">
+                <span class="inline-block py-1 px-3 rounded-full bg-secondary-fixed/30 text-on-secondary-container font-label-md text-label-md mb-2">Statistik</span>
+                <h2 class="font-display-lg-mobile md:font-headline-md text-headline-md text-primary">Data <span class="text-gradient">Prestasi</span></h2>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
                 @php
                 $cards = [
@@ -167,19 +337,14 @@
                     ['label' => 'SPK (Draft / Disetujui)', 'value' => $spkDraft . ' / ' . $spkDisetujui, 'raw' => null, 'color' => 'orange', 'icon' => 'fa-medal', 'delay' => '0.2s'],
                     ['label' => 'Mahasiswa Berprestasi', 'value' => number_format($mahasiswaBerprestasi, 0, ',', '.'), 'raw' => $mahasiswaBerprestasi, 'color' => 'purple', 'icon' => 'fa-trophy', 'delay' => '0.3s'],
                 ];
-                $welcomeGradientBar = ['blue' => 'from-blue-400 to-blue-600', 'orange' => 'from-orange-400 to-orange-600', 'purple' => 'from-purple-400 to-purple-600'];
-                $welcomeHoverText = ['blue' => 'group-hover:text-blue-600', 'orange' => 'group-hover:text-orange-600', 'purple' => 'group-hover:text-purple-600'];
-                $welcomeIconBg = ['blue' => 'from-blue-50 to-blue-100/50', 'orange' => 'from-orange-50 to-orange-100/50', 'purple' => 'from-purple-50 to-purple-100/50'];
-                $welcomeIconColor = ['blue' => 'text-blue-500', 'orange' => 'text-orange-500', 'purple' => 'text-purple-500'];
                 @endphp
                 @foreach($cards as $card)
                 <div class="modern-card p-6 flex justify-between items-center group animate-on-scroll" style="transition-delay: {{ $card['delay'] }}">
-                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r {{ $welcomeGradientBar[$card['color']] }} transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500" style="position:absolute;top:0;left:0;"></div>
                     <div class="min-w-0">
                         <p class="text-on-surface-variant text-[11px] font-bold mb-1 uppercase tracking-widest">{{ $card['label'] }}</p>
-                        <p class="text-4xl font-extrabold text-primary {{ $welcomeHoverText[$card['color']] }} transition-colors mt-1 counter-value" @if($card['raw']) data-value="{{ $card['raw'] }}" @endif>{{ $card['value'] }}</p>
+                        <p class="text-4xl font-extrabold text-primary transition-colors mt-1 counter-value" @if($card['raw']) data-value="{{ $card['raw'] }}" @endif>{{ $card['value'] }}</p>
                     </div>
-                    <div class="bg-gradient-to-br {{ $welcomeIconBg[$card['color']] }} {{ $welcomeIconColor[$card['color']] }} w-16 h-16 rounded-2xl flex items-center justify-center text-2xl shadow-inner shrink-0 group-hover:scale-110 group-hover:rotate-12 transition-transform">
+                    <div class="bg-gradient-to-br from-primary-fixed/30 to-secondary-fixed/20 text-primary w-16 h-16 rounded-2xl flex items-center justify-center text-2xl shadow-inner shrink-0 group-hover:scale-110 group-hover:rotate-12 transition-transform">
                         <i class="fas {{ $card['icon'] }}"></i>
                     </div>
                 </div>
@@ -188,49 +353,53 @@
         </div>
     </div>
 
-    {{-- Section: Prestasi --}}
-    <div id="prestasi" class="scroll-mt-20">
-        <div class="modern-card flex flex-col h-[500px] overflow-hidden mb-8 animate-on-scroll hover-enhanced">
+    {{-- Chart Section --}}
+    <section id="prestasi" class="scroll-mt-20">
+        <div class="text-center mb-6">
+            <h2 class="font-display-lg-mobile md:font-headline-md text-headline-md text-primary">Visualisasi <span class="text-gradient">Data</span></h2>
+        </div>
+
+        <div class="modern-card flex flex-col h-[500px] overflow-hidden mb-8 animate-on-scroll">
             <div class="px-6 py-5 border-b border-outline-variant/30"><h3 class="font-title-lg text-title-lg font-bold text-primary flex items-center gap-2"><div class="w-8 h-8 rounded-xl bg-primary-fixed/20 text-primary flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">bar_chart</span></div>Statistik Prestasi Prodi ({{ date('Y') }})</h3></div>
             <div class="p-6 flex-1 w-full relative"><canvas id="prestasiChart"></canvas></div>
         </div>
-    </div>
 
-    <div id="statistik" class="scroll-mt-20 grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
-        <div class="xl:col-span-4 modern-card flex flex-col h-[500px] overflow-hidden relative animate-on-scroll-left">
-            <div class="px-6 py-5 border-b border-outline-variant/30"><h3 class="font-title-lg text-title-lg font-bold text-primary flex items-center gap-2"><div class="w-8 h-8 rounded-xl bg-primary-fixed/20 text-primary flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">history</span></div>Rekap Prestasi Terbaru</h3></div>
-            <div class="flex-1 overflow-y-auto p-2 rekap-scroll">
-                @forelse($rekapPrestasi as $i => $spk)
-                    <div class="p-4 hover:bg-surface-container-low/80 rounded-2xl transition-colors border-b border-outline-variant/20 last:border-0 flex items-start gap-4 rekap-item" style="transition-delay: {{ $i * 0.05 }}s">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-fixed/30 to-primary-container/30 text-primary flex items-center justify-center text-sm font-extrabold shrink-0">{{ substr($spk->user->name ?? 'A', 0, 1) }}</div>
-                        <div class="flex-1 min-w-0"><h4 class="text-primary font-bold text-sm truncate">{{ $spk->user->name ?? 'Anonim' }}</h4><p class="text-xs text-on-surface-variant mt-1 line-clamp-2">{{ $spk->kegiatan->kegiatan ?? $spk->keterangan }}</p><div class="mt-2 flex items-center gap-2"><span class="bg-secondary-container/50 text-on-secondary-container px-2 py-0.5 rounded-md text-[10px] font-bold uppercase">Disetujui</span>@if($spk->tingkat)<span class="text-[10px] font-semibold text-on-surface-variant uppercase border border-outline-variant/50 px-2 py-0.5 rounded-md">{{ $spk->tingkat }}</span>@endif</div></div>
-                    </div>
-                @empty
-                    <div class="h-full flex flex-col items-center justify-center text-on-surface-variant"><div class="w-16 h-16 bg-surface-container-highest rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-3xl text-outline">inbox</span></div><p class="text-sm font-medium mt-3">Belum ada data disetujui.</p></div>
-                @endforelse
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
+            <div class="xl:col-span-4 modern-card flex flex-col h-[500px] overflow-hidden relative animate-on-scroll-left">
+                <div class="px-6 py-5 border-b border-outline-variant/30"><h3 class="font-title-lg text-title-lg font-bold text-primary flex items-center gap-2"><div class="w-8 h-8 rounded-xl bg-primary-fixed/20 text-primary flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">history</span></div>Rekap Prestasi Terbaru</h3></div>
+                <div class="flex-1 overflow-y-auto p-2 rekap-scroll">
+                    @forelse($rekapPrestasi as $i => $spk)
+                        <div class="p-4 hover:bg-surface-container-low/80 rounded-2xl transition-colors border-b border-outline-variant/20 last:border-0 flex items-start gap-4 rekap-item" style="transition-delay: {{ $i * 0.05 }}s">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-fixed/30 to-primary-container/30 text-primary flex items-center justify-center text-sm font-extrabold shrink-0">{{ substr($spk->user->name ?? 'A', 0, 1) }}</div>
+                            <div class="flex-1 min-w-0"><h4 class="text-primary font-bold text-sm truncate">{{ $spk->user->name ?? 'Anonim' }}</h4><p class="text-xs text-on-surface-variant mt-1 line-clamp-2">{{ $spk->kegiatan->kegiatan ?? $spk->keterangan }}</p><div class="mt-2 flex items-center gap-2"><span class="bg-secondary-container/50 text-on-secondary-container px-2 py-0.5 rounded-md text-[10px] font-bold uppercase">Disetujui</span>@if($spk->tingkat)<span class="text-[10px] font-semibold text-on-surface-variant uppercase border border-outline-variant/50 px-2 py-0.5 rounded-md">{{ $spk->tingkat }}</span>@endif</div></div>
+                        </div>
+                    @empty
+                        <div class="h-full flex flex-col items-center justify-center text-on-surface-variant"><div class="w-16 h-16 bg-surface-container-highest rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-3xl text-outline">inbox</span></div><p class="text-sm font-medium mt-3">Belum ada data disetujui.</p></div>
+                    @endforelse
+                </div>
+            </div>
+            <div class="xl:col-span-8 modern-card flex flex-col h-[500px] overflow-hidden animate-on-scroll-right" style="transition-delay: 0.15s">
+                <div class="px-6 py-5 border-b border-outline-variant/30"><h3 class="font-title-lg text-title-lg font-bold text-primary flex items-center gap-2"><div class="w-8 h-8 rounded-xl bg-primary-fixed/20 text-primary flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">layers</span></div>Prestasi Berdasarkan Tingkat</h3></div>
+                <div class="p-6 flex-1 w-full relative"><canvas id="tingkatChart"></canvas></div>
             </div>
         </div>
-        <div class="xl:col-span-8 modern-card flex flex-col h-[500px] overflow-hidden animate-on-scroll-right" style="transition-delay: 0.15s">
-            <div class="px-6 py-5 border-b border-outline-variant/30"><h3 class="font-title-lg text-title-lg font-bold text-primary flex items-center gap-2"><div class="w-8 h-8 rounded-xl bg-primary-fixed/20 text-primary flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">layers</span></div>Prestasi Berdasarkan Tingkat</h3></div>
-            <div class="p-6 flex-1 w-full relative"><canvas id="tingkatChart"></canvas></div>
-        </div>
-    </div>
 
-    <div class="modern-card flex flex-col h-[400px] overflow-hidden mb-8 animate-on-scroll" style="transition-delay: 0.25s">
-        <div class="px-6 py-5 border-b border-outline-variant/30"><h3 class="font-title-lg text-title-lg font-bold text-primary flex items-center gap-2"><div class="w-8 h-8 rounded-xl bg-primary-fixed/20 text-primary flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">category</span></div>Distribusi Jenis Kegiatan</h3></div>
-        <div class="p-6 flex-1 w-full relative flex items-center justify-center"><canvas id="jenisChart"></canvas></div>
-    </div>
+        <div class="modern-card flex flex-col h-[400px] overflow-hidden mb-8 animate-on-scroll" style="transition-delay: 0.25s">
+            <div class="px-6 py-5 border-b border-outline-variant/30"><h3 class="font-title-lg text-title-lg font-bold text-primary flex items-center gap-2"><div class="w-8 h-8 rounded-xl bg-primary-fixed/20 text-primary flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">category</span></div>Distribusi Jenis Kegiatan</h3></div>
+            <div class="p-6 flex-1 w-full relative flex items-center justify-center"><canvas id="jenisChart"></canvas></div>
+        </div>
 
-    <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
-        <div class="xl:col-span-6 modern-card flex flex-col h-[400px] overflow-hidden animate-on-scroll-left" style="transition-delay: 0.35s">
-            <div class="px-6 py-5 border-b border-outline-variant/30"><h3 class="font-title-lg text-title-lg font-bold text-primary flex items-center gap-2"><div class="w-8 h-8 rounded-xl bg-primary-fixed/20 text-primary flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">trending_up</span></div>Tren Prestasi Bulanan ({{ date('Y') }})</h3></div>
-            <div class="p-6 flex-1 w-full relative"><canvas id="trenChart"></canvas></div>
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
+            <div class="xl:col-span-6 modern-card flex flex-col h-[400px] overflow-hidden animate-on-scroll-left" style="transition-delay: 0.35s">
+                <div class="px-6 py-5 border-b border-outline-variant/30"><h3 class="font-title-lg text-title-lg font-bold text-primary flex items-center gap-2"><div class="w-8 h-8 rounded-xl bg-primary-fixed/20 text-primary flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">trending_up</span></div>Tren Prestasi Bulanan ({{ date('Y') }})</h3></div>
+                <div class="p-6 flex-1 w-full relative"><canvas id="trenChart"></canvas></div>
+            </div>
+            <div class="xl:col-span-6 modern-card flex flex-col h-[400px] overflow-hidden animate-on-scroll-right" style="transition-delay: 0.45s">
+                <div class="px-6 py-5 border-b border-outline-variant/30"><h3 class="font-title-lg text-title-lg font-bold text-primary flex items-center gap-2"><div class="w-8 h-8 rounded-xl bg-primary-fixed/20 text-primary flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">business</span></div>Top Penyelenggara Kegiatan</h3></div>
+                <div class="p-6 flex-1 w-full relative"><canvas id="penyelenggaraChart"></canvas></div>
+            </div>
         </div>
-        <div class="xl:col-span-6 modern-card flex flex-col h-[400px] overflow-hidden animate-on-scroll-right" style="transition-delay: 0.45s">
-            <div class="px-6 py-5 border-b border-outline-variant/30"><h3 class="font-title-lg text-title-lg font-bold text-primary flex items-center gap-2"><div class="w-8 h-8 rounded-xl bg-primary-fixed/20 text-primary flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">business</span></div>Top Penyelenggara Kegiatan</h3></div>
-            <div class="p-6 flex-1 w-full relative"><canvas id="penyelenggaraChart"></canvas></div>
-        </div>
-    </div>
+    </section>
 
 </main>
 
@@ -277,6 +446,30 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // ═══ ALPINE CAROUSEL COMPONENT ═══
+    window.carousel = function() {
+        return {
+            activeDot: 0,
+            init() { this.updateDot(); },
+            scrollTo(track, dir) {
+                const amount = track.clientWidth;
+                const target = dir === 'next' ? track.scrollLeft + amount : track.scrollLeft - amount;
+                track.scrollTo({ left: target, behavior: 'smooth' });
+                setTimeout(() => this.updateDot(), 400);
+            },
+            goTo(track, index) {
+                track.scrollTo({ left: index * track.clientWidth, behavior: 'smooth' });
+                this.activeDot = index;
+            },
+            updateDot() {
+                const track = document.getElementById('carouselTrack');
+                if (!track) return;
+                const index = Math.round(track.scrollLeft / track.clientWidth);
+                this.activeDot = index;
+            }
+        };
+    };
+
     // ═══ NAVBAR SCROLL EFFECT ═══
     window.addEventListener('scroll', () => {
         const navbar = document.getElementById('navbar');
@@ -348,6 +541,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }, { threshold: 0.5 });
     document.querySelectorAll('.counter-value[data-value]').forEach(el => counterObserver.observe(el));
+
+    // ═══ CAROUSEL AUTO-SLIDE ═══
+    const track = document.getElementById('carouselTrack');
+    if (track) {
+        let autoSlide = setInterval(() => {
+            const maxScroll = track.scrollWidth - track.clientWidth;
+            const next = track.scrollLeft + track.clientWidth;
+            track.scrollTo({ left: next > maxScroll ? 0 : next, behavior: 'smooth' });
+        }, 4000);
+        track.addEventListener('mouseenter', () => clearInterval(autoSlide));
+        track.addEventListener('mouseleave', () => {
+            autoSlide = setInterval(() => {
+                const maxScroll = track.scrollWidth - track.clientWidth;
+                const next = track.scrollLeft + track.clientWidth;
+                track.scrollTo({ left: next > maxScroll ? 0 : next, behavior: 'smooth' });
+            }, 4000);
+        });
+    }
 
     // ═══ SMOOTH SCROLL ═══
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
