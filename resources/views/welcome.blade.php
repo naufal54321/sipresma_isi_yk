@@ -116,6 +116,9 @@
         </div>
         <div class="hidden md:flex gap-6 items-center">
             <a class="text-secondary font-bold border-b-2 border-secondary pb-1 transition-colors hover:opacity-80" href="#">Beranda</a>
+            <a class="text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#tentang">Tentang</a>
+            <a class="text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#fitur">Fitur</a>
+            <a class="text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#alur">Alur</a>
             <a class="text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#prestasi">Prestasi</a>
             <a class="text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#statistik">Statistik</a>
             <a class="text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#kontak">Kontak</a>
@@ -136,6 +139,7 @@
 <!-- Hero Section -->
 <header class="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden flex flex-col items-center justify-center min-h-[90vh]" id="heroParallax">
     <div class="absolute inset-0 z-0">
+        <img src="{{ asset('images/batik-pattern.png') }}" alt="" class="w-full h-full object-cover opacity-[0.04] mix-blend-overlay">
         <div class="absolute inset-0 bg-gradient-to-b from-surface-bright/80 via-surface-bright/90 to-background"></div>
     </div>
     <div class="relative z-10 max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center animate-fade-in">
@@ -204,7 +208,7 @@
     </section>
 
     {{-- ═══ 2. FITUR UTAMA ═══ --}}
-    <section class="scroll-mt-20 mb-12 animate-on-scroll" style="transition-delay: 0.1s">
+    <section id="fitur" class="scroll-mt-20 mb-12 animate-on-scroll" style="transition-delay: 0.1s">
         <div class="text-center mb-8">
             <span class="inline-block py-1 px-3 rounded-full bg-secondary-fixed/30 text-on-secondary-container font-label-md text-label-md mb-4">Fitur Platform</span>
             <h2 class="font-display-lg-mobile md:font-headline-md text-headline-md text-primary">Fitur <span class="text-gradient">Utama</span></h2>
@@ -233,7 +237,7 @@
     </section>
 
     {{-- ═══ 3. ALUR ═══ --}}
-    <section class="scroll-mt-20 mb-12 animate-on-scroll" style="transition-delay: 0.2s">
+    <section id="alur" class="scroll-mt-20 mb-12 animate-on-scroll" style="transition-delay: 0.2s">
         <div class="text-center mb-8">
             <span class="inline-block py-1 px-3 rounded-full bg-secondary-fixed/30 text-on-secondary-container font-label-md text-label-md mb-4">Bagaimana Alurnya</span>
             <h2 class="font-display-lg-mobile md:font-headline-md text-headline-md text-primary">Alur <span class="text-gradient">Penggunaan</span></h2>
