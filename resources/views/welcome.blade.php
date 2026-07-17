@@ -133,24 +133,24 @@
     <div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
         <div class="flex items-center gap-3">
             <img src="{{ asset('images/logo_isi_welcome.png') }}" alt="PRATAMA Logo" class="h-10 w-10 object-contain rounded-md">
-            <span class="font-title-lg text-title-lg font-bold text-primary dark:text-primary-fixed hidden sm:block">PRATAMA</span>
+            <span class="navbar-logo-text font-title-lg text-title-lg font-bold text-white hidden sm:block">PRATAMA</span>
         </div>
         <div class="hidden md:flex gap-6 items-center">
-            <a class="nav-link text-secondary font-bold border-b-2 border-secondary pb-1 transition-colors hover:opacity-80" href="#" data-target="hero">Beranda</a>
-            <a class="nav-link text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#tentang" data-target="tentang">Tentang</a>
-            <a class="nav-link text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#fitur" data-target="fitur">Fitur</a>
-            <a class="nav-link text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#alur" data-target="alur">Alur</a>
-            <a class="nav-link text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#prestasi" data-target="prestasi">Prestasi</a>
-            <a class="nav-link text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#statistik" data-target="statistik">Statistik</a>
-            <a class="nav-link text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#kontak" data-target="kontak">Kontak</a>
+            <a class="nav-link text-white font-bold border-b-2 border-white pb-1 transition-colors hover:opacity-80" href="#" data-target="hero">Beranda</a>
+            <a class="nav-link text-white/80 hover:text-white transition-colors" href="#tentang" data-target="tentang">Tentang</a>
+            <a class="nav-link text-white/80 hover:text-white transition-colors" href="#fitur" data-target="fitur">Fitur</a>
+            <a class="nav-link text-white/80 hover:text-white transition-colors" href="#alur" data-target="alur">Alur</a>
+            <a class="nav-link text-white/80 hover:text-white transition-colors" href="#prestasi" data-target="prestasi">Prestasi</a>
+            <a class="nav-link text-white/80 hover:text-white transition-colors" href="#statistik" data-target="statistik">Statistik</a>
+            <a class="nav-link text-white/80 hover:text-white transition-colors" href="#kontak" data-target="kontak">Kontak</a>
         </div>
-        <div class="flex gap-3">
+        <div class="flex gap-3" id="navButtons">
             @auth
-                <a href="{{ url('/dashboard') }}" class="btn-primary px-6 py-2 rounded-full font-label-md text-label-md flex items-center gap-2">
+                <a href="{{ url('/dashboard') }}" class="btn-primary px-6 py-2 rounded-full font-label-md text-label-md flex items-center gap-2 shadow-lg shadow-black/10">
                     <span class="material-symbols-outlined text-[18px]">dashboard</span> Dashboard
                 </a>
             @else
-                <a href="{{ route('login') }}" class="btn-outline px-6 py-2 rounded-full font-label-md text-label-md hidden md:block">Login</a>
+                <a id="loginBtn" href="{{ route('login') }}" class="px-6 py-2 rounded-full font-label-md text-label-md hidden md:block border border-white/70 text-white hover:bg-white/10 transition-all">Login</a>
                 <a href="{{ route('register') }}" class="btn-primary px-6 py-2 rounded-full font-label-md text-label-md">Register</a>
             @endauth
         </div>
@@ -168,41 +168,41 @@
      class="relative h-screen min-h-[600px] max-h-[900px] overflow-hidden bg-primary group" id="heroCarousel">
     
     {{-- Slide 1 --}}
-    <div class="absolute inset-0 transition-all duration-700 ease-in-out"
-         :class="active === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'">
-        <img src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=1600&q=80" alt="PRATAMA" class="w-full h-full object-cover" loading="lazy">
-        <div class="absolute inset-0 bg-gradient-to-r from-primary/85 via-primary/60 to-primary/30"></div>
-        <div class="absolute inset-0 flex items-center justify-center">
-            <div class="text-center text-white max-w-4xl mx-auto px-4 md:px-8 -mt-16">
-                <span class="inline-block py-1 px-4 rounded-full bg-white/15 text-white font-label-md text-label-md mb-6 border border-white/20 backdrop-blur-sm">Institut Seni Indonesia Yogyakarta</span>
-                <h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-white max-w-4xl mx-auto mb-6 leading-tight">
-                    Prestasi dan <span class="text-gradient-gold">Talenta Mahasiswa</span>
-                </h1>
-                <p class="font-body-lg text-body-lg text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
-                    Platform digital resmi Institut Seni Indonesia Yogyakarta untuk mendokumentasikan, mengelola, dan mengembangkan prestasi serta talenta mahasiswa secara profesional.
-                </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                    @if($isAuth)
-                        <a href="{{ $dashUrl }}" class="btn-primary px-8 py-3.5 rounded-full font-label-md text-label-md flex items-center gap-2 w-full sm:w-auto justify-center shadow-lg shadow-black/10">
-                            Dashboard <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
-                        </a>
-                    @else
-                        <a href="{{ $loginUrl }}" class="btn-primary px-8 py-3.5 rounded-full font-label-md text-label-md flex items-center gap-2 w-full sm:w-auto justify-center shadow-lg shadow-black/10">
-                            Jelajahi Prestasi <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
-                        </a>
-                        <a href="{{ $registerUrl }}" class="px-8 py-3.5 rounded-full font-label-md text-label-md w-full sm:w-auto justify-center text-center border-2 border-white/40 text-white hover:bg-white/10 transition-all">
-                            Daftar Sekarang
-                        </a>
-                    @endif
-                </div>
+<div class="absolute inset-0 transition-all duration-700 ease-in-out"
+     :class="active === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'">
+    <img src="{{ asset('images/slide1.jpg') }}" alt="PRATAMA" class="w-full h-full object-cover" loading="lazy">
+    <div class="absolute inset-0 bg-gradient-to-r from-primary/85 via-primary/60 to-primary/30"></div>
+    <div class="absolute inset-0 flex items-center justify-center">
+        <div class="text-center text-white max-w-4xl mx-auto px-4 md:px-8 -mt-16">
+            <span class="inline-block py-1 px-4 rounded-full bg-white/15 text-white font-label-md text-label-md mb-6 border border-white/20 backdrop-blur-sm">Institut Seni Indonesia Yogyakarta</span>
+            <h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-white max-w-4xl mx-auto mb-6 leading-tight">
+                Prestasi dan <span class="text-gradient-gold">Talenta Mahasiswa</span>
+            </h1>
+            <p class="font-body-lg text-body-lg text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
+                Platform digital resmi Institut Seni Indonesia Yogyakarta untuk mendokumentasikan, mengelola, dan mengembangkan prestasi serta talenta mahasiswa secara profesional.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                @if($isAuth)
+                    <a href="{{ $dashUrl }}" class="btn-primary px-8 py-3.5 rounded-full font-label-md text-label-md flex items-center gap-2 w-full sm:w-auto justify-center shadow-lg shadow-black/10">
+                        Dashboard <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+                    </a>
+                @else
+                    <a href="{{ $loginUrl }}" class="btn-primary px-8 py-3.5 rounded-full font-label-md text-label-md flex items-center gap-2 w-full sm:w-auto justify-center shadow-lg shadow-black/10">
+                        Jelajahi Prestasi <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+                    </a>
+                    <a href="{{ $registerUrl }}" class="px-8 py-3.5 rounded-full font-label-md text-label-md w-full sm:w-auto justify-center text-center border-2 border-white/40 text-white hover:bg-white/10 transition-all">
+                        Daftar Sekarang
+                    </a>
+                @endif
             </div>
         </div>
     </div>
+</div>
 
     {{-- Slide 2 --}}
     <div class="absolute inset-0 transition-all duration-700 ease-in-out"
          :class="active === 1 ? 'opacity-100 z-10' : 'opacity-0 z-0'">
-        <img src="https://images.unsplash.com/photo-1523050854058-8df90110c7f1?w=1600&q=80" alt="Mahasiswa" class="w-full h-full object-cover" loading="lazy">
+        <img src="{{ asset('images/slide2.jpg') }}" alt="Mahasiswa" class="w-full h-full object-cover" loading="lazy">
         <div class="absolute inset-0 bg-gradient-to-r from-primary/85 via-primary/60 to-primary/30"></div>
         <div class="absolute inset-0 flex items-center justify-center">
             <div class="text-center text-white max-w-4xl mx-auto px-4 md:px-8 -mt-16">
@@ -225,7 +225,7 @@
     {{-- Slide 3 --}}
     <div class="absolute inset-0 transition-all duration-700 ease-in-out"
          :class="active === 2 ? 'opacity-100 z-10' : 'opacity-0 z-0'">
-        <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1600&q=80" alt="Kegiatan Akademik" class="w-full h-full object-cover" loading="lazy">
+        <img src="{{ asset('images/slide3.jpg') }}" alt="Kegiatan Akademik" class="w-full h-full object-cover" loading="lazy">
         <div class="absolute inset-0 bg-gradient-to-r from-primary/85 via-primary/60 to-primary/30"></div>
         <div class="absolute inset-0 flex items-center justify-center">
             <div class="text-center text-white max-w-4xl mx-auto px-4 md:px-8 -mt-16">
@@ -378,47 +378,9 @@
         </div>
     </section>
 
-    {{-- ═══ 4. CAROUSEL GAMBAR ═══ --}}
-    <section class="scroll-mt-20 mb-12 animate-on-scroll" style="transition-delay: 0.3s">
-        <div class="text-center mb-6">
-            <span class="inline-block py-1 px-3 rounded-full bg-secondary-fixed/30 text-on-secondary-container font-label-md text-label-md mb-4">Galeri</span>
-            <h2 class="font-display-lg-mobile md:font-headline-md text-headline-md text-primary">Suasana <span class="text-gradient">Kampus</span></h2>
-        </div>
-        <div class="modern-card p-4 relative carousel-wrapper" x-data="carousel()">
-            <div class="carousel-container flex overflow-x-auto scroll-smooth rounded-2xl" id="carouselTrack" x-ref="track">
-                @php
-                $images = [
-                    ['src' => 'https://images.unsplash.com/photo-1523050854058-8df90110c7f1?w=1200&q=80', 'alt' => 'Suasana Kampus ISI Yogyakarta'],
-                    ['src' => 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&q=80', 'alt' => 'Kegiatan Akademik Mahasiswa'],
-                    ['src' => 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=1200&q=80', 'alt' => 'Prestasi dan Penghargaan Mahasiswa'],
-                    ['src' => 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1200&q=80', 'alt' => 'Kolaborasi dan Kerja Tim'],
-                ];
-                @endphp
-                @foreach($images as $img)
-                <div class="w-full flex-shrink-0">
-                    <img src="{{ $img['src'] }}" alt="{{ $img['alt'] }}" class="w-full h-[350px] md:h-[450px] object-cover rounded-2xl" loading="lazy">
-                </div>
-                @endforeach
-            </div>
+    
 
-            {{-- Nav buttons --}}
-            <button class="carousel-btn absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 shadow-lg flex items-center justify-center text-primary hover:bg-white transition-all cursor-pointer" @click="scrollTo($refs.track, 'prev')">
-                <span class="material-symbols-outlined">chevron_left</span>
-            </button>
-            <button class="carousel-btn absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 shadow-lg flex items-center justify-center text-primary hover:bg-white transition-all cursor-pointer" @click="scrollTo($refs.track, 'next')">
-                <span class="material-symbols-outlined">chevron_right</span>
-            </button>
-
-            {{-- Dots --}}
-            <div class="flex justify-center gap-2 mt-4">
-                @foreach($images as $i => $img)
-                <button class="carousel-dot w-2.5 h-2.5 rounded-full transition-all duration-300" :class="activeDot === {{ $i }} ? 'bg-primary w-6' : 'bg-outline'" @click="goTo($refs.track, {{ $i }})"></button>
-                @endforeach
-            </div>
-        </div>
-    </section>
-
-    {{-- ═══ 5. STATS + CHARTS (PALING BAWAH) ═══ --}}
+    {{-- ═══ 4. STATS + CHARTS (PALING BAWAH) ═══ --}}
     <div id="statistik"></div>
 
     {{-- Stats Cards --}}
@@ -570,39 +532,59 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ═══ NAVBAR SCROLL EFFECT ═══
     const navbar = document.getElementById('navbar');
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 20) {
+    const logoText = document.querySelector('.navbar-logo-text');
+    const loginBtn = document.getElementById('loginBtn');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('section[id], main [id]');
+    const ACTIVE_CLASS = 'nav-link text-secondary font-bold border-b-2 border-secondary pb-1 transition-colors hover:opacity-80';
+    const INACTIVE_CLASS = 'nav-link text-primary hover:text-secondary transition-colors';
+    const ACTIVE_CLASS_HERO = 'nav-link text-white font-bold border-b-2 border-white pb-1 transition-colors hover:opacity-80';
+    const INACTIVE_CLASS_HERO = 'nav-link text-white/80 hover:text-white transition-colors';
+
+    function setNavbarStyle(mode) {
+        const isHero = mode === 'hero';
+        
+        if (!isHero) {
             navbar.classList.add('bg-white/90', 'shadow-sm');
             navbar.classList.remove('bg-transparent');
+            logoText?.classList.remove('text-white');
+            logoText?.classList.add('text-primary');
+            if (loginBtn) {
+                loginBtn.className = 'px-6 py-2 rounded-full font-label-md text-label-md hidden md:block btn-outline';
+            }
         } else {
             navbar.classList.remove('bg-white/90', 'shadow-sm');
             navbar.classList.add('bg-transparent');
+            logoText?.classList.add('text-white');
+            logoText?.classList.remove('text-primary');
+            if (loginBtn) {
+                loginBtn.className = 'px-6 py-2 rounded-full font-label-md text-label-md hidden md:block border border-white/70 text-white hover:bg-white/10 transition-all';
+            }
         }
-    });
+    }
 
-    // ═══ NAVBAR ACTIVE LINK ═══
-    const sections = document.querySelectorAll('section[id], main [id]');
-    const navLinks = document.querySelectorAll('.nav-link');
-    const activeClass = 'text-secondary font-bold border-b-2 border-secondary pb-1';
-    const inactiveClass = 'text-primary dark:text-primary-fixed-dim';
+    function updateNavbarActive() {
+        const isHero = window.scrollY < window.innerHeight * 0.6;
+        setNavbarStyle(isHero ? 'hero' : 'content');
 
-    function updateActiveLink() {
         let current = 'hero';
         sections.forEach(section => {
             const top = section.getBoundingClientRect().top;
-            if (top <= 200) current = section.id;
+            if (top <= 250) current = section.id;
         });
+
         navLinks.forEach(link => {
             const target = link.dataset.target;
-            if (target === current) {
-                link.className = `nav-link ${activeClass} transition-colors hover:opacity-80`;
+            if (isHero) {
+                link.className = target === current ? ACTIVE_CLASS_HERO : INACTIVE_CLASS_HERO;
             } else {
-                link.className = `nav-link ${inactiveClass} hover:text-secondary transition-colors hover:opacity-80`;
+                link.className = target === current ? ACTIVE_CLASS : INACTIVE_CLASS;
             }
         });
     }
-    window.addEventListener('scroll', updateActiveLink);
-    updateActiveLink();
+
+    window.addEventListener('scroll', updateNavbarActive);
+    updateNavbarActive();
 
     // ═══ CHART.JS ═══
     const cp = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#0ea5e9', '#14b8a6'];
