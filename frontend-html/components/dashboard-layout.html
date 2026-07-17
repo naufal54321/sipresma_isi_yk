@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard PRATAMA (Template)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        [x-cloak] { display: none !important; }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased">
+
+<div class="min-h-screen flex">
+
+    <!-- Sidebar (include dari sidebar.html) -->
+    <div class="w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0">
+        <div class="p-6 border-b border-slate-800">
+            <h1 class="text-lg font-bold text-white">PRATAMA</h1>
+        </div>
+        <div class="flex-1 p-4 text-sm space-y-1 text-slate-400">
+            <div class="text-white font-semibold bg-blue-500/15 text-blue-400 px-3 py-2.5 rounded-xl">📊 Beranda</div>
+            <div class="px-3 py-2.5 rounded-xl hover:bg-slate-800/60">📋 RPK</div>
+            <div class="px-3 py-2.5 rounded-xl hover:bg-slate-800/60">🏆 SPK</div>
+            <div class="px-3 py-2.5 rounded-xl hover:bg-slate-800/60">📈 Laporan</div>
+            <div class="mt-6 pt-4 border-t border-slate-800">
+                <div class="bg-red-500/10 text-red-400 px-3 py-2.5 rounded-xl text-center">🚪 Keluar</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+        <!-- Header -->
+        <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200 px-8 py-3 flex items-center justify-between sticky top-0 z-40">
+            <div class="flex-1"></div>
+            <div class="flex items-center gap-3">
+                <div class="text-right">
+                    <h2 class="font-bold text-sm text-slate-800">Nama Pengguna</h2>
+                    <p class="text-[11px] text-slate-500 font-semibold">Mahasiswa</p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-blue-500/20 text-blue-500 flex items-center justify-center font-bold">N</div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="p-8 flex-1">
+            <!-- Page Title -->
+            <div class="mb-6">
+                <h1 class="text-3xl font-bold text-slate-800">Dashboard</h1>
+                <p class="text-slate-500 mt-1">Selamat datang di PRATAMA</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">RPK Draft</p>
+                    <h2 class="text-3xl font-extrabold text-slate-800 mt-1">5</h2>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">RPK Disetujui</p>
+                    <h2 class="text-3xl font-extrabold text-green-500 mt-1">12</h2>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">SPK Draft</p>
+                    <h2 class="text-3xl font-extrabold text-slate-800 mt-1">3</h2>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Total Poin</p>
+                    <h2 class="text-3xl font-extrabold text-blue-500 mt-1">85</h2>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 min-h-[350px]">
+                    <h2 class="font-bold text-slate-800 mb-4">📊 Status RPK</h2>
+                    <div class="h-[250px] flex items-center justify-center text-slate-400 text-sm">
+                        [Chart Doughnut — Integrasikan dengan Chart.js]
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 min-h-[350px]">
+                    <h2 class="font-bold text-slate-800 mb-4">🏆 Prestasi Berdasarkan Tingkat</h2>
+                    <div class="h-[250px] flex items-center justify-center text-slate-400 text-sm">
+                        [Chart Bar — Integrasikan dengan Chart.js]
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100">
+                    <h2 class="font-bold text-slate-800">📋 Data Terbaru</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-slate-600">
+                        <thead class="bg-slate-50 uppercase text-[10px] font-bold tracking-wider text-slate-400">
+                            <tr>
+                                <th class="px-4 py-3 w-10 text-center">No</th>
+                                <th class="px-4 py-3">Nama</th>
+                                <th class="px-4 py-3">Kegiatan</th>
+                                <th class="px-4 py-3 text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr class="hover:bg-slate-50">
+                                <td class="px-4 py-3 text-center">1</td>
+                                <td class="px-4 py-3 font-medium text-slate-800">Mahasiswa A</td>
+                                <td class="px-4 py-3">Lomba Tari</td>
+                                <td class="px-4 py-3 text-center">
+                                    <span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full text-[10px] font-bold">Disetujui</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="px-4 py-3 text-center">2</td>
+                                <td class="px-4 py-3 font-medium text-slate-800">Mahasiswa B</td>
+                                <td class="px-4 py-3">Pameran Lukis</td>
+                                <td class="px-4 py-3 text-center">
+                                    <span class="bg-orange-100 text-orange-700 px-2.5 py-1 rounded-full text-[10px] font-bold">Draft</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="w-full py-5 text-center text-sm text-slate-500 border-t border-slate-200">
+            &copy; 2026 UPA TIK Institut Seni Indonesia Yogyakarta
+        </footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Contoh inisialisasi Chart.js
+    document.addEventListener('DOMContentLoaded', function() {
+        // Template untuk inisialisasi chart ada di welcome.html
+        console.log('Dashboard template siap');
+    });
+</script>
+</body>
+</html>
