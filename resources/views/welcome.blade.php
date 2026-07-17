@@ -140,7 +140,6 @@
             <a class="nav-link text-white/80 hover:text-white transition-colors" href="#tentang" data-target="tentang">Tentang</a>
             <a class="nav-link text-white/80 hover:text-white transition-colors" href="#fitur" data-target="fitur">Fitur</a>
             <a class="nav-link text-white/80 hover:text-white transition-colors" href="#alur" data-target="alur">Alur</a>
-            <a class="nav-link text-white/80 hover:text-white transition-colors" href="#prestasi" data-target="prestasi">Prestasi</a>
             <a class="nav-link text-white/80 hover:text-white transition-colors" href="#statistik" data-target="statistik">Statistik</a>
             <a class="nav-link text-white/80 hover:text-white transition-colors" href="#kontak" data-target="kontak">Kontak</a>
         </div>
@@ -206,17 +205,26 @@
         <div class="absolute inset-0 bg-gradient-to-r from-primary/85 via-primary/60 to-primary/30"></div>
         <div class="absolute inset-0 flex items-center justify-center">
             <div class="text-center text-white max-w-4xl mx-auto px-4 md:px-8 -mt-16">
-                <span class="inline-block py-1 px-4 rounded-full bg-white/15 text-white font-label-md text-label-md mb-6 border border-white/20 backdrop-blur-sm">Dokumentasi Prestasi</span>
+                <span class="inline-block py-1 px-4 rounded-full bg-white/15 text-white font-label-md text-label-md mb-6 border border-white/20 backdrop-blur-sm">Institut Seni Indonesia Yogyakarta</span>
                 <h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-white max-w-4xl mx-auto mb-6 leading-tight">
-                    Catat Setiap <span class="text-gradient-gold">Pencapaian</span>
+                    Prestasi dan <span class="text-gradient-gold">Talenta Mahasiswa</span>
                 </h1>
                 <p class="font-body-lg text-body-lg text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
-                    Dari lomba seni, pameran karya, hingga penelitian — semua prestasi terdokumentasi rapi dalam satu platform.
+                    Platform digital resmi Institut Seni Indonesia Yogyakarta untuk mendokumentasikan, mengelola, dan mengembangkan prestasi serta talenta mahasiswa secara profesional.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                    <a href="{{ $isAuth ? $dashUrl : $registerUrl }}" class="btn-primary px-8 py-3.5 rounded-full font-label-md text-label-md flex items-center gap-2 w-full sm:w-auto justify-center shadow-lg shadow-black/10">
-                        {{ $isAuth ? "Dashboard" : "Mulai Sekarang" }} <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
-                    </a>
+                    @if($isAuth)
+                        <a href="{{ $dashUrl }}" class="btn-primary px-8 py-3.5 rounded-full font-label-md text-label-md flex items-center gap-2 w-full sm:w-auto justify-center shadow-lg shadow-black/10">
+                            Dashboard <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+                        </a>
+                    @else
+                        <a href="{{ $loginUrl }}" class="btn-primary px-8 py-3.5 rounded-full font-label-md text-label-md flex items-center gap-2 w-full sm:w-auto justify-center shadow-lg shadow-black/10">
+                            Jelajahi Prestasi <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+                        </a>
+                        <a href="{{ $registerUrl }}" class="px-8 py-3.5 rounded-full font-label-md text-label-md w-full sm:w-auto justify-center text-center border-2 border-white/40 text-white hover:bg-white/10 transition-all">
+                            Daftar Sekarang
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>
@@ -229,17 +237,26 @@
         <div class="absolute inset-0 bg-gradient-to-r from-primary/85 via-primary/60 to-primary/30"></div>
         <div class="absolute inset-0 flex items-center justify-center">
             <div class="text-center text-white max-w-4xl mx-auto px-4 md:px-8 -mt-16">
-                <span class="inline-block py-1 px-4 rounded-full bg-white/15 text-white font-label-md text-label-md mb-6 border border-white/20 backdrop-blur-sm">Validasi Terpadu</span>
+                <span class="inline-block py-1 px-4 rounded-full bg-white/15 text-white font-label-md text-label-md mb-6 border border-white/20 backdrop-blur-sm">Institut Seni Indonesia Yogyakarta</span>
                 <h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-white max-w-4xl mx-auto mb-6 leading-tight">
-                    Verifikasi oleh <span class="text-gradient-gold">Dosen & Admin</span>
+                    Prestasi dan <span class="text-gradient-gold">Talenta Mahasiswa</span>
                 </h1>
                 <p class="font-body-lg text-body-lg text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
-                    Sistem validasi berjenjang memastikan setiap data prestasi yang diajukan telah diperiksa dan disahkan dengan benar.
+                    Platform digital resmi Institut Seni Indonesia Yogyakarta untuk mendokumentasikan, mengelola, dan mengembangkan prestasi serta talenta mahasiswa secara profesional.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                    <a href="{{ $isAuth ? $dashUrl : '#tentang' }}" class="btn-primary px-8 py-3.5 rounded-full font-label-md text-label-md flex items-center gap-2 w-full sm:w-auto justify-center shadow-lg shadow-black/10">
-                        {{ $isAuth ? "Dashboard" : "Pelajari Lebih Lanjut" }} <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
-                    </a>
+                    @if($isAuth)
+                        <a href="{{ $dashUrl }}" class="btn-primary px-8 py-3.5 rounded-full font-label-md text-label-md flex items-center gap-2 w-full sm:w-auto justify-center shadow-lg shadow-black/10">
+                            Dashboard <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+                        </a>
+                    @else
+                        <a href="{{ $loginUrl }}" class="btn-primary px-8 py-3.5 rounded-full font-label-md text-label-md flex items-center gap-2 w-full sm:w-auto justify-center shadow-lg shadow-black/10">
+                            Jelajahi Prestasi <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+                        </a>
+                        <a href="{{ $registerUrl }}" class="px-8 py-3.5 rounded-full font-label-md text-label-md w-full sm:w-auto justify-center text-center border-2 border-white/40 text-white hover:bg-white/10 transition-all">
+                            Daftar Sekarang
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>
@@ -315,7 +332,7 @@
                 ['icon' => 'upload_file', 'title' => 'Upload Dokumen', 'desc' => 'Upload PDF, JPG, PNG — surat tugas, sertifikat, foto, laporan'],
                 ['icon' => 'groups', 'title' => 'Kolaborasi Tim', 'desc' => 'Tambah anggota kelompok untuk kegiatan kategori kelompok'],
                 ['icon' => 'shield', 'title' => 'Validasi Berjenjang', 'desc' => 'Verifikasi oleh dosen pembimbing dan admin'],
-                ['icon' => 'bar_chart', 'title' => 'Laporan & Export', 'desc' => 'Export data ke CSV, Excel multi-sheet, dan PDF'],
+                ['icon' => 'bar_chart', 'title' => 'Laporan Prestasi dan Talenta', 'desc' => 'Export Laporan Prestasi'],
             ];
             @endphp
             @foreach($fitur as $f)
@@ -371,7 +388,7 @@
                 <div>
                     <span class="inline-block py-0.5 px-2 rounded-full bg-secondary-fixed/30 text-on-secondary-container font-label-md text-[11px] mb-1">Tahap 3</span>
                     <h3 class="font-title-lg text-title-lg font-bold text-primary">Buat SPK</h3>
-                    <p class="text-body-md text-body-md text-on-surface-variant mt-1">Setelah RPK disetujui, mahasiswa membuat Sertifikat Prestasi Kegiatan (SPK) dan melengkapi dokumen pendukung.</p>
+                    <p class="text-body-md text-body-md text-on-surface-variant mt-1">Setelah RPK disetujui, mahasiswa membuat (SPK) Satuan Prestasi Kemahasiswaan dan melengkapi dokumen pendukung.</p>
                 </div>
             </div>
             {{-- Step 4 --}}
@@ -388,7 +405,7 @@
             </div>
             {{-- Step 5 --}}
             <div class="relative pl-12 md:pl-16">
-                <div class="absolute left-0 top-1 w-9 h-9 rounded-full bg-primary-container text-primary flex items-center justify-center shadow-lg shadow-primary/20 z-10">
+                <div class="absolute left-0 top-1 w-9 h-9 rounded-full bg-primary-container text-on-secondary flex items-center justify-center shadow-lg shadow-primary/20 z-10">
                     <span class="material-symbols-outlined text-lg">workspace_premium</span>
                 </div>
                 <div>
