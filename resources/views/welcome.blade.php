@@ -337,42 +337,65 @@
         <h2 class="font-display-lg-mobile md:font-headline-md text-headline-md text-primary">Alur <span class="text-gradient">Penggunaan</span></h2>
     </div>
     <div class="modern-card p-8 md:p-10">
-        <div class="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-4">
-            <div class="text-center flex-1">
-                <div class="w-20 h-20 rounded-2xl bg-primary text-on-primary flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/20">
-                    <span class="material-symbols-outlined text-[40px]">person</span>
+        <div class="relative ml-2 md:ml-6 space-y-10">
+            {{-- Step 1 --}}
+            <div class="relative pl-12 md:pl-16">
+                <div class="absolute left-0 top-1 w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-lg shadow-primary/20 z-10">
+                    <span class="material-symbols-outlined text-lg">description</span>
                 </div>
-                <span class="inline-block py-0.5 px-2 rounded-full bg-secondary-fixed/40 text-on-secondary-container font-label-md text-[11px] mb-2">Langkah 1</span>
-                <h3 class="font-title-lg text-title-lg font-bold text-primary">Mahasiswa</h3>
-                <p class="text-body-md text-body-md text-on-surface-variant mt-1">Buat RPK & SPK, upload dokumen prestasi</p>
-            </div>
-            <div class="hidden md:block">
-                <span class="material-symbols-outlined text-4xl text-secondary">arrow_forward</span>
-            </div>
-            <div class="md:hidden">
-                <span class="material-symbols-outlined text-3xl text-secondary rotate-90 block">arrow_forward</span>
-            </div>
-            <div class="text-center flex-1">
-                <div class="w-20 h-20 rounded-2xl bg-primary text-on-primary flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/20">
-                    <span class="material-symbols-outlined text-[40px]">school</span>
+                <div class="absolute left-[17px] top-10 bottom-[-40px] w-0.5 bg-primary/20"></div>
+                <div>
+                    <span class="inline-block py-0.5 px-2 rounded-full bg-secondary-fixed/30 text-on-secondary-container font-label-md text-[11px] mb-1">Tahap 1</span>
+                    <h3 class="font-title-lg text-title-lg font-bold text-primary">Buat RPK</h3>
+                    <p class="text-body-md text-body-md text-on-surface-variant mt-1">Mahasiswa membuat Rencana Prestasi Kemahasiswaan (RPK) dan mengisi kegiatan yang direncanakan.</p>
                 </div>
-                <span class="inline-block py-0.5 px-2 rounded-full bg-secondary-fixed/40 text-on-secondary-container font-label-md text-[11px] mb-2">Langkah 2</span>
-                <h3 class="font-title-lg text-title-lg font-bold text-primary">Dosen</h3>
-                <p class="text-body-md text-body-md text-on-surface-variant mt-1">Verifikasi dan validasi RPK & SPK mahasiswa bimbingan</p>
             </div>
-            <div class="hidden md:block">
-                <span class="material-symbols-outlined text-4xl text-secondary">arrow_forward</span>
-            </div>
-            <div class="md:hidden">
-                <span class="material-symbols-outlined text-3xl text-secondary rotate-90 block">arrow_forward</span>
-            </div>
-            <div class="text-center flex-1">
-                <div class="w-20 h-20 rounded-2xl bg-primary text-on-primary flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/20">
-                    <span class="material-symbols-outlined text-[40px]">admin_panel_settings</span>
+            {{-- Step 2 --}}
+            <div class="relative pl-12 md:pl-16">
+                <div class="absolute left-0 top-1 w-9 h-9 rounded-full bg-secondary text-on-secondary flex items-center justify-center shadow-lg shadow-secondary/20 z-10">
+                    <span class="material-symbols-outlined text-lg">fact_check</span>
                 </div>
-                <span class="inline-block py-0.5 px-2 rounded-full bg-secondary-fixed/40 text-on-secondary-container font-label-md text-[11px] mb-2">Langkah 3</span>
-                <h3 class="font-title-lg text-title-lg font-bold text-primary">Admin</h3>
-                <p class="text-body-md text-body-md text-on-surface-variant mt-1">Kelola master data, poin, dan laporan prestasi</p>
+                <div class="absolute left-[17px] top-10 bottom-[-40px] w-0.5 bg-secondary/20"></div>
+                <div>
+                    <span class="inline-block py-0.5 px-2 rounded-full bg-secondary-fixed/30 text-on-secondary-container font-label-md text-[11px] mb-1">Tahap 2</span>
+                    <h3 class="font-title-lg text-title-lg font-bold text-primary">Validasi RPK oleh Dosen</h3>
+                    <p class="text-body-md text-body-md text-on-surface-variant mt-1">Dosen pembimbing memeriksa dan memvalidasi RPK yang diajukan oleh mahasiswa.</p>
+                </div>
+            </div>
+            {{-- Step 3 --}}
+            <div class="relative pl-12 md:pl-16">
+                <div class="absolute left-0 top-1 w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-lg shadow-primary/20 z-10">
+                    <span class="material-symbols-outlined text-lg">verified</span>
+                </div>
+                <div class="absolute left-[17px] top-10 bottom-[-40px] w-0.5 bg-primary/20"></div>
+                <div>
+                    <span class="inline-block py-0.5 px-2 rounded-full bg-secondary-fixed/30 text-on-secondary-container font-label-md text-[11px] mb-1">Tahap 3</span>
+                    <h3 class="font-title-lg text-title-lg font-bold text-primary">Buat SPK</h3>
+                    <p class="text-body-md text-body-md text-on-surface-variant mt-1">Setelah RPK disetujui, mahasiswa membuat Sertifikat Prestasi Kegiatan (SPK) dan melengkapi dokumen pendukung.</p>
+                </div>
+            </div>
+            {{-- Step 4 --}}
+            <div class="relative pl-12 md:pl-16">
+                <div class="absolute left-0 top-1 w-9 h-9 rounded-full bg-secondary text-on-secondary flex items-center justify-center shadow-lg shadow-secondary/20 z-10">
+                    <span class="material-symbols-outlined text-lg">approval</span>
+                </div>
+                <div class="absolute left-[17px] top-10 bottom-[-40px] w-0.5 bg-secondary/20"></div>
+                <div>
+                    <span class="inline-block py-0.5 px-2 rounded-full bg-secondary-fixed/30 text-on-secondary-container font-label-md text-[11px] mb-1">Tahap 4</span>
+                    <h3 class="font-title-lg text-title-lg font-bold text-primary">Validasi SPK oleh Dosen</h3>
+                    <p class="text-body-md text-body-md text-on-surface-variant mt-1">Dosen pembimbing memvalidasi SPK beserta kelengkapan dokumen yang diupload mahasiswa.</p>
+                </div>
+            </div>
+            {{-- Step 5 --}}
+            <div class="relative pl-12 md:pl-16">
+                <div class="absolute left-0 top-1 w-9 h-9 rounded-full bg-primary-container text-primary flex items-center justify-center shadow-lg shadow-primary/20 z-10">
+                    <span class="material-symbols-outlined text-lg">rewarded_medals</span>
+                </div>
+                <div>
+                    <span class="inline-block py-0.5 px-2 rounded-full bg-secondary-fixed/30 text-on-secondary-container font-label-md text-[11px] mb-1">Tahap 5</span>
+                    <h3 class="font-title-lg text-title-lg font-bold text-primary">Poin & Laporan oleh Admin</h3>
+                    <p class="text-body-md text-body-md text-on-surface-variant mt-1">Setelah SPK disetujui, admin menambahkan poin prestasi dan mengelola laporan prestasi mahasiswa.</p>
+                </div>
             </div>
         </div>
     </div>
