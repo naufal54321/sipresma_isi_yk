@@ -389,7 +389,7 @@
             {{-- Step 5 --}}
             <div class="relative pl-12 md:pl-16">
                 <div class="absolute left-0 top-1 w-9 h-9 rounded-full bg-primary-container text-primary flex items-center justify-center shadow-lg shadow-primary/20 z-10">
-                    <span class="material-symbols-outlined text-lg">rewarded_medals</span>
+                    <span class="material-symbols-outlined text-lg">workspace_premium</span>
                 </div>
                 <div>
                     <span class="inline-block py-0.5 px-2 rounded-full bg-secondary-fixed/30 text-on-secondary-container font-label-md text-[11px] mb-1">Tahap 5</span>
