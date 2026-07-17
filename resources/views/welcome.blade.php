@@ -10,6 +10,26 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Montserrat:wght@600;700;900&amp;display=swap" rel="stylesheet"/>
+    <script>
+    // ═══ HERO CAROUSEL — harus sebelum Alpine CDN ═══
+    @php
+        $dashUrl = url('/dashboard');
+        $loginUrl = route('login');
+        $registerUrl = route('register');
+        $isAuth = auth()->check();
+    @endphp
+    window.heroCarousel = function() {
+        return {
+            active: 0, timer: null,
+            init() { this.startTimer(); },
+            startTimer() { this.timer = setInterval(() => { this.next(); }, 5000); },
+            stopTimer() { clearInterval(this.timer); },
+            next() { this.active = (this.active + 1) % 3; this.stopTimer(); this.startTimer(); },
+            prev() { this.active = (this.active - 1 + 3) % 3; this.stopTimer(); this.startTimer(); },
+            goTo(i) { this.active = i; this.stopTimer(); this.startTimer(); },
+        };
+    };
+    </script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -116,13 +136,13 @@
             <span class="font-title-lg text-title-lg font-bold text-primary dark:text-primary-fixed hidden sm:block">PRATAMA</span>
         </div>
         <div class="hidden md:flex gap-6 items-center">
-            <a class="text-secondary font-bold border-b-2 border-secondary pb-1 transition-colors hover:opacity-80" href="#">Beranda</a>
-            <a class="text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#tentang">Tentang</a>
-            <a class="text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#fitur">Fitur</a>
-            <a class="text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#alur">Alur</a>
-            <a class="text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#prestasi">Prestasi</a>
-            <a class="text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#statistik">Statistik</a>
-            <a class="text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#kontak">Kontak</a>
+            <a class="nav-link text-secondary font-bold border-b-2 border-secondary pb-1 transition-colors hover:opacity-80" href="#" data-target="hero">Beranda</a>
+            <a class="nav-link text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#tentang" data-target="tentang">Tentang</a>
+            <a class="nav-link text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#fitur" data-target="fitur">Fitur</a>
+            <a class="nav-link text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#alur" data-target="alur">Alur</a>
+            <a class="nav-link text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#prestasi" data-target="prestasi">Prestasi</a>
+            <a class="nav-link text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#statistik" data-target="statistik">Statistik</a>
+            <a class="nav-link text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors hover:opacity-80" href="#kontak" data-target="kontak">Kontak</a>
         </div>
         <div class="flex gap-3">
             @auth
@@ -138,54 +158,98 @@
 </nav>
 
 <!-- Hero Carousel -->
-<header class="relative h-screen min-h-[600px] max-h-[900px] overflow-hidden bg-primary group" id="heroCarousel"
-        x-data="heroCarousel()" x-init="init()">
+@php
+    $dashUrl = url('/dashboard');
+    $loginUrl = route('login');
+    $registerUrl = route('register');
+    $isAuth = auth()->check();
+@endphp
+<div x-data="heroCarousel()" x-init="init()" 
+     class="relative h-screen min-h-[600px] max-h-[900px] overflow-hidden bg-primary group" id="heroCarousel">
     
-    {{-- Slides --}}
-    <template x-for="(slide, i) in slides" :key="i">
-        <div class="absolute inset-0 transition-all duration-700 ease-in-out"
-             :class="active === i ? 'opacity-100 z-10' : 'opacity-0 z-0'">
-            
-            {{-- Background image --}}
-            <img :src="slide.image" :alt="slide.alt" class="w-full h-full object-cover" loading="lazy">
-            
-            {{-- Gradient overlay --}}
-            <div class="absolute inset-0 bg-gradient-to-r from-primary/85 via-primary/60 to-primary/30"></div>
-            
-            {{-- Content --}}
-            <div class="absolute inset-0 flex items-center justify-center">
-                <div class="text-center text-white max-w-4xl mx-auto px-4 md:px-8 -mt-16">
-                    <span class="inline-block py-1 px-4 rounded-full bg-white/15 text-white font-label-md text-label-md mb-6 border border-white/20 backdrop-blur-sm"
-                          x-text="slide.badge"></span>
-                    <h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-white max-w-4xl mx-auto mb-6 leading-tight"
-                        x-html="slide.title"></h1>
-                    <p class="font-body-lg text-body-lg text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed"
-                       x-text="slide.desc"></p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                        <a :href="slide.btnUrl" 
-                           class="btn-primary px-8 py-3.5 rounded-full font-label-md text-label-md flex items-center gap-2 w-full sm:w-auto justify-center shadow-lg shadow-black/10">
-                            <span x-text="slide.btnText"></span>
-                            <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+    {{-- Slide 1 --}}
+    <div class="absolute inset-0 transition-all duration-700 ease-in-out"
+         :class="active === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'">
+        <img src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=1600&q=80" alt="PRATAMA" class="w-full h-full object-cover" loading="lazy">
+        <div class="absolute inset-0 bg-gradient-to-r from-primary/85 via-primary/60 to-primary/30"></div>
+        <div class="absolute inset-0 flex items-center justify-center">
+            <div class="text-center text-white max-w-4xl mx-auto px-4 md:px-8 -mt-16">
+                <span class="inline-block py-1 px-4 rounded-full bg-white/15 text-white font-label-md text-label-md mb-6 border border-white/20 backdrop-blur-sm">Institut Seni Indonesia Yogyakarta</span>
+                <h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-white max-w-4xl mx-auto mb-6 leading-tight">
+                    Prestasi dan <span class="text-gradient-gold">Talenta Mahasiswa</span>
+                </h1>
+                <p class="font-body-lg text-body-lg text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
+                    Platform digital resmi Institut Seni Indonesia Yogyakarta untuk mendokumentasikan, mengelola, dan mengembangkan prestasi serta talenta mahasiswa secara profesional.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    @if($isAuth)
+                        <a href="{{ $dashUrl }}" class="btn-primary px-8 py-3.5 rounded-full font-label-md text-label-md flex items-center gap-2 w-full sm:w-auto justify-center shadow-lg shadow-black/10">
+                            Dashboard <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
                         </a>
-                        <template x-if="slide.btn2Text">
-                            <a :href="slide.btn2Url"
-                               class="px-8 py-3.5 rounded-full font-label-md text-label-md w-full sm:w-auto justify-center text-center border-2 border-white/40 text-white hover:bg-white/10 transition-all">
-                                <span x-text="slide.btn2Text"></span>
-                            </a>
-                        </template>
-                    </div>
+                    @else
+                        <a href="{{ $loginUrl }}" class="btn-primary px-8 py-3.5 rounded-full font-label-md text-label-md flex items-center gap-2 w-full sm:w-auto justify-center shadow-lg shadow-black/10">
+                            Jelajahi Prestasi <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+                        </a>
+                        <a href="{{ $registerUrl }}" class="px-8 py-3.5 rounded-full font-label-md text-label-md w-full sm:w-auto justify-center text-center border-2 border-white/40 text-white hover:bg-white/10 transition-all">
+                            Daftar Sekarang
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>
-    </template>
+    </div>
+
+    {{-- Slide 2 --}}
+    <div class="absolute inset-0 transition-all duration-700 ease-in-out"
+         :class="active === 1 ? 'opacity-100 z-10' : 'opacity-0 z-0'">
+        <img src="https://images.unsplash.com/photo-1523050854058-8df90110c7f1?w=1600&q=80" alt="Mahasiswa" class="w-full h-full object-cover" loading="lazy">
+        <div class="absolute inset-0 bg-gradient-to-r from-primary/85 via-primary/60 to-primary/30"></div>
+        <div class="absolute inset-0 flex items-center justify-center">
+            <div class="text-center text-white max-w-4xl mx-auto px-4 md:px-8 -mt-16">
+                <span class="inline-block py-1 px-4 rounded-full bg-white/15 text-white font-label-md text-label-md mb-6 border border-white/20 backdrop-blur-sm">Dokumentasi Prestasi</span>
+                <h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-white max-w-4xl mx-auto mb-6 leading-tight">
+                    Catat Setiap <span class="text-gradient-gold">Pencapaian</span>
+                </h1>
+                <p class="font-body-lg text-body-lg text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
+                    Dari lomba seni, pameran karya, hingga penelitian — semua prestasi terdokumentasi rapi dalam satu platform.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <a href="{{ $isAuth ? $dashUrl : $registerUrl }}" class="btn-primary px-8 py-3.5 rounded-full font-label-md text-label-md flex items-center gap-2 w-full sm:w-auto justify-center shadow-lg shadow-black/10">
+                        {{ $isAuth ? "Dashboard" : "Mulai Sekarang" }} <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Slide 3 --}}
+    <div class="absolute inset-0 transition-all duration-700 ease-in-out"
+         :class="active === 2 ? 'opacity-100 z-10' : 'opacity-0 z-0'">
+        <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1600&q=80" alt="Kegiatan Akademik" class="w-full h-full object-cover" loading="lazy">
+        <div class="absolute inset-0 bg-gradient-to-r from-primary/85 via-primary/60 to-primary/30"></div>
+        <div class="absolute inset-0 flex items-center justify-center">
+            <div class="text-center text-white max-w-4xl mx-auto px-4 md:px-8 -mt-16">
+                <span class="inline-block py-1 px-4 rounded-full bg-white/15 text-white font-label-md text-label-md mb-6 border border-white/20 backdrop-blur-sm">Validasi Terpadu</span>
+                <h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-white max-w-4xl mx-auto mb-6 leading-tight">
+                    Verifikasi oleh <span class="text-gradient-gold">Dosen & Admin</span>
+                </h1>
+                <p class="font-body-lg text-body-lg text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
+                    Sistem validasi berjenjang memastikan setiap data prestasi yang diajukan telah diperiksa dan disahkan dengan benar.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <a href="{{ $isAuth ? $dashUrl : '#tentang' }}" class="btn-primary px-8 py-3.5 rounded-full font-label-md text-label-md flex items-center gap-2 w-full sm:w-auto justify-center shadow-lg shadow-black/10">
+                        {{ $isAuth ? "Dashboard" : "Pelajari Lebih Lanjut" }} <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
     {{-- Navigation dots --}}
     <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-3">
-        <template x-for="(slide, i) in slides" :key="i">
-            <button @click="goTo(i)"
-                    :class="active === i ? 'w-10 bg-white' : 'w-3 bg-white/50 hover:bg-white/70'"
-                    class="h-3 rounded-full transition-all duration-500 cursor-pointer"></button>
-        </template>
+        <button @click="goTo(0)" :class="active === 0 ? 'w-10 bg-white' : 'w-3 bg-white/50 hover:bg-white/70'" class="h-3 rounded-full transition-all duration-500 cursor-pointer"></button>
+        <button @click="goTo(1)" :class="active === 1 ? 'w-10 bg-white' : 'w-3 bg-white/50 hover:bg-white/70'" class="h-3 rounded-full transition-all duration-500 cursor-pointer"></button>
+        <button @click="goTo(2)" :class="active === 2 ? 'w-10 bg-white' : 'w-3 bg-white/50 hover:bg-white/70'" class="h-3 rounded-full transition-all duration-500 cursor-pointer"></button>
     </div>
 
     {{-- Arrow buttons --}}
@@ -195,7 +259,7 @@
     <button @click="next()" class="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-all cursor-pointer opacity-0 group-hover:opacity-100">
         <span class="material-symbols-outlined text-[28px]">chevron_right</span>
     </button>
-</header>
+</div>
 
 <!-- Content Area -->
 <main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-8 flex-1 w-full">
@@ -480,67 +544,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // ═══ HERO CAROUSEL COMPONENT ═══
-    @php
-        $dashUrl = url('/dashboard');
-        $loginUrl = route('login');
-        $registerUrl = route('register');
-        $isAuth = auth()->check();
-    @endphp
-    window.heroCarousel = function() {
-        return {
-            active: 0,
-            slides: [
-                {
-                    image: 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=1600&q=80',
-                    alt: 'PRATAMA ISI Yogyakarta',
-                    badge: 'Institut Seni Indonesia Yogyakarta',
-                    title: 'Prestasi dan <span class="text-gradient-gold">Talenta Mahasiswa</span>',
-                    desc: 'Platform digital resmi Institut Seni Indonesia Yogyakarta untuk mendokumentasikan, mengelola, dan mengembangkan prestasi serta talenta mahasiswa secara profesional.',
-                    @if($isAuth)
-                        btnText: 'Dashboard',
-                        btnUrl: '{{ $dashUrl }}',
-                        btn2Text: null,
-                        btn2Url: null,
-                    @else
-                        btnText: 'Jelajahi Prestasi',
-                        btnUrl: '{{ $loginUrl }}',
-                        btn2Text: 'Daftar Sekarang',
-                        btn2Url: '{{ $registerUrl }}',
-                    @endif
-                },
-                {
-                    image: 'https://images.unsplash.com/photo-1523050854058-8df90110c7f1?w=1600&q=80',
-                    alt: 'Mahasiswa ISI Yogyakarta',
-                    badge: 'Dokumentasi Prestasi',
-                    title: 'Catat Setiap <span class="text-gradient-gold">Pencapaian</span>',
-                    desc: 'Dari lomba seni, pameran karya, hingga penelitian — semua prestasi terdokumentasi rapi dalam satu platform.',
-                    btnText: '{{ $isAuth ? "Dashboard" : "Mulai Sekarang" }}',
-                    btnUrl: '{{ $isAuth ? $dashUrl : $registerUrl }}',
-                    btn2Text: null,
-                    btn2Url: null,
-                },
-                {
-                    image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1600&q=80',
-                    alt: 'Kegiatan Akademik',
-                    badge: 'Validasi Terpadu',
-                    title: 'Verifikasi oleh <span class="text-gradient-gold">Dosen & Admin</span>',
-                    desc: 'Sistem validasi berjenjang memastikan setiap data prestasi yang diajukan telah diperiksa dan disahkan dengan benar.',
-                    btnText: '{{ $isAuth ? "Dashboard" : "Pelajari Lebih Lanjut" }}',
-                    btnUrl: '{{ $isAuth ? $dashUrl : "#tentang" }}',
-                    btn2Text: null,
-                    btn2Url: null,
-                },
-            ],
-            timer: null,
-            init() { this.startTimer(); },
-            startTimer() { this.timer = setInterval(() => { this.next(); }, 5000); },
-            stopTimer() { clearInterval(this.timer); },
-            next() { this.active = (this.active + 1) % this.slides.length; this.stopTimer(); this.startTimer(); },
-            prev() { this.active = (this.active - 1 + this.slides.length) % this.slides.length; this.stopTimer(); this.startTimer(); },
-            goTo(i) { this.active = i; this.stopTimer(); this.startTimer(); },
-        };
-    };
     // ═══ ALPINE CAROUSEL COMPONENT ═══
     window.carousel = function() {
         return {
@@ -566,8 +569,8 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     // ═══ NAVBAR SCROLL EFFECT ═══
+    const navbar = document.getElementById('navbar');
     window.addEventListener('scroll', () => {
-        const navbar = document.getElementById('navbar');
         if (window.scrollY > 20) {
             navbar.classList.add('bg-white/90', 'shadow-sm');
             navbar.classList.remove('bg-transparent');
@@ -576,6 +579,30 @@ document.addEventListener('DOMContentLoaded', function() {
             navbar.classList.add('bg-transparent');
         }
     });
+
+    // ═══ NAVBAR ACTIVE LINK ═══
+    const sections = document.querySelectorAll('section[id], main [id]');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const activeClass = 'text-secondary font-bold border-b-2 border-secondary pb-1';
+    const inactiveClass = 'text-primary dark:text-primary-fixed-dim';
+
+    function updateActiveLink() {
+        let current = 'hero';
+        sections.forEach(section => {
+            const top = section.getBoundingClientRect().top;
+            if (top <= 200) current = section.id;
+        });
+        navLinks.forEach(link => {
+            const target = link.dataset.target;
+            if (target === current) {
+                link.className = `nav-link ${activeClass} transition-colors hover:opacity-80`;
+            } else {
+                link.className = `nav-link ${inactiveClass} hover:text-secondary transition-colors hover:opacity-80`;
+            }
+        });
+    }
+    window.addEventListener('scroll', updateActiveLink);
+    updateActiveLink();
 
     // ═══ CHART.JS ═══
     const cp = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#0ea5e9', '#14b8a6'];
