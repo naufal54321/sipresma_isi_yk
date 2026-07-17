@@ -132,7 +132,7 @@
 <nav class="fixed top-0 w-full z-50 bg-transparent backdrop-blur-xl border-b border-white/20 transition-all duration-300" id="navbar">
     <div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
         <div class="flex items-center gap-3">
-            <img src="{{ asset('images/logo_isi_welcome.png') }}" alt="PRATAMA Logo" class="h-10 w-10 object-contain rounded-md">
+            <img src="{{ asset('images/logo_isi_dashboard.png') }}" alt="PRATAMA Logo" class="h-10 w-10 object-contain rounded-md">
             <span class="navbar-logo-text font-title-lg text-title-lg font-bold text-white hidden sm:block">PRATAMA</span>
         </div>
         <div class="hidden md:flex gap-6 items-center">
@@ -311,7 +311,7 @@
             @php
             $fitur = [
                 ['icon' => 'description', 'title' => 'RPK', 'desc' => 'Rencana Prestasi Kemahasiswaan — catat rencana kegiatan semester'],
-                ['icon' => 'verified', 'title' => 'SPK', 'desc' => 'Sertifikat Prestasi Kegiatan — upload bukti prestasi dan sertifikat'],
+                ['icon' => 'verified', 'title' => 'SPK', 'desc' => 'Satuan Prestasi Kemahasiswan — upload bukti prestasi dan sertifikat'],
                 ['icon' => 'upload_file', 'title' => 'Upload Dokumen', 'desc' => 'Upload PDF, JPG, PNG — surat tugas, sertifikat, foto, laporan'],
                 ['icon' => 'groups', 'title' => 'Kolaborasi Tim', 'desc' => 'Tambah anggota kelompok untuk kegiatan kategori kelompok'],
                 ['icon' => 'shield', 'title' => 'Validasi Berjenjang', 'desc' => 'Verifikasi oleh dosen pembimbing dan admin'],
@@ -331,52 +331,52 @@
     </section>
 
     {{-- ═══ 3. ALUR ═══ --}}
-    <section id="alur" class="scroll-mt-20 mb-12 animate-on-scroll" style="transition-delay: 0.2s">
-        <div class="text-center mb-8">
-            <span class="inline-block py-1 px-3 rounded-full bg-secondary-fixed/30 text-on-secondary-container font-label-md text-label-md mb-4">Bagaimana Alurnya</span>
-            <h2 class="font-display-lg-mobile md:font-headline-md text-headline-md text-primary">Alur <span class="text-gradient">Penggunaan</span></h2>
-        </div>
-        <div class="modern-card p-8 md:p-10">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-4">
-                <div class="text-center flex-1">
-                    <div class="w-20 h-20 rounded-2xl bg-primary text-on-primary flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/20">
-                        <span class="material-symbols-outlined text-[40px]">person</span>
-                    </div>
-                    <span class="inline-block py-0.5 px-2 rounded-full bg-secondary-fixed/40 text-on-secondary-container font-label-md text-[11px] mb-2">Langkah 1</span>
-                    <h3 class="font-title-lg text-title-lg font-bold text-primary">Mahasiswa</h3>
-                    <p class="text-body-md text-body-md text-on-surface-variant mt-1">Buat RPK & SPK, upload dokumen prestasi</p>
+<section id="alur" class="scroll-mt-20 mb-12 animate-on-scroll" style="transition-delay: 0.2s">
+    <div class="text-center mb-8">
+        <span class="inline-block py-1 px-3 rounded-full bg-secondary-fixed/30 text-on-secondary-container font-label-md text-label-md mb-4">Bagaimana Alurnya</span>
+        <h2 class="font-display-lg-mobile md:font-headline-md text-headline-md text-primary">Alur <span class="text-gradient">Penggunaan</span></h2>
+    </div>
+    <div class="modern-card p-8 md:p-10">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-4">
+            <div class="text-center flex-1">
+                <div class="w-20 h-20 rounded-2xl bg-primary text-on-primary flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/20">
+                    <span class="material-symbols-outlined text-[40px]">person</span>
                 </div>
-                <div class="hidden md:block">
-                    <span class="material-symbols-outlined text-4xl text-secondary">arrow_forward</span>
+                <span class="inline-block py-0.5 px-2 rounded-full bg-secondary-fixed/40 text-on-secondary-container font-label-md text-[11px] mb-2">Langkah 1</span>
+                <h3 class="font-title-lg text-title-lg font-bold text-primary">Mahasiswa</h3>
+                <p class="text-body-md text-body-md text-on-surface-variant mt-1">Buat RPK & SPK, upload dokumen prestasi</p>
+            </div>
+            <div class="hidden md:block">
+                <span class="material-symbols-outlined text-4xl text-secondary">arrow_forward</span>
+            </div>
+            <div class="md:hidden">
+                <span class="material-symbols-outlined text-3xl text-secondary rotate-90 block">arrow_forward</span>
+            </div>
+            <div class="text-center flex-1">
+                <div class="w-20 h-20 rounded-2xl bg-primary text-on-primary flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/20">
+                    <span class="material-symbols-outlined text-[40px]">school</span>
                 </div>
-                <div class="md:hidden">
-                    <span class="material-symbols-outlined text-3xl text-secondary rotate-90 block">arrow_forward</span>
+                <span class="inline-block py-0.5 px-2 rounded-full bg-secondary-fixed/40 text-on-secondary-container font-label-md text-[11px] mb-2">Langkah 2</span>
+                <h3 class="font-title-lg text-title-lg font-bold text-primary">Dosen</h3>
+                <p class="text-body-md text-body-md text-on-surface-variant mt-1">Verifikasi dan validasi RPK & SPK mahasiswa bimbingan</p>
+            </div>
+            <div class="hidden md:block">
+                <span class="material-symbols-outlined text-4xl text-secondary">arrow_forward</span>
+            </div>
+            <div class="md:hidden">
+                <span class="material-symbols-outlined text-3xl text-secondary rotate-90 block">arrow_forward</span>
+            </div>
+            <div class="text-center flex-1">
+                <div class="w-20 h-20 rounded-2xl bg-primary text-on-primary flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/20">
+                    <span class="material-symbols-outlined text-[40px]">admin_panel_settings</span>
                 </div>
-                <div class="text-center flex-1">
-                    <div class="w-20 h-20 rounded-2xl bg-secondary text-on-secondary flex items-center justify-center mx-auto mb-4 shadow-lg shadow-secondary/20">
-                        <span class="material-symbols-outlined text-[40px]">school</span>
-                    </div>
-                    <span class="inline-block py-0.5 px-2 rounded-full bg-secondary-fixed/40 text-on-secondary-container font-label-md text-[11px] mb-2">Langkah 2</span>
-                    <h3 class="font-title-lg text-title-lg font-bold text-primary">Dosen</h3>
-                    <p class="text-body-md text-body-md text-on-surface-variant mt-1">Verifikasi dan validasi RPK & SPK mahasiswa bimbingan</p>
-                </div>
-                <div class="hidden md:block">
-                    <span class="material-symbols-outlined text-4xl text-secondary">arrow_forward</span>
-                </div>
-                <div class="md:hidden">
-                    <span class="material-symbols-outlined text-3xl text-secondary rotate-90 block">arrow_forward</span>
-                </div>
-                <div class="text-center flex-1">
-                    <div class="w-20 h-20 rounded-2xl bg-primary-container text-primary flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/20">
-                        <span class="material-symbols-outlined text-[40px]">admin_panel_settings</span>
-                    </div>
-                    <span class="inline-block py-0.5 px-2 rounded-full bg-secondary-fixed/40 text-on-secondary-container font-label-md text-[11px] mb-2">Langkah 3</span>
-                    <h3 class="font-title-lg text-title-lg font-bold text-primary">Admin</h3>
-                    <p class="text-body-md text-body-md text-on-surface-variant mt-1">Kelola master data, poin, dan laporan prestasi</p>
-                </div>
+                <span class="inline-block py-0.5 px-2 rounded-full bg-secondary-fixed/40 text-on-secondary-container font-label-md text-[11px] mb-2">Langkah 3</span>
+                <h3 class="font-title-lg text-title-lg font-bold text-primary">Admin</h3>
+                <p class="text-body-md text-body-md text-on-surface-variant mt-1">Kelola master data, poin, dan laporan prestasi</p>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
     
 
@@ -393,9 +393,9 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
                 @php
                 $cards = [
-                    ['label' => 'Total Mahasiswa', 'value' => number_format($totalMahasiswa, 0, ',', '.'), 'raw' => $totalMahasiswa, 'color' => 'blue', 'icon' => 'fa-users', 'delay' => '0.1s'],
-                    ['label' => 'SPK (Draft / Disetujui)', 'value' => $spkDraft . ' / ' . $spkDisetujui, 'raw' => null, 'color' => 'orange', 'icon' => 'fa-medal', 'delay' => '0.2s'],
-                    ['label' => 'Mahasiswa Berprestasi', 'value' => number_format($mahasiswaBerprestasi, 0, ',', '.'), 'raw' => $mahasiswaBerprestasi, 'color' => 'purple', 'icon' => 'fa-trophy', 'delay' => '0.3s'],
+                    ['label' => 'Total Mahasiswa', 'value' => number_format($totalMahasiswa, 0, ',', '.'), 'raw' => $totalMahasiswa, 'color' => 'blue', 'icon' => 'group', 'delay' => '0.1s'],
+                    ['label' => 'SPK (Draft / Disetujui)', 'value' => $spkDraft . ' / ' . $spkDisetujui, 'raw' => null, 'color' => 'orange', 'icon' => 'emoji_events', 'delay' => '0.2s'],
+                    ['label' => 'Mahasiswa Berprestasi', 'value' => number_format($mahasiswaBerprestasi, 0, ',', '.'), 'raw' => $mahasiswaBerprestasi, 'color' => 'purple', 'icon' => 'workspace_premium', 'delay' => '0.3s'],
                 ];
                 @endphp
                 @foreach($cards as $card)
@@ -404,8 +404,8 @@
                         <p class="text-on-surface-variant text-[11px] font-bold mb-1 uppercase tracking-widest">{{ $card['label'] }}</p>
                         <p class="text-4xl font-extrabold text-primary transition-colors mt-1 counter-value" @if($card['raw']) data-value="{{ $card['raw'] }}" @endif>{{ $card['value'] }}</p>
                     </div>
-                    <div class="bg-gradient-to-br from-primary-fixed/30 to-secondary-fixed/20 text-primary w-16 h-16 rounded-2xl flex items-center justify-center text-2xl shadow-inner shrink-0 group-hover:scale-110 group-hover:rotate-12 transition-transform">
-                        <i class="fas {{ $card['icon'] }}"></i>
+                    <div class="bg-gradient-to-br from-primary-fixed/30 to-secondary-fixed/20 text-primary w-16 h-16 rounded-2xl flex items-center justify-center shadow-inner shrink-0 group-hover:scale-110 group-hover:rotate-12 transition-transform">
+                        <span class="material-symbols-outlined text-[32px]">{{ $card['icon'] }}</span>
                     </div>
                 </div>
                 @endforeach
