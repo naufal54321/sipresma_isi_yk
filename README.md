@@ -1,5 +1,5 @@
 
-# SIPRESMA - Sistem Informasi Prestasi Mahasiswa
+# PRATAMA - Prestasi dan Talenta Mahasiswa
 
 <div align="center">
 
@@ -18,7 +18,7 @@
 
 ## 📖 Tentang
 
-**SIPRESMA** (Sistem Informasi Prestasi Mahasiswa) adalah platform digital yang dikembangkan untuk **Institut Seni Indonesia Yogyakarta** guna mengelola dan memonitor prestasi mahasiswa secara terintegrasi. Sistem ini memfasilitasi mahasiswa dalam mengajukan Rencana Prestasi Kegiatan (RPK) dan Sertifikat Prestasi Kegiatan (SPK), serta memudahkan Dosen Pembimbing dan Admin dalam melakukan verifikasi, validasi, dan monitoring.
+**PRATAMA** (Prestasi dan Talenta Mahasiswa) adalah platform digital yang dikembangkan untuk **Institut Seni Indonesia Yogyakarta** guna mengelola dan memonitor prestasi mahasiswa secara terintegrasi. Sistem ini memfasilitasi mahasiswa dalam mengajukan Rencana Prestasi Kegiatan (RPK) dan Sertifikat Prestasi Kegiatan (SPK), serta memudahkan Dosen Pembimbing dan Admin dalam melakukan verifikasi, validasi, dan monitoring.
 
 ---
 
