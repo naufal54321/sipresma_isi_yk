@@ -51,10 +51,6 @@ class DashboardController extends Controller
 
         $dosenPembimbing = $user->dosenPembimbing;
 
-        $rpkAnggota = Rpk::whereHas('kegiatans.anggota', function ($q) use ($user) {
-            $q->where('user_id', $user->id);
-        })->where('user_id', '!=', $user->id)->latest()->get();
-
         $stats = $this->dashboardService->getMahasiswaStats($user->id);
         $tingkat = $this->dashboardService->getMahasiswaTingkatChart($user->id);
         $kategori = $this->dashboardService->getMahasiswaKategoriChart($user->id);
@@ -62,7 +58,7 @@ class DashboardController extends Controller
         $kegiatanTerbaru = $this->dashboardService->getMahasiswaKegiatanTerbaru($user->id);
 
         return view('dashboard.mahasiswa', array_merge(
-            compact('dosenPembimbing', 'rpkAnggota', 'kegiatanTerbaru'),
+            compact('dosenPembimbing', 'kegiatanTerbaru'),
             $stats, $tingkat, $kategori, $bulanan
         ));
     }

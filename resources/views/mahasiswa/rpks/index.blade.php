@@ -58,7 +58,7 @@
         </div>
 
         {{-- Tabel --}}
-        <div class="bg-white shadow-sm border border-gray-200 rounded-2xl overflow-hidden">
+        <div class="bg-white shadow-sm border border-gray-200 rounded-2xl overflow-x-auto">
             <table class="w-full text-sm text-left text-gray-600">
                 <thead class="bg-gray-50 uppercase text-xs tracking-wider border-b border-gray-200">
                     <tr>
@@ -142,28 +142,6 @@
 
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-@if(session('success'))
-<script>
-Swal.fire({
-    icon: 'success', title: 'Berhasil', text: '{{ session("success") }}',
-    timer: 2500, showConfirmButton: false, toast: true, position: 'top-end'
-});
-</script>
-@endif
-
-@if($errors->any())
-<script>
-Swal.fire({
-    icon: 'error', title: 'Gagal Menyimpan!',
-    html: `<ul style="text-align: left; color: #dc2626; font-size: 14px;">
-        @foreach ($errors->all() as $error) <li>- {{ $error }}</li> @endforeach
-    </ul>`,
-});
-</script>
-@endif
 
 <script>
 // ⚡ TAMBAH RPK (FULL AJAX)

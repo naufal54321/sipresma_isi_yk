@@ -32,7 +32,7 @@
 
             <button
                 type="button"
-                onclick="hapusProdi({{ $prodi->id }}, '{{ addslashes($prodi->nama_prodi) }}')"
+                onclick="hapusProdi({{ $prodi->id }}, @json($prodi->nama_prodi))"
                 title="Hapus Program Studi"
                 class="flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-500 text-white rounded-lg transition shadow-sm">
                 <i class="fas fa-trash"></i>

@@ -30,7 +30,7 @@ class MasterKegiatanController extends Controller
 
     public function create()
     {
-        return view('admin.kegiatan.create');
+        return redirect()->route('admin.kegiatan.index')->with('error', 'Fitur tambah kegiatan belum tersedia.');
     }
 
     public function store(Request $request)

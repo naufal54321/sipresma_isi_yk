@@ -22,25 +22,29 @@
 
 <nav id="sidebar-nav"
      x-data="{ 
-        collapsed: {{ $sidebarCollapsed ? 'true' : 'false' }}, 
-        siapAnimasi: false 
+         collapsed: {{ $sidebarCollapsed ? 'true' : 'false' }}, 
+         siapAnimasi: false,
+         mobileOpen: false
      }" 
      x-init="
-        $watch('collapsed', val => {
-            localStorage.setItem('sidebarState', val);
-            document.cookie = 'sidebar_collapsed=' + (val ? '1' : '0') + ';path=/;max-age=31536000;SameSite=Lax';
-            window.dispatchEvent(new CustomEvent('sidebar-toggle', { detail: val }));
-        });
-        window.addEventListener('sidebar-ready', () => {
-            siapAnimasi = true;
-            window.dispatchEvent(new CustomEvent('sidebar-toggle', { detail: collapsed }));
-        });
+         $watch('collapsed', val => {
+             localStorage.setItem('sidebarState', val);
+             document.cookie = 'sidebar_collapsed=' + (val ? '1' : '0') + ';path=/;max-age=31536000;SameSite=Lax';
+             window.dispatchEvent(new CustomEvent('sidebar-toggle', { detail: val }));
+         });
+         window.addEventListener('sidebar-ready', () => {
+             siapAnimasi = true;
+             window.dispatchEvent(new CustomEvent('sidebar-toggle', { detail: collapsed }));
+         });
+         window.addEventListener('sidebar-mobile-toggle', () => { collapsed = false; mobileOpen = true; });
+         window.addEventListener('sidebar-mobile-close', () => { mobileOpen = false; });
      "
      x-cloak
-     class="fixed top-0 left-0 z-50 bottom-0 bg-slate-900 text-slate-300 shadow-2xl flex flex-col font-sans w-64 transition-[width] duration-300 ease-in-out"
+     class="fixed top-0 left-0 z-50 bottom-0 bg-slate-900 text-slate-300 shadow-2xl flex flex-col font-sans w-64 transition-[width,transform] duration-300 ease-in-out -translate-x-full lg:translate-x-0"
      :class="{
          'w-20': collapsed,
          'w-64': !collapsed,
+         'translate-x-0': mobileOpen,
          'transition-none': !siapAnimasi
      }">
 
@@ -52,7 +56,7 @@
              'transition-all duration-300': siapAnimasi
          }">
         
-        <img src="{{ asset('images/logo_isi_dashboard.png') }}" class="w-11 h-11 object-contain shrink-0" alt="Logo">
+        <img src="{{ asset('images/logo_isi_dashboard.png') }}" class="w-11 h-11 object-contain shrink-0" alt="Logo" loading="lazy">
         
         <div x-show="!collapsed" class="whitespace-nowrap overflow-hidden">
             <h1 class="text-lg font-bold text-white tracking-tight leading-tight">PRATAMA</h1>
@@ -64,7 +68,7 @@
             $dispatch('sidebar-toggle', collapsed);
             window.dispatchEvent(new CustomEvent('sidebar-toggle', { detail: collapsed }));
         " 
-                class="absolute -right-3.5 top-6 bg-slate-800 border border-slate-700 hover:bg-blue-600 hover:text-white hover:border-blue-500 text-slate-400 rounded-full p-1 z-50 transition-all duration-300 shadow-lg cursor-pointer">
+                class="absolute -right-3.5 top-6 bg-slate-800 border border-slate-700 hover:bg-blue-600 hover:text-white hover:border-blue-500 text-slate-400 rounded-full p-1 z-50 transition-all duration-300 shadow-lg cursor-pointer hidden lg:block">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transform transition-transform duration-300" :class="collapsed ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
@@ -102,7 +106,7 @@
     {{-- Menu --}}
     <div class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden py-5 px-3 space-y-1.5 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
 
-        <p x-show="!collapsed" class="px-3 mb-3 text-[11px] text-slate-500 uppercase tracking-wider font-bold whitespace-nowrap">Menu Utama</p>
+        <p x-show="!collapsed" class="px-3 mb-3 text-[11px] text-slate-400 uppercase tracking-wider font-bold whitespace-nowrap">Menu Utama</p>
         <p x-show="collapsed" class="text-center mb-3 text-[10px] text-slate-600 font-bold hidden md:block"><i class="fas fa-ellipsis-h"></i></p>
 
         {{-- Dashboard --}}
@@ -274,7 +278,7 @@
                 } else { 
                     open = !open; 
                 }
-            " title="Validasi"
+            " title="Verifikasi"
                     class="flex items-center w-full rounded-xl transform ease-out active:scale-95 {{ request()->routeIs('dosen.rpk.*', 'dosen.spk.*') ? 'bg-slate-800/50 text-blue-400 font-semibold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"
                     :class="{
                         'justify-center p-3': collapsed,
@@ -292,7 +296,7 @@
                             </span>
                         @endif
                     </div>
-                    <span x-show="!collapsed" class="font-medium text-sm whitespace-nowrap">Validasi</span>
+                    <span x-show="!collapsed" class="font-medium text-sm whitespace-nowrap">Verifikasi</span>
                 </div>
                 <svg x-show="!collapsed" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transform transition-transform duration-300" :class="open ? 'rotate-180 text-blue-400' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
@@ -374,7 +378,7 @@
             </svg>
             <div x-show="!collapsed" class="min-w-0">
                 <span class="font-medium text-sm whitespace-nowrap block">RPK</span>
-                <span class="text-[11px] text-slate-500 block leading-tight">Rencana Prestasi Kemahasiswaan</span>
+                <span class="text-[10px] text-slate-500 block leading-tight">Rencana Prestasi Kemahasiswaan</span>
             </div>
         </a>
 
@@ -390,7 +394,7 @@
             </svg>
             <div x-show="!collapsed" class="min-w-0">
                 <span class="font-medium text-sm whitespace-nowrap block">SPK</span>
-                <span class="text-[11px] text-slate-500 block leading-tight">Satuan Prestasi Kemahasiswaan</span>
+                <span class="text-[10px] text-slate-500 block leading-tight">Satuan Prestasi Kemahasiswaan</span>
             </div>
         </a>
         @endrole
@@ -419,5 +423,10 @@
             </form>
         </div>
 
+    </div>
+
+    {{-- Backdrop mobile --}}
+    <div x-show="mobileOpen" @click="window.dispatchEvent(new Event('sidebar-mobile-close'))"
+         class="fixed inset-0 -z-10 bg-black/50 lg:hidden">
     </div>
 </nav>

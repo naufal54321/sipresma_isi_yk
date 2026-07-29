@@ -14,38 +14,29 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-            <a href="{{ route('admin.rpk.index') }}"
-               class="inline-flex items-center justify-center gap-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-4 py-2.5 rounded-xl text-sm font-bold shadow-sm transition flex-1 md:flex-none">
-                <i class="fas fa-arrow-left text-xs"></i> Kembali
-            </a>
+    <a href="{{ route('admin.rpk.index') }}"
+       class="inline-flex items-center justify-center gap-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-4 py-2.5 rounded-xl text-sm font-bold shadow-sm transition flex-1 md:flex-none">
+        <i class="fas fa-arrow-left text-xs"></i> Kembali
+    </a>
 
-            @if($rpk->status == 'draft')
-                <button onclick="approveKegiatan({{ $rpk->id }})"
-                        class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                    RPK Disetujui
-                </button>
+    @if($rpk->status == 'draft')
+        <button onclick="approveKegiatan({{ $rpk->id }})"
+                class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            RPK Disetujui
+        </button>
 
-                <button onclick="rejectKegiatan({{ $rpk->id }})"
-                        class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    RPK Ditolak
-                </button>
-            @else
-                <form action="{{ route('admin.rpk.update-status', $rpk->id) }}" method="POST" class="w-full md:w-auto flex">
-                    @csrf
-                    @method('PATCH')
-                    <input type="hidden" name="status" value="draft">
-                    <button type="submit" class="w-full inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm transition">
-                        <i class="fas fa-undo"></i> Kembalikan ke Draft
-                    </button>
-                </form>
-            @endif
-        </div>
+        <button onclick="rejectKegiatan({{ $rpk->id }})"
+                class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            RPK Ditolak
+        </button>
+    @endif
+</div>
     </div>
 
     @if(!$rpk->user->dosenPembimbing)
@@ -53,7 +44,7 @@
             <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
             <div>
                 <p class="text-sm font-bold">Mahasiswa Tanpa Dosen Pembimbing!</p>
-                <p class="text-xs font-medium mt-0.5">Admin berhak melakukan validasi dan memberikan keputusan mutlak untuk dokumen ini.</p>
+                <p class="text-xs font-medium mt-0.5">Admin berhak melakukan VERIFIKASI dan memberikan keputusan mutlak untuk dokumen ini.</p>
             </div>
         </div>
     @endif
@@ -122,7 +113,7 @@
                     <div class="grid grid-cols-3 gap-2 pb-4 border-t border-slate-100 pt-4">
                         <span class="col-span-1 text-sm font-bold text-slate-500">Dosen Pembimbing</span>
                         <span class="col-span-2 text-sm text-slate-800 font-bold">
-                            {{ $rpk->user->dosenPembimbing->name ?? 'Belum ada' }}
+                            {{ $rpk->user?->dosenPembimbing?->name ?? 'Belum ada' }}
                         </span>
                     </div>
 
@@ -168,7 +159,7 @@
                             <h3 class="text-slate-800 font-bold">Daftar Rencana Kegiatan</h3>
                         </div>
                         
-                        <div class="border border-slate-200 rounded-xl overflow-hidden">
+                        <div class="border border-slate-200 rounded-xl overflow-x-auto">
                             <table class="min-w-full text-sm text-left text-slate-600">
                                 <thead class="bg-slate-50 border-b border-slate-200 uppercase text-[10px] font-bold tracking-wider text-slate-500">
                                     <tr>
@@ -231,7 +222,7 @@
                             </h3>
                             <div class="space-y-4">
                                 @foreach($kegiatanKelompok as $kegiatan)
-                                    <div class="border border-slate-200 rounded-xl overflow-hidden">
+                                    <div class="border border-slate-200 rounded-xl overflow-x-auto">
                                         <div class="px-4 py-3 bg-slate-50 border-b border-slate-200">
                                             <h4 class="text-sm font-bold text-slate-800">{{ $kegiatan->judul_kegiatan }}</h4>
                                             <div class="flex items-center gap-2 mt-1 text-xs text-slate-500">

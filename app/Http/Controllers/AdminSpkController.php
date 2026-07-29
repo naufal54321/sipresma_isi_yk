@@ -98,10 +98,13 @@ class AdminSpkController extends Controller
         if ($search) $query->where(fn($q) => $q->where('judul_kegiatan', 'like', "%{$search}%")->orWhereHas('user', fn($uq) => $uq->where('name', 'like', "%{$search}%")));
 
         $spks = $query->latest()->paginate(20)->withQueryString();
-        $totalDisetujui = Spk::where('status', 'disetujui')->count();
-        $totalDenganPoin = Spk::where('status', 'disetujui')->where('poin', '>', 0)->count();
+        $stats = Spk::where('status', 'disetujui')
+            ->selectRaw('COUNT(*) as total, SUM(CASE WHEN poin > 0 THEN 1 ELSE 0 END) as dengan_poin, COALESCE(SUM(poin), 0) as total_poin')
+            ->first();
+        $totalDisetujui = $stats->total;
+        $totalDenganPoin = $stats->dengan_poin;
         $totalTanpaPoin = $totalDisetujui - $totalDenganPoin;
-        $totalPoin = Spk::where('status', 'disetujui')->sum('poin');
+        $totalPoin = $stats->total_poin;
         $listTahun = Spk::distinct()->orderBy('tahun', 'desc')->pluck('tahun');
 
         return view('admin.spk.kelola-poin', compact('spks', 'totalDisetujui', 'totalDenganPoin', 'totalTanpaPoin', 'totalPoin', 'filterTahun', 'filterStatus', 'search', 'listTahun'));

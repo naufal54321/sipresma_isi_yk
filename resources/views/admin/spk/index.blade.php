@@ -249,7 +249,6 @@ function approveSpk(id)
 
             form.innerHTML = `
                 @csrf
-                <input type="hidden" name="_method" value="PATCH">
                 <input type="hidden" name="catatan" value="${result.value || ''}">
             `;
 
@@ -289,7 +288,6 @@ function rejectSpk(id)
 
             form.innerHTML = `
                 @csrf
-                <input type="hidden" name="_method" value="PATCH">
                 <input type="hidden" name="catatan" value="${result.value}">
             `;
 

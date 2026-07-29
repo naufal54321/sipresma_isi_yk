@@ -1,4 +1,5 @@
 <x-app-layout>
+@section('title', 'Dashboard Admin')
 
 <div class="py-1 overflow-x-hidden">
     <div class="max-w-8xl mx-auto py-6">
@@ -42,9 +43,10 @@
                     
                 </div>
                 
-                <div class="hidden md:flex items-center justify-center w-28 h-28 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-full border border-white/10 shadow-[0_0_40px_rgba(59,130,246,0.15)] shrink-0 group hover:scale-105 transition-transform duration-500">
-                    <i class="fas fa-shield-alt text-5xl text-transparent bg-clip-text bg-gradient-to-br from-blue-200 to-purple-400 group-hover:from-white group-hover:to-blue-200 transition-colors"></i>
-                </div>
+                <!-- Logo ISI -->
+<div class="hidden md:flex items-center justify-center w-28 h-28 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-full border border-white/10 shadow-[0_0_40px_rgba(59,130,246,0.15)] shrink-0 group hover:scale-105 transition-transform duration-500">
+    <img src="{{ asset('images/logo_isi_dashboard.png') }}" alt="Logo ISI Yogyakarta" class="w-16 h-16 object-contain group-hover:scale-110 transition-transform duration-500">
+</div>
             </div>
         </div>
 

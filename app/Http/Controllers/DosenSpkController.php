@@ -34,8 +34,7 @@ class DosenSpkController extends Controller
                                ->orWhere('prodi', 'like', "%{$search}%");
                       })
                       ->orWhereHas('kegiatan', function ($kegiatan) use ($search) {
-                          $kegiatan->where('kegiatan', 'like', "%{$search}%")
-                                   ->orWhere('jenis', 'like', "%{$search}%");
+                           $kegiatan->where('kegiatan', 'like', "%{$search}%");
                       })
                       ->orWhereHas('rpk', function ($rpk) use ($search) {
                           $rpk->where('tahun', 'like', "%{$search}%")

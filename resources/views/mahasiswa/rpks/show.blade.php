@@ -175,7 +175,7 @@
     
     <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden mb-6">
         
-            <table class="w-full text-sm text-left text-gray-600">
+            <table id="table-kegiatan" class="w-full text-sm text-left text-gray-600">
                 <thead class="bg-gray-50 text-gray-700 uppercase text-xs tracking-wider border-b border-gray-200">
                     <tr>
                         <th class="px-3 py-3 font-semibold text-center w-10">No</th>
@@ -183,6 +183,9 @@
                         <th class="px-3 py-3 font-semibold">Nama Kegiatan</th>
                         <th class="px-3 py-3 font-semibold text-center">Kategori</th>
                         <th class="px-3 py-3 font-semibold text-center">Tanggal</th>
+                        @if($isPemilik && ($rpk->status == 'draft' || $rpk->status == 'ditolak'))
+                        <th class="px-3 py-3 font-semibold text-center">Aksi</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -197,7 +200,7 @@
                 @endphp
 
                 @forelse($kegiatansTampil as $kegiatan)
-                <tr class="bg-white hover:bg-gray-50">
+                <tr class="bg-white hover:bg-gray-50" data-id="{{ $kegiatan->id }}">
                     <td class="px-4 py-3 border-r border-gray-200 text-center">{{ $loop->iteration }}</td>
                     <td class="px-4 py-3 border-r border-gray-200 font-medium text-gray-800">{{ $kegiatan->judul_kegiatan }}</td>
                     <td class="px-4 py-3 border-r border-gray-200 font-medium text-gray-800">{{ $kegiatan->kegiatan }}</td>
@@ -215,16 +218,30 @@
                             {{ \Carbon\Carbon::parse($kegiatan->tanggal_mulai)->translatedFormat('d F Y') }} - {{ \Carbon\Carbon::parse($kegiatan->tanggal_selesai)->translatedFormat('d F Y') }}
                         @elseif($kegiatan->tanggal_mulai)
                             {{ \Carbon\Carbon::parse($kegiatan->tanggal_mulai)->translatedFormat('d F Y') }}
-                        @elseif($kegiatan->tanggal)
-                            {{ \Carbon\Carbon::parse($kegiatan->tanggal)->translatedFormat('d F Y') }}
                         @else
                             -
                         @endif
                     </td>
+                    @if($isPemilik && ($rpk->status == 'draft' || $rpk->status == 'ditolak'))
+                    <td class="px-4 py-3 text-center">
+                        <button onclick="bukaModalEditKegiatan(this)"
+                            data-id="{{ $kegiatan->id }}"
+                            data-master="{{ $kegiatan->master_kegiatan_id }}"
+                            data-judul="{{ $kegiatan->judul_kegiatan }}"
+                            data-tanggal-mulai="{{ $kegiatan->tanggal_mulai ? \Carbon\Carbon::parse($kegiatan->tanggal_mulai)->format('Y-m-d') : '' }}"
+                            data-tanggal-selesai="{{ $kegiatan->tanggal_selesai ? \Carbon\Carbon::parse($kegiatan->tanggal_selesai)->format('Y-m-d') : '' }}"
+                            data-kategori="{{ $kegiatan->kategori }}"
+                            data-peran="{{ $kegiatan->peran ?? '' }}"
+                            data-jumlah="{{ $kegiatan->jumlah_anggota ?? '' }}"
+                            class="bg-yellow-500 hover:bg-yellow-400 text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition">
+                            Edit
+                        </button>
+                    </td>
+                    @endif
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="{{ $isPemilik && ($rpk->status == 'draft' || $rpk->status == 'ditolak') ? '8' : '7' }}" class="text-center py-4 text-gray-500">
+                    <td colspan="{{ $isPemilik && ($rpk->status == 'draft' || $rpk->status == 'ditolak') ? '6' : '5' }}" class="text-center py-4 text-gray-500">
                         Belum ada kegiatan pada RPK ini
                     </td>
                 </tr>
@@ -270,8 +287,8 @@
                                                 </div>
                                                 <div class="flex items-center gap-3 mt-1 text-xs text-gray-500">
                                                     <span><i class="far fa-calendar mr-1"></i>{{ \Carbon\Carbon::parse($kegiatan->tanggal)->format('d M Y') }}</span>
-                                                    <span><i class="fas fa-tag mr-1"></i>{{ $kegiatan->jenis }}</span>
-                                                    <span><i class="fas fa-layer-group mr-1"></i>{{ $kegiatan->tingkat }}</span>
+                                                    <span><i class="fas fa-tag mr-1"></i>{{ $kegiatan->jenis ?? '-' }}</span>
+                                                    <span><i class="fas fa-layer-group mr-1"></i>{{ $kegiatan->tingkat ?? '-' }}</span>
                                                 </div>
                                             </div>
                                             <table class="w-full text-sm">
@@ -526,8 +543,8 @@ window.initDateRangePicker = function(prefix) {
     
     flatpickr(dateInput, {
         mode: "range",
-        dateFormat: "d-m-Y",
-        locale: "id",
+        dateFormat: "Y-m-d",
+        locale: flatpickr.l10ns?.id || "id",
         onChange: function(selectedDates, dateStr, instance) {
             if (selectedDates.length === 2) {
                 var mulai = instance.formatDate(selectedDates[0], "Y-m-d");
@@ -536,7 +553,7 @@ window.initDateRangePicker = function(prefix) {
                 if (mulaiHidden) mulaiHidden.value = mulai;
                 if (selesaiHidden) selesaiHidden.value = selesai;
                 
-                dateInput.value = instance.formatDate(selectedDates[0], "d M Y") + " - " + instance.formatDate(selectedDates[1], "d M Y");
+                dateInput.value = instance.formatDate(selectedDates[0], "d M Y") + " sampai " + instance.formatDate(selectedDates[1], "d M Y");
             } else if (selectedDates.length === 1) {
                 // Jika baru pilih 1 tanggal
                 var mulai = instance.formatDate(selectedDates[0], "Y-m-d");
@@ -778,7 +795,7 @@ window.generateFormHTML = function(prefix) {
                     
                     <div id="${prefix}_dropdownList" 
                         class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden">
-                        @foreach(\App\Models\User::role('Mahasiswa')->where('id', '!=', auth()->id())->orderBy('name')->get() as $mhs)
+                        @foreach($mahasiswaList as $mhs)
                             <div class="px-4 py-2 text-sm hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0" 
                                 data-value="{{ $mhs->id }}" 
                                 data-text="{{ $mhs->name }} ({{ $mhs->nim }})"
@@ -864,84 +881,106 @@ window.bukaModalTambahKegiatan = function() {
     });
 };
 
-// ✏️ BUKA MODAL EDIT KEGIATAN
+// ✏️ BUKA MODAL EDIT KEGIATAN (FLATPICKR RANGE + AJAX INLINE)
 window.bukaModalEditKegiatan = function(button) {
     var id = button.getAttribute('data-id');
-    var actionUrl = "{{ route('kegiatans.update', ':id') }}".replace(':id', id);
-    
+    var tMulai = button.getAttribute('data-tanggal-mulai') || '';
+    var tSelesai = button.getAttribute('data-tanggal-selesai') || '';
+
     Swal.fire({
-        title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Edit Kegiatan</h2>', 
+        title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Edit Kegiatan</h2>',
         width: '650px',
-        html: `<form id="formEdit" action="${actionUrl}" method="POST" class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">@csrf @method('PUT') ${window.generateFormHTML('edit')}</form>`,
-        showCancelButton: true, 
-        confirmButtonText: 'Update', 
-        cancelButtonText: 'Batal', 
-        confirmButtonColor: '#2563EB', 
+        html: `<div class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">${window.generateFormHTML('edit')}</div>`,
+        showCancelButton: true,
+        confirmButtonText: 'Simpan',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#2563EB',
         cancelButtonColor: '#9CA3AF',
-        allowOutsideClick: false, 
-        allowEscapeKey: false, 
+        allowOutsideClick: false,
         customClass: { popup: 'rounded-2xl p-6' },
         didOpen: () => {
-            window.bindLogikaForm('edit'); 
+            window.bindLogikaForm('edit');
             window.anggotaTerpilih['edit'] = [];
-            
-            // Isi data form
+
             document.getElementById('edit_master').value = button.getAttribute('data-master');
             document.getElementById('edit_judul').value = button.getAttribute('data-judul') || '';
-            
-            // Isi hidden input tanggal
-            var tMulai = button.getAttribute('data-tanggal-mulai') || '';
-            var tSelesai = button.getAttribute('data-tanggal-selesai') || '';
-            
-            document.getElementById('edit_tanggal_mulai').value = tMulai;
-            document.getElementById('edit_tanggal_selesai').value = tSelesai;
-            
-            // Set flatpickr value
-            setTimeout(() => {
-                if (tMulai && tSelesai) {
-                    var dateRangeInput = document.getElementById('edit_tanggal_range');
-                    var fp = dateRangeInput._flatpickr;
-                    if (fp) {
-                        fp.setDate([tMulai, tSelesai]);
-                    }
-                }
-            }, 200);
-            
+
             var katValue = button.getAttribute('data-kategori');
             document.getElementById('edit_kategori').value = katValue;
-            
+
             if (katValue === 'Kelompok') {
                 document.getElementById('edit_peranField').classList.remove('hidden');
                 document.getElementById('edit_peran').value = button.getAttribute('data-peran');
-                
                 if (button.getAttribute('data-peran') === 'Ketua') {
                     document.getElementById('edit_jumlahField').classList.remove('hidden');
                     document.getElementById('edit_jumlah').value = button.getAttribute('data-jumlah');
                     document.getElementById('edit_anggotaContainer').classList.remove('hidden');
                 }
             }
-            
-            // Load anggota terpilih jika ada
-            var anggotaIds = button.getAttribute('data-anggota-ids');
-            if (anggotaIds) {
-                // Anda perlu menambahkan logic untuk load anggota yang sudah ada
-                // Ini tergantung struktur data Anda
-            }
-            
-            // Trigger change events
-            setTimeout(() => {
-                document.getElementById('edit_kategori').dispatchEvent(new Event('change'));
-                document.getElementById('edit_peran').dispatchEvent(new Event('change'));
-                document.getElementById('edit_jumlah').dispatchEvent(new Event('change'));
-            }, 100);
+
+            setTimeout(function() {
+                var fp = document.getElementById('edit_tanggal_range')._flatpickr;
+                if (fp && tMulai && tSelesai) {
+                    fp.setDate([tMulai, tSelesai]);
+                    document.getElementById('edit_tanggal_range').value =
+                        fp.formatDate(new Date(tMulai), "d M Y") + " sampai " + fp.formatDate(new Date(tSelesai), "d M Y");
+                }
+            }, 300);
         },
-        preConfirm: () => { 
-            if(window.validasiForm('edit')) { 
-                Swal.showLoading(); 
-                document.getElementById('formEdit').submit(); 
-                return false; 
-            } 
-            return false; 
+        preConfirm: () => {
+            if (!window.validasiForm('edit')) return false;
+
+            Swal.showLoading();
+
+            var formData = new FormData();
+            formData.append('_method', 'PUT');
+            formData.append('master_kegiatan_id', document.getElementById('edit_master').value);
+            formData.append('judul_kegiatan', document.getElementById('edit_judul').value);
+            formData.append('tanggal_mulai', document.getElementById('edit_tanggal_mulai').value);
+            formData.append('tanggal_selesai', document.getElementById('edit_tanggal_selesai').value);
+            formData.append('kategori', document.getElementById('edit_kategori').value);
+            formData.append('peran', document.getElementById('edit_peran')?.value || '');
+            formData.append('jumlah_anggota', document.getElementById('edit_jumlah')?.value || '');
+            formData.append('anggota_ids', document.getElementById('edit_anggotaHidden')?.value || '');
+
+            return fetch("{{ route('kegiatans.update', ':id') }}".replace(':id', id), {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: formData
+            })
+            .then(res => res.json().then(data => ({ status: res.status, data })))
+            .then(({ status, data }) => {
+                if (data.success) return data;
+                throw new Error(data.message || 'Gagal memperbarui');
+            })
+            .catch(err => { Swal.showValidationMessage(err.message); return false; });
+        }
+    }).then((result) => {
+        if (result.isConfirmed && result.value) {
+            var d = result.value.data;
+            var row = document.querySelector('#table-kegiatan tr[data-id="' + id + '"]');
+            if (row) {
+                var cells = row.querySelectorAll('td');
+                if (cells.length >= 6) {
+                    cells[1].textContent = d.judul_kegiatan || '-';
+                    cells[2].textContent = d.kegiatan || '-';
+                    cells[3].textContent = d.kategori || '-';
+                    if (d.tanggal_mulai && d.tanggal_selesai) {
+                        cells[4].textContent = d.tanggal_mulai.split(' ')[0] + ' sampai ' + d.tanggal_selesai.split(' ')[0];
+                    } else {
+                        cells[4].textContent = d.tanggal_mulai ? d.tanggal_mulai.split(' ')[0] : '-';
+                    }
+                    var badge = cells[5]?.querySelector('span');
+                    if (badge) {
+                        var st = d.status || 'draft';
+                        badge.className = st === 'draft' ? 'bg-orange-500 text-white px-3 py-1 rounded-full text-xs'
+                            : st === 'disetujui' ? 'bg-green-500 text-white px-3 py-1 rounded-full text-xs'
+                            : 'bg-red-500 text-white px-3 py-1 rounded-full text-xs';
+                        badge.textContent = st.charAt(0).toUpperCase() + st.slice(1);
+                    }
+                }
+            }
+            Swal.fire({ icon: 'success', title: 'Berhasil!', text: result.value.message || 'Kegiatan berhasil diperbarui', timer: 1500, showConfirmButton: false });
         }
     });
 };

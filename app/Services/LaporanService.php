@@ -245,19 +245,19 @@ class LaporanService
             }
 
             $judulKegiatan = $item->judul_kegiatan
-                ?? $item->kegiatan->judul_kegiatan
-                ?? $item->kegiatan->kegiatan
+                ?? $item->kegiatan?->judul_kegiatan
+                ?? $item->kegiatan?->kegiatan
                 ?? '-';
 
-            $namaKegiatan = $item->kegiatan->kegiatan ?? '-';
+            $namaKegiatan = $item->kegiatan?->kegiatan ?? '-';
             $penyelenggara = $item->penyelenggara ?? '-';
             $tingkat = $item->tingkat ?? '-';
             $hasil = $item->hasil ?? '-';
 
             $tanggal = $this->getTanggalSelesai($item);
 
-            $kategori = $item->kegiatan->kategori
-                ?? $item->kegiatan->masterKegiatan->kategori
+            $kategori = $item->kegiatan?->kategori
+                ?? $item->kegiatan?->masterKegiatan?->kategori
                 ?? 'Prestasi';
 
             $rowData = [

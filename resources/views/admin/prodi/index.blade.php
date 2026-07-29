@@ -81,7 +81,7 @@
             </div>
 
             <!-- Tabel -->
-            <div class="bg-white shadow-xl rounded-2xl overflow-hidden">
+            <div class="bg-white shadow-xl rounded-2xl overflow-x-auto">
 
                 <table class="w-full text-sm text-left text-gray-600">
 

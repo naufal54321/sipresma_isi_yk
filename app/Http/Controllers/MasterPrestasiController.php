@@ -38,7 +38,7 @@ class MasterPrestasiController extends Controller
         }
 
         try {
-            $prestasi = MasterPrestasi::create($request->all());
+            $prestasi =         MasterPrestasi::create($request->only(['juara', 'tingkat', 'is_active']));
 
             return response()->json([
                 'success' => true,
@@ -70,7 +70,7 @@ class MasterPrestasiController extends Controller
         }
 
         try {
-            $masterPrestasi->update($request->all());
+            $masterPrestasi->update($request->only(['juara', 'tingkat', 'is_active']));
 
             return response()->json([
                 'success' => true,

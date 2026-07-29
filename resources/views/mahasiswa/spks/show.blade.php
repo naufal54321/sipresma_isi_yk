@@ -117,11 +117,6 @@
                         </span>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-2">
-                        <span class="text-sm font-bold text-gray-600">Keterangan</span>
-                        <span class="col-span-2 text-sm text-gray-800">{{ $spk->keterangan }}</span>
-                    </div>
-
                      <div class="grid grid-cols-3 gap-2">
                         <span class="text-sm font-bold text-gray-600">Status</span>
                         <div class="mt-1">
@@ -339,12 +334,12 @@
                                         <tr class="bg-blue-50/30">
                                             <td class="px-5 py-3 text-center text-gray-500 font-medium">1</td>
                                             <td class="px-5 py-3 font-semibold text-gray-800">
-                                                {{ $spk->rpk->user->name ?? $spk->user->name }}
-                                                @if($spk->rpk->user_id == Auth::id() || $spk->user_id == Auth::id())
+                                                {{ $spk->rpk?->user?->name ?? $spk->user->name }}
+                                                @if($spk->rpk?->user_id == Auth::id() || $spk->user_id == Auth::id())
                                                     <span class="text-[11px] text-blue-500 font-medium ml-1.5">(Anda)</span>
                                                 @endif
                                             </td>
-                                            <td class="px-5 py-3 text-gray-500 font-medium">{{ $spk->rpk->user->nim ?? $spk->user->nim ?? '-' }}</td>
+                                            <td class="px-5 py-3 text-gray-500 font-medium">{{ $spk->rpk?->user?->nim ?? $spk->user->nim ?? '-' }}</td>
                                             <td class="px-5 py-3 text-gray-500 font-medium">{{ $spk->rpk->user->prodi ?? $spk->user->prodi ?? '-' }}</td>
                                             <td class="px-5 py-3 text-center">
                                                 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100">
@@ -522,7 +517,7 @@
                                 <div class="mt-2 bg-yellow-50 border border-yellow-200 rounded-lg p-2">
                                     <p class="text-sm text-yellow-700">
                                         Poin: <strong>{{ $spk->poin }}</strong> 
-                                        ({{ $spk->poin_added_at->format('d/m/Y H:i') }})
+                                        ({{ $spk->poin_added_at?->format('d/m/Y H:i') ?? '-' }})
                                     </p>
                                 </div>
                                 @endif

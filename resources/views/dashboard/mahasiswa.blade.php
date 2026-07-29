@@ -1,4 +1,5 @@
 <x-app-layout>
+@section('title', 'Dashboard Mahasiswa')
 
 <div class="py-6 overflow-x-hidden">
     <div class="max-w-8xl mx-auto py-6">
@@ -27,21 +28,10 @@
                     </div>
                 </div>
                 
-                {{-- Gunungan Siluet --}}
-                <div class="hidden md:flex items-center justify-center w-28 h-28 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-full border border-white/10 shadow-[0_0_40px_rgba(59,130,246,0.15)] shrink-0 group hover:scale-105 transition-transform duration-500 animate-float-slow">
-                    <svg class="w-14 h-14" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 2L20 9L18 18L12 22L6 18L4 9L12 2Z" fill="url(#grad-g4)" opacity="0.3"/>
-                        <path d="M12 5L17 10L15.5 16L12 18.5L8.5 16L7 10L12 5Z" fill="url(#grad-g4)" opacity="0.6"/>
-                        <circle cx="12" cy="9" r="2" fill="white" opacity="0.5"/>
-                        <defs>
-                            <linearGradient id="grad-g4" x1="4" y1="2" x2="20" y2="22">
-                                <stop offset="0%" stop-color="#60a5fa"/>
-                                <stop offset="50%" stop-color="#a78bfa"/>
-                                <stop offset="100%" stop-color="#c084fc"/>
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                </div>
+                <!-- Logo ISI -->
+<div class="hidden md:flex items-center justify-center w-28 h-28 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-full border border-white/10 shadow-[0_0_40px_rgba(59,130,246,0.15)] shrink-0 group hover:scale-105 transition-transform duration-500 animate-float-slow">
+    <img src="{{ asset('images/logo_isi_dashboard.png') }}" alt="Logo ISI Yogyakarta" class="w-16 h-16 object-contain group-hover:scale-110 transition-transform duration-500">
+</div>
             </div>
         </div>
 

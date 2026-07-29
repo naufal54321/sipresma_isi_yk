@@ -21,7 +21,7 @@ class AdminRpkController extends Controller
                 $q->whereHas('user', function ($u) use ($search) {
                     $u->where('name', 'like', "%{$search}%")
                       ->orWhere('nim', 'like', "%{$search}%");
-                })->orWhere('nama_kegiatan', 'like', "%{$search}%"); // sesuaikan field judul rpk Anda
+                })->orWhereHas('kegiatans', fn($k) => $k->where('kegiatan', 'like', "%{$search}%"));
             });
         }
 
@@ -66,7 +66,7 @@ class AdminRpkController extends Controller
 
         $rpk->update([
             'status' => $request->status,
-            'catatan' => $request->catatan ?? $rpk->catatan,
+            'catatan_dosen' => $request->catatan ?? $rpk->catatan_dosen,
         ]);
 
         if ($request->ajax() || $request->wantsJson()) {

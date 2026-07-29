@@ -6,14 +6,24 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'PRATAMA') }}</title>
+        <title>@yield('title', config('app.name', 'PRATAMA')) — {{ config('app.name') }}</title>
+
+        <meta name="description" content="@yield('metaDescription', 'PRATAMA — Prestasi dan Talenta Mahasiswa ISI Yogyakarta')">
+        <meta name="robots" content="noindex, nofollow">
+
+        <meta property="og:title" content="@yield('title', config('app.name'))">
+        <meta property="og:description" content="@yield('metaDescription', 'PRATAMA — Prestasi dan Talenta Mahasiswa ISI Yogyakarta')">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ url()->current() }}">
+
+        <link rel="canonical" href="{{ url()->current() }}">
 
         <link rel="icon" type="image/png" href="{{ asset('images/logo_isi_dashboard.png') }}">
         <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo_isi_dashboard.png') }}">
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@600;700;900&display=swap" rel="stylesheet">
         
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -48,16 +58,17 @@
 
       <body id="main-body" 
           class="preload font-sans antialiased bg-slate-50 text-slate-800 selection:bg-blue-200 selection:text-blue-900"
-          x-data="{ sidebarKecil: localStorage.getItem('sidebarState') === 'true', siapAnimasi: false }" 
+          x-data="{ sidebarKecil: localStorage.getItem('sidebarState') === 'true', siapAnimasi: false, mobileOpen: false }" 
           x-init="
               $nextTick(() => { 
                   document.body.classList.remove('preload'); 
                   siapAnimasi = true; 
                   $dispatch('sidebar-ready');
               });
-              window.addEventListener('sidebar-toggle', (e) => {
-                  sidebarKecil = e.detail;
-              });
+               window.addEventListener('sidebar-toggle', (e) => {
+                   sidebarKecil = e.detail;
+               });
+               window.addEventListener('sidebar-mobile-close', () => { mobileOpen = false; });
           "
           @sidebar-toggle.window="sidebarKecil = $event.detail">
 
@@ -67,8 +78,8 @@
 
             <div class="flex flex-col flex-1 min-w-0 transition-[margin] duration-300 ease-in-out relative"
                  :class="{
-                     'ml-20': sidebarKecil,
-                     'ml-64': !sidebarKecil,
+                     'lg:ml-20': sidebarKecil,
+                     'lg:ml-64': !sidebarKecil,
                      'transition-none': !siapAnimasi
                  }">
 
@@ -76,8 +87,14 @@
                 <div id="page-loader"><div class="bar"></div></div>
 
                 {{-- Header --}}
-                <div class="w-full bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200 px-8 py-3 flex items-center justify-between sticky top-0 z-40">
-                    <div class="flex-1"></div>
+                <div class="w-full bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200 px-4 sm:px-8 py-3 flex items-center justify-between sticky top-0 z-40">
+                    <div class="flex items-center gap-3">
+                        <button @click="mobileOpen = !mobileOpen; $dispatch('sidebar-mobile-toggle')" 
+                                class="lg:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                            <span x-show="!mobileOpen"><i class="fas fa-bars text-xl"></i></span>
+                            <span x-show="mobileOpen" style="display:none"><i class="fas fa-times text-xl"></i></span>
+                        </button>
+                    </div>
 
                     <div class="relative ml-auto" x-data="{ open: false }" @click.outside="open = false">
                         <button @click="open = !open" class="flex items-center gap-3 hover:bg-slate-50 p-2 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-100">
@@ -92,7 +109,7 @@
                                 </p>
                             </div>
                             <div class="relative">
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=eff6ff&color=2563eb&bold=true" alt="{{ auth()->user()->name }}" class="w-10 h-10 rounded-full ring-2 ring-slate-100 object-cover shadow-sm">
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=eff6ff&color=2563eb&bold=true" alt="{{ auth()->user()->name }}" class="w-10 h-10 rounded-full ring-2 ring-slate-100 object-cover shadow-sm" loading="lazy">
                                 <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></div>
                             </div>
                             <i class="fas fa-chevron-down text-slate-400 text-xs transition-transform duration-300 ml-1" :class="{'rotate-180': open}"></i>
@@ -132,11 +149,11 @@
                         
                         @isset($header)
                             <header class="bg-white/50 backdrop-blur-sm border-b border-slate-200 shadow-sm w-full shrink-0">
-                                <div class="px-8 py-6">{{ $header }}</div>
+                                <div class="px-4 py-4 sm:px-8 sm:py-6">{{ $header }}</div>
                             </header>
                         @endisset
 
-                        <main class="p-8 w-full flex-1">
+                        <main class="px-4 py-6 sm:p-8 w-full flex-1">
                             {{ $slot }}
                         </main>
                     </div>
@@ -149,9 +166,8 @@
             </div>
         </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
         {{-- Navigasi Script --}}
         <script>
@@ -219,6 +235,9 @@ document.addEventListener('DOMContentLoaded', () => {
         wrapper.innerHTML = newWrapper.innerHTML;
         if (window.Alpine) Alpine.initTree(wrapper);
 
+        // Reset mobile sidebar setelah navigasi
+        if (window.Alpine) { const b = Alpine.$data(document.body); if (b) b.mobileOpen = false; }
+
         // Tunggu render DOM + Alpine selesai, baru eksekusi script
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
@@ -246,6 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ⚡ FETCH + SWAP KONTEN
     function navigateTo(url) {
+        window.dispatchEvent(new Event('sidebar-mobile-close'));
         startLoading();
 
         fetch(url, {
@@ -273,6 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (
             link.target === '_blank' ||
+            e.ctrlKey || e.metaKey || e.button === 1 ||
             link.hasAttribute('download') ||
             link.href === '#' ||
             link.href === '' ||

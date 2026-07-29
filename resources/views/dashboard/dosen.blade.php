@@ -1,4 +1,5 @@
 <x-app-layout>
+@section('title', 'Dashboard Dosen')
 
 <div class="py-6 overflow-x-hidden">
     <div class="max-w-8xl mx-auto py-6">
@@ -43,20 +44,10 @@
             </div>
         </div>
         
-        {{-- Gunungan Wayang Stilasi --}}
-        <div class="hidden md:flex items-center justify-center w-28 h-28 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-full border border-white/10 shadow-[0_0_40px_rgba(59,130,246,0.15)] shrink-0 group hover:scale-105 transition-transform duration-500">
-            <svg class="w-16 h-16" viewBox="0 0 60 80" fill="none">
-                <path d="M30 5 L50 20 L45 40 L35 35 L30 50 L25 35 L15 40 L10 20 Z" fill="url(#gunungan-blue)" opacity="0.9"/>
-                <circle cx="30" cy="25" r="4" fill="#60a5fa" opacity="0.8"/>
-                <path d="M20 50 Q30 65 40 50" stroke="url(#gunungan-blue)" stroke-width="1.5" fill="none" opacity="0.6"/>
-                <defs>
-                    <linearGradient id="gunungan-blue" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#93c5fd"/>
-                        <stop offset="100%" stop-color="#a78bfa"/>
-                    </linearGradient>
-                </defs>
-            </svg>
-        </div>
+        <!-- Logo ISI -->
+<div class="hidden md:flex items-center justify-center w-28 h-28 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-full border border-white/10 shadow-[0_0_40px_rgba(59,130,246,0.15)] shrink-0 group hover:scale-105 transition-transform duration-500">
+    <img src="{{ asset('images/logo_isi_dashboard.png') }}" alt="Logo ISI Yogyakarta" class="w-16 h-16 object-contain">
+</div>
     </div>
 </div>
 
@@ -154,7 +145,7 @@
                 <div>
                     <h2 class="font-bold text-slate-800 text-lg flex items-center gap-2">
                         <span class="p-1.5 rounded-lg bg-indigo-50 text-indigo-500"><i class="fas fa-chart-line"></i></span>
-                        Beban Kerja Validasi
+                        Beban Kerja Verifikasi
                     </h2>
                     <p class="text-sm text-slate-500 mt-1.5">{{ $progressText }}</p>
                 </div>

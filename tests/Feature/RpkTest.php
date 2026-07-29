@@ -25,7 +25,6 @@ test('mahasiswa can create rpk', function () {
     
     // ⚡ Bypass middleware verified
     $response = $this->actingAs($mahasiswa)
-        ->withoutMiddleware(\Illuminate\Auth\Middleware\EnsureEmailIsVerified::class)
         ->post('/rpks', [
             'tahun' => '2026',
             'semester' => 'Ganjil',

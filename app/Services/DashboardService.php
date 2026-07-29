@@ -6,48 +6,65 @@ use App\Models\User;
 use App\Models\Rpk;
 use App\Models\Spk;
 use App\Models\Kegiatan;
+use Illuminate\Support\Facades\Cache;
 
 class DashboardService
 {
     public function getAdminStats()
     {
-        return [
-            'totalMahasiswa' => User::role('Mahasiswa')->count(),
-            'totalDosen' => User::role('Dosen')->count(),
-            'totalRpk' => Rpk::count(),
-            'totalSpk' => Spk::count(),
-            'rpkDraft' => Rpk::where('status', 'draft')->count(),
-            'rpkDisetujui' => Rpk::where('status', 'disetujui')->count(),
-            'rpkDitolak' => Rpk::where('status', 'ditolak')->count(),
-            'spkDraft' => Spk::where('status', 'draft')->count(),
-            'spkDisetujui' => Spk::where('status', 'disetujui')->count(),
-            'spkDitolak' => Spk::where('status', 'ditolak')->count(),
-        ];
+        return Cache::remember('admin.stats', 300, function () {
+            $totalMahasiswa = User::role('Mahasiswa')->count();
+            $totalDosen = User::role('Dosen')->count();
+
+            $rpkStats = Rpk::selectRaw("COUNT(*) as totalRpk, SUM(CASE WHEN status = 'draft' THEN 1 ELSE 0 END) as rpkDraft, SUM(CASE WHEN status = 'disetujui' THEN 1 ELSE 0 END) as rpkDisetujui, SUM(CASE WHEN status = 'ditolak' THEN 1 ELSE 0 END) as rpkDitolak")->first();
+
+            $spkStats = Spk::selectRaw("COUNT(*) as totalSpk, SUM(CASE WHEN status = 'draft' THEN 1 ELSE 0 END) as spkDraft, SUM(CASE WHEN status = 'disetujui' THEN 1 ELSE 0 END) as spkDisetujui, SUM(CASE WHEN status = 'ditolak' THEN 1 ELSE 0 END) as spkDitolak")->first();
+
+            return [
+                'totalMahasiswa' => $totalMahasiswa,
+                'totalDosen' => $totalDosen,
+                'totalRpk' => $rpkStats->totalRpk ?? 0,
+                'totalSpk' => $spkStats->totalSpk ?? 0,
+                'rpkDraft' => $rpkStats->rpkDraft ?? 0,
+                'rpkDisetujui' => $rpkStats->rpkDisetujui ?? 0,
+                'rpkDitolak' => $rpkStats->rpkDitolak ?? 0,
+                'spkDraft' => $spkStats->spkDraft ?? 0,
+                'spkDisetujui' => $spkStats->spkDisetujui ?? 0,
+                'spkDitolak' => $spkStats->spkDitolak ?? 0,
+            ];
+        });
     }
 
     public function getAdminTingkatChart()
     {
-        return [
-            'universitas' => Spk::where('status', 'disetujui')->where('tingkat', 'Universitas')->count(),
-            'regional' => Spk::where('status', 'disetujui')->where('tingkat', 'Regional')->count(),
-            'nasional' => Spk::where('status', 'disetujui')->where('tingkat', 'Nasional')->count(),
-            'internasional' => Spk::where('status', 'disetujui')->where('tingkat', 'Internasional')->count(),
-        ];
+        return Cache::remember('admin.tingkat', 300, function () {
+            $data = Spk::where('status', 'disetujui')
+                ->selectRaw("SUM(CASE WHEN tingkat = 'Universitas' THEN 1 ELSE 0 END) as universitas, SUM(CASE WHEN tingkat = 'Regional' THEN 1 ELSE 0 END) as regional, SUM(CASE WHEN tingkat = 'Nasional' THEN 1 ELSE 0 END) as nasional, SUM(CASE WHEN tingkat = 'Internasional' THEN 1 ELSE 0 END) as internasional")
+                ->first();
+
+            return [
+                'universitas' => $data->universitas ?? 0,
+                'regional' => $data->regional ?? 0,
+                'nasional' => $data->nasional ?? 0,
+                'internasional' => $data->internasional ?? 0,
+            ];
+        });
     }
 
     public function getAdminKategoriChart()
     {
-        $kategoriGrup = Spk::with('kegiatan')
-            ->where('status', 'disetujui')
-            ->get()
-            ->groupBy(function ($spk) {
-                return $spk->kegiatan->kategori ?? 'Lainnya';
-            });
+        return Cache::remember('admin.kategori', 300, function () {
+            $kategoriData = Spk::selectRaw('COALESCE(kegiatans.kategori, \'Lainnya\') as kategori, COUNT(*) as total')
+                ->join('kegiatans', 'spks.kegiatan_id', '=', 'kegiatans.id')
+                ->where('spks.status', 'disetujui')
+                ->groupBy('kegiatans.kategori')
+                ->get();
 
-        return [
-            'kategoriLabels' => $kategoriGrup->keys()->toArray(),
-            'kategoriData' => $kategoriGrup->map->count()->values()->toArray(),
-        ];
+            return [
+                'kategoriLabels' => $kategoriData->pluck('kategori')->toArray(),
+                'kategoriData' => $kategoriData->pluck('total')->toArray(),
+            ];
+        });
     }
 
     public function getTopMahasiswa()

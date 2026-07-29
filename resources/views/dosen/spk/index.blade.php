@@ -6,7 +6,7 @@
 
         <div class="mb-6">
             <h1 class="text-3xl font-bold text-gray-800">
-                Validasi SPK
+                Verifikasi SPK
             </h1>
             <p class="text-gray-500 mt-1">
                 Persetujuan Satuan Prestasi Kemahasiswaan
@@ -61,7 +61,7 @@
 
             </form>
         </div>
-        <div class="bg-white shadow-xl rounded-2xl overflow-hidden">
+        <div class="bg-white shadow-xl rounded-2xl overflow-x-auto">
             
             <table class="w-full text-sm text-left text-gray-600">
 

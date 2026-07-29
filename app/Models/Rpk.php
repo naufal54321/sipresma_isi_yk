@@ -7,13 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 class Rpk extends Model
 {
     protected $fillable = [
-    'user_id',
-    'tahun',
-    'semester',
-    'kategori',
-    'status',
-    'catatan_dosen'
-];
+        'user_id',
+        'master_kegiatan_id',
+        'tahun',
+        'semester',
+        'status',
+        'catatan_dosen'
+    ];
+
+    protected $casts = [
+        'status' => 'string',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 
 public function user()
 {

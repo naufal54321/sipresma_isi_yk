@@ -126,9 +126,9 @@ class UserController extends Controller
     {
         $rules = [
             'name' => 'required',
-            'nim' => 'required',
+            'nim' => 'required|unique:users,nim,' . $user->id,
             'prodi' => 'nullable',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email,' . $user->id,
             'role' => 'required',
         ];
 
@@ -247,7 +247,7 @@ class UserController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => $pesan,
-                'dosen_name' => $dosen->name ?? null
+                'dosen_name' => $dosen?->name ?? null
             ]);
         }
 

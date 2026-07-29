@@ -43,8 +43,7 @@ class DosenRpkController extends Controller
                       })
 
                       ->orWhereHas('kegiatans', function ($kegiatan) use ($search) {
-                          $kegiatan->where('kegiatan', 'like', "%{$search}%")
-                                   ->orWhere('jenis', 'like', "%{$search}%");
+                           $kegiatan->where('kegiatan', 'like', "%{$search}%");
                       });
                 });
             })

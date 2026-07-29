@@ -47,7 +47,7 @@
                 </button>
             </div>
 
-            <div class="bg-white shadow-xl rounded-2xl overflow-hidden">
+            <div class="bg-white shadow-xl rounded-2xl overflow-x-auto">
                 <table class="w-full text-sm text-left text-gray-600">
                     <thead class="bg-gray-50 uppercase text-xs tracking-wider">
                         <tr>

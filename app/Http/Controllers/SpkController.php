@@ -38,9 +38,12 @@ class SpkController extends Controller
                     $q->where('status', $filterStatus);
                 })
                 ->latest()
-                ->get();
+                ->paginate(20);
 
-        $rpks = Rpk::where('user_id', $user->id)->where('status', 'disetujui')->get();
+        $rpks = Rpk::where('user_id', $user->id)
+            ->where('status', 'disetujui')
+            ->with('kegiatans')
+            ->get();
 
         $kegiatans = Kegiatan::whereHas('rpk', function ($q) use ($user) {
                 $q->where('user_id', $user->id)->where('status', 'disetujui');
@@ -85,13 +88,7 @@ class SpkController extends Controller
      */
     public function create()
     {
-        $rpks = Rpk::where('user_id', Auth::id())->get();
-        
-        $kegiatans = Kegiatan::whereHas('rpk', function ($query) {
-            $query->where('user_id', Auth::id())->where('status', 'disetujui');
-        })->select('id', 'rpk_id', 'kegiatan', 'judul_kegiatan', 'tanggal_mulai', 'tanggal_selesai', 'kategori')->get();
-
-        return view('mahasiswa.spks.create', compact('rpks', 'kegiatans'));
+        return redirect()->route('spks.index')->with('error', 'Fitur tambah SPK belum tersedia.');
     }
 
     /**
@@ -227,16 +224,7 @@ class SpkController extends Controller
         if ($spk->user_id != Auth::id()) {
             abort(403);
         }
-
-        $rpks = Rpk::where('user_id', Auth::id())->get();
-        
-        $kegiatans = Kegiatan::whereHas('rpk', function ($q) {
-            $q->where('user_id', Auth::id())->where('status', 'disetujui');
-        })->select('id', 'rpk_id', 'kegiatan', 'judul_kegiatan', 'tanggal_mulai', 'tanggal_selesai', 'kategori')->get();
-        
-        $prestasis = MasterPrestasi::where('is_active', true)->orderBy('juara')->get();
-
-        return view('mahasiswa.spks.edit', compact('spk', 'rpks', 'kegiatans', 'prestasis'));
+        return redirect()->route('spks.index')->with('error', 'Fitur edit SPK belum tersedia.');
     }
 
     /**

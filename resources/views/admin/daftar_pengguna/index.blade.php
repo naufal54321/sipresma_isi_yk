@@ -13,7 +13,7 @@
 
         <div class="mb-6">
             <h1 class="text-3xl font-bold text-gray-800">Daftar Pengguna</h1>
-            <p class="text-gray-500 mt-1">Kelola seluruh pengguna SIPRESMA</p>
+            <p class="text-gray-500 mt-1">Kelola seluruh pengguna</p>
         </div>
         
         <div class="bg-white overflow-hidden shadow-xl rounded-2xl">

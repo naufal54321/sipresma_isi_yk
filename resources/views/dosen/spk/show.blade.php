@@ -121,10 +121,6 @@
                         </span>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-2">
-                        <span class="text-sm font-bold text-gray-600">Keterangan</span>
-                        <span class="col-span-2 text-sm text-gray-800">{{ $spk->keterangan }}</span>
-                    </div>
 
                    <div class="grid grid-cols-3 gap-2">
                         <span class="text-sm font-bold text-gray-600">Status</span>
@@ -162,7 +158,7 @@
     {{-- Content --}}
     <div class="space-y-3 text-sm text-gray-600 leading-relaxed">
         <p>
-            Dosen Pembimbing dimohon untuk meninjau dan memastikan kesesuaian data yang diajukan dengan ketentuan kegiatan sebelum melakukan proses <span class="font-semibold text-gray-800">VALIDASI</span>.
+            Dosen Pembimbing dimohon untuk meninjau dan memastikan kesesuaian data yang diajukan dengan ketentuan kegiatan sebelum melakukan proses <span class="font-semibold text-gray-800">VERIFIKASI</span>.
         </p>
         <p>
             Apabila ditemukan ketidaksesuaian, Dosen Pembimbing berwenang untuk meminta <span class="font-semibold text-gray-800">REVISI</span> dengan menyertakan catatan perbaikan kepada mahasiswa yang bersangkutan.

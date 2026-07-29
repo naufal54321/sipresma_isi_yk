@@ -21,7 +21,7 @@
 
             {{-- ⚡ TOMBOL TAMBAH POIN - MUNCUL JIKA SPK DISETUJUI & BELUM ADA POIN --}}
             @if($spk->status === 'disetujui' && !$spk->hasPoin())
-                <button onclick="tambahPoinSweetAlert({{ $spk->id }}, '{{ addslashes($spk->judul_kegiatan) }}')"
+                <button onclick="tambahPoinSweetAlert({{ $spk->id }}, @json($spk->judul_kegiatan))"
                         class="inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -142,10 +142,6 @@
                 </span>
             </div>
 
-            <div class="grid grid-cols-3 gap-2">
-                <span class="text-sm font-bold text-gray-600">Keterangan</span>
-                <span class="col-span-2 text-sm text-gray-800">{{ $spk->keterangan }}</span>
-            </div>
 
             <div class="grid grid-cols-3 gap-2">
                 <span class="text-sm font-bold text-gray-600">Status</span>
@@ -173,7 +169,7 @@
                                                 <span class="text-sm text-gray-600">Poin</span>
                                             </div>
                                             {{-- ⚡ TOMBOL EDIT POIN --}}
-                                            <button onclick="editPoin({{ $spk->id }}, {{ $spk->poin }}, '{{ addslashes($spk->judul_kegiatan ?? $spk->kegiatan->judul_kegiatan ?? '') }}')"
+                                            <button onclick="editPoin({{ $spk->id }}, {{ $spk->poin }}, @json($spk->judul_kegiatan ?? $spk->kegiatan?->judul_kegiatan ?? ''))"
                                                     class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer">
                                                 <i class="fas fa-pen mr-1"></i> Edit
                                             </button>
@@ -218,7 +214,7 @@
                 <div class="border-t border-blue-200/60 my-4"></div>
                 <p class="text-sm text-red-500 leading-relaxed">
                     <i class="fas fa-exclamation-triangle mr-1"></i>
-                    Pastikan data sudah sesuai sebelum melakukan validasi.
+                    Pastikan data sudah sesuai sebelum melakukan verifikasi.
                 </p>
             </div>
         </div>
@@ -417,8 +413,8 @@
                                         <tr class="bg-blue-50/30">
                                             <td class="px-5 py-3 text-center text-gray-500 font-medium">1</td>
                                             <td class="px-5 py-3 font-semibold text-gray-800">
-                                                {{ $spk->rpk->user->name ?? $spk->user->name }}
-                                                @if($spk->rpk->user_id == Auth::id() || $spk->user_id == Auth::id())
+                                                {{ $spk->rpk?->user?->name ?? $spk->user->name }}
+                                                @if($spk->rpk?->user_id == Auth::id() || $spk->user_id == Auth::id())
                                                     <span class="text-[11px] text-blue-500 font-medium ml-1.5">(Anda)</span>
                                                 @endif
                                             </td>

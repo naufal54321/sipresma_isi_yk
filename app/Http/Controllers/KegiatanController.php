@@ -5,29 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Rpk;
 use App\Models\Kegiatan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\MasterKegiatan;
 use App\Models\MasterPrestasi;
 use Illuminate\Support\Facades\Log;
 
 class KegiatanController extends Controller
 {
-    public function verifikasi()
-    {
-        $kegiatans = Kegiatan::with('rpk.user')->latest()->get();
-        return view('dosen.kegiatan.index', compact('kegiatans'));
-    }
-
-    public function index(Rpk $rpk)
-    {
-        $kegiatans = $rpk->kegiatans;
-        return view('mahasiswa.kegiatans.index', compact('rpk', 'kegiatans'));
-    }
-
     public function create(Rpk $rpk)
     {
-        $masterKegiatans = MasterKegiatan::where('status', 'aktif')->get();
-        $prestasis = MasterPrestasi::where('is_active', true)->get();
-        return view('mahasiswa.kegiatans.create', compact('rpk', 'masterKegiatans', 'prestasis'));
+        return redirect()->route('rpks.show', $rpk->id)->with('error', 'Fitur tambah kegiatan belum tersedia.');
     }
 
     public function store(Request $request, Rpk $rpk)
@@ -53,7 +40,6 @@ class KegiatanController extends Controller
             'rpk_id' => $rpk->id,
             'master_kegiatan_id' => $master->id,
             'kegiatan' => $master->nama_kegiatan,
-            'jenis' => $master->jenis ?? '-',
             'judul_kegiatan' => $request->judul_kegiatan,
             'tanggal_mulai' => $request->tanggal_mulai,
             'tanggal_selesai' => $request->tanggal_selesai,
@@ -90,17 +76,28 @@ class KegiatanController extends Controller
             ->with('success', 'Kegiatan berhasil ditambahkan');
     }
 
-    public function edit(Kegiatan $kegiatan)
+    public function edit(Request $request, Kegiatan $kegiatan)
     {
-        $masterKegiatans = MasterKegiatan::where('status', 'aktif')->get();
-        $prestasis = MasterPrestasi::where('is_active', true)->get();
-        $rpk = $kegiatan->rpk;
+        if ($kegiatan->rpk->user_id !== Auth::id()) abort(403);
 
-        return view('mahasiswa.kegiatans.edit', compact('kegiatan', 'masterKegiatans', 'prestasis', 'rpk'));
+        if ($request->wantsJson()) {
+            $masterKegiatans = MasterKegiatan::where('status', 'aktif')->get();
+            $prestasis = MasterPrestasi::where('is_active', true)->get();
+            return response()->json([
+                'success' => true,
+                'data' => $kegiatan->load('masterKegiatan'),
+                'masterKegiatans' => $masterKegiatans,
+                'prestasis' => $prestasis,
+            ]);
+        }
+
+        return redirect()->route('rpks.show', $kegiatan->rpk_id)
+            ->with('error', 'Fitur edit kegiatan belum tersedia.');
     }
 
     public function update(Request $request, Kegiatan $kegiatan)
     {
+        if ($kegiatan->rpk->user_id !== Auth::id()) abort(403);
         $request->validate([
             'master_kegiatan_id' => 'required|exists:master_kegiatans,id',
             'judul_kegiatan' => 'required|string|max:255',
@@ -121,7 +118,6 @@ class KegiatanController extends Controller
         $kegiatan->update([
             'master_kegiatan_id' => $master->id,
             'kegiatan' => $master->nama_kegiatan,
-            'jenis' => $master->jenis ?? '-',
             'judul_kegiatan' => $request->judul_kegiatan,
             'tanggal_mulai' => $request->tanggal_mulai,
             'tanggal_selesai' => $request->tanggal_selesai,
@@ -149,6 +145,14 @@ class KegiatanController extends Controller
 
         $kegiatan->rpk->update(['status' => 'draft']);
 
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Kegiatan berhasil diperbarui',
+                'data' => $kegiatan->fresh()->load('masterKegiatan')
+            ]);
+        }
+
         return redirect()
             ->route('rpks.show', $kegiatan->rpk_id)
             ->with('success', 'Kegiatan berhasil diperbarui');
@@ -156,6 +160,7 @@ class KegiatanController extends Controller
 
     public function destroy(Kegiatan $kegiatan)
     {
+        if ($kegiatan->rpk->user_id !== Auth::id()) abort(403);
         if (!in_array($kegiatan->rpk->status, ['draft', 'ditolak'])) {
             $message = 'Kegiatan tidak dapat dihapus karena RPK sedang diajukan atau sudah disetujui.';
             

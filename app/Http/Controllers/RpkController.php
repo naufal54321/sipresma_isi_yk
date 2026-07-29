@@ -48,15 +48,6 @@ class RpkController extends Controller
     }
 
     /**
-     * Form tambah RPK
-     */
-    public function create()
-    {
-        $masterKegiatans = MasterKegiatan::where('status', 'aktif')->get();
-        return view('mahasiswa.rpks.create', compact('masterKegiatans'));
-    }
-
-    /**
      * Simpan RPK (SUPPORT AJAX)
      */
     public function store(Request $request)
@@ -101,7 +92,8 @@ class RpkController extends Controller
         }
 
         $isPemilik = $rpk->user_id == $user->id;
-        $isAnggota = !$isPemilik && $rpk->kegiatans()
+        $kegiatansQuery = $rpk->kegiatans();
+        $isAnggota = !$isPemilik && $kegiatansQuery
             ->whereHas('anggota', function ($q) use ($user) {
                 $q->where('user_id', $user->id);
             })->exists();
@@ -123,8 +115,9 @@ class RpkController extends Controller
         ]);
 
         $masterKegiatans = MasterKegiatan::where('status', 'aktif')->get();
+        $mahasiswaList = \App\Models\User::role('Mahasiswa')->where('id', '!=', $user->id)->orderBy('name')->get();
 
-        return view('mahasiswa.rpks.show', compact('rpk', 'masterKegiatans', 'isPemilik', 'isAnggota'));
+        return view('mahasiswa.rpks.show', compact('rpk', 'masterKegiatans', 'mahasiswaList', 'isPemilik', 'isAnggota'));
     }
 
     /**
@@ -140,7 +133,7 @@ class RpkController extends Controller
             return back()->with('error', 'RPK yang sudah diajukan/disetujui tidak dapat diedit.');
         }
 
-        return view('mahasiswa.rpks.edit', compact('rpk'));
+        return redirect()->route('rpks.show', $rpk->id)->with('error', 'Fitur edit RPK belum tersedia.');
     }
 
     /**
@@ -155,13 +148,11 @@ class RpkController extends Controller
         $request->validate([
             'tahun' => 'required',
             'semester' => 'required',
-            'kategori' => 'required',
         ]);
 
         $rpk->update([
             'tahun' => $request->tahun,
             'semester' => $request->semester,
-            'kategori' => $request->kategori,
             'status' => 'draft',
         ]);
 

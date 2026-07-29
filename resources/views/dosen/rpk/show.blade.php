@@ -129,7 +129,7 @@
     {{-- Content --}}
     <div class="space-y-3 text-sm text-gray-600 leading-relaxed">
         <p>
-            Dosen Pembimbing dimohon untuk meninjau dan memastikan kesesuaian data yang diajukan dengan ketentuan kegiatan sebelum melakukan proses <span class="font-semibold text-gray-800">VALIDASI</span>.
+            Dosen Pembimbing dimohon untuk meninjau dan memastikan kesesuaian data yang diajukan dengan ketentuan kegiatan sebelum melakukan proses <span class="font-semibold text-gray-800">VERIFIKASI</span>.
         </p>
         <p>
             Apabila ditemukan ketidaksesuaian, Dosen Pembimbing berwenang untuk meminta <span class="font-semibold text-gray-800">REVISI</span> dengan menyertakan catatan perbaikan kepada mahasiswa yang bersangkutan.
@@ -165,7 +165,7 @@
             <div class="w-full flex-shrink-0 snap-start p-6">
                 <h3 class="text-gray-600 font-medium mb-4">Daftar Rencana Kegiatan</h3>
                 
-                <div class="border border-gray-200 rounded-lg overflow-hidden mb-6">
+                <div class="border border-gray-200 rounded-lg overflow-x-auto mb-6">
                     <table class="w-full text-sm text-left text-gray-600">
                         <thead class="bg-gray-50 text-gray-700 uppercase text-xs tracking-wider border-b border-gray-200">
                             <tr>
@@ -227,7 +227,7 @@
                             </h3>
                             <div class="space-y-4">
                                 @foreach($kegiatanKelompok as $kegiatan)
-                                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+                                    <div class="border border-gray-200 rounded-xl overflow-x-auto">
                                         <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
                                             <h4 class="text-sm font-bold text-gray-800">📋 {{ $kegiatan->judul_kegiatan }}</h4>
                                             <div class="flex items-center gap-2 mt-1 text-xs text-gray-500">
