@@ -371,7 +371,7 @@
                 customClass: {
                     popup: 'rounded-2xl shadow-xl border border-gray-100 animate-fade-in-up'
                 }
-            });
+            }).then(() => location.reload());
         });
     </script>
     @endif
