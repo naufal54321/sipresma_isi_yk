@@ -202,7 +202,6 @@ sipresma_isi_yk/
 │   │   │   │   ├── ProgramStudiController.php
 │   │   │   │   ├── RpkController.php
 │   │   │   │   ├── SpkController.php
-│   │   │   │   ├── UserApprovalController.php
 │   │   │   │   ├── UserController.php
 │   │   │   │   └── UserRoleController.php
 │   │   │   ├── Dosen/
@@ -220,7 +219,7 @@ sipresma_isi_yk/
 │   │   │   └── ProfileController.php
 │   │   ├── Middleware/
 │   │   └── Requests/
-│   ├── Mail/                         # AccountApprovedMail, AccountRejectedMail
+│   ├── Mail/
 │   ├── Models/
 │   │   ├── Kegiatan.php
 │   │   ├── MasterKegiatan.php

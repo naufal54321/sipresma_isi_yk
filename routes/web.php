@@ -13,7 +13,6 @@ use App\Http\Controllers\Admin\ProgramStudiController;
 use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\RpkController as AdminRpkController;
 use App\Http\Controllers\Admin\SpkController as AdminSpkController;
-use App\Http\Controllers\Admin\UserApprovalController;
 use App\Http\Controllers\Dosen\RpkController as DosenRpkController;
 use App\Http\Controllers\Dosen\SpkController as DosenSpkController;
 use App\Http\Controllers\Dosen\MahasiswaController;
@@ -136,8 +135,6 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
     /* Manajemen User */
     Route::resource('users', UserController::class)->except(['create', 'edit']);
     Route::post('/users/{user}/role', [UserRoleController::class, 'update'])->name('users.role.update');
-    Route::put('/users/{user}/approve', [UserApprovalController::class, 'approve'])->name('users.approve');
-    Route::delete('/users/{user}/reject', [UserApprovalController::class, 'reject'])->name('users.reject');
 
     /* Dosen Pembimbing */
     Route::get('/pembimbing', [UserController::class, 'pembimbingIndex'])->name('pembimbing.index');
