@@ -84,8 +84,8 @@
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/your-username/sipresma.git
-cd sipresma
+git clone https://github.com/your-username/sipresma_isi_yk.git
+cd sipresma_isi_yk
 ```
 
 ### 2. Install Dependencies
@@ -110,7 +110,7 @@ Edit file `.env`:
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=sipresma
+DB_DATABASE=pratama
 DB_USERNAME=root
 DB_PASSWORD=
 ```
