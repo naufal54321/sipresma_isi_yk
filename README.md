@@ -151,11 +151,31 @@ Akses di browser: **http://localhost:8000**
 ## 📊 Alur Kerja
 
 ```
-Mahasiswa membuat RPK → Dosen/Admin verifikasi RPK
-                              ↓
-Mahasiswa membuat SPK → Dosen/Admin verifikasi SPK
-                              ↓
-                         Admin tambah Poin
+Registrasi
+      │
+      ▼
+Verifikasi Email
+      │
+      ▼
+Login
+      │
+      ▼
+Membuat RPK
+      │
+      ▼
+Verifikasi Dosen
+      │
+      ▼
+Membuat SPK
+      │
+      ▼
+Verifikasi Dosen
+      │
+      ▼
+Admin Menambahkan Poin Prestasi
+      │
+      ▼
+Data Masuk Laporan
 ```
 
 ---
