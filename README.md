@@ -191,97 +191,21 @@ php artisan test
 ## 📁 Struktur Folder
 
 ```
-sipresma_isi_yk/
+pratama/
 ├── app/
 │   ├── Http/
-│   │   ├── Controllers/
-│   │   │   ├── Admin/
-│   │   │   │   ├── LaporanController.php
-│   │   │   │   ├── MasterKegiatanController.php
-│   │   │   │   ├── MasterPrestasiController.php
-│   │   │   │   ├── ProgramStudiController.php
-│   │   │   │   ├── RpkController.php
-│   │   │   │   ├── SpkController.php
-│   │   │   │   ├── UserController.php
-│   │   │   │   └── UserRoleController.php
-│   │   │   ├── Dosen/
-│   │   │   │   ├── LaporanController.php
-│   │   │   │   ├── MahasiswaController.php
-│   │   │   │   ├── RpkController.php
-│   │   │   │   └── SpkController.php
-│   │   │   ├── Mahasiswa/
-│   │   │   │   ├── KegiatanController.php
-│   │   │   │   ├── RpkController.php
-│   │   │   │   └── SpkController.php
-│   │   │   ├── Auth/                 # Login, Register, Password, Verify Email
-│   │   │   ├── Controller.php
-│   │   │   ├── DashboardController.php
-│   │   │   └── ProfileController.php
-│   │   ├── Middleware/
-│   │   └── Requests/
-│   ├── Mail/
 │   ├── Models/
-│   │   ├── Kegiatan.php
-│   │   ├── MasterKegiatan.php
-│   │   ├── MasterPrestasi.php
-│   │   ├── ProgramStudi.php
-│   │   ├── Rpk.php
-│   │   ├── Spk.php
-│   │   └── User.php
-│   ├── Notifications/
-│   ├── Providers/
 │   ├── Services/
-│   │   ├── DashboardService.php
-│   │   └── LaporanService.php
-│   └── View/Components/
-├── bootstrap/
-├── config/
+│   └── Notifications/
 ├── database/
-│   ├── migrations/                   # ~45 file migrasi
-│   └── seeders/
 ├── public/
-│   ├── build/assets/                 # Aset Vite
-│   ├── images/                       # Logo, slide, banner
-│   └── panduan/
 ├── resources/
-│   ├── css/
-│   ├── js/
-│   └── views/
-│       ├── admin/
-│       │   ├── daftar_pengguna/
-│       │   ├── kegiatan/
-│       │   ├── laporan/
-│       │   ├── master-prestasi/
-│       │   ├── pembimbing/
-│       │   ├── prodi/
-│       │   ├── rpk/
-│       │   ├── spk/
-│       │   └── users/
-│       ├── auth/                     # Login, Register, Forgot/Reset Password
-│       ├── components/
-│       ├── dashboard/                # admin, dosen, mahasiswa
-│       ├── dosen/
-│       │   ├── laporan/
-│       │   ├── mahasiswa/
-│       │   ├── rpk/
-│       │   └── spk/
-│       ├── layouts/                  # app, guest, navigation
-│       ├── mahasiswa/
-│       │   ├── rpks/                 # index, show
-│       │   └── spks/                 # index, show
-│       └── profile/
 ├── routes/
-│   ├── auth.php
-│   ├── console.php
-│   └── web.php
 ├── tests/
-│   ├── Feature/
-│   └── Unit/
+├── storage/
 ├── composer.json
 ├── package.json
-├── tailwind.config.js
-├── vite.config.js
-└── deploy.sh
+└── README.md
 ```
 
 ---
