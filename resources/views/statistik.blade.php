@@ -92,8 +92,8 @@
             <span class="material-symbols-outlined text-[18px]">dashboard</span> Dashboard
         </a>
     @else
-        <a id="loginBtn" href="{{ route('login') }}" class="px-6 py-2 rounded-full font-label-md text-label-md hidden md:block border border-primary/70 text-primary hover:bg-primary/10 transition-all">Login</a>
-        <a href="{{ route('register') }}" class="btn-primary px-6 py-2 rounded-full font-label-md text-label-md hidden md:block">Register</a>
+        <a id="loginBtn" href="{{ route('login') }}" class="px-6 py-2 rounded-full font-label-md text-label-md hidden md:block border border-primary/70 text-primary hover:bg-primary/10 transition-all">Masuk</a>
+        <a href="{{ route('register') }}" class="btn-primary px-6 py-2 rounded-full font-label-md text-label-md hidden md:block">Daftar</a>
     @endauth
 </div>
         {{-- Hamburger button --}}
@@ -123,7 +123,7 @@
             @auth
                 <a href="{{ url('/dashboard') }}" class="btn-primary px-8 py-3 rounded-full font-label-md">Dashboard</a>
             @else
-                <a href="{{ route('login') }}" class="btn-primary px-8 py-3 rounded-full font-label-md">Login</a>
+                <a href="{{ route('login') }}" class="btn-primary px-8 py-3 rounded-full font-label-md">Masuk</a>
                 <a href="{{ route('register') }}" class="px-8 py-3 rounded-full font-label-md border-2 border-white/40 text-white hover:bg-white/10">Daftar</a>
             @endauth
         </div>
