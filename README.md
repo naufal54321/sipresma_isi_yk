@@ -28,8 +28,8 @@
 | Fitur | Deskripsi |
 |-------|-----------|
 | **Registrasi** | Pendaftaran dengan NIM, Prodi, Angkatan, Semester |
-| **RPK** | Membuat dan mengelola Rencana Prestasi Kegiatan |
-| **SPK** | Membuat dan mengelola Sertifikat Prestasi Kegiatan |
+| **RPK** | Membuat dan mengelola Rencana Prestasi Kemahasiswaan |
+| **SPK** | Membuat dan mengelola Satuan Prestasi Kemahasiswaan |
 | **Upload** | Upload dokumen pendukung (Surat Tugas, Sertifikat, Foto, Laporan) |
 | **Dashboard** | Statistik pribadi dengan grafik interaktif |
 
