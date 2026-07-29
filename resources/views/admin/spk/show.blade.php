@@ -21,7 +21,7 @@
 
             {{-- ⚡ TOMBOL TAMBAH POIN - MUNCUL JIKA SPK DISETUJUI & BELUM ADA POIN --}}
             @if($spk->status === 'disetujui' && !$spk->hasPoin())
-                <button onclick="tambahPoinSweetAlert({{ $spk->id }}, @json($spk->judul_kegiatan))"
+                <button onclick="tambahPoinSweetAlert({{ $spk->id }}, '{{ addslashes($spk->judul_kegiatan) }}')"
                         class="inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -169,7 +169,7 @@
                                                 <span class="text-sm text-gray-600">Poin</span>
                                             </div>
                                             {{-- ⚡ TOMBOL EDIT POIN --}}
-                                            <button onclick="editPoin({{ $spk->id }}, {{ $spk->poin }}, @json($spk->judul_kegiatan ?? $spk->kegiatan?->judul_kegiatan ?? ''))"
+                                            <button onclick="editPoin({{ $spk->id }}, {{ $spk->poin }}, '{{ addslashes($spk->judul_kegiatan ?? $spk->kegiatan?->judul_kegiatan ?? '') }}')"
                                                     class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer">
                                                 <i class="fas fa-pen mr-1"></i> Edit
                                             </button>
@@ -705,7 +705,7 @@ window.tambahPoinSweetAlert = function(spkId, judulKegiatan) {
             });
             
             // Kirim request AJAX
-            fetch(`/admin/spk/${spkId}/tambah-poin`, {
+            fetch("{{ route('admin.spk.tambah-poin', ':id') }}".replace(':id', spkId), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -798,7 +798,7 @@ window.approveSpk = function(id) {
         cancelButtonText: 'Batal'
     }).then((result) => {
         if(result.isConfirmed) {
-            fetch(`/admin/spk/${id}/approve`, {
+            fetch("{{ route('admin.spk.approve', ':id') }}".replace(':id', id), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -842,7 +842,7 @@ window.rejectSpk = function(id) {
         }
     }).then((result) => {
         if(result.isConfirmed) {
-            fetch(`/admin/spk/${id}/reject`, {
+            fetch("{{ route('admin.spk.reject', ':id') }}".replace(':id', id), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -901,7 +901,7 @@ function tambahPoin(spkId, judulKegiatan) {
     }).then((result) => {
         if (result.isConfirmed) {
             Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            fetch(`/admin/spk/${spkId}/tambah-poin`, {
+            fetch("{{ route('admin.spk.tambah-poin', ':id') }}".replace(':id', spkId), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 body: JSON.stringify({ poin: result.value })
@@ -944,7 +944,7 @@ function editPoin(spkId, poinSekarang, judulKegiatan) {
             Swal.fire({ title: 'Mengupdate...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             
             // ⚡ PAKAI ROUTE edit-poin
-            fetch(`/admin/spk/${spkId}/edit-poin`, {
+            fetch("{{ route('admin.spk.edit-poin', ':id') }}".replace(':id', spkId), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
                 body: JSON.stringify({ poin: result.value })
