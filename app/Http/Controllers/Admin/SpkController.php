@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Spk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class AdminSpkController extends Controller
+class SpkController extends Controller
 {
     public function index(Request $request)
     {
@@ -84,32 +86,6 @@ class AdminSpkController extends Controller
         return back()->with('success', 'SPK berhasil dihapus');
     }
 
-    public function kelolaPoin(Request $request)
-    {
-        $filterTahun = $request->tahun;
-        $filterStatus = $request->status_poin;
-        $search = $request->search;
-
-        $query = Spk::with(['user', 'rpk', 'kegiatan', 'poinAddedBy'])->where('status', 'disetujui');
-
-        if ($filterTahun) $query->where('tahun', $filterTahun);
-        if ($filterStatus === 'sudah') $query->where('poin', '>', 0);
-        elseif ($filterStatus === 'belum') $query->where(fn($q) => $q->whereNull('poin')->orWhere('poin', '<=', 0));
-        if ($search) $query->where(fn($q) => $q->where('judul_kegiatan', 'like', "%{$search}%")->orWhereHas('user', fn($uq) => $uq->where('name', 'like', "%{$search}%")));
-
-        $spks = $query->latest()->paginate(20)->withQueryString();
-        $stats = Spk::where('status', 'disetujui')
-            ->selectRaw('COUNT(*) as total, SUM(CASE WHEN poin > 0 THEN 1 ELSE 0 END) as dengan_poin, COALESCE(SUM(poin), 0) as total_poin')
-            ->first();
-        $totalDisetujui = $stats->total;
-        $totalDenganPoin = $stats->dengan_poin;
-        $totalTanpaPoin = $totalDisetujui - $totalDenganPoin;
-        $totalPoin = $stats->total_poin;
-        $listTahun = Spk::distinct()->orderBy('tahun', 'desc')->pluck('tahun');
-
-        return view('admin.spk.kelola-poin', compact('spks', 'totalDisetujui', 'totalDenganPoin', 'totalTanpaPoin', 'totalPoin', 'filterTahun', 'filterStatus', 'search', 'listTahun'));
-    }
-
     /**
      * ⚡ Tambah Poin SPK via AJAX (Hanya untuk SPK yang belum ada poin)
      */
@@ -170,3 +146,4 @@ class AdminSpkController extends Controller
         ]);
     }
 }
+

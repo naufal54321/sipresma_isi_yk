@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+
 use App\Models\ProgramStudi;
 use Illuminate\Http\Request;
 
@@ -178,3 +179,4 @@ class ProgramStudiController extends Controller
         return response()->json($fakultas);
     }
 }
+

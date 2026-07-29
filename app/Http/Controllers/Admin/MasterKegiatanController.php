@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\MasterKegiatan;
 use Illuminate\Http\Request;
@@ -103,7 +105,7 @@ class MasterKegiatanController extends Controller
 
     public function edit(MasterKegiatan $kegiatan)
     {
-        return view('admin.kegiatan.edit', compact('kegiatan'));
+        return redirect()->route('admin.kegiatan.index');
     }
 
     public function update(Request $request, MasterKegiatan $kegiatan)
@@ -209,3 +211,4 @@ class MasterKegiatanController extends Controller
         }
     }
 }
+

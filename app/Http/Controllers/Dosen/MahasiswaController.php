@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Dosen;
+
+use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -8,7 +10,7 @@ use App\Models\Rpk;
 use App\Models\Spk;
 use Illuminate\Support\Facades\Auth;
 
-class DosenMahasiswaController extends Controller
+class MahasiswaController extends Controller
 {
     public function index(Request $request)
     {
@@ -43,3 +45,4 @@ class DosenMahasiswaController extends Controller
         return view('dosen.mahasiswa.index', compact('mahasiswa', 'listAngkatan'));
     }
 }
+

@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Mahasiswa;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Rpk;
 use App\Models\Kegiatan;
@@ -186,3 +188,4 @@ class KegiatanController extends Controller
         return back()->with('success', 'Kegiatan berhasil dihapus.');
     }
 }
+

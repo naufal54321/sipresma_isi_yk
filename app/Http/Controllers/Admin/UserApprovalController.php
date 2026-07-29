@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
@@ -8,7 +10,7 @@ use App\Mail\AccountApprovedMail;
 use App\Mail\AccountRejectedMail;
 use Illuminate\Http\Request;
 
-class AdminUserApprovalController extends Controller
+class UserApprovalController extends Controller
 {
     public function index(Request $request)
     {
@@ -66,3 +68,5 @@ class AdminUserApprovalController extends Controller
         return back()->with('success', 'Akun berhasil ditolak');
     }
 }
+
+

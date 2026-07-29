@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Mahasiswa;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Spk;
 use App\Models\Rpk;
@@ -384,3 +386,4 @@ class SpkController extends Controller
 
 
 }
+

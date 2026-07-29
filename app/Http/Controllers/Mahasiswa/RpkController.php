@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Mahasiswa;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Rpk;
 use Illuminate\Http\Request;
@@ -186,3 +188,4 @@ class RpkController extends Controller
         return redirect()->route('rpks.index')->with('success', 'RPK berhasil dihapus');
     }
 }
+

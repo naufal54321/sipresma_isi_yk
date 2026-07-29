@@ -175,25 +175,29 @@ sipresma_isi_yk/
 ├── app/
 │   ├── Http/
 │   │   ├── Controllers/
+│   │   │   ├── Admin/
+│   │   │   │   ├── LaporanController.php
+│   │   │   │   ├── MasterKegiatanController.php
+│   │   │   │   ├── MasterPrestasiController.php
+│   │   │   │   ├── ProgramStudiController.php
+│   │   │   │   ├── RpkController.php
+│   │   │   │   ├── SpkController.php
+│   │   │   │   ├── UserApprovalController.php
+│   │   │   │   ├── UserController.php
+│   │   │   │   └── UserRoleController.php
+│   │   │   ├── Dosen/
+│   │   │   │   ├── LaporanController.php
+│   │   │   │   ├── MahasiswaController.php
+│   │   │   │   ├── RpkController.php
+│   │   │   │   └── SpkController.php
+│   │   │   ├── Mahasiswa/
+│   │   │   │   ├── KegiatanController.php
+│   │   │   │   ├── RpkController.php
+│   │   │   │   └── SpkController.php
 │   │   │   ├── Auth/                 # Login, Register, Password, Verify Email
-│   │   │   ├── AdminRpkController.php
-│   │   │   ├── AdminSpkController.php
-│   │   │   ├── AdminUserApprovalController.php
+│   │   │   ├── Controller.php
 │   │   │   ├── DashboardController.php
-│   │   │   ├── DosenMahasiswaController.php
-│   │   │   ├── DosenRpkController.php
-│   │   │   ├── DosenSpkController.php
-│   │   │   ├── KegiatanController.php
-│   │   │   ├── LaporanController.php
-│   │   │   ├── LaporanDosenController.php
-│   │   │   ├── MasterKegiatanController.php
-│   │   │   ├── MasterPrestasiController.php
-│   │   │   ├── ProfileController.php
-│   │   │   ├── ProgramStudiController.php
-│   │   │   ├── RpkController.php
-│   │   │   ├── SpkController.php
-│   │   │   ├── UserController.php
-│   │   │   └── UserRoleController.php
+│   │   │   └── ProfileController.php
 │   │   ├── Middleware/
 │   │   └── Requests/
 │   ├── Mail/                         # AccountApprovedMail, AccountRejectedMail

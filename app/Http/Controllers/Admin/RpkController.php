@@ -1,13 +1,15 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Rpk;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class AdminRpkController extends Controller
+class RpkController extends Controller
 {
     public function index(Request $request)
     {
@@ -80,3 +82,4 @@ class AdminRpkController extends Controller
             ->with('success', 'Status RPK milik ' . $rpk->user->name . ' berhasil diubah menjadi ' . strtoupper($request->status));
     }
 }
+

@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Dosen;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Spk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class DosenSpkController extends Controller
+class SpkController extends Controller
 {
     /**
      * Daftar SPK mahasiswa bimbingan
@@ -117,3 +119,4 @@ class DosenSpkController extends Controller
         return view('dosen.spk.show', compact('spk'));
     }
 }
+

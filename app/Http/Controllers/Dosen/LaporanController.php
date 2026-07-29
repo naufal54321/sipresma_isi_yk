@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Dosen;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Spk;
 use App\Models\User;
@@ -10,7 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
-class LaporanDosenController extends Controller
+class LaporanController extends Controller
 {
     protected $laporanService;
 
@@ -166,3 +168,5 @@ class LaporanDosenController extends Controller
             ->download('laporan.pdf');
     }
 }
+
+
