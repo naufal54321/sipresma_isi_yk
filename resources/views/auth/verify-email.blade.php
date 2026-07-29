@@ -1,46 +1,101 @@
 <x-guest-layout>
-    <div class="min-h-screen flex flex-col items-center justify-between bg-slate-50">
-        
-        <div class="flex-grow flex items-center justify-center w-full p-4">
-            <div class="max-w-md w-full bg-white shadow-xl rounded-2xl overflow-hidden border border-slate-200 p-8 text-center">
-                
-                <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 ring-4 ring-white shadow-sm">
-                    <i class="fas fa-envelope-open-text text-3xl text-blue-600"></i>
-                </div>
+    <div class="w-full max-w-md mx-auto px-4 py-8 relative z-10 animate-fade-in-up">
 
-                <h2 class="text-2xl font-bold text-slate-800 mb-3">Periksa Email Anda</h2>
+        {{-- Kartu Verifikasi — Glassmorphism --}}
+        <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 md:p-10 shadow-2xl shadow-black/30 relative overflow-hidden">
 
-                <p class="text-sm text-slate-500 mb-8 leading-relaxed">
-                    Terima kasih telah mendaftar di PRATAMA! Sebelum memulai, harap verifikasi alamat email Anda dengan mengeklik tautan yang baru saja kami kirimkan. 
-                    Jika Anda tidak menerima email tersebut, kami akan mengirimkan ulang.
-                </p>
+            {{-- Elemen Dekoratif --}}
+            <div class="absolute -top-16 -right-16 w-32 h-32 bg-blue-400/20 rounded-full blur-3xl animate-pulse-slow"></div>
+            <div class="absolute -bottom-16 -left-16 w-32 h-32 bg-purple-400/20 rounded-full blur-3xl animate-pulse-slow animation-delay-2000"></div>
 
-                <div class="flex flex-col gap-3">
-                    <form method="POST" action="{{ route('verification.send') }}">
-                        @csrf
-                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-sm flex justify-center items-center gap-2">
-                            <i class="fas fa-paper-plane"></i> Kirim Ulang Email
-                        </button>
-                    </form>
-
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 px-4 rounded-xl transition-all duration-200 flex justify-center items-center gap-2">
-                            <i class="fas fa-sign-out-alt"></i> Keluar
-                        </button>
-                    </form>
+            {{-- Icon --}}
+            <div class="flex justify-center mb-6 animate-float">
+                <div class="w-20 h-20 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-white text-5xl">mark_email_read</span>
                 </div>
             </div>
+
+            {{-- Judul --}}
+            <h2 class="text-2xl font-bold text-white text-center mb-3">
+                Periksa Email Anda
+            </h2>
+
+            <p class="text-white/70 text-sm text-center leading-relaxed mb-8">
+                Terima kasih telah mendaftar! Kami telah mengirimkan tautan verifikasi ke email Anda.
+                Klik tautan tersebut untuk mengaktifkan akun.
+            </p>
+
+            {{-- Langkah-langkah --}}
+            <div class="space-y-4 mb-8">
+                <div class="flex items-center gap-4 bg-white/5 rounded-xl p-4 border border-white/10 animate-fade-in-up animation-delay-200">
+                    <span class="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-blue-300 text-xl">mail</span>
+                    </span>
+                    <div>
+                        <p class="text-white font-semibold text-sm">Cek Kotak Masuk Email</p>
+                        <p class="text-white/50 text-xs">Cari email dari PRATAMA di inbox Anda</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4 bg-white/5 rounded-xl p-4 border border-white/10 animate-fade-in-up animation-delay-300">
+                    <span class="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-green-300 text-xl">how_to_reg</span>
+                    </span>
+                    <div>
+                        <p class="text-white font-semibold text-sm">Klik Tautan Verifikasi</p>
+                        <p class="text-white/50 text-xs">Konfirmasi alamat email Anda dalam satu klik</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4 bg-white/5 rounded-xl p-4 border border-white/10 animate-fade-in-up animation-delay-400">
+                    <span class="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-purple-300 text-xl">login</span>
+                    </span>
+                    <div>
+                        <p class="text-white font-semibold text-sm">Masuk ke Dashboard</p>
+                        <p class="text-white/50 text-xs">Akses penuh setelah verifikasi berhasil</p>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Tombol --}}
+            <div class="flex flex-col gap-3 animate-fade-in-up animation-delay-500">
+                <form method="POST" action="{{ route('verification.send') }}">
+                    @csrf
+                    <button type="submit"
+                        class="ripple-btn w-full rounded-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white py-3 text-base font-semibold transition-all duration-300 shadow-lg hover:shadow-blue-500/50 transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-xl">refresh</span>
+                        Kirim Ulang Email
+                    </button>
+                </form>
+
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit"
+                        class="ripple-btn w-full rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 text-base font-semibold transition-all duration-300 flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-xl">logout</span>
+                        Keluar
+                    </button>
+                </form>
+            </div>
+
+            {{-- Footer info --}}
+            <p class="text-white/40 text-xs text-center mt-6 animate-fade-in animation-delay-600">
+                Tidak menerima email? Periksa folder spam atau klik "Kirim Ulang"
+            </p>
+
         </div>
 
-        <footer class="w-full py-5 text-center text-sm text-slate-500 border-t border-slate-200 bg-white/50 backdrop-blur-sm shrink-0">
+        {{-- Footer copyright --}}
+        <p class="text-white/40 text-xs text-center mt-6 animate-fade-in animation-delay-700">
             &copy; 2026 UPA TIK Institut Seni Indonesia Yogyakarta
-        </footer>
+        </p>
 
     </div>
 
+    {{-- SweetAlert untuk notifikasi --}}
     @if (session('status') == 'verification-link-sent')
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
@@ -56,6 +111,4 @@
             });
         </script>
     @endif
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </x-guest-layout>

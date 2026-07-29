@@ -163,7 +163,7 @@
                 </a>
             @else
                 <a id="loginBtn" href="{{ route('login') }}" class="px-6 py-2 rounded-full font-label-md text-label-md hidden md:block border border-white/70 text-white hover:bg-white/10 transition-all">Login</a>
-                <a href="{{ route('register') }}" class="btn-primary px-6 py-2 rounded-full font-label-md text-label-md">Register</a>
+                <a href="{{ route('register') }}" class="btn-primary px-6 py-2 rounded-full font-label-md text-label-md">Daftar</a>
             @endauth
         </div>
         {{-- Hamburger button --}}

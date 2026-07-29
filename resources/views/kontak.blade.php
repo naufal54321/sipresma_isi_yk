@@ -281,30 +281,30 @@
                 <h4 class="font-title-lg text-title-lg font-bold text-secondary-fixed tracking-wide">Hubungi Kami</h4>
                 <div class="flex flex-col gap-5 font-body-md text-body-md text-on-primary/70">
                     <div class="flex items-start gap-3 group cursor-default">
-                        <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0 transition-all duration-300 group-hover:bg-[#1E3A8A]/20 group-hover:text-[#3B82F6] group-hover:scale-110">
+                        <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0 transition-all duration-300 group-hover:bg-[#1E3A8A] group-hover:text-white group-hover:scale-110">
                             <span class="material-symbols-outlined text-[20px]">location_on</span>
                         </div>
                         <div>
                             <span class="text-white font-semibold text-sm block mb-1">Alamat</span>
-                            <span class="group-hover:text-white transition-colors duration-300 leading-relaxed text-sm">Jl. Parangtritis Km. 6,5 Sewon, Bantul, Yogyakarta 55188</span>
+                            <span class="group-hover:text-[#93C5FD] transition-colors duration-300 leading-relaxed text-sm">Jl. Parangtritis Km. 6,5 Sewon, Bantul, Yogyakarta 55188</span>
                         </div>
                     </div>
                     <div class="flex items-start gap-3 group">
-                        <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0 transition-all duration-300 group-hover:bg-[#1E3A8A]/20 group-hover:text-[#3B82F6] group-hover:scale-110">
+                        <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0 transition-all duration-300 group-hover:bg-[#1E3A8A] group-hover:text-white group-hover:scale-110">
                             <span class="material-symbols-outlined text-[20px]">mail</span>
                         </div>
                         <div>
                             <span class="text-white font-semibold text-sm block mb-1">Email</span>
-                            <a href="mailto:kemahasiswaan@isi.ac.id" class="hover:text-white transition-colors duration-300 text-sm">kemahasiswaan@isi.ac.id</a>
+                            <a href="mailto:kemahasiswaan@isi.ac.id" class="hover:text-[#93C5FD] transition-colors duration-300 text-sm">kemahasiswaan@isi.ac.id</a>
                         </div>
                     </div>
                     <div class="flex items-start gap-3 group">
-                        <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0 transition-all duration-300 group-hover:bg-[#1E3A8A]/20 group-hover:text-[#3B82F6] group-hover:scale-110">
+                        <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0 transition-all duration-300 group-hover:bg-[#1E3A8A] group-hover:text-white group-hover:scale-110">
                             <span class="material-symbols-outlined text-[20px]">call</span>
                         </div>
                         <div>
                             <span class="text-white font-semibold text-sm block mb-1">Telepon</span>
-                            <a href="tel:+62274374485" class="hover:text-white transition-colors duration-300 text-sm">(0274) 374485</a>
+                            <a href="tel:+62274374485" class="hover:text-[#93C5FD] transition-colors duration-300 text-sm">(0274) 374485</a>
                         </div>
                     </div>
                 </div>
