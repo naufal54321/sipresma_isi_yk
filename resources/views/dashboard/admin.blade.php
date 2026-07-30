@@ -159,33 +159,97 @@
 
         <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
-            <div class="bg-gradient-to-b from-white to-slate-50 border border-slate-100 rounded-2xl shadow-sm p-5 sm:p-6 xl:col-span-1 h-fit">
-                <h2 class="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
-                    <span class="p-1.5 rounded-lg bg-yellow-50 text-yellow-500"><i class="fas fa-trophy"></i></span> Top 5 Mahasiswa
-                </h2>
-                <div class="space-y-3">
-                    @forelse($topMahasiswa as $mhs)
-                    <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-100 hover:shadow-md transition-shadow group gap-3">
-                        <div class="flex items-center gap-3 min-w-0 flex-1">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 
-                                {{ $loop->index == 0 ? 'bg-gradient-to-br from-yellow-100 to-amber-200 text-yellow-700' : ($loop->index == 1 ? 'bg-gradient-to-br from-slate-100 to-slate-300 text-slate-700' : ($loop->index == 2 ? 'bg-gradient-to-br from-orange-100 to-orange-300 text-orange-800' : 'bg-slate-50 text-blue-600')) }}">
-                                #{{ $loop->iteration }}
+            <div class="xl:col-span-1 space-y-6">
+                <div class="bg-gradient-to-b from-white to-slate-50 border border-slate-100 rounded-2xl shadow-sm p-5 sm:p-6">
+                    <h2 class="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
+                        <span class="p-1.5 rounded-lg bg-yellow-50 text-yellow-500"><i class="fas fa-trophy"></i></span> Top 5 Mahasiswa
+                    </h2>
+                    <div class="space-y-3">
+                        @forelse($topMahasiswa as $mhs)
+                        <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-100 hover:shadow-md transition-shadow group gap-3">
+                            <div class="flex items-center gap-3 min-w-0 flex-1">
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 
+                                    {{ $loop->index == 0 ? 'bg-gradient-to-br from-yellow-100 to-amber-200 text-yellow-700' : ($loop->index == 1 ? 'bg-gradient-to-br from-slate-100 to-slate-300 text-slate-700' : ($loop->index == 2 ? 'bg-gradient-to-br from-orange-100 to-orange-300 text-orange-800' : 'bg-slate-50 text-blue-600')) }}">
+                                    #{{ $loop->iteration }}
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <p class="font-bold text-slate-800 text-sm truncate group-hover:text-blue-600 transition-colors">{{ $mhs->name }}</p>
+                                    <p class="text-[11px] text-slate-500 truncate">{{ $mhs->nim }}</p>
+                                </div>
                             </div>
-                            <div class="min-w-0 flex-1">
-                                <p class="font-bold text-slate-800 text-sm truncate group-hover:text-blue-600 transition-colors">{{ $mhs->name }}</p>
-                                <p class="text-[11px] text-slate-500 truncate">{{ $mhs->nim }}</p>
+                            <div class="text-right shrink-0">
+                                <span class="inline-block px-2.5 py-1 bg-blue-50 text-blue-700 font-bold text-xs rounded-lg whitespace-nowrap">{{ $mhs->total_poin ?? 0 }} Poin</span>
                             </div>
                         </div>
-                        <div class="text-right shrink-0">
-                            <span class="inline-block px-2.5 py-1 bg-blue-50 text-blue-700 font-bold text-xs rounded-lg whitespace-nowrap">{{ $mhs->total_poin ?? 0 }} Poin</span>
+                        @empty
+                        <div class="text-center py-6 text-slate-400">
+                            <i class="fas fa-medal text-3xl mb-2 text-slate-200"></i>
+                            <p class="text-sm">Belum ada data prestasi</p>
+                        </div>
+                        @endforelse
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-b from-white to-slate-50 border border-slate-100 rounded-2xl shadow-sm p-5 sm:p-6">
+                    <h2 class="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
+                        <span class="p-1.5 rounded-lg bg-indigo-50 text-indigo-500"><i class="fas fa-balance-scale"></i></span> Rasio Bimbingan
+                    </h2>
+
+                    <div class="text-center mb-5">
+                        <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-50 to-indigo-100/50 rounded-2xl border border-indigo-100 mb-3">
+                            <span class="text-3xl font-extrabold text-indigo-600">1:{{ $rasio['rasio'] }}</span>
+                        </div>
+                        <p class="text-sm text-slate-500">Rata-rata Mahasiswa per Dosen</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mb-5">
+                        <div class="text-center p-3 bg-blue-50/50 rounded-xl border border-blue-100/50">
+                            <p class="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Mahasiswa</p>
+                            <p class="text-xl font-extrabold text-blue-500 mt-1">{{ $rasio['totalMahasiswaBimbingan'] }}</p>
+                        </div>
+                        <div class="text-center p-3 bg-purple-50/50 rounded-xl border border-purple-100/50">
+                            <p class="text-[10px] font-bold text-purple-600 uppercase tracking-wider">Dosen</p>
+                            <p class="text-xl font-extrabold text-purple-500 mt-1">{{ $rasio['totalDosenPembimbing'] }}</p>
                         </div>
                     </div>
-                    @empty
-                    <div class="text-center py-6 text-slate-400">
-                        <i class="fas fa-medal text-3xl mb-2 text-slate-200"></i>
-                        <p class="text-sm">Belum ada data prestasi</p>
+
+                    <div class="mb-4">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Distribusi Bimbingan</p>
+                        <div class="space-y-2.5">
+                            <div>
+                                <div class="flex items-center justify-between text-xs mb-1">
+                                    <span class="text-slate-600 font-medium">1-5 Mahasiswa</span>
+                                    <span class="font-bold text-slate-700">{{ $rasio['distribusi']['1-5'] }} dosen</span>
+                                </div>
+                                <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                    <div class="h-full bg-blue-400 rounded-full transition-all duration-700" style="width: {{ $rasio['totalDosenPembimbing'] > 0 ? ($rasio['distribusi']['1-5'] / $rasio['totalDosenPembimbing'] * 100) : 0 }}%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between text-xs mb-1">
+                                    <span class="text-slate-600 font-medium">6-10 Mahasiswa</span>
+                                    <span class="font-bold text-slate-700">{{ $rasio['distribusi']['6-10'] }} dosen</span>
+                                </div>
+                                <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                    <div class="h-full bg-indigo-400 rounded-full transition-all duration-700" style="width: {{ $rasio['totalDosenPembimbing'] > 0 ? ($rasio['distribusi']['6-10'] / $rasio['totalDosenPembimbing'] * 100) : 0 }}%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between text-xs mb-1">
+                                    <span class="text-slate-600 font-medium">11+ Mahasiswa</span>
+                                    <span class="font-bold text-slate-700">{{ $rasio['distribusi']['11+'] }} dosen</span>
+                                </div>
+                                <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                    <div class="h-full bg-purple-400 rounded-full transition-all duration-700" style="width: {{ $rasio['totalDosenPembimbing'] > 0 ? ($rasio['distribusi']['11+'] / $rasio['totalDosenPembimbing'] * 100) : 0 }}%"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    @endforelse
+
+                    <div class="flex items-center gap-2 text-xs text-slate-500 pt-3 border-t border-slate-100">
+                        <i class="fas fa-trophy text-yellow-500 text-[10px]"></i>
+                        <span>Terbanyak: <span class="font-bold text-slate-700">{{ $rasio['topDosen'] }}</span> ({{ $rasio['maxBimbingan'] }} mhs)</span>
+                    </div>
                 </div>
             </div>
 
@@ -212,7 +276,9 @@
                                 <td class="px-4 sm:px-6 py-4 min-w-[150px]">
                                     <div class="font-bold text-slate-800 truncate">{{ $item['aktor'] }}</div>
                                     <div class="mt-1">
-                                        @if($item['role'] == 'Dosen')
+                                        @if($item['role'] == 'Admin')
+                                            <span class="inline-flex bg-red-50 text-red-600 border border-red-100 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider">Admin</span>
+                                        @elseif($item['role'] == 'Dosen')
                                             <span class="inline-flex bg-purple-50 text-purple-600 border border-purple-100 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider">Dosen</span>
                                         @else
                                             <span class="inline-flex bg-blue-50 text-blue-600 border border-blue-100 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider">Mahasiswa</span>

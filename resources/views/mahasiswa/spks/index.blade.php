@@ -1,10 +1,16 @@
 <x-app-layout>
 
+<style>
+.file-error { transition: opacity 0.2s ease; }
+.file-error:not(.hidden) { opacity: 1; }
+.file-error.hidden { opacity: 0; }
+</style>
+
 <div class="py-6">
 
    <div class="max-w-8xl mx-auto py-6">
 
-        <div class="flex items-center justify-between mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-gray-800">SPK</h1>
                 <p class="text-gray-500">Satuan Prestasi Kemahasiswaan</p>
@@ -191,18 +197,17 @@
 <script>
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
-// ⚡ VALIDASI UKURAN FILE
+// ⚡ VALIDASI UKURAN FILE — INLINE ERROR (TIDAK PAKAI SWEET ALERT)
 function validateFileSize(input, label) {
+    const errorEl = document.getElementById(input.id + '_error');
+    if (errorEl) errorEl.classList.add('hidden');
+
     if (input.files && input.files[0]) {
         const file = input.files[0];
         if (file.size > MAX_FILE_SIZE) {
-            const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-            Swal.fire({
-                icon: 'warning', title: 'File Terlalu Besar!',
-                html: `<div class="text-left text-sm"><p><strong>File:</strong> ${label}</p><p><strong>Ukuran:</strong> ${fileSizeMB} MB</p><p><strong>Maksimal:</strong> 5 MB</p><hr class="my-2"><p class="text-red-500">Silakan pilih file lebih kecil.</p></div>`,
-                confirmButtonColor: '#dc2626', confirmButtonText: 'Mengerti'
-            });
-            input.value = ''; return false;
+            if (errorEl) errorEl.classList.remove('hidden');
+            input.value = '';
+            return false;
         }
     }
     return true;
@@ -243,7 +248,7 @@ function generateFilePreview(label, url) {
 }
 
 // ⚡ GENERATE FORM HTML
-function generateFormHTML(prefix) {
+function generateSpkFormHTML(prefix) {
     const isAdd = prefix === 'add';
     const requiredAttr = isAdd ? 'required' : '';
     const requiredStar = isAdd ? ' <span class="text-red-500">*</span>' : '';
@@ -261,7 +266,14 @@ function generateFormHTML(prefix) {
             <select name="rpk_id" id="${prefix}_rpk" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500" required>
                 <option value="">Pilih RPK</option>
                 @foreach($rpks ?? [] as $rpk)
-                    <option value="{{ $rpk->id }}" data-kegiatan-id="{{ $rpk->kegiatans->first()->id ?? '' }}" data-kegiatan-nama="{{ $rpk->kegiatans->first()->judul_kegiatan ?? $rpk->kegiatans->first()->kegiatan ?? '' }}" data-kegiatan-tanggal-mulai="{{ $rpk->kegiatans->first()->tanggal_mulai ?? '' }}" data-kegiatan-tanggal-selesai="{{ $rpk->kegiatans->first()->tanggal_selesai ?? '' }}" data-kegiatan-kategori="{{ $rpk->kegiatans->first()->kategori ?? '' }}">{{ $rpk->tahun }} - {{ $rpk->semester }} ({{ $rpk->user->name ?? '' }})</option>
+                    @php $firstKeg = $rpk->kegiatans->first(); @endphp
+                    <option value="{{ $rpk->id }}"
+                        data-kegiatan-id="{{ $firstKeg->id ?? '' }}"
+                        data-kegiatan-judul="{{ $firstKeg->judul_kegiatan ?? '' }}"
+                        data-kegiatan-nama="{{ $firstKeg->kegiatan ?? '' }}"
+                        data-kegiatan-tanggal-mulai="{{ $firstKeg->tanggal_mulai ?? '' }}"
+                        data-kegiatan-tanggal-selesai="{{ $firstKeg->tanggal_selesai ?? '' }}"
+                        data-kegiatan-kategori="{{ $firstKeg->kategori ?? '' }}">{{ $rpk->tahun }} - {{ $rpk->semester }} ({{ $rpk->user->name ?? '' }})</option>
                 @endforeach
             </select>
         </div>
@@ -330,24 +342,28 @@ function generateFormHTML(prefix) {
             <div id="${prefix}_surat_tugas_preview"></div>
             <input type="file" name="surat_tugas" id="${prefix}_surat_tugas" accept=".pdf" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none" ${requiredAttr} onchange="validateFileSize(this, 'Surat Tugas')">
             <p class="text-xs text-gray-400 mt-1">Format: PDF | Maksimal: 5 MB</p>
+            <span class="file-error text-red-500 text-xs mt-1 hidden" id="${prefix}_surat_tugas_error">File terlalu besar! Maksimal 5 MB.</span>
         </div>
         <div class="mb-4">
             <label class="block text-sm font-semibold text-gray-700 mb-2">Sertifikat / Foto Piala${requiredStar}</label>
             <div id="${prefix}_sertifikat_preview"></div>
             <input type="file" name="sertifikat" id="${prefix}_sertifikat" accept=".pdf,.jpg,.jpeg,.png" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none" ${requiredAttr} onchange="validateFileSize(this, 'Sertifikat')">
             <p class="text-xs text-gray-400 mt-1">Format: PDF, JPG, JPEG, PNG | Maksimal: 5 MB</p>
+            <span class="file-error text-red-500 text-xs mt-1 hidden" id="${prefix}_sertifikat_error">File terlalu besar! Maksimal 5 MB.</span>
         </div>
         <div class="mb-4">
             <label class="block text-sm font-semibold text-gray-700 mb-2">Foto Penyerahan${requiredStar}</label>
             <div id="${prefix}_foto_penyerahan_preview"></div>
             <input type="file" name="foto_penyerahan" id="${prefix}_foto_penyerahan" accept=".jpg,.jpeg,.png" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none" ${requiredAttr} onchange="validateFileSize(this, 'Foto Penyerahan')">
             <p class="text-xs text-gray-400 mt-1">Format: JPG, JPEG, PNG | Maksimal: 5 MB</p>
+            <span class="file-error text-red-500 text-xs mt-1 hidden" id="${prefix}_foto_penyerahan_error">File terlalu besar! Maksimal 5 MB.</span>
         </div>
         <div class="mb-4">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Laporan${requiredStar}</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Laporan (Format Template)${requiredStar}</label>
             <div id="${prefix}_laporan_preview"></div>
             <input type="file" name="laporan" id="${prefix}_laporan" accept=".pdf" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none" ${requiredAttr} onchange="validateFileSize(this, 'Laporan')">
             <p class="text-xs text-gray-400 mt-1">Format: PDF | Maksimal: 5 MB</p>
+            <span class="file-error text-red-500 text-xs mt-1 hidden" id="${prefix}_laporan_error">File terlalu besar! Maksimal 5 MB.</span>
         </div>
     `;
 }
@@ -359,7 +375,9 @@ function bindLogikaForm(prefix) {
         elRpk.onchange = function() {
             const opt = this.options[this.selectedIndex];
             document.getElementById(`${prefix}_kegiatan`).value = opt.dataset.kegiatanId || '';
-            document.getElementById(`${prefix}_kegiatan_display`).value = opt.dataset.kegiatanNama || 'Tidak ada kegiatan';
+            const judul = opt.dataset.kegiatanJudul || '';
+            const nama = opt.dataset.kegiatanNama || '';
+            document.getElementById(`${prefix}_kegiatan_display`).value = judul ? `${judul} (${nama})` : (nama || 'Tidak ada kegiatan');
             const tMulai = opt.dataset.kegiatanTanggalMulai || '', tSelesai = opt.dataset.kegiatanTanggalSelesai || '';
             const display = document.getElementById(`${prefix}_tanggal_range_display`);
             if (display) {
@@ -380,7 +398,7 @@ function bindLogikaForm(prefix) {
 function bukaModalTambahSPK() {
     Swal.fire({
         title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Tambah SPK</h2>', width: '700px',
-        html: `<div class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">${generateFormHTML('add')}</div>`,
+        html: `<div class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">${generateSpkFormHTML('add')}</div>`,
         showCancelButton: true, confirmButtonText: 'Simpan', cancelButtonText: 'Batal',
         confirmButtonColor: '#2563EB', cancelButtonColor: '#9CA3AF', allowOutsideClick: false,
         customClass: { popup: 'rounded-2xl p-6' }, didOpen: () => { bindLogikaForm('add'); },
@@ -427,7 +445,7 @@ function bukaModalEditSPK(button) {
     
     Swal.fire({
         title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Edit SPK</h2>', width: '700px',
-        html: `<div class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">${catatanHtml} ${generateFormHTML('edit')}</div>`,
+        html: `<div class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">${catatanHtml} ${generateSpkFormHTML('edit')}</div>`,
         showCancelButton: true, confirmButtonText: 'Update', cancelButtonText: 'Batal',
         confirmButtonColor: '#2563EB', cancelButtonColor: '#9CA3AF', allowOutsideClick: false,
         customClass: { popup: 'rounded-2xl p-6' },

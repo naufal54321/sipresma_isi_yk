@@ -28,10 +28,11 @@ class DashboardController extends Controller
             $kategori = $this->dashboardService->getAdminKategoriChart();
             $topMahasiswa = $this->dashboardService->getTopMahasiswa();
             $aktivitasTerbaru = $this->dashboardService->getAktivitasTerbaru();
+            $rasio = $this->dashboardService->getAdminRasioBimbingan();
 
             return view('dashboard.admin', array_merge(
                 $stats, $tingkat, $kategori,
-                compact('topMahasiswa', 'aktivitasTerbaru')
+                compact('topMahasiswa', 'aktivitasTerbaru', 'rasio')
             ));
         }
 

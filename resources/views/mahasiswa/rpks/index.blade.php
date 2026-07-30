@@ -10,7 +10,7 @@
                 <p class="text-gray-500 mt-1">Rencana Prestasi Kemahasiswaan</p>
             </div>
             <button onclick="bukaModalTambahRPK()"
-                class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg text-sm font-semibold transition cursor-pointer">
+                class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg text-sm font-semibold transition cursor-pointer w-full sm:w-auto">
                 + Tambah RPK
             </button>
         </div>
@@ -62,30 +62,30 @@
             <table class="w-full text-sm text-left text-gray-600">
                 <thead class="bg-gray-50 uppercase text-xs tracking-wider border-b border-gray-200">
                     <tr>
-                        <th class="px-6 py-4">No</th>
-                        <th class="px-6 py-4">Pemilik</th>
-                        <th class="px-6 py-4">NIM</th>
-                        <th class="px-6 py-4">Prodi</th>
-                        <th class="px-6 py-4">Tahun</th>
-                        <th class="px-6 py-4">Semester</th>
-                        <th class="px-6 py-4">Judul Kegiatan</th>
-                        <th class="px-6 py-4">Kategori</th>
-                        <th class="px-6 py-4">Status</th>
-                        <th class="px-6 py-4 text-center">Aksi</th>
+                        <th class="px-3 sm:px-6 py-4">No</th>
+                        <th class="px-3 sm:px-6 py-4">Pemilik</th>
+                        <th class="px-3 sm:px-6 py-4">NIM</th>
+                        <th class="px-3 sm:px-6 py-4">Prodi</th>
+                        <th class="px-3 sm:px-6 py-4">Tahun</th>
+                        <th class="px-3 sm:px-6 py-4">Semester</th>
+                        <th class="px-3 sm:px-6 py-4">Judul Kegiatan</th>
+                        <th class="px-3 sm:px-6 py-4">Kategori</th>
+                        <th class="px-3 sm:px-6 py-4">Status</th>
+                        <th class="px-3 sm:px-6 py-4 text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody" class="divide-y divide-gray-100">
                     @forelse ($rpks as $rpk)
                     <tr data-rpk-id="{{ $rpk->id }}" class="hover:bg-blue-50 transition duration-200">
-                        <td class="px-6 py-4 font-medium text-gray-900">{{ $loop->iteration }}</td>
-                        <td class="px-6 py-4">
+                        <td class="px-3 sm:px-6 py-4 font-medium text-gray-900">{{ $loop->iteration }}</td>
+                        <td class="px-3 sm:px-6 py-4">
                             <span class="font-medium text-gray-800">{{ $rpk->user->name ?? '-' }}</span>
                         </td>
-                        <td class="px-4 py-4">{{ $rpk->user->nim }}</td>
-                        <td class="px-4 py-4">{{ $rpk->user->prodi }}</td>
-                        <td class="px-6 py-4 font-semibold text-gray-800">{{ $rpk->tahun }}</td>
-                        <td class="px-6 py-4">{{ $rpk->semester }}</td>
-                        <td class="px-6 py-4">
+                        <td class="px-3 sm:px-6 py-4">{{ $rpk->user->nim }}</td>
+                        <td class="px-3 sm:px-6 py-4">{{ $rpk->user->prodi }}</td>
+                        <td class="px-3 sm:px-6 py-4 font-semibold text-gray-800">{{ $rpk->tahun }}</td>
+                        <td class="px-3 sm:px-6 py-4">{{ $rpk->semester }}</td>
+                        <td class="px-3 sm:px-6 py-4">
                             @php
                                 if($rpk->user_id == Auth::id()) {
                                     $kegiatanPertama = $rpk->kegiatans->first();
@@ -97,14 +97,14 @@
                             @endphp
                             {{ $kegiatanPertama ? $kegiatanPertama->judul_kegiatan : '-' }}
                         </td>
-                        <td class="px-6 py-4 text-center">
+                        <td class="px-3 sm:px-6 py-4 text-center">
                             @if($kegiatanPertama)
                                 <span>{{ $kegiatanPertama->kategori == 'Kelompok' ? 'Kelompok' : 'Individu' }}</span>
                             @else
                                 <span class="text-gray-400">-</span>
                             @endif
                         </td>
-                        <td class="px-6 py-4">
+                        <td class="px-3 sm:px-6 py-4">
                             @if($rpk->status == 'draft')
                                 <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">Draft</span>
                             @elseif($rpk->status == 'disetujui')
@@ -113,7 +113,7 @@
                                 <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold">Ditolak</span>
                             @endif
                         </td>
-                        <td class="px-6 py-4 text-center">
+                        <td class="px-3 sm:px-6 py-4 text-center">
                             <div class="flex items-center justify-center gap-2">
                                 <a href="{{ route('rpks.show', $rpk->id) }}" title="Detail RPK"
                                     class="flex items-center justify-center w-9 h-9 bg-gray-400 text-white hover:bg-gray-500 border border-gray-200 rounded-lg transition shadow-sm">

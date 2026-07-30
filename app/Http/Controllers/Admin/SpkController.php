@@ -43,7 +43,7 @@ class SpkController extends Controller
     
     public function show(Spk $spk)
     {
-        $spk->load(['user', 'rpk', 'kegiatan', 'kegiatan.anggota', 'poinAddedBy']);
+        $spk->load(['user', 'rpk', 'kegiatan', 'kegiatan.anggota', 'poinAddedBy', 'verifiedBy']);
         
         $totalSpkDisetujui = Spk::where('user_id', $spk->user_id)->where('status', 'disetujui')->count();
         $totalPoin = Spk::where('user_id', $spk->user_id)->where('status', 'disetujui')->sum('poin');
@@ -55,7 +55,7 @@ class SpkController extends Controller
     public function approve(Request $request, Spk $spk)
     {
         $request->validate(['catatan' => 'nullable|string|max:500']);
-        $spk->update(['status' => 'disetujui', 'catatan_dosen' => $request->catatan ?? 'Disetujui oleh Admin']);
+        $spk->update(['status' => 'disetujui', 'catatan_dosen' => $request->catatan ?? 'Disetujui oleh Admin', 'verified_by' => Auth::id()]);
         
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'SPK berhasil disetujui']);
@@ -66,7 +66,7 @@ class SpkController extends Controller
     public function reject(Request $request, Spk $spk)
     {
         $request->validate(['catatan' => 'required|string|max:500'], ['catatan.required' => 'Alasan penolakan wajib diisi']);
-        $spk->update(['status' => 'ditolak', 'catatan_dosen' => $request->catatan]);
+        $spk->update(['status' => 'ditolak', 'catatan_dosen' => $request->catatan, 'verified_by' => Auth::id()]);
         
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'SPK berhasil ditolak']);

@@ -34,9 +34,9 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h1 class="text-3xl font-bold text-gray-900">Detail Kegiatan RPK</h1>
 
-        <div class="flex items-center gap-3">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
     <a href="{{ route('rpks.index') }}"
-       class="inline-flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition">
+       class="inline-flex items-center justify-center gap-2 bg-white border border-gray-300 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition w-full sm:w-auto">
         ← Kembali
     </a>
     
@@ -51,7 +51,7 @@
     
     @if($jumlahKegiatan < 1 && ($rpk->status == 'draft' || $rpk->status == 'ditolak'))
         <button onclick="bukaModalTambahKegiatan()"
-            class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm font-semibold transition cursor-pointer">
+            class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm font-semibold transition cursor-pointer w-full sm:w-auto">
             + Tambah Kegiatan
         </button>
     @elseif($jumlahKegiatan >= 1)
@@ -173,7 +173,7 @@
 <div class="w-full flex-shrink-0 snap-start p-6">
     <h3 class="text-gray-600 font-medium mb-4">Daftar Rencana Kegiatan</h3>
     
-    <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden mb-6">
+    <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-x-auto mb-6">
         
             <table id="table-kegiatan" class="w-full text-sm text-left text-gray-600">
                 <thead class="bg-gray-50 text-gray-700 uppercase text-xs tracking-wider border-b border-gray-200">
@@ -274,7 +274,7 @@
                                 </div>
                                 <div class="p-4 space-y-6">
                                     @foreach($kegiatanKelompok as $kegiatan)
-                                        <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                        <div class="border border-gray-200 rounded-lg overflow-x-auto">
                                             <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
                                                 <div class="flex items-center justify-between flex-wrap gap-2">
                                                     <h4 class="text-sm font-semibold text-gray-700">{{ $kegiatan->judul_kegiatan }}</h4>

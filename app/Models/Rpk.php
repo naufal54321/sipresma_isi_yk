@@ -12,7 +12,8 @@ class Rpk extends Model
         'tahun',
         'semester',
         'status',
-        'catatan_dosen'
+        'catatan_dosen',
+        'verified_by',
     ];
 
     protected $casts = [
@@ -41,6 +42,11 @@ public function spks()
 public function masterKegiatan()
 {
     return $this->belongsTo(MasterKegiatan::class);
+}
+
+public function verifiedBy()
+{
+    return $this->belongsTo(User::class, 'verified_by');
 }
 
 }

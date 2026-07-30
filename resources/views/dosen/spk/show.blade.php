@@ -10,9 +10,9 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h1 class="text-3xl font-bold text-gray-900">Detail SPK</h1>
 
-        <div class="flex items-center gap-3">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
             <a href="{{ route('dosen.spk.index') }}"
-               class="inline-flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition">
+               class="inline-flex items-center justify-center gap-2 bg-white border border-gray-300 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
@@ -20,21 +20,23 @@
             </a>
 
             @if(in_array($spk->status, ['draft']))
-                <button onclick="approveSpk({{ $spk->id }})"
-                        class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                    SPK Disetujui
-                </button>
+                <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                    <button onclick="approveSpk({{ $spk->id }})"
+                            class="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition cursor-pointer w-full sm:w-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        SPK Disetujui
+                    </button>
 
-                <button onclick="rejectSpk({{ $spk->id }})"
-                        class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    SPK Ditolak
-                </button>
+                    <button onclick="rejectSpk({{ $spk->id }})"
+                            class="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition cursor-pointer w-full sm:w-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        SPK Ditolak
+                    </button>
+                </div>
             @endif
         </div>
     </div>
@@ -44,11 +46,11 @@
         {{-- SIDEBAR --}}
         <div class="lg:col-span-4">
             <div class="bg-gray-50 border border-gray-200 shadow-sm rounded-xl overflow-hidden">
-                <div class="px-6 py-5 border-b border-gray-200 bg-white">
-                    <h2 class="text-lg font-bold text-gray-900">Detail SPK</h2>
+                <div class="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-200 bg-white">
+                    <h2 class="text-base sm:text-lg font-bold text-gray-900">Detail SPK</h2>
                 </div>
                 
-                <div class="p-6 bg-white space-y-4">
+                <div class="p-4 sm:p-6 bg-white space-y-3 sm:space-y-4">
                     <div class="grid grid-cols-3 gap-2">
                         <span class="text-sm font-bold text-gray-600">Nama</span>
                         <span class="col-span-2 text-sm text-gray-800 font-medium">{{ $spk->user->name }}</span>
@@ -137,8 +139,19 @@
 
                     @if($spk->catatan_dosen)
                     <div class="pt-3 border-t border-gray-200">
-                        <span class="text-sm font-bold text-gray-600">Catatan Dosen</span>
-                        <p class="text-sm text-red-600 mt-1 bg-red-50 p-2 rounded-lg">{{ $spk->catatan_dosen }}</p>
+                        <span class="text-sm font-bold text-gray-600">
+                            @if($spk->verifiedBy && $spk->verifiedBy->hasRole('Admin'))
+                                Catatan Admin
+                            @else
+                                Catatan Dosen
+                            @endif
+                        </span>
+                        <p class="text-sm mt-1 p-2 rounded-lg {{ $spk->verifiedBy && $spk->verifiedBy->hasRole('Admin') ? 'bg-blue-50 text-blue-700' : 'bg-red-50 text-red-600' }}">
+                            @if($spk->verifiedBy)
+                                <span class="font-semibold">{{ $spk->verifiedBy->name }}</span>: 
+                            @endif
+                            {{ $spk->catatan_dosen }}
+                        </p>
                     </div>
                     @endif
                 </div>
@@ -180,13 +193,13 @@
             <div class="bg-white border border-gray-200 shadow-sm rounded-xl overflow-hidden flex flex-col h-full">
                 
                 <div class="flex border-b border-gray-200 bg-gray-50 px-2 pt-2 overflow-x-auto hide-scrollbar" id="tab-headers">
-                    <button onclick="geserTab(0)" class="tab-btn bg-white border-t border-l border-r border-gray-200 rounded-t-xl px-6 py-3 -mb-[1px] relative z-10 font-bold text-gray-800 whitespace-nowrap transition cursor-pointer">
+                    <button onclick="geserTab(0)" class="tab-btn bg-white border-t border-l border-r border-gray-200 rounded-t-xl px-3 sm:px-6 py-2.5 sm:py-3 -mb-[1px] relative z-10 font-bold text-gray-800 whitespace-nowrap transition cursor-pointer text-xs sm:text-sm">
                         Deskripsi Kegiatan
                     </button>
-                    <button onclick="geserTab(1)" class="tab-btn px-6 py-3 text-gray-500 font-bold hover:text-gray-700 whitespace-nowrap border-b border-transparent transition cursor-pointer">
+                    <button onclick="geserTab(1)" class="tab-btn px-3 sm:px-6 py-2.5 sm:py-3 text-gray-500 font-bold hover:text-gray-700 whitespace-nowrap border-b border-transparent transition cursor-pointer text-xs sm:text-sm">
                         Dokumen
                     </button>
-                    <button onclick="geserTab(2)" class="tab-btn px-6 py-3 text-gray-500 font-bold hover:text-gray-700 whitespace-nowrap border-b border-transparent transition cursor-pointer">
+                    <button onclick="geserTab(2)" class="tab-btn px-3 sm:px-6 py-2.5 sm:py-3 text-gray-500 font-bold hover:text-gray-700 whitespace-nowrap border-b border-transparent transition cursor-pointer text-xs sm:text-sm">
                         Riwayat SPK
                     </button>
                 </div>
@@ -194,15 +207,15 @@
                 <div class="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar scroll-smooth flex-grow" id="tab-content-container">
                     
                         {{-- TAB 1: DESKRIPSI --}}
-                        <div class="w-full flex-shrink-0 snap-start p-6">
+                        <div class="w-full flex-shrink-0 snap-start p-4 sm:p-6">
                             {{-- Header Section --}}
-                            <div class="flex items-center gap-3 mb-6">
+                            <div class="flex items-center gap-3 mb-4 sm:mb-6">
                                 <div class="w-1 h-6 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full"></div>
-                                <h3 class="text-lg font-bold text-gray-800">Informasi Kegiatan</h3>
+                                <h3 class="text-base sm:text-lg font-bold text-gray-800">Informasi Kegiatan</h3>
                             </div>
 
                         {{-- Card Grid --}}
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-6">
                             {{-- Nama Kegiatan --}}
                             <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-50 transition-all duration-300 md:col-span-2">
                                 <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Nama Kegiatan</p>
@@ -409,15 +422,15 @@
                     </div>
 
                     {{-- TAB 2: DOKUMEN --}}
-                    <div class="w-full flex-shrink-0 snap-start p-6">
-                        <h3 class="text-gray-800 font-extrabold mb-5 flex items-center gap-2">
+                    <div class="w-full flex-shrink-0 snap-start p-4 sm:p-6">
+                        <h3 class="text-gray-800 font-extrabold mb-4 sm:mb-5 flex items-center gap-2">
                             <span class="p-1.5 rounded-lg bg-orange-50 text-orange-500">
                                 <i class="fas fa-folder-open"></i>
                             </span>
                             Dokumen Kegiatan
                         </h3>
                         
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
                             {{-- Surat Tugas --}}
                             <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                                 <div class="px-4 py-3 bg-gradient-to-r from-blue-50 to-blue-100/50 border-b border-gray-200 flex justify-between items-center">
@@ -537,8 +550,8 @@
                     </div>
 
                     {{-- TAB 3: RIWAYAT --}}
-                    <div class="w-full flex-shrink-0 snap-start p-6">
-                        <h3 class="text-gray-600 font-medium mb-6">Timeline Riwayat Pengajuan</h3>
+                    <div class="w-full flex-shrink-0 snap-start p-4 sm:p-6">
+                        <h3 class="text-gray-600 font-medium mb-4 sm:mb-6">Timeline Riwayat Pengajuan</h3>
                         
                         <div class="relative border-l-2 border-blue-200 ml-3 space-y-8">
                             <div class="relative pl-6">
@@ -557,8 +570,16 @@
                                 @endif
                                 
                                 @if($spk->catatan_dosen)
-                                <p class="text-sm text-gray-600 mt-1 bg-gray-50 p-3 rounded-lg border border-gray-100">
-                                    <span class="font-semibold">Catatan:</span><br>
+                                <p class="text-sm text-gray-600 mt-1 p-3 rounded-lg border {{ $spk->verifiedBy && $spk->verifiedBy->hasRole('Admin') ? 'bg-blue-50 border-blue-100' : 'bg-gray-50 border-gray-100' }}">
+                                    <span class="font-semibold">
+                                        @if($spk->verifiedBy && $spk->verifiedBy->hasRole('Admin'))
+                                            Catatan Admin ({{ $spk->verifiedBy->name }}):
+                                        @elseif($spk->verifiedBy)
+                                            Catatan Dosen ({{ $spk->verifiedBy->name }}):
+                                        @else
+                                            Catatan:
+                                        @endif
+                                    </span><br>
                                     {{ $spk->catatan_dosen }}
                                 </p>
                                 @endif
@@ -597,9 +618,9 @@ window.updateGayaTab = function(index) {
     var buttons = document.querySelectorAll('.tab-btn');
     buttons.forEach((btn, i) => {
         if (i === index) {
-            btn.className = "tab-btn bg-white border-t border-l border-r border-gray-200 rounded-t-xl px-6 py-3 -mb-[1px] relative z-10 font-bold text-gray-800 whitespace-nowrap transition cursor-pointer";
+            btn.className = "tab-btn bg-white border-t border-l border-r border-gray-200 rounded-t-xl px-3 sm:px-6 py-2.5 sm:py-3 -mb-[1px] relative z-10 font-bold text-gray-800 whitespace-nowrap transition cursor-pointer text-xs sm:text-sm";
         } else {
-            btn.className = "tab-btn px-6 py-3 text-gray-500 font-bold hover:text-gray-700 whitespace-nowrap border-b border-transparent transition cursor-pointer";
+            btn.className = "tab-btn px-3 sm:px-6 py-2.5 sm:py-3 text-gray-500 font-bold hover:text-gray-700 whitespace-nowrap border-b border-transparent transition cursor-pointer text-xs sm:text-sm";
         }
     });
 };

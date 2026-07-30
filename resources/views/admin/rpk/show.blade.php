@@ -293,7 +293,14 @@
                                 <h4 class="font-bold text-slate-800">Dokumen: {{ ucfirst($rpk->status) }}</h4>
                                 <div class="mt-2 bg-slate-50 p-4 rounded-xl border border-slate-100">
                                     <p class="text-xs text-slate-600 font-medium">
-                                        Catatan: {{ $rpk->catatan_dosen ?? 'Tidak ada catatan.' }}
+                                        @if($rpk->verifiedBy && $rpk->verifiedBy->hasRole('Admin'))
+                                            <span class="text-blue-600">Catatan Admin ({{ $rpk->verifiedBy->name }}):</span>
+                                        @elseif($rpk->verifiedBy)
+                                            <span class="text-slate-600">Catatan Dosen ({{ $rpk->verifiedBy->name }}):</span>
+                                        @else
+                                            <span class="text-slate-600">Catatan:</span>
+                                        @endif
+                                        {{ $rpk->catatan_dosen ?? 'Tidak ada catatan.' }}
                                     </p>
                                 </div>
                             </div>
@@ -358,13 +365,13 @@ window.updateGayaTab = function(index) {
 // ==========================================
 window.approveKegiatan = function(id) {
     Swal.fire({
-        title: 'Setujui RPK (Admin Override)',
+        title: 'Setujui RPK (Admin)',
         input: 'textarea',
         inputLabel: 'Catatan Admin (Opsional)',
         inputPlaceholder: 'Tambahkan catatan jika perlu...',
         showCancelButton: true,
         confirmButtonText: '<i class="fas fa-check"></i> Setujui RPK',
-        confirmButtonColor: '#10b981',
+        confirmButtonColor: '#16a34a',
         cancelButtonText: 'Batal'
     }).then((result) => {
         if (!result.isConfirmed) return;
@@ -393,7 +400,7 @@ window.approveKegiatan = function(id) {
 
 window.rejectKegiatan = function(id) {
     Swal.fire({
-        title: 'Tolak RPK (Admin Override)',
+        title: 'Tolak RPK (Admin)',
         input: 'textarea',
         inputLabel: 'Alasan Penolakan (Wajib)',
         inputPlaceholder: 'Masukkan alasan RPK ini ditolak...',

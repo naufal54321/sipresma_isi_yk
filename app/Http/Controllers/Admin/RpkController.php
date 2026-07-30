@@ -55,7 +55,7 @@ class RpkController extends Controller
 
     public function show(Rpk $rpk)
     {
-        $rpk->load(['user.dosenPembimbing']);
+        $rpk->load(['user.dosenPembimbing', 'verifiedBy']);
         return view('admin.rpk.show', compact('rpk'));
     }
 
@@ -69,6 +69,7 @@ class RpkController extends Controller
         $rpk->update([
             'status' => $request->status,
             'catatan_dosen' => $request->catatan ?? $rpk->catatan_dosen,
+            'verified_by' => Auth::id(),
         ]);
 
         if ($request->ajax() || $request->wantsJson()) {

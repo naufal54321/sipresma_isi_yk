@@ -31,6 +31,7 @@ class Spk extends Model
         'kebaruan',
         'status',
         'catatan_dosen',
+        'verified_by',
         'poin_added_at',
         'poin_added_by',
     ];
@@ -87,6 +88,12 @@ class Spk extends Model
             $q->whereNull('poin')
                 ->orWhere('poin', '<=', 0);
         });
+    }
+
+    // Relasi ke user yang melakukan verifikasi
+    public function verifiedBy()
+    {
+        return $this->belongsTo(User::class, 'verified_by');
     }
 
     // Relasi ke master prestasi

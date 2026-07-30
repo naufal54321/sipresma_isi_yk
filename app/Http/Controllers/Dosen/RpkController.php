@@ -82,7 +82,8 @@ class RpkController extends Controller
 
         $rpk->update([
             'status' => 'disetujui',
-            'catatan_dosen' => $request->catatan_dosen
+            'catatan_dosen' => $request->catatan_dosen,
+            'verified_by' => Auth::id(),
         ]);
 
         if ($request->ajax() || $request->wantsJson()) {
@@ -103,7 +104,8 @@ class RpkController extends Controller
 
         $rpk->update([
             'status' => 'ditolak',
-            'catatan_dosen' => $request->catatan_dosen
+            'catatan_dosen' => $request->catatan_dosen,
+            'verified_by' => Auth::id(),
         ]);
 
         if ($request->ajax() || $request->wantsJson()) {
@@ -124,7 +126,8 @@ class RpkController extends Controller
 
         $rpk->load([
             'user',
-            'kegiatans.masterKegiatan'
+            'kegiatans.masterKegiatan',
+            'verifiedBy',
         ]);
 
         return view('dosen.rpk.show', compact('rpk'));

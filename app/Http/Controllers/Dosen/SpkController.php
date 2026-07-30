@@ -75,7 +75,8 @@ class SpkController extends Controller
 
         $spk->update([
             'status' => 'disetujui',
-            'catatan_dosen' => $request->catatan_dosen
+            'catatan_dosen' => $request->catatan_dosen,
+            'verified_by' => Auth::id(),
         ]);
 
         if ($request->ajax() || $request->wantsJson()) {
@@ -96,7 +97,8 @@ class SpkController extends Controller
 
         $spk->update([
             'status' => 'ditolak',
-            'catatan_dosen' => $request->catatan_dosen
+            'catatan_dosen' => $request->catatan_dosen,
+            'verified_by' => Auth::id(),
         ]);
 
         if ($request->ajax() || $request->wantsJson()) {
@@ -115,6 +117,8 @@ class SpkController extends Controller
         if ($spk->user->dosen_pembimbing_id != Auth::id()) {
             abort(403, 'Anda tidak memiliki akses.');
         }
+
+        $spk->load(['verifiedBy']);
 
         return view('dosen.spk.show', compact('spk'));
     }

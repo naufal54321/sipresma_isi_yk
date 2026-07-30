@@ -122,15 +122,16 @@ class DashboardService
                 ];
             });
 
-        $aktivitasRpkDosen = Rpk::with(['user.dosenPembimbing'])
+        $aktivitasRpkDosen = Rpk::with(['user.dosenPembimbing', 'verifiedBy'])
             ->whereIn('status', ['disetujui', 'ditolak'])
             ->latest('updated_at')
             ->take(10)
             ->get()
             ->map(function ($item) {
+                $verifikator = $item->verifiedBy;
                 return [
-                    'aktor' => $item->user->dosenPembimbing->name ?? 'Dosen (Tidak Diketahui)',
-                    'role' => 'Dosen',
+                    'aktor' => $verifikator?->name ?? $item->user->dosenPembimbing?->name ?? 'Admin',
+                    'role' => $verifikator?->hasRole('Admin') ? 'Admin' : 'Dosen',
                     'kategori' => 'RPK',
                     'aktivitas' => $item->status == 'disetujui'
                         ? 'Menyetujui RPK milik ' . ($item->user->name ?? '-')
@@ -140,15 +141,16 @@ class DashboardService
                 ];
             });
 
-        $aktivitasSpkDosen = Spk::with(['user.dosenPembimbing'])
+        $aktivitasSpkDosen = Spk::with(['user.dosenPembimbing', 'kegiatan', 'verifiedBy'])
             ->whereIn('status', ['disetujui', 'ditolak'])
             ->latest('updated_at')
             ->take(10)
             ->get()
             ->map(function ($item) {
+                $verifikator = $item->verifiedBy;
                 return [
-                    'aktor' => $item->user->dosenPembimbing->name ?? 'Dosen (Tidak Diketahui)',
-                    'role' => 'Dosen',
+                    'aktor' => $verifikator?->name ?? $item->user->dosenPembimbing?->name ?? 'Admin',
+                    'role' => $verifikator?->hasRole('Admin') ? 'Admin' : 'Dosen',
                     'kategori' => 'SPK',
                     'aktivitas' => $item->status == 'disetujui'
                         ? 'Menyetujui SPK "' . ($item->kegiatan->kegiatan ?? '-') . '" milik ' . ($item->user->name ?? '-')
@@ -165,6 +167,38 @@ class DashboardService
             ->concat($aktivitasSpkDosen)
             ->sortByDesc('created_at')
             ->take(10);
+    }
+
+    public function getAdminRasioBimbingan()
+    {
+        $totalMahasiswa = User::role('Mahasiswa')->whereNotNull('dosen_pembimbing_id')->count();
+
+        $perDosen = User::role('Mahasiswa')
+            ->whereNotNull('dosen_pembimbing_id')
+            ->selectRaw('dosen_pembimbing_id, COUNT(*) as total')
+            ->groupBy('dosen_pembimbing_id')
+            ->get();
+
+        $totalDosen = $perDosen->count();
+        $rasio = $totalDosen > 0 ? round($totalMahasiswa / $totalDosen, 1) : 0;
+
+        $topDosenId = $perDosen->sortByDesc('total')->first()?->dosen_pembimbing_id;
+        $topDosen = $topDosenId ? User::find($topDosenId)?->name : '-';
+
+        $distribusi = [
+            '1-5'  => $perDosen->filter(fn($d) => $d->total <= 5)->count(),
+            '6-10' => $perDosen->filter(fn($d) => $d->total > 5 && $d->total <= 10)->count(),
+            '11+'  => $perDosen->filter(fn($d) => $d->total > 10)->count(),
+        ];
+
+        return [
+            'totalMahasiswaBimbingan' => $totalMahasiswa,
+            'totalDosenPembimbing'    => $totalDosen,
+            'rasio'                   => $rasio,
+            'topDosen'                => $topDosen,
+            'maxBimbingan'            => $perDosen->max('total') ?? 0,
+            'distribusi'              => $distribusi,
+        ];
     }
 
     public function getDosenStats($dosenId)
