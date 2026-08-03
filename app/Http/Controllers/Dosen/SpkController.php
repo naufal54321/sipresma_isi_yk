@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dosen;
 use App\Http\Controllers\Controller;
 
 use App\Models\Spk;
+use App\Services\DashboardService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -78,6 +79,7 @@ class SpkController extends Controller
             'catatan_dosen' => $request->catatan_dosen,
             'verified_by' => Auth::id(),
         ]);
+        DashboardService::clearAdminCache();
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'SPK berhasil disetujui']);
@@ -100,6 +102,7 @@ class SpkController extends Controller
             'catatan_dosen' => $request->catatan_dosen,
             'verified_by' => Auth::id(),
         ]);
+        DashboardService::clearAdminCache();
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'SPK berhasil ditolak']);

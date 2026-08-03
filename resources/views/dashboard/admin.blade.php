@@ -95,13 +95,13 @@
                 <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 border-b border-slate-100 pb-3 relative z-10">Status RPK</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 relative z-10">
                     <div class="text-center p-3 bg-orange-50/50 rounded-xl border border-orange-100/50 hover:bg-orange-50 transition-colors">
-                        <p class="text-xs font-semibold text-orange-600 mb-1">Draft</p><h4 class="text-xl sm:text-2xl font-bold text-orange-500">{{ $rpkDraft }}</h4>
+                        <p class="text-xs font-semibold text-orange-600 mb-1">Draft</p><h4 id="rpkDraft" class="text-xl sm:text-2xl font-bold text-orange-500">{{ $rpkDraft }}</h4>
                     </div>
                     <div class="text-center p-3 bg-emerald-50/50 rounded-xl border border-emerald-100/50 hover:bg-emerald-50 transition-colors">
-                        <p class="text-xs font-semibold text-emerald-600 mb-1">Disetujui</p><h4 class="text-xl sm:text-2xl font-bold text-emerald-500">{{ $rpkDisetujui }}</h4>
+                        <p class="text-xs font-semibold text-emerald-600 mb-1">Disetujui</p><h4 id="rpkDisetujui" class="text-xl sm:text-2xl font-bold text-emerald-500">{{ $rpkDisetujui }}</h4>
                     </div>
                     <div class="text-center p-3 bg-red-50/50 rounded-xl border border-red-100/50 hover:bg-red-50 transition-colors">
-                        <p class="text-xs font-semibold text-red-600 mb-1">Ditolak</p><h4 class="text-xl sm:text-2xl font-bold text-red-500">{{ $rpkDitolak }}</h4>
+                        <p class="text-xs font-semibold text-red-600 mb-1">Ditolak</p><h4 id="rpkDitolak" class="text-xl sm:text-2xl font-bold text-red-500">{{ $rpkDitolak }}</h4>
                     </div>
                 </div>
             </div>
@@ -111,13 +111,13 @@
                 <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 border-b border-slate-100 pb-3 relative z-10">Status SPK</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 relative z-10">
                     <div class="text-center p-3 bg-orange-50/50 rounded-xl border border-orange-100/50 hover:bg-orange-50 transition-colors">
-                        <p class="text-xs font-semibold text-orange-600 mb-1">Draft</p><h4 class="text-xl sm:text-2xl font-bold text-orange-500">{{ $spkDraft }}</h4>
+                        <p class="text-xs font-semibold text-orange-600 mb-1">Draft</p><h4 id="spkDraft" class="text-xl sm:text-2xl font-bold text-orange-500">{{ $spkDraft }}</h4>
                     </div>
                     <div class="text-center p-3 bg-emerald-50/50 rounded-xl border border-emerald-100/50 hover:bg-emerald-50 transition-colors">
-                        <p class="text-xs font-semibold text-emerald-600 mb-1">Disetujui</p><h4 class="text-xl sm:text-2xl font-bold text-emerald-500">{{ $spkDisetujui }}</h4>
+                        <p class="text-xs font-semibold text-emerald-600 mb-1">Disetujui</p><h4 id="spkDisetujui" class="text-xl sm:text-2xl font-bold text-emerald-500">{{ $spkDisetujui }}</h4>
                     </div>
                     <div class="text-center p-3 bg-red-50/50 rounded-xl border border-red-100/50 hover:bg-red-50 transition-colors">
-                        <p class="text-xs font-semibold text-red-600 mb-1">Ditolak</p><h4 class="text-xl sm:text-2xl font-bold text-red-500">{{ $spkDitolak }}</h4>
+                        <p class="text-xs font-semibold text-red-600 mb-1">Ditolak</p><h4 id="spkDitolak" class="text-xl sm:text-2xl font-bold text-red-500">{{ $spkDitolak }}</h4>
                     </div>
                 </div>
             </div>
@@ -270,7 +270,7 @@
                                 <th class="px-4 sm:px-6 py-4 text-center whitespace-nowrap">Status</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-50">
+                        <tbody id="aktivitasTbody" class="divide-y divide-slate-50">
                             @forelse($aktivitasTerbaru as $item)
                             <tr class="hover:bg-slate-50/80 transition duration-150">
                                 <td class="px-4 sm:px-6 py-4 min-w-[150px]">
@@ -323,5 +323,81 @@
 
     </div>
 </div>
+
+<script>
+(function () {
+    const url = '{{ route('dashboard.realtime') }}';
+    const INTERVAL = 30000;
+    let lastSig = '';
+
+    function statusBadge(status) {
+        if (status === 'draft') return '<span class="inline-flex items-center justify-center min-w-[70px] bg-orange-500 text-white px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider">Draft</span>';
+        if (status === 'disetujui') return '<span class="inline-flex items-center justify-center min-w-[70px] bg-green-500 text-white px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider">Disetujui</span>';
+        return '<span class="inline-flex items-center justify-center min-w-[70px] bg-red-500 text-white px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider">Ditolak</span>';
+    }
+
+    function roleBadge(role) {
+        if (role === 'Admin') return '<span class="inline-flex bg-red-50 text-red-600 border border-red-100 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider">Admin</span>';
+        if (role === 'Dosen') return '<span class="inline-flex bg-purple-50 text-purple-600 border border-purple-100 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider">Dosen</span>';
+        return '<span class="inline-flex bg-blue-50 text-blue-600 border border-blue-100 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider">Mahasiswa</span>';
+    }
+
+    function renderLog(rows) {
+        const tbody = document.getElementById('aktivitasTbody');
+        if (!tbody) return;
+        if (!rows.length) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-400"><i class="fas fa-inbox text-3xl mb-2 text-slate-200"></i><p class="text-sm">Belum ada aktivitas terekam.</p></td></tr>';
+            return;
+        }
+        tbody.innerHTML = rows.map(function (item) {
+            return '<tr class="hover:bg-slate-50/80 transition duration-150">' +
+                '<td class="px-4 sm:px-6 py-4 min-w-[150px]"><div class="font-bold text-slate-800 truncate">' + (item.aktor || '-') + '</div><div class="mt-1">' + roleBadge(item.role) + '</div></td>' +
+                '<td class="px-4 sm:px-6 py-4 text-center text-slate-700 font-medium min-w-[150px]">' + (item.aktivitas || '') + '</td>' +
+                '<td class="px-4 sm:px-6 py-4 text-center min-w-[140px]"><div class="text-slate-800 font-medium whitespace-nowrap">' + (item.waktu || '') + '</div><div class="text-[11px] text-slate-400 font-semibold mt-0.5 whitespace-nowrap">' + (item.jam || '') + ' WIB</div></td>' +
+                '<td class="px-4 sm:px-6 py-4 text-center min-w-[100px]">' + statusBadge(item.status) + '</td></tr>';
+        }).join('');
+    }
+
+    function setChartData(id, data, labels) {
+        if (typeof Chart === 'undefined') return;
+        const chart = Chart.getChart(id);
+        if (!chart) return;
+        if (labels !== undefined) chart.data.labels = labels;
+        chart.data.datasets[0].data = data;
+        chart.update();
+    }
+
+    function poll() {
+        if (document.hidden) return;
+        if (!document.getElementById('spkChart')) { clearInterval(timer); return; }
+
+        fetch(url)
+            .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+            .then(function (data) {
+                const s = data.stats || {};
+                const sig = JSON.stringify([s.rpkDraft, s.rpkDisetujui, s.rpkDitolak, s.spkDraft, s.spkDisetujui, s.spkDitolak, s.totalMahasiswa, s.totalDosen, s.totalRpk, s.totalSpk, data.tingkat, data.kategori, data.aktivitasTerbaru]);
+                if (sig === lastSig) return;
+                lastSig = sig;
+
+                ['rpkDraft', 'rpkDisetujui', 'rpkDitolak', 'spkDraft', 'spkDisetujui', 'spkDitolak'].forEach(function (key) {
+                    const el = document.getElementById(key);
+                    if (el && s[key] !== undefined) el.textContent = s[key];
+                });
+
+                setChartData('rpkChart', [s.rpkDraft, s.rpkDisetujui, s.rpkDitolak]);
+                setChartData('spkChart', [s.spkDraft, s.spkDisetujui, s.spkDitolak]);
+                setChartData('summaryChart', [s.totalMahasiswa, s.totalDosen, s.totalRpk, s.totalSpk]);
+                if (data.tingkat) setChartData('tingkatChart', [data.tingkat.universitas, data.tingkat.regional, data.tingkat.nasional, data.tingkat.internasional]);
+                if (data.kategori) setChartData('jenisChart', data.kategori.kategoriData, data.kategori.kategoriLabels);
+
+                renderLog(data.aktivitasTerbaru || []);
+            })
+            .catch(function () {});
+    }
+
+    const timer = setInterval(poll, INTERVAL);
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) poll(); });
+})();
+</script>
 
 </x-app-layout>

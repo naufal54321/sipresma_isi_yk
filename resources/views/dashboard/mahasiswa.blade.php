@@ -140,4 +140,50 @@
     </div>
 </div>
 
+<script>
+(function () {
+    const url = '{{ route('dashboard.realtime') }}';
+    const INTERVAL = 30000;
+    let lastSig = '';
+
+    function setChartData(id, data, labels) {
+        if (typeof Chart === 'undefined') return;
+        const chart = Chart.getChart(id);
+        if (!chart) return;
+        if (labels !== undefined) chart.data.labels = labels;
+        chart.data.datasets[0].data = data;
+        chart.update();
+    }
+
+    function poll() {
+        if (document.hidden) return;
+        if (!document.getElementById('lineChart')) { clearInterval(timer); return; }
+
+        fetch(url)
+            .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+            .then(function (data) {
+                const s = data.stats || {};
+                const sig = JSON.stringify([s, data.tingkat, data.kategori, data.bulanan]);
+                if (sig === lastSig) return;
+                lastSig = sig;
+
+                const values = [s.rpkDraft, s.rpkDisetujui, s.spkDraft, s.spkDisetujui, s.totalPoin, s.totalKegiatan, s.jumlahDitolak, s.persentase + '%'];
+                values.forEach(function (value, i) {
+                    const el = document.getElementById('counter-' + i);
+                    if (el && value !== undefined) el.textContent = value;
+                });
+
+                setChartData('pieChart', [s.draft, s.disetujui, s.ditolak]);
+                if (data.tingkat) setChartData('barChart', [data.tingkat.universitas, data.tingkat.regional, data.tingkat.nasional, data.tingkat.internasional]);
+                if (data.kategori) setChartData('donutChart', data.kategori.kategoriData, data.kategori.kategoriLabels);
+                if (data.bulanan) setChartData('lineChart', data.bulanan.bulanData, data.bulanan.bulanLabels);
+            })
+            .catch(function () {});
+    }
+
+    const timer = setInterval(poll, INTERVAL);
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) poll(); });
+})();
+</script>
+
 </x-app-layout>

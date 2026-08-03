@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 
 use App\Models\Spk;
+use App\Services\DashboardService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -56,6 +57,7 @@ class SpkController extends Controller
     {
         $request->validate(['catatan' => 'nullable|string|max:500']);
         $spk->update(['status' => 'disetujui', 'catatan_dosen' => $request->catatan ?? 'Disetujui oleh Admin', 'verified_by' => Auth::id()]);
+        DashboardService::clearAdminCache();
         
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'SPK berhasil disetujui']);
@@ -67,6 +69,7 @@ class SpkController extends Controller
     {
         $request->validate(['catatan' => 'required|string|max:500'], ['catatan.required' => 'Alasan penolakan wajib diisi']);
         $spk->update(['status' => 'ditolak', 'catatan_dosen' => $request->catatan, 'verified_by' => Auth::id()]);
+        DashboardService::clearAdminCache();
         
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'SPK berhasil ditolak']);
@@ -83,6 +86,7 @@ class SpkController extends Controller
             }
         }
         $spk->delete();
+        DashboardService::clearAdminCache();
         return back()->with('success', 'SPK berhasil dihapus');
     }
 
@@ -111,6 +115,7 @@ class SpkController extends Controller
         }
 
         $spk->update(['poin' => $request->poin, 'poin_added_at' => now(), 'poin_added_by' => Auth::id()]);
+        DashboardService::clearAdminCache();
 
         return response()->json([
             'success' => true,
@@ -139,6 +144,7 @@ class SpkController extends Controller
         }
 
         $spk->update(['poin' => $request->poin, 'poin_added_at' => now(), 'poin_added_by' => Auth::id()]);
+        DashboardService::clearAdminCache();
 
         return response()->json([
             'success' => true,

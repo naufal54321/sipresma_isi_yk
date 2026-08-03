@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Rpk;
 use App\Models\User;
+use App\Services\DashboardService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -71,6 +72,7 @@ class RpkController extends Controller
             'catatan_dosen' => $request->catatan ?? $rpk->catatan_dosen,
             'verified_by' => Auth::id(),
         ]);
+        DashboardService::clearAdminCache();
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([

@@ -8,6 +8,7 @@ use App\Models\Spk;
 use App\Models\Rpk;
 use App\Models\Kegiatan;
 use App\Models\MasterPrestasi;
+use App\Services\DashboardService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -191,6 +192,7 @@ class SpkController extends Controller
             'laporan' => $laporan,
             'status' => 'draft'
         ]);
+        DashboardService::clearAdminCache();
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
@@ -334,6 +336,7 @@ class SpkController extends Controller
         }
 
         $spk->update($data);
+        DashboardService::clearAdminCache();
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
@@ -373,6 +376,7 @@ class SpkController extends Controller
         }
 
         $spk->delete();
+        DashboardService::clearAdminCache();
 
         if (request()->ajax() || request()->wantsJson()) {
             return response()->json([

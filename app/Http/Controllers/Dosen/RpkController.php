@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dosen;
 use App\Http\Controllers\Controller;
 
 use App\Models\Rpk;
+use App\Services\DashboardService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -85,6 +86,7 @@ class RpkController extends Controller
             'catatan_dosen' => $request->catatan_dosen,
             'verified_by' => Auth::id(),
         ]);
+        DashboardService::clearAdminCache();
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'RPK berhasil disetujui']);
@@ -107,6 +109,7 @@ class RpkController extends Controller
             'catatan_dosen' => $request->catatan_dosen,
             'verified_by' => Auth::id(),
         ]);
+        DashboardService::clearAdminCache();
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'RPK berhasil ditolak']);

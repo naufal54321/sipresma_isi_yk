@@ -10,6 +10,13 @@ use Illuminate\Support\Facades\Cache;
 
 class DashboardService
 {
+    public static function clearAdminCache()
+    {
+        Cache::forget('admin.stats');
+        Cache::forget('admin.tingkat');
+        Cache::forget('admin.kategori');
+    }
+
     public function getAdminStats()
     {
         return Cache::remember('admin.stats', 300, function () {

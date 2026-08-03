@@ -63,4 +63,50 @@ class DashboardController extends Controller
             $stats, $tingkat, $kategori, $bulanan
         ));
     }
+
+    public function realtime()
+    {
+        $user = Auth::user();
+
+        if ($user->roles->contains('name', 'Admin')) {
+            $stats = $this->dashboardService->getAdminStats();
+            $tingkat = $this->dashboardService->getAdminTingkatChart();
+            $kategori = $this->dashboardService->getAdminKategoriChart();
+
+            $aktivitasTerbaru = $this->dashboardService->getAktivitasTerbaru()
+                ->map(function ($item) {
+                    $item['waktu'] = \Carbon\Carbon::parse($item['created_at'])->locale('id')->isoFormat('DD MMMM YYYY');
+                    $item['jam'] = \Carbon\Carbon::parse($item['created_at'])->format('H:i');
+                    return $item;
+                });
+
+            return response()->json([
+                'role' => 'Admin',
+                'stats' => $stats,
+                'tingkat' => $tingkat,
+                'kategori' => $kategori,
+                'aktivitasTerbaru' => $aktivitasTerbaru,
+            ]);
+        }
+
+        if ($user->roles->contains('name', 'Dosen')) {
+            return response()->json([
+                'role' => 'Dosen',
+                'stats' => $this->dashboardService->getDosenStats($user->id),
+            ]);
+        }
+
+        $stats = $this->dashboardService->getMahasiswaStats($user->id);
+        $tingkat = $this->dashboardService->getMahasiswaTingkatChart($user->id);
+        $kategori = $this->dashboardService->getMahasiswaKategoriChart($user->id);
+        $bulanan = $this->dashboardService->getMahasiswaBulananChart($user->id);
+
+        return response()->json([
+            'role' => 'Mahasiswa',
+            'stats' => $stats,
+            'tingkat' => $tingkat,
+            'kategori' => $kategori,
+            'bulanan' => $bulanan,
+        ]);
+    }
 }

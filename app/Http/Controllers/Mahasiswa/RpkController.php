@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Mahasiswa;
 use App\Http\Controllers\Controller;
 
 use App\Models\Rpk;
+use App\Services\DashboardService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\MasterKegiatan;
@@ -65,6 +66,7 @@ class RpkController extends Controller
             'semester' => $request->semester,
             'status' => 'draft',
         ]);
+        DashboardService::clearAdminCache();
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
@@ -157,6 +159,7 @@ class RpkController extends Controller
             'semester' => $request->semester,
             'status' => 'draft',
         ]);
+        DashboardService::clearAdminCache();
 
         return redirect()->route('rpks.index')->with('success', 'RPK berhasil diupdate');
     }
@@ -177,6 +180,7 @@ class RpkController extends Controller
         }
 
         $rpk->delete();
+        DashboardService::clearAdminCache();
 
         if (request()->ajax() || request()->wantsJson()) {
             return response()->json([

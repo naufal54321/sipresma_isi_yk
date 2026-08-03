@@ -79,7 +79,7 @@
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-blue-600 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
                 <div class="min-w-0">
                     <p class="text-slate-400 text-xs font-bold mb-1 uppercase tracking-widest truncate">Mahasiswa Bimbingan</p>
-                    <h2 class="text-4xl font-extrabold text-slate-800 group-hover:text-blue-600 transition-colors mt-1">{{ $totalMahasiswa }}</h2>
+                    <h2 id="dosenTotalMahasiswa" class="text-4xl font-extrabold text-slate-800 group-hover:text-blue-600 transition-colors mt-1">{{ $totalMahasiswa }}</h2>
                 </div>
                 <div class="bg-gradient-to-br from-blue-50 to-blue-100/50 w-14 h-14 rounded-2xl flex items-center justify-center text-blue-500 text-xl shadow-inner shrink-0 group-hover:rotate-12 transition-transform duration-300">
                     <i class="fas fa-users"></i>
@@ -91,7 +91,7 @@
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-400 to-orange-600 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
                 <div class="min-w-0">
                     <p class="text-slate-400 text-xs font-bold mb-1 uppercase tracking-widest truncate">Draft RPK</p>
-                    <h2 class="text-4xl font-extrabold text-slate-800 group-hover:text-orange-500 transition-colors mt-1">{{ $rpkDraft }}</h2>
+                    <h2 id="dosenRpkDraft" class="text-4xl font-extrabold text-slate-800 group-hover:text-orange-500 transition-colors mt-1">{{ $rpkDraft }}</h2>
                 </div>
                 <div class="bg-gradient-to-br from-orange-50 to-orange-100/50 w-14 h-14 rounded-2xl flex items-center justify-center text-orange-500 text-xl shadow-inner shrink-0 group-hover:rotate-12 transition-transform duration-300">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
@@ -107,7 +107,7 @@
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-emerald-600 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
                 <div class="min-w-0">
                     <p class="text-slate-400 text-xs font-bold mb-1 uppercase tracking-widest truncate">Draft SPK</p>
-                    <h2 class="text-4xl font-extrabold text-slate-800 group-hover:text-emerald-500 transition-colors mt-1">{{ $spkDraft }}</h2>
+                    <h2 id="dosenSpkDraft" class="text-4xl font-extrabold text-slate-800 group-hover:text-emerald-500 transition-colors mt-1">{{ $spkDraft }}</h2>
                 </div>
                 <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/50 w-14 h-14 rounded-2xl flex items-center justify-center text-emerald-500 text-xl shadow-inner shrink-0 group-hover:rotate-12 transition-transform duration-300">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
@@ -122,7 +122,7 @@
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-400 to-green-600 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
                 <div class="min-w-0">
                     <p class="text-slate-400 text-xs font-bold mb-1 uppercase tracking-widest truncate">Total Disetujui</p>
-                    <h2 class="text-4xl font-extrabold text-slate-800 group-hover:text-green-500 transition-colors mt-1">{{ $rpkDisetujui + $spkDisetujui }}</h2>
+                    <h2 id="dosenTotalDisetujui" class="text-4xl font-extrabold text-slate-800 group-hover:text-green-500 transition-colors mt-1">{{ $rpkDisetujui + $spkDisetujui }}</h2>
                     <p class="text-xs text-slate-400 mt-1">RPK & SPK</p>
                 </div>
                 <div class="bg-gradient-to-br from-green-50 to-green-100/50 w-14 h-14 rounded-2xl flex items-center justify-center text-green-500 text-xl shadow-inner shrink-0 group-hover:rotate-12 transition-transform duration-300">
@@ -147,15 +147,15 @@
                         <span class="p-1.5 rounded-lg bg-indigo-50 text-indigo-500"><i class="fas fa-chart-line"></i></span>
                         Beban Kerja Verifikasi
                     </h2>
-                    <p class="text-sm text-slate-500 mt-1.5">{{ $progressText }}</p>
+                    <p id="dosenAntreanText" class="text-sm text-slate-500 mt-1.5">{{ $progressText }}</p>
                 </div>
                 <div class="inline-flex items-center justify-center px-4 py-1.5 bg-slate-900 rounded-full shrink-0 shadow-md">
-                    <span class="font-extrabold text-white text-sm">{{ $totalAntrean }} Draft</span>
+                    <span id="dosenAntreanBadge" class="font-extrabold text-white text-sm">{{ $totalAntrean }} Draft</span>
                 </div>
             </div>
             
             <div class="relative z-10 w-full bg-slate-100/80 rounded-full h-4 overflow-hidden border border-slate-200/60 shadow-inner">
-                <div class="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 h-4 rounded-full transition-all duration-1000 ease-out relative"
+                <div id="dosenAntreanBar" class="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 h-4 rounded-full transition-all duration-1000 ease-out relative"
                      style="width: {{ $totalAntrean == 0 ? 0 : max($progressValue, 2) }}%">
                     <div class="absolute inset-0 overflow-hidden rounded-full">
                         <div class="w-full h-full opacity-30" style="background-image: repeating-linear-gradient(-45deg, rgba(255,255,255,0.25), rgba(255,255,255,0.25) 1rem, transparent 1rem, transparent 2rem); background-size: 200% 200%; animation: barberpole 20s linear infinite;"></div>
@@ -176,7 +176,7 @@
                     <span class="p-1.5 rounded-lg bg-orange-50 text-orange-500"><i class="fas fa-chart-pie"></i></span>
                     Komposisi Draft
                 </h2>
-                <div class="flex-1 relative flex items-center justify-center w-full">
+                <div id="pieContainer" class="flex-1 relative flex items-center justify-center w-full">
                     @if($totalAntrean == 0)
                         <div class="text-center text-slate-400 flex flex-col items-center">
                             <div class="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mb-3">
@@ -255,5 +255,97 @@
 
     </div>
 </div>
+
+<script>
+(function () {
+    const url = '{{ route('dashboard.realtime') }}';
+    const INTERVAL = 30000;
+    let lastSig = '';
+
+    function setChartData(id, data) {
+        if (typeof Chart === 'undefined') return;
+        const chart = Chart.getChart(id);
+        if (!chart) return;
+        chart.data.datasets[0].data = data;
+        chart.update();
+    }
+
+    function pieChartExists() {
+        return typeof Chart !== 'undefined' && !!Chart.getChart('pieChart');
+    }
+
+    function createPieChart(rpkDraft, spkDraft) {
+        const container = document.getElementById('pieContainer');
+        if (!container) return;
+        const wrap = document.createElement('div');
+        wrap.className = 'w-full h-[280px]';
+        const canvas = document.createElement('canvas');
+        canvas.id = 'pieChart';
+        wrap.appendChild(canvas);
+        container.innerHTML = '';
+        container.appendChild(wrap);
+        new Chart(canvas, {
+            type: 'doughnut',
+            data: { labels: ['Draft RPK', 'Draft SPK'], datasets: [{ data: [rpkDraft, spkDraft], backgroundColor: ['#f97316', '#10b981'], borderWidth: 0, hoverOffset: 6 }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { padding: 20, usePointStyle: true, pointStyle: 'circle' } }, tooltip: { backgroundColor: 'rgba(15,23,42,0.9)', padding: 12, cornerRadius: 8 } } }
+        });
+    }
+
+    function removePieChart() {
+        const container = document.getElementById('pieContainer');
+        if (typeof Chart !== 'undefined' && Chart.getChart('pieChart')) Chart.getChart('pieChart').destroy();
+        if (container) {
+            container.innerHTML = '<div class="text-center text-slate-400 flex flex-col items-center"><div class="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mb-3"><i class="fas fa-check text-3xl text-emerald-400"></i></div><p class="font-medium text-slate-500">Tidak ada data draft.</p></div>';
+        }
+    }
+
+    function poll() {
+        if (document.hidden) return;
+        if (!document.getElementById('barChart')) { clearInterval(timer); return; }
+
+        fetch(url)
+            .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+            .then(function (data) {
+                const s = data.stats || {};
+                const sig = JSON.stringify([s.totalMahasiswa, s.rpkDraft, s.rpkDisetujui, s.rpkDitolak, s.spkDraft, s.spkDisetujui, s.spkDitolak]);
+                if (sig === lastSig) return;
+                lastSig = sig;
+
+                const elTotal = document.getElementById('dosenTotalMahasiswa');
+                const elRpk = document.getElementById('dosenRpkDraft');
+                const elSpk = document.getElementById('dosenSpkDraft');
+                const elSetuju = document.getElementById('dosenTotalDisetujui');
+                if (elTotal) elTotal.textContent = s.totalMahasiswa;
+                if (elRpk) elRpk.textContent = s.rpkDraft;
+                if (elSpk) elSpk.textContent = s.spkDraft;
+                if (elSetuju) elSetuju.textContent = (s.rpkDisetujui || 0) + (s.spkDisetujui || 0);
+
+                const totalAntrean = (s.rpkDraft || 0) + (s.spkDraft || 0);
+                const badge = document.getElementById('dosenAntreanBadge');
+                const text = document.getElementById('dosenAntreanText');
+                const bar = document.getElementById('dosenAntreanBar');
+                if (badge) badge.textContent = totalAntrean + ' Draft';
+                if (text) text.textContent = totalAntrean === 0 ? 'Semua tugas telah diselesaikan!' : 'Terdapat ' + totalAntrean + ' data draft yang membutuhkan tinjauan Anda.';
+                if (bar) {
+                    const value = totalAntrean > 0 ? Math.min((totalAntrean / Math.max((s.totalMahasiswa || 0) * 2, 1)) * 100, 100) : 0;
+                    bar.style.width = (totalAntrean === 0 ? 0 : Math.max(value, 2)) + '%';
+                }
+
+                setChartData('barChart', [s.totalMahasiswa, s.rpkDraft, s.spkDraft]);
+
+                if (totalAntrean > 0) {
+                    if (!pieChartExists()) createPieChart(s.rpkDraft, s.spkDraft);
+                    else setChartData('pieChart', [s.rpkDraft, s.spkDraft]);
+                } else {
+                    if (pieChartExists()) removePieChart();
+                }
+            })
+            .catch(function () {});
+    }
+
+    const timer = setInterval(poll, INTERVAL);
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) poll(); });
+})();
+</script>
 
 </x-app-layout>
