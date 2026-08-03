@@ -25,7 +25,7 @@
     <script defer src="{{ asset('build/' . $jsFile) }}"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Montserrat:wght@600;700;900&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.min.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.min.css') }}?v=1"/>
     <style>
         :root {
             --primary-navy: #0A1929;
@@ -329,7 +329,8 @@
     </div>
 </footer>
 
-<script src="{{ asset('vendor/leaflet/leaflet.min.js') }}" onerror="window.__leafletLoadFailed = true"></script>
+<script src="{{ asset('vendor/leaflet/leaflet.min.js') }}?v=1" onerror="window.__leafletLoadFailed = true"></script>
+<script>window.__pratamaLeaflet = window.L || null;</script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const navbar = document.getElementById('navbar');
@@ -340,8 +341,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const mapEl = document.getElementById('map');
     if (!mapEl) return;
 
-    if (window.__leafletLoadFailed || typeof L === 'undefined' || typeof L.map !== 'function') {
-        console.warn('Leaflet gagal dimuat. typeof L =', typeof L, '| loadFailed =', window.__leafletLoadFailed || false);
+    const L = window.__pratamaLeaflet;
+
+    if (window.__leafletLoadFailed || !L || typeof L.map !== 'function') {
+        console.warn('Leaflet gagal dimuat. typeof __pratamaLeaflet =', typeof L, '| loadFailed =', window.__leafletLoadFailed || false);
         showMapFallback(mapEl);
         return;
     }
