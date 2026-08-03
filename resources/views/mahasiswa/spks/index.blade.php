@@ -241,7 +241,7 @@ function generateFilePreview(label, url) {
     if (url && url !== 'null' && url !== '') {
         const ext = url.split('.').pop().toLowerCase();
         const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
-        let previewHtml = isImage ? `<img src="${url}" class="max-w-full max-h-[200px] rounded-lg object-contain mb-2 border">` : `<iframe src="${url}" class="w-full h-[200px] rounded-lg border mb-2"></iframe>`;
+        let previewHtml = isImage ? `<img src="${url}" class="max-w-full max-h-[200px] rounded-lg object-contain mb-2 border">` : `<div data-pdf-preview="${url}" data-pdf-fallback="${url}" class="w-full min-h-[200px] flex items-center justify-center p-3 bg-gray-100 rounded-lg border mb-2"></div>`;
         return `<div class="mb-2 p-3 bg-gray-50 rounded-lg border"><div class="flex items-center justify-between mb-2"><span class="text-xs font-semibold text-gray-600">File Saat Ini: ${label}</span><a href="${url}" target="_blank" class="text-xs text-blue-600 hover:underline"><i class="fas fa-external-link-alt mr-1"></i>Buka</a></div>${previewHtml}</div>`;
     }
     return '';
@@ -454,6 +454,7 @@ function bukaModalEditSPK(button) {
             document.getElementById('edit_tahun').value = button.getAttribute('data-tahun') || '';
             document.getElementById('edit_rpk').value = button.getAttribute('data-rpk'); document.getElementById('edit_rpk').dispatchEvent(new Event('change'));
             ['surat_tugas','sertifikat','foto_penyerahan','laporan'].forEach(f => document.getElementById('edit_'+f+'_preview').innerHTML = generateFilePreview(f, button.getAttribute('data-'+f.replace(/_/g,'-'))));
+            if (typeof initPdfPreviews === 'function') initPdfPreviews();
             setTimeout(() => {
                 document.getElementById('edit_penyelenggara').value = button.getAttribute('data-penyelenggara') || '';
                 document.getElementById('edit_judul_karya').value = button.getAttribute('data-judul-karya') || '';

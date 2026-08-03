@@ -25,6 +25,7 @@
     <script defer src="{{ asset('build/' . $jsFile) }}"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Montserrat:wght@600;700;900&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
     <style>
         :root {
             --primary-navy: #0A1929;
@@ -196,16 +197,13 @@
 
     <!-- Google Maps - Full Width di Bawah -->
     <div class="modern-card overflow-hidden p-0">
-        <iframe 
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3767.1449993033207!2d110.35395917477985!3d-7.851621492169977!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a57ae2d6cfed5%3A0xd1f3ed5b1b96c896!2sInstitut%20Seni%20Indonesia%20Yogyakarta!5e1!3m2!1sid!2sid!4v1785212487601!5m2!1sid!2sid" 
-            width="100%" 
-            height="450" 
-            style="border:0;" 
-            allowfullscreen="" 
-            loading="lazy" 
-            referrerpolicy="no-referrer-when-downgrade"
-            title="Lokasi ISI Yogyakarta">
-        </iframe>
+        <div id="map" style="height: 450px; width: 100%;" aria-label="Peta lokasi ISI Yogyakarta"></div>
+        <div class="flex justify-center py-4 bg-white border-t border-outline-variant/30">
+            <a href="https://www.google.com/maps/search/?api=1&query=-7.851621,110.353959" target="_blank" rel="noopener" 
+               class="inline-flex items-center gap-2 btn-primary px-6 py-2.5 rounded-full font-label-md text-label-md shadow-md shadow-black/10">
+                <span class="material-symbols-outlined text-[18px]">map</span> Buka di Google Maps
+            </a>
+        </div>
     </div>
 
 </section>
@@ -331,12 +329,27 @@
     </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const navbar = document.getElementById('navbar');
     window.addEventListener('scroll', () => {
         navbar.classList.toggle('shadow-sm', window.scrollY > 10);
     });
+
+    const mapEl = document.getElementById('map');
+    if (mapEl && typeof L !== 'undefined') {
+        const map = L.map('map').setView([-7.851621, 110.353959], 16);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors',
+            maxZoom: 19
+        }).addTo(map);
+        L.marker([-7.851621, 110.353959]).addTo(map)
+            .bindPopup('<b>ISI Yogyakarta</b><br>Jl. Parangtritis Km. 6.5 Sewon, Bantul, Yogyakarta 55188')
+            .openPopup();
+    } else if (mapEl) {
+        mapEl.innerHTML = '<div class="w-full h-full flex items-center justify-center text-on-surface-variant text-sm">Peta tidak dapat dimuat — gunakan tombol "Buka di Google Maps" di bawah.</div>';
+    }
 });
 </script>
 </body>

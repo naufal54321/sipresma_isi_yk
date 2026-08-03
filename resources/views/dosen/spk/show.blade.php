@@ -449,7 +449,7 @@
                                 </div>
                                 <div class="bg-gray-100 min-h-[250px] relative">
                                     @if($spk->surat_tugas)
-                                        <iframe src="{{ asset('storage/' . $spk->surat_tugas) }}" class="w-full h-[250px] border-0"></iframe>
+                                        <div data-pdf-preview="{{ asset('storage/' . $spk->surat_tugas) }}" data-pdf-fallback="{{ asset('storage/' . $spk->surat_tugas) }}" class="w-full min-h-[250px] flex items-center justify-center p-3"></div>
                                     @else
                                         <div class="flex flex-col items-center justify-center h-[250px] text-gray-400">
                                             <i class="fas fa-file-pdf text-4xl mb-2 text-gray-300"></i>
@@ -480,7 +480,7 @@
                                         @if(in_array(pathinfo($spk->sertifikat, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
                                             <img src="{{ asset('storage/' . $spk->sertifikat) }}" class="max-w-full max-h-[350px] object-contain rounded-lg">
                                         @else
-                                            <iframe src="{{ asset('storage/' . $spk->sertifikat) }}" class="w-full h-[250px] border-0"></iframe>
+                                            <div data-pdf-preview="{{ asset('storage/' . $spk->sertifikat) }}" data-pdf-fallback="{{ asset('storage/' . $spk->sertifikat) }}" class="w-full min-h-[250px] flex items-center justify-center p-3"></div>
                                         @endif
                                     @else
                                         <div class="flex flex-col items-center justify-center h-[250px] text-gray-400">
@@ -537,7 +537,7 @@
                                 </div>
                                 <div class="bg-gray-100 min-h-[250px] relative">
                                     @if($spk->laporan)
-                                        <iframe src="{{ asset('storage/' . $spk->laporan) }}" class="w-full h-[250px] border-0"></iframe>
+                                        <div data-pdf-preview="{{ asset('storage/' . $spk->laporan) }}" data-pdf-fallback="{{ asset('storage/' . $spk->laporan) }}" class="w-full min-h-[250px] flex items-center justify-center p-3"></div>
                                     @else
                                         <div class="flex flex-col items-center justify-center h-[250px] text-gray-400">
                                             <i class="fas fa-file-alt text-4xl mb-2 text-gray-300"></i>

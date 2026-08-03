@@ -168,6 +168,7 @@
 
         <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
         {{-- Navigasi Script --}}
         <script>
@@ -371,6 +372,65 @@ function initCharts() {
 
 document.addEventListener('DOMContentLoaded', initCharts);
 document.addEventListener('content-updated', initCharts);
+
+// ⚡ PDF PREVIEW (PDF.JS - SOLUSI BLOKIR PDF DI IFRAME, KHUSUSNYA ANDROID CHROME)
+function renderPdfPreview(container, url, fallbackUrl) {
+    if (typeof pdfjsLib === 'undefined') {
+        showPdfFallback(container, fallbackUrl);
+        return;
+    }
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    container.innerHTML = '<div class="flex flex-col items-center justify-center text-gray-500 py-8"><div class="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-2"></div><span class="text-sm">Memuat dokumen...</span></div>';
+
+    pdfjsLib.getDocument(url).promise.then(pdf => {
+        if (!container.isConnected) return;
+        return pdf.getPage(1).then(page => {
+            const baseWidth = Math.min(container.clientWidth || 800, 800);
+            const viewport = page.getViewport({ scale: 1 });
+            const scale = Math.min((baseWidth - 24) / viewport.width, 2.5);
+            const scaled = page.getViewport({ scale });
+
+            container.innerHTML = '';
+            const canvas = document.createElement('canvas');
+            canvas.className = 'max-w-full h-auto mx-auto rounded-lg border border-gray-300 bg-white';
+            canvas.width = Math.floor(scaled.width);
+            canvas.height = Math.floor(scaled.height);
+            container.appendChild(canvas);
+
+            return page.render({ canvasContext: canvas.getContext('2d'), viewport: scaled }).promise.then(() => {
+                if (pdf.numPages > 1 && container.isConnected) {
+                    const info = document.createElement('div');
+                    info.className = 'text-xs text-gray-500 text-center mt-2';
+                    info.textContent = 'Halaman 1 dari ' + pdf.numPages + ' — buka file untuk melihat lengkap';
+                    container.appendChild(info);
+                }
+            });
+        });
+    }).catch(() => {
+        if (container.isConnected) showPdfFallback(container, fallbackUrl);
+    });
+}
+
+function showPdfFallback(container, fallbackUrl) {
+    container.innerHTML = `<div class="flex flex-col items-center justify-center text-gray-500 py-8 gap-3">
+        <i class="fas fa-file-pdf text-4xl text-gray-300"></i>
+        <span class="text-sm font-medium">Preview tidak dapat dimuat</span>
+        ${fallbackUrl ? `<a href="${fallbackUrl}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold transition"><i class="fas fa-external-link-alt"></i> Buka File</a>` : ''}
+    </div>`;
+}
+
+function initPdfPreviews() {
+    if (typeof pdfjsLib === 'undefined') return;
+    document.querySelectorAll('[data-pdf-preview]').forEach(el => {
+        if (el.dataset.pdfInitialized) return;
+        el.dataset.pdfInitialized = '1';
+        renderPdfPreview(el, el.getAttribute('data-pdf-preview'), el.getAttribute('data-pdf-fallback'));
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initPdfPreviews);
+document.addEventListener('content-updated', initPdfPreviews);
 </script>
     </body>
 </html>
