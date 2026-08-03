@@ -199,7 +199,7 @@
     <div class="modern-card overflow-hidden p-0">
         <div id="map" style="height: 450px; width: 100%;" aria-label="Peta lokasi ISI Yogyakarta"></div>
         <div class="flex justify-center py-4 bg-white border-t border-outline-variant/30">
-            <a href="https://www.google.com/maps/search/?api=1&query=-7.851621,110.353959" target="_blank" rel="noopener" 
+            <a href="https://maps.app.goo.gl/aPDfgTubL1VdWzJg6" target="_blank" rel="noopener" 
                class="inline-flex items-center gap-2 btn-primary px-6 py-2.5 rounded-full font-label-md text-label-md shadow-md shadow-black/10">
                 <span class="material-symbols-outlined text-[18px]">map</span> Buka di Google Maps
             </a>
@@ -329,7 +329,7 @@
     </div>
 </footer>
 
-<script src="{{ asset('vendor/leaflet/leaflet.min.js') }}"></script>
+<script src="{{ asset('vendor/leaflet/leaflet.min.js') }}" onerror="window.__leafletLoadFailed = true"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const navbar = document.getElementById('navbar');
@@ -338,19 +338,64 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     const mapEl = document.getElementById('map');
-    if (mapEl && typeof L !== 'undefined' && typeof L.map === 'function') {
-        const map = L.map('map').setView([-7.851621, 110.353959], 16);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors',
-            maxZoom: 19
-        }).addTo(map);
-        L.marker([-7.851621, 110.353959]).addTo(map)
-            .bindPopup('<b>ISI Yogyakarta</b><br>Jl. Parangtritis Km. 6.5 Sewon, Bantul, Yogyakarta 55188')
-            .openPopup();
-    } else if (mapEl) {
-        mapEl.innerHTML = '<div class="w-full h-full flex items-center justify-center text-on-surface-variant text-sm">Peta tidak dapat dimuat — gunakan tombol "Buka di Google Maps" di bawah.</div>';
+    if (!mapEl) return;
+
+    if (window.__leafletLoadFailed || typeof L === 'undefined' || typeof L.map !== 'function') {
+        console.warn('Leaflet gagal dimuat. typeof L =', typeof L, '| loadFailed =', window.__leafletLoadFailed || false);
+        showMapFallback(mapEl);
+        return;
     }
+
+    const map = L.map('map').setView([-7.851621, 110.353959], 16);
+
+    const tiles = [
+        {
+            name: 'OpenStreetMap',
+            url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            opts: { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors', maxZoom: 19 }
+        },
+        {
+            name: 'Esri World Street Map',
+            url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+            opts: { attribution: '&copy; Esri, HERE, Garmin, OpenStreetMap contributors', maxZoom: 19 }
+        }
+    ];
+
+    let tileIndex = 0;
+    function addTiles() {
+        const t = tiles[tileIndex];
+        const layer = L.tileLayer(t.url, t.opts);
+        let errorCount = 0;
+        layer.on('tileerror', () => {
+            errorCount++;
+            if (errorCount >= 3 && tileIndex < tiles.length - 1) {
+                console.warn('Tile ' + t.name + ' gagal dimuat — beralih ke provider lain.');
+                map.removeLayer(layer);
+                tileIndex++;
+                addTiles();
+            }
+        });
+        layer.addTo(map);
+        return layer;
+    }
+    addTiles();
+
+    L.marker([-7.851621, 110.353959]).addTo(map)
+        .bindPopup('<b>ISI Yogyakarta</b><br>Jl. Parangtritis Km. 6.5 Sewon, Bantul, Yogyakarta 55188')
+        .openPopup();
 });
+
+function showMapFallback(mapEl) {
+    mapEl.innerHTML = `
+        <div class="w-full h-full flex flex-col items-center justify-center gap-3 p-6 text-center">
+            <span class="material-symbols-outlined text-[40px] text-on-surface-variant/40">map</span>
+            <span class="text-on-surface-variant text-sm">Peta tidak dapat dimuat.</span>
+            <a href="https://maps.app.goo.gl/aPDfgTubL1VdWzJg6" target="_blank" rel="noopener"
+               class="inline-flex items-center gap-2 btn-primary px-6 py-2.5 rounded-full font-label-md text-label-md shadow-md shadow-black/10">
+                <span class="material-symbols-outlined text-[18px]">map</span> Buka di Google Maps
+            </a>
+        </div>`;
+}
 </script>
 </body>
 </html>
