@@ -25,7 +25,7 @@
     <script defer src="{{ asset('build/' . $jsFile) }}"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Montserrat:wght@600;700;900&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+    <link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.min.css') }}"/>
     <style>
         :root {
             --primary-navy: #0A1929;
@@ -329,7 +329,7 @@
     </div>
 </footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="{{ asset('vendor/leaflet/leaflet.min.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const navbar = document.getElementById('navbar');
@@ -338,7 +338,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     const mapEl = document.getElementById('map');
-    if (mapEl && typeof L !== 'undefined') {
+    if (mapEl && typeof L !== 'undefined' && typeof L.map === 'function') {
         const map = L.map('map').setView([-7.851621, 110.353959], 16);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors',
