@@ -23,4 +23,13 @@ class MasterPrestasi extends Model
     protected $casts = [
         'is_active' => 'boolean', // ⚡ OPSIONAL tapi disarankan
     ];
+
+    /**
+     * Toggle status aktif/tidak aktif prestasi.
+     */
+    public function toggleStatus(): void
+    {
+        $this->is_active = !$this->is_active;
+        $this->save();
+    }
 }

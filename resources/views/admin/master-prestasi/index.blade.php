@@ -126,17 +126,13 @@
                                     {{ $item->tingkat }}
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    @if($item->is_active)
-                                        <span class="inline-flex items-center gap-1 min-w-[90px] justify-center bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
-                                            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                                            Aktif
-                                        </span>
-                                    @else
-                                        <span class="inline-flex items-center gap-1 min-w-[90px] justify-center bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
-                                            <span class="w-2 h-2 bg-red-500 rounded-full"></span>
-                                            Tidak Aktif
-                                        </span>
-                                    @endif
+                                    <button type="button"
+                                            onclick="toggleStatusPrestasi({{ $item->id }})"
+                                            title="Klik untuk ubah status"
+                                            class="inline-flex items-center gap-1 min-w-[90px] justify-center px-3 py-1 rounded-full text-xs font-semibold transition {{ $item->is_active ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200' }}">
+                                        <span class="w-2 h-2 rounded-full {{ $item->is_active ? 'bg-green-500 animate-pulse' : 'bg-red-500' }}"></span>
+                                        {{ $item->is_active ? 'Aktif' : 'Tidak Aktif' }}
+                                    </button>
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     <div class="flex justify-center gap-2">
@@ -203,9 +199,7 @@
     // RENDER ROW PRESTASI
     // ============================================
     function renderPrestasiRow(item) {
-        const statusBadge = item.is_active
-            ? '<span class="inline-flex items-center gap-1 min-w-[90px] justify-center bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold"><span class="w-2 h-2 bg-green-500 rounded-full"></span>Aktif</span>'
-            : '<span class="inline-flex items-center gap-1 min-w-[90px] justify-center bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold"><span class="w-2 h-2 bg-red-500 rounded-full"></span>Tidak Aktif</span>';
+        const statusBadge = prestasiStatusBadge(item.id, item.is_active);
 
         return `
         <tr id="row-${item.id}" class="border-b hover:bg-blue-50 transition duration-150">
@@ -286,6 +280,42 @@
                     Swal.fire({ icon: 'error', title: 'Error!', text: 'Terjadi kesalahan saat menghapus data' });
                 });
             }
+        });
+    }
+
+    // ============================================
+    // FUNGSI GANTI STATUS PRESTASI (AKTIF / TIDAK AKTIF)
+    // ============================================
+    function prestasiStatusBadge(id, isActive) {
+        return `
+            <button type="button" onclick="toggleStatusPrestasi(${id})" title="Klik untuk ubah status"
+                class="inline-flex items-center gap-1 min-w-[90px] justify-center px-3 py-1 rounded-full text-xs font-semibold transition ${isActive ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200'}">
+                <span class="w-2 h-2 rounded-full ${isActive ? 'bg-green-500 animate-pulse' : 'bg-red-500'}"></span>
+                ${isActive ? 'Aktif' : 'Tidak Aktif'}
+            </button>
+        `;
+    }
+
+    function toggleStatusPrestasi(id) {
+        fetch(`${baseUrl}/${id}/toggle-status`, { method: 'PATCH', headers: getAjaxHeaders() })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.data) {
+                const row = document.getElementById(`row-${id}`);
+                if (row) {
+                    row.children[3].innerHTML = prestasiStatusBadge(id, data.data.is_active);
+
+                    const editBtn = row.querySelector('button[title="Edit Prestasi"]');
+                    if (editBtn) editBtn.setAttribute('data-is_active', data.data.is_active ? '1' : '0');
+                }
+
+                Swal.fire({ icon: 'success', title: 'Berhasil!', text: data.message || 'Status prestasi berubah', timer: 1500, showConfirmButton: false });
+            } else {
+                Swal.fire({ icon: 'error', title: 'Gagal!', text: data.message || 'Gagal mengubah status prestasi' });
+            }
+        })
+        .catch(error => {
+            Swal.fire({ icon: 'error', title: 'Error!', text: 'Terjadi kesalahan saat mengubah status' });
         });
     }
 
@@ -436,10 +466,7 @@
                             if (row) {
                                 row.children[1].innerText = formData.juara;
                                 row.children[2].innerText = formData.tingkat;
-                                const statusBadge = formData.is_active === '1' 
-                                    ? '<span class="inline-flex items-center gap-1 min-w-[90px] justify-center bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold"><span class="w-2 h-2 bg-green-500 rounded-full"></span>Aktif</span>'
-                                    : '<span class="inline-flex items-center gap-1 min-w-[90px] justify-center bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold"><span class="w-2 h-2 bg-red-500 rounded-full"></span>Tidak Aktif</span>';
-                                row.children[3].innerHTML = statusBadge;
+                                row.children[3].innerHTML = prestasiStatusBadge(id, formData.is_active === '1');
                                 
                                 const editBtn = row.querySelector('button[title="Edit Prestasi"]');
                                 if (editBtn) {

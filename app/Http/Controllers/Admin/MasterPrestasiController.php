@@ -86,25 +86,49 @@ class MasterPrestasiController extends Controller
         }
     }
 
-    public function destroy($id)
-{
-    try {
-        $prestasi = MasterPrestasi::findOrFail($id);
-        
-        // ⚡ Nonaktifkan daripada hapus
-        $prestasi->update(['is_active' => false]);
+    public function destroy(MasterPrestasi $masterPrestasi)
+    {
+        try {
+            $dipakai = \App\Models\Spk::where('prestasi_id', $masterPrestasi->id)->count();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Data prestasi berhasil dinonaktifkan'
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Gagal: ' . $e->getMessage()
-        ], 500);
+            if ($dipakai > 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Tidak dapat dihapus — prestasi ini sudah digunakan oleh {$dipakai} SPK. Nonaktifkan saja jika ingin menyembunyikannya."
+                ], 409);
+            }
+
+            $masterPrestasi->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data prestasi berhasil dihapus'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
+
+    public function toggleStatus(MasterPrestasi $masterPrestasi)
+    {
+        try {
+            $masterPrestasi->toggleStatus();
+
+            return response()->json([
+                'success' => true,
+                'message' => $masterPrestasi->is_active ? 'Prestasi berhasil diaktifkan' : 'Prestasi berhasil dinonaktifkan',
+                'data' => $masterPrestasi->fresh()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengubah status: ' . $e->getMessage()
+            ], 500);
+        }
+    }
     // MasterPrestasiController.php
     public function show(MasterPrestasi $masterPrestasi)
     {

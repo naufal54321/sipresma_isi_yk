@@ -149,6 +149,7 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
 
     /* Master Prestasi (Dibersihkan dari duplikasi) */
     Route::resource('master-prestasi', MasterPrestasiController::class)->except(['create', 'edit']);
+    Route::patch('master-prestasi/{master_prestasi}/toggle-status', [MasterPrestasiController::class, 'toggleStatus'])->name('master-prestasi.toggle-status');
 
     /* Program Studi */
     Route::resource('prodi', ProgramStudiController::class)->except(['create', 'edit'])->parameters(['prodi' => 'prodi']);
