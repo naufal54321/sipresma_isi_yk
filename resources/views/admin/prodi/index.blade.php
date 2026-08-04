@@ -73,7 +73,7 @@
                     </div>
                 </form>
 
-                <button onclick="bukaModalTambah()"
+                <button onclick="bukaModalTambahProdi()"
                         class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm font-semibold transition cursor-pointer w-full md:w-auto whitespace-nowrap">
                     + Tambah Prodi
                 </button>
@@ -189,7 +189,7 @@
         // ============================================
         // TAMBAH PRODI
         // ============================================
-        function bukaModalTambah() {
+        function bukaModalTambahProdi() {
             Swal.fire({
                 title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Tambah Prodi</h2>',
                 width: '500px',

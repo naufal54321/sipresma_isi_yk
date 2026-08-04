@@ -31,8 +31,6 @@
     </script>
     @endif
 
-    {{-- ⚡ WRAPPER DENGAN data-no-spa UNTUK NONAKTIFKAN SPA DI HALAMAN INI --}}
-    <div data-no-spa>
     <div class="py-6">
         <div class="max-w-8xl mx-auto py-6">
 
@@ -93,7 +91,7 @@
                 </form>
 
                 {{-- Add Button --}}
-                <button onclick="bukaModalTambah()"
+                <button onclick="bukaModalTambahPrestasi()"
                    class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm font-semibold transition duration-150 cursor-pointer w-full md:w-auto whitespace-nowrap flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -143,7 +141,7 @@
                                 <td class="px-6 py-4 text-center">
                                     <div class="flex justify-center gap-2">
                                         <button type="button"
-                                                onclick="bukaModalEdit(this)"
+                                                onclick="bukaModalEditPrestasi(this)"
                                                 data-id="{{ $item->id }}"
                                                 data-juara="{{ e($item->juara) }}"
                                                 data-tingkat="{{ $item->tingkat }}"
@@ -180,7 +178,6 @@
 
         </div>
     </div>
-    </div>{{-- END data-no-spa --}}
 
     {{-- Font Awesome --}}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -191,8 +188,8 @@
     // ============================================
     // KONFIGURASI
     // ============================================
-    const csrfToken = '{{ csrf_token() }}';
-    const baseUrl = '{{ route("admin.master-prestasi.index") }}';
+    var csrfToken = '{{ csrf_token() }}';
+    var baseUrl = '{{ route("admin.master-prestasi.index") }}';
     
     function getAjaxHeaders() {
         return {
@@ -218,7 +215,7 @@
             <td class="px-6 py-4 text-center">${statusBadge}</td>
             <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
-                    <button type="button" onclick="bukaModalEdit(this)"
+                    <button type="button" onclick="bukaModalEditPrestasi(this)"
                         data-id="${item.id}" data-juara="${item.juara}" data-tingkat="${item.tingkat}" data-is_active="${item.is_active ? '1' : '0'}"
                         title="Edit Prestasi"
                         class="flex items-center justify-center w-9 h-9 bg-yellow-500 hover:bg-yellow-400 text-white rounded-lg transition shadow-sm">
@@ -337,7 +334,7 @@
     // ============================================
     // FUNGSI TAMBAH PRESTASI (FULL AJAX - TANPA RELOAD)
     // ============================================
-    function bukaModalTambah() {
+    function bukaModalTambahPrestasi() {
         Swal.fire({
             title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Tambah Prestasi Baru</h2>',
             width: '600px',
@@ -393,7 +390,7 @@
     // ============================================
     // FUNGSI EDIT PRESTASI (FULL AJAX)
     // ============================================
-    function bukaModalEdit(button) {
+    function bukaModalEditPrestasi(button) {
         const id = button.getAttribute('data-id');
         
         Swal.fire({ title: 'Memuat data...', allowOutsideClick: false, allowEscapeKey: false, didOpen: () => Swal.showLoading() });

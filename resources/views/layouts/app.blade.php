@@ -44,15 +44,6 @@
                 transition-duration: 0s !important;
                 transition-delay: 0s !important;
             }
-            
-            body.preload #content-wrapper {
-                opacity: 0;
-            }
-            
-            body:not(.preload) #content-wrapper {
-                opacity: 1;
-                transition: opacity 0.25s ease-out;
-            }
         </style>
     </head>
 
@@ -216,9 +207,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ⚡ INIT ULANG KONTEN + SIDEBAR + JALANKAN SCRIPT
-    function initNewContent(html) {
+    function initNewContent(html, url) {
         const temp = document.createElement('div');
         temp.innerHTML = html;
+
+        // ⚡ HALAMAN BER-WRAPPER data-no-spa TIDAK BOLEH DIPROSES SPA → FULL RELOAD
+        if (temp.querySelector('[data-no-spa]')) {
+            window.location.href = url || window.location.href;
+            return false;
+        }
 
         const titleTag = temp.querySelector('title');
         if (titleTag) document.title = titleTag.textContent;
@@ -274,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(res => res.text())
         .then(html => {
-            if (!initNewContent(html)) {
+            if (!initNewContent(html, url)) {
                 window.location.href = url;
                 return;
             }
@@ -323,7 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .then(res => res.text())
             .then(html => {
-                if (!initNewContent(html)) {
+                if (!initNewContent(html, e.state.url)) {
                     location.reload();
                     return;
                 }

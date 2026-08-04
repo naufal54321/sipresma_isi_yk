@@ -195,7 +195,7 @@
 {{-- SCRIPT --}}
 @if(!$isAnggotaOnly)
 <script>
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
+var MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 // ⚡ VALIDASI UKURAN FILE — INLINE ERROR (TIDAK PAKAI SWEET ALERT)
 function validateFileSize(input, label) {
@@ -369,7 +369,7 @@ function generateSpkFormHTML(prefix) {
 }
 
 // ⚡ BIND LOGIKA FORM
-function bindLogikaForm(prefix) {
+function bindLogikaFormSPK(prefix) {
     const elRpk = document.getElementById(`${prefix}_rpk`);
     if (elRpk) {
         elRpk.onchange = function() {
@@ -401,9 +401,9 @@ function bukaModalTambahSPK() {
         html: `<div class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">${generateSpkFormHTML('add')}</div>`,
         showCancelButton: true, confirmButtonText: 'Simpan', cancelButtonText: 'Batal',
         confirmButtonColor: '#2563EB', cancelButtonColor: '#9CA3AF', allowOutsideClick: false,
-        customClass: { popup: 'rounded-2xl p-6' }, didOpen: () => { bindLogikaForm('add'); },
+        customClass: { popup: 'rounded-2xl p-6' }, didOpen: () => { bindLogikaFormSPK('add'); },
         preConfirm: () => { 
-            if (!validasiForm('add')) return false;
+            if (!validasiFormSPK('add')) return false;
             Swal.showLoading();
             
             const formData = new FormData();
@@ -450,7 +450,7 @@ function bukaModalEditSPK(button) {
         confirmButtonColor: '#2563EB', cancelButtonColor: '#9CA3AF', allowOutsideClick: false,
         customClass: { popup: 'rounded-2xl p-6' },
         didOpen: () => {
-            bindLogikaForm('edit');
+            bindLogikaFormSPK('edit');
             document.getElementById('edit_tahun').value = button.getAttribute('data-tahun') || '';
             document.getElementById('edit_rpk').value = button.getAttribute('data-rpk'); document.getElementById('edit_rpk').dispatchEvent(new Event('change'));
             ['surat_tugas','sertifikat','foto_penyerahan','laporan'].forEach(f => document.getElementById('edit_'+f+'_preview').innerHTML = generateFilePreview(f, button.getAttribute('data-'+f.replace(/_/g,'-'))));
@@ -468,7 +468,7 @@ function bukaModalEditSPK(button) {
             }, 200);
         },
         preConfirm: () => { 
-            if (!validasiForm('edit')) return false;
+            if (!validasiFormSPK('edit')) return false;
             Swal.showLoading();
             
             const formData = new FormData();
@@ -504,7 +504,7 @@ function bukaModalEditSPK(button) {
 }
 
 // ⚡ VALIDASI FORM
-function validasiForm(prefix) {
+function validasiFormSPK(prefix) {
     const el = (id) => document.getElementById(`${prefix}_${id}`);
     
     if (!el('tahun')?.value) { Swal.showValidationMessage('Harap pilih Tahun Pengajuan!'); return false; }

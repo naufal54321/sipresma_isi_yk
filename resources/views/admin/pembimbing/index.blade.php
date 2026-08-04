@@ -139,7 +139,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // ⚡ Daftar dosen untuk lookup nama
-        const dosenList = {
+        var dosenList = {
             @foreach($dosen as $dsn)
                 "{{ $dsn->id }}": "{{ e($dsn->name) }}",
             @endforeach

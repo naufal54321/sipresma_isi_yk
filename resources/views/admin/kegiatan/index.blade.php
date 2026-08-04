@@ -33,8 +33,6 @@
     </script>
     @endif
 
-    {{-- ⚡ WRAPPER UNTUK NONAKTIFKAN SPA DI HALAMAN INI --}}
-    <div data-no-spa>
     <div class="py-6">
         <div class="max-w-8xl mx-auto py-6">
 
@@ -186,7 +184,6 @@
 
         </div>
     </div>
-    </div>{{-- END data-no-spa --}}
 
     {{-- Font Awesome --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
