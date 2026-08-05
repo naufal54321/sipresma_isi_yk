@@ -167,7 +167,7 @@
             @endauth
         </div>
         {{-- Hamburger button --}}
-        <button @click="mobileOpen = !mobileOpen" class="md:hidden text-white p-2 ml-2" aria-label="Toggle menu">
+        <button @click="mobileOpen = !mobileOpen" id="hamburgerBtn" class="md:hidden text-white p-2 ml-2" aria-label="Toggle menu">
             <span x-show="!mobileOpen" class="material-symbols-outlined text-[28px] block">menu</span>
             <span x-show="mobileOpen" class="material-symbols-outlined text-[28px] block" style="display:none">close</span>
         </button>
@@ -566,19 +566,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function setNavbarStyle(mode) {
         const isHero = mode === 'hero';
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
         
         navbar.classList.remove('bg-transparent', 'bg-white/90', 'shadow-sm');
         logoText?.classList.remove('text-white', 'text-primary');
+        hamburgerBtn?.classList.remove('text-white', 'text-primary');
         
         if (!isHero) {
             navbar.classList.add('bg-white/90', 'shadow-sm');
             logoText?.classList.add('text-primary');
+            hamburgerBtn?.classList.add('text-primary');
             if (loginBtn) {
                 loginBtn.className = 'px-6 py-2 rounded-full font-label-md text-label-md hidden md:block btn-outline';
             }
         } else {
             navbar.classList.add('bg-transparent');
             logoText?.classList.add('text-white');
+            hamburgerBtn?.classList.add('text-white');
             if (loginBtn) {
                 loginBtn.className = 'px-6 py-2 rounded-full font-label-md text-label-md hidden md:block border border-white/70 text-white hover:bg-white/10 transition-all';
             }
