@@ -1,6 +1,13 @@
 <x-app-layout>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
+    <style>
+        .swal2-html-container { overflow-x: hidden !important; }
+        .swal2-html-container * { box-sizing: border-box; }
+        .swal2-html-container input,
+        .swal2-html-container select { max-width: 100%; }
+    </style>
+
 @php
     \Carbon\Carbon::setLocale('id');
     $programStudis = \App\Models\ProgramStudi::where('status', 'aktif')
@@ -255,7 +262,7 @@ function addUser() {
         customClass: { popup: 'rounded-2xl p-4' },
 
         html: `
-        <div class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">
+        <div class="text-left mt-4 max-h-[65vh] overflow-y-auto overflow-x-hidden px-2">
             <div class="mb-4">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Nama <span class="text-red-500">*</span></label>
                 <input id="name" class="${inputCls}" placeholder="Masukan Nama" required>
@@ -303,9 +310,12 @@ function addUser() {
             </div>
             <div class="mb-4">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Password <span class="text-red-500">*</span></label>
-                <div class="relative">
-                    <input id="password" type="password" class="${inputCls} pr-10" placeholder="Masukan Password" required>
-                    <i class="fas fa-eye-slash absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400" id="togglePassword"></i>
+                <div class="relative w-full">
+                    <input id="password" type="password" class="${inputCls} pr-12" placeholder="Masukan Password" required>
+                    <button type="button" id="togglePassword"
+                        class="absolute inset-y-0 right-0 flex items-center px-4 text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-eye-slash" id="togglePasswordIcon"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -315,13 +325,14 @@ function addUser() {
             setTimeout(() => { const input = document.getElementById('name'); if (input) input.focus(); }, 100);
 
             const toggle = document.getElementById('togglePassword');
+            const toggleIcon = document.getElementById('togglePasswordIcon');
             const passInput = document.getElementById('password');
-            if (toggle && passInput) {
+            if (toggle && toggleIcon && passInput) {
                 toggle.addEventListener('click', function () {
                     const type = passInput.getAttribute('type') === 'password' ? 'text' : 'password';
                     passInput.setAttribute('type', type);
-                    this.classList.toggle('fa-eye');
-                    this.classList.toggle('fa-eye-slash');
+                    toggleIcon.classList.toggle('fa-eye');
+                    toggleIcon.classList.toggle('fa-eye-slash');
                 });
             }
 

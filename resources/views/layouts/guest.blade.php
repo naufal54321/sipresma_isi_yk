@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'PRATAMA') — {{ config('app.name', 'PRATAMA') }}</title>
+    @hasSection('title')
+    <title>@yield('title') — {{ config('app.name', 'PRATAMA') }}</title>
+    @else
+    <title>{{ config('app.name', 'PRATAMA') }}</title>
+    @endif
 
     <meta name="description" content="@yield('metaDescription', 'PRATAMA — Prestasi dan Talenta Mahasiswa ISI Yogyakarta')">
     <meta name="robots" content="noindex, nofollow">

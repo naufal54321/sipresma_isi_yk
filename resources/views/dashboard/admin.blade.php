@@ -1,5 +1,4 @@
 <x-app-layout>
-@section('title', 'Dashboard Admin')
 
 <div class="py-1 overflow-x-hidden">
     <div class="max-w-8xl mx-auto py-6">
