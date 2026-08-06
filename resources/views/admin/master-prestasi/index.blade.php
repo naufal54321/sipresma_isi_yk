@@ -239,7 +239,6 @@
             cancelButtonColor: '#6b7280',
             confirmButtonText: 'Ya, Hapus',
             cancelButtonText: 'Batal',
-            reverseButtons: true,
             allowOutsideClick: false,
             allowEscapeKey: false,
             customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl font-semibold', cancelButton: 'rounded-xl font-semibold' }

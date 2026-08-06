@@ -14,12 +14,14 @@ class Rpk extends Model
         'status',
         'catatan_dosen',
         'verified_by',
+        'verified_at',
     ];
 
     protected $casts = [
         'status' => 'string',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'verified_at' => 'datetime',
     ];
 
 public function user()

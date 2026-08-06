@@ -559,6 +559,10 @@
                                 <p class="text-xs font-semibold text-blue-600 mb-1">Status Terkini</p>
                                 <h4 class="font-bold text-gray-800">SPK: {{ ucfirst($spk->status) }}</h4>
                                 
+                                @if($spk->status === 'disetujui' && $spk->verified_at)
+                                <p class="text-sm text-gray-500 mt-1">Disetujui: {{ $spk->verified_at->format('d/m/Y H:i') }} @if($spk->verifiedBy)· {{ $spk->verifiedBy->name }}@endif</p>
+                                @endif
+                                
                                 {{-- ⚡ TAMPILKAN INFO POIN DI TIMELINE --}}
                                 @if($spk->hasPoin())
                                 <div class="mt-2 bg-yellow-50 border border-yellow-200 rounded-lg p-2">

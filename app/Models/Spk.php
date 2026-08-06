@@ -32,6 +32,7 @@ class Spk extends Model
         'status',
         'catatan_dosen',
         'verified_by',
+        'verified_at',
         'poin_added_at',
         'poin_added_by',
     ];
@@ -39,6 +40,7 @@ class Spk extends Model
     protected $casts = [
         // ❌ HAPUS: 'tanggal_kegiatan' => 'date',  
         'poin_added_at' => 'datetime',
+        'verified_at' => 'datetime',
     ];
 
     // Relasi ke user

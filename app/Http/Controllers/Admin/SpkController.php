@@ -56,7 +56,7 @@ class SpkController extends Controller
     public function approve(Request $request, Spk $spk)
     {
         $request->validate(['catatan' => 'nullable|string|max:500']);
-        $spk->update(['status' => 'disetujui', 'catatan_dosen' => $request->catatan ?? 'Disetujui oleh Admin', 'verified_by' => Auth::id()]);
+        $spk->update(['status' => 'disetujui', 'catatan_dosen' => $request->catatan ?? 'Disetujui oleh Admin', 'verified_by' => Auth::id(), 'verified_at' => now()]);
         DashboardService::clearAdminCache();
         
         if ($request->ajax() || $request->wantsJson()) {
@@ -68,7 +68,7 @@ class SpkController extends Controller
     public function reject(Request $request, Spk $spk)
     {
         $request->validate(['catatan' => 'required|string|max:500'], ['catatan.required' => 'Alasan penolakan wajib diisi']);
-        $spk->update(['status' => 'ditolak', 'catatan_dosen' => $request->catatan, 'verified_by' => Auth::id()]);
+        $spk->update(['status' => 'ditolak', 'catatan_dosen' => $request->catatan, 'verified_by' => Auth::id(), 'verified_at' => now()]);
         DashboardService::clearAdminCache();
         
         if ($request->ajax() || $request->wantsJson()) {

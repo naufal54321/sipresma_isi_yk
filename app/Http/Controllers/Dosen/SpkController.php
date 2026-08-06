@@ -78,6 +78,7 @@ class SpkController extends Controller
             'status' => 'disetujui',
             'catatan_dosen' => $request->catatan_dosen,
             'verified_by' => Auth::id(),
+            'verified_at' => now(),
         ]);
         DashboardService::clearAdminCache();
 
@@ -101,6 +102,7 @@ class SpkController extends Controller
             'status' => 'ditolak',
             'catatan_dosen' => $request->catatan_dosen,
             'verified_by' => Auth::id(),
+            'verified_at' => now(),
         ]);
         DashboardService::clearAdminCache();
 

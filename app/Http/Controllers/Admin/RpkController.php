@@ -71,6 +71,7 @@ class RpkController extends Controller
             'status' => $request->status,
             'catatan_dosen' => $request->catatan ?? $rpk->catatan_dosen,
             'verified_by' => Auth::id(),
+            'verified_at' => now(),
         ]);
         DashboardService::clearAdminCache();
 

@@ -131,7 +131,8 @@ class DashboardService
 
         $aktivitasRpkDosen = Rpk::with(['user.dosenPembimbing', 'verifiedBy'])
             ->whereIn('status', ['disetujui', 'ditolak'])
-            ->latest('updated_at')
+            ->whereNotNull('verified_at')
+            ->latest('verified_at')
             ->take(10)
             ->get()
             ->map(function ($item) {
@@ -144,13 +145,14 @@ class DashboardService
                         ? 'Menyetujui RPK milik ' . ($item->user->name ?? '-')
                         : 'Menolak RPK milik ' . ($item->user->name ?? '-'),
                     'status' => $item->status,
-                    'created_at' => $item->updated_at,
+                    'created_at' => $item->verified_at,
                 ];
             });
 
         $aktivitasSpkDosen = Spk::with(['user.dosenPembimbing', 'kegiatan', 'verifiedBy'])
             ->whereIn('status', ['disetujui', 'ditolak'])
-            ->latest('updated_at')
+            ->whereNotNull('verified_at')
+            ->latest('verified_at')
             ->take(10)
             ->get()
             ->map(function ($item) {
@@ -163,7 +165,23 @@ class DashboardService
                         ? 'Menyetujui SPK "' . ($item->kegiatan->kegiatan ?? '-') . '" milik ' . ($item->user->name ?? '-')
                         : 'Menolak SPK "' . ($item->kegiatan->kegiatan ?? '-') . '" milik ' . ($item->user->name ?? '-'),
                     'status' => $item->status,
-                    'created_at' => $item->updated_at,
+                    'created_at' => $item->verified_at,
+                ];
+            });
+
+        $aktivitasPoinSpk = Spk::with(['user', 'kegiatan', 'poinAddedBy'])
+            ->whereNotNull('poin_added_at')
+            ->latest('poin_added_at')
+            ->take(10)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'aktor' => $item->poinAddedBy?->name ?? 'Admin',
+                    'role' => 'Admin',
+                    'kategori' => 'Poin',
+                    'aktivitas' => 'Menambahkan poin ' . ($item->poin ?? 0) . ' untuk SPK "' . ($item->kegiatan->kegiatan ?? '-') . '" milik ' . ($item->user->name ?? '-'),
+                    'status' => $item->status,
+                    'created_at' => $item->poin_added_at,
                 ];
             });
 
@@ -172,8 +190,10 @@ class DashboardService
             ->concat($aktivitasSpkMahasiswa)
             ->concat($aktivitasRpkDosen)
             ->concat($aktivitasSpkDosen)
+            ->concat($aktivitasPoinSpk)
             ->sortByDesc('created_at')
-            ->take(10);
+            ->take(10)
+            ->values();
     }
 
     public function getAdminRasioBimbingan()

@@ -106,7 +106,9 @@
                             <td class="px-4 py-4 text-center">{{ $user->angkatan ?: '-' }}</td>
                             {{-- ⚡ SEMESTER --}}
                             <td class="px-4 py-4 text-center">{{ $user->semester ?: '-' }}</td>
-                            <td class="px-4 py-4">{{ $user->email }}</td>
+                            <td class="px-4 py-4">
+                                    <div class="w-[170px] break-all">{{ $user->email }}</div>
+                                </td>
                             <td class="px-4 py-4 text-center">
                                 @foreach ($user->roles as $role)
                                     @if ($role->name == 'Admin')
@@ -210,7 +212,9 @@ function renderUser(user) {
         <td class="px-4 py-4">${prodiName}</td>
         <td class="px-4 py-4 text-center">${angkatan}</td>
         <td class="px-4 py-4 text-center">${semester}</td>
-        <td class="px-4 py-4">${user.email}</td>
+        <td class="px-4 py-4">
+                <div class="w-[220px] break-all">${user.email}</div>
+            </td>
         <td class="px-4 py-4 text-center">
             <span class="${roleColor} px-3 py-1 rounded-full text-xs font-semibold">${roleName}</span>
         </td>
@@ -236,136 +240,79 @@ function renderUser(user) {
 // =============================================
 function addUser() {
     const currentYear = new Date().getFullYear();
+    const inputCls = 'w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring focus:ring-blue-200';
     
     Swal.fire({
-        title: 'Tambahkan Pengguna',
+        title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Tambahkan Pengguna</h2>',
         width: '600px',
-        padding: '0',
-        showCloseButton: true,
         showCancelButton: true,
-        confirmButtonText: '<i class="fas fa-save"></i> Simpan',
-        cancelButtonText: '<i class="fas fa-times"></i> Batal',
-        reverseButtons: true,
-        customClass: {
-            confirmButton: 'btn-simpan',
-            cancelButton: 'btn-batal'
-        },
-        position: 'top',
-        heightAuto: false,
+        confirmButtonText: 'Simpan',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#2563EB',
+        cancelButtonColor: '#9CA3AF',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        customClass: { popup: 'rounded-2xl p-4' },
 
         html: `
-        <style>
-            div:where(.swal2-container) h2:where(.swal2-title) {
-                text-align: left !important; font-size: 20px; color: #777;
-                padding: 25px 40px 15px 30px !important; margin: 0 !important;
-                border-bottom: 1px solid #eee;
-            }
-            div:where(.swal2-container) div:where(.swal2-html-container) {
-                padding: 15px 20px 20px 20px !important;
-            }
-            .form-row { margin-bottom: 10px; }
-            .swal2-popup{ overflow: visible !important; }
-            .form-row{ overflow: visible !important; }
-            .input-wrapper{ overflow: visible !important; }
-            div:where(.swal2-container) div:where(.swal2-actions) {
-                justify-content: flex-end !important; width: 100%;
-                margin: 0 !important; padding: 0 30px 25px 0 !important; box-sizing: border-box;
-            }
-            .form-row { display: flex; align-items: center; margin-bottom: 15px; }
-            .form-row label { width: 30%; text-align: left; font-weight: bold; color: #777; font-size: 14px; }
-            .form-row label span { color: red; }
-            .form-row .input-wrapper { width: 70%; }
-            .custom-input {
-                width: 100%; padding: 10px 12px; border: 1px solid #ccc;
-                border-radius: 4px; font-size: 14px; color: #555;
-                box-sizing: border-box; outline: none; background-color: #fff;
-            }
-            .custom-input:focus { border-color: #3f51b5; }
-            select.custom-input { appearance: none; -webkit-appearance: none; padding-right: 30px; }
-            .btn-simpan {
-                background-color: #3f51b5 !important; color: white !important;
-                border-radius: 4px !important; padding: 8px 25px !important;
-                font-size: 14px !important; margin-left: 10px !important;
-            }
-            .btn-batal {
-                background-color: #fff !important; color: #777 !important;
-                border: 1px solid #ccc !important; border-radius: 4px !important;
-                padding: 8px 25px !important; font-size: 14px !important;
-            }
-            .hidden-row { display: none; }
-        </style>
-
-        <div class="form-row">
-            <label>Nama <span>*</span></label>
-            <div class="input-wrapper">
-                <input id="name" class="custom-input" placeholder="Masukan Nama">
+        <div class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Nama <span class="text-red-500">*</span></label>
+                <input id="name" class="${inputCls}" placeholder="Masukan Nama" required>
             </div>
-        </div>
-        <div class="form-row">
-            <label>NIM/NIP <span>*</span></label>
-            <div class="input-wrapper">
-                <input id="nim" class="custom-input" placeholder="Masukan NIM/NIP">
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">NIM/NIP <span class="text-red-500">*</span></label>
+                <input id="nim" class="${inputCls}" placeholder="Masukan NIM/NIP" required>
             </div>
-        </div>
-        <div class="form-row">
-            <label>Roles <span>*</span></label>
-            <div class="input-wrapper">
-                <select id="role" class="custom-input">
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Roles <span class="text-red-500">*</span></label>
+                <select id="role" class="${inputCls}" required>
                     <option value="" disabled selected>Pilih Role</option>
                     <option value="Mahasiswa">Mahasiswa</option>
                     <option value="Dosen">Dosen</option>
                     <option value="Admin">Admin</option>
                 </select>
             </div>
-        </div>
-        <div class="form-row" style="margin-bottom:35px;">
-            <label>Program Studi <span>*</span></label>
-            <div class="input-wrapper" id="prodiWrapper">
-                <select id="prodi" class="custom-input">
-                    ${getProdiOptions()}
-                </select>
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Program Studi <span class="text-red-500">*</span></label>
+                <div id="prodiWrapper">
+                    <select id="prodi" class="${inputCls}">
+                        ${getProdiOptions()}
+                    </select>
+                </div>
             </div>
-        </div>
-        {{-- ⚡ ANGKATAN & SEMESTER (untuk Mahasiswa) --}}
-        <div class="form-row mahasiswa-only">
-            <label>Angkatan <span>*</span></label>
-            <div class="input-wrapper">
-                <select id="angkatan" class="custom-input">
+            {{-- ⚡ ANGKATAN & SEMESTER (untuk Mahasiswa) --}}
+            <div class="mb-4 mahasiswa-only">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Angkatan <span class="text-red-500">*</span></label>
+                <select id="angkatan" class="${inputCls}">
                     <option value="" disabled selected>Pilih Angkatan</option>
                     ${Array.from({length: currentYear - 2014}, (_, i) => currentYear - i).map(year => 
                         `<option value="${year}">${year}</option>`
                     ).join('')}
                 </select>
             </div>
-        </div>
-        <div class="form-row mahasiswa-only">
-            <label>Semester <span>*</span></label>
-            <div class="input-wrapper">
-                <select id="semester" class="custom-input">
+            <div class="mb-4 mahasiswa-only">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Semester <span class="text-red-500">*</span></label>
+                <select id="semester" class="${inputCls}">
                     ${getSemesterOptions()}
                 </select>
             </div>
-        </div>
-        <div class="form-row">
-            <label>Email <span>*</span></label>
-            <div class="input-wrapper">
-                <input id="email" type="email" class="custom-input" placeholder="Masukan Email">
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Email <span class="text-red-500">*</span></label>
+                <input id="email" type="email" class="${inputCls}" placeholder="Masukan Email" required>
             </div>
-        </div>
-        <div class="form-row">
-            <label>Password <span>*</span></label>
-            <div class="input-wrapper" style="position: relative;">
-                <input id="password" type="password" class="custom-input" style="padding-right: 35px;" placeholder="Masukan Password">
-                <i class="fas fa-eye-slash" id="togglePassword"
-                    style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; color:#777;"></i>
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Password <span class="text-red-500">*</span></label>
+                <div class="relative">
+                    <input id="password" type="password" class="${inputCls} pr-10" placeholder="Masukan Password" required>
+                    <i class="fas fa-eye-slash absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400" id="togglePassword"></i>
+                </div>
             </div>
         </div>
         `,
 
         didOpen: () => {
-            const popup = Swal.getPopup();
-            popup.style.marginTop = '10px';
-            popup.style.overflow = 'visible';
+            setTimeout(() => { const input = document.getElementById('name'); if (input) input.focus(); }, 100);
 
             const toggle = document.getElementById('togglePassword');
             const passInput = document.getElementById('password');
@@ -386,7 +333,7 @@ function addUser() {
             function toggleMahasiswaFields() {
                 const isMahasiswa = roleSelect.value === 'Mahasiswa';
                 mahasiswaRows.forEach(row => {
-                    row.style.display = isMahasiswa ? 'flex' : 'none';
+                    row.style.display = isMahasiswa ? 'block' : 'none';
                 });
                 
                 // Set required untuk input angkatan/semester
@@ -399,9 +346,9 @@ function addUser() {
             if (roleSelect && prodiWrapper) {
                 roleSelect.addEventListener('change', function () {
                     if (this.value === 'Admin' || this.value === 'Dosen') {
-                        prodiWrapper.innerHTML = '<input id="prodi" type="text" class="custom-input" placeholder="Masukkan Program Studi / Fakultas secara manual">';
+                        prodiWrapper.innerHTML = `<input id="prodi" type="text" class="${inputCls}" placeholder="Masukkan Program Studi / Fakultas secara manual">`;
                     } else {
-                        prodiWrapper.innerHTML = '<select id="prodi" class="custom-input">' + getProdiOptions() + '</select>';
+                        prodiWrapper.innerHTML = `<select id="prodi" class="${inputCls}">` + getProdiOptions() + '</select>';
                     }
                     toggleMahasiswaFields();
                 });
@@ -471,6 +418,7 @@ function addUser() {
 // =============================================
 function editUser(id) {
     const currentYear = new Date().getFullYear();
+    const inputCls = 'w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring focus:ring-blue-200';
     
     fetch(`/admin/users/${id}`, {
         headers: { 'Accept': 'application/json' }
@@ -487,120 +435,76 @@ function editUser(id) {
 
         let isManualInput = ['Admin', 'Dosen'].includes(currentRole);
         let prodiHTML = isManualInput 
-            ? `<input id="prodi" type="text" class="custom-input" value="${user.prodi || ''}" placeholder="Masukkan Program Studi / Fakultas">`
-            : `<select id="prodi" class="custom-input">${getProdiOptions(user.prodi)}</select>`;
+            ? `<input id="prodi" type="text" class="${inputCls}" value="${user.prodi || ''}" placeholder="Masukkan Program Studi / Fakultas">`
+            : `<select id="prodi" class="${inputCls}">${getProdiOptions(user.prodi)}</select>`;
 
         // ⚡ Angkatan & Semester
         let angkatanValue = user.angkatan || '';
         let semesterValue = user.semester || '';
 
-        Swal.fire({
-            title: 'Edit Data Pengguna',
+Swal.fire({
+            title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Edit Data Pengguna</h2>',
             width: '600px',
-            padding: '0',
-            showCloseButton: true,
             showCancelButton: true,
             confirmButtonText: 'Perbarui',
             cancelButtonText: 'Batal',
-            reverseButtons: true,
-            customClass: {
-                confirmButton: 'btn-simpan',
-                cancelButton: 'btn-batal'
-            },
-            position: 'top',
-            heightAuto: false,
+            confirmButtonColor: '#2563EB',
+            cancelButtonColor: '#9CA3AF',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            customClass: { popup: 'rounded-2xl p-4' },
 
             html: `
-            <style>
-                div:where(.swal2-container) h2:where(.swal2-title) {
-                    text-align: left !important; font-size: 20px; color: #555;
-                    padding: 25px 40px 15px 30px !important; margin: 0 !important;
-                    border-bottom: 1px solid #eee;
-                }
-                div:where(.swal2-container) div:where(.swal2-html-container) { padding: 15px 20px 20px 20px !important; }
-                .form-row { margin-bottom: 10px; }
-                .swal2-popup{ overflow: visible !important; }
-                .form-row{ display: flex; align-items: center; margin-bottom: 20px; overflow: visible !important; }
-                .input-wrapper{ width: 72%; overflow: visible !important; }
-                div:where(.swal2-container) div:where(.swal2-actions) {
-                    justify-content: flex-end !important; width: 100%;
-                    margin: 0 !important; padding: 0 30px 25px 0 !important; box-sizing: border-box;
-                }
-                .form-row label { width: 28%; text-align: left; font-weight: 600; color: #555; font-size: 14px; }
-                .form-row label span { color: red; }
-                .custom-input {
-                    width: 100%; padding: 10px 12px; border: 1px solid #ccc;
-                    border-radius: 4px; font-size: 14px; color: #333; box-sizing: border-box; outline: none;
-                }
-                .custom-input:focus { border-color: #3f51b5; }
-                .btn-simpan {
-                    background-color: #3f51b5 !important; color: white !important;
-                    border-radius: 4px !important; padding: 8px 25px !important; font-size: 14px !important; margin-left: 10px !important;
-                }
-                .btn-batal {
-                    background-color: #fff !important; color: #666 !important;
-                    border: 1px solid #ccc !important; border-radius: 4px !important; padding: 8px 25px !important; font-size: 14px !important;
-                }
-            </style>
-
-            <div class="form-row">
-                <label>Nama <span>*</span></label>
-                <div class="input-wrapper">
-                    <input id="name" class="custom-input" value="${user.name}" placeholder="Nama">
+            <div class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Nama <span class="text-red-500">*</span></label>
+                    <input id="name" class="${inputCls}" value="${user.name}" placeholder="Nama" required>
                 </div>
-            </div>
-            <div class="form-row">
-                <label>NIM/NIP <span>*</span></label>
-                <div class="input-wrapper">
-                    <input id="nim" class="custom-input" value="${user.nim}" placeholder="NIM/NIP">
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">NIM/NIP <span class="text-red-500">*</span></label>
+                    <input id="nim" class="${inputCls}" value="${user.nim}" placeholder="NIM/NIP" required>
                 </div>
-            </div>
-            <div class="form-row">
-                <label>Roles <span>*</span></label>
-                <div class="input-wrapper">
-                    <select id="role" class="custom-input">
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Roles <span class="text-red-500">*</span></label>
+                    <select id="role" class="${inputCls}" required>
                         <option value="Mahasiswa" ${currentRole === 'Mahasiswa' ? 'selected' : ''}>Mahasiswa</option>
                         <option value="Dosen"     ${currentRole === 'Dosen'     ? 'selected' : ''}>Dosen</option>
                         <option value="Admin"     ${currentRole === 'Admin'     ? 'selected' : ''}>Admin</option>
                     </select>
                 </div>
-            </div>
-            <div class="form-row" style="margin-bottom:35px;">
-                <label>Program Studi <span>*</span></label>
-                <div class="input-wrapper" id="prodiWrapper">
-                    ${prodiHTML}
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Program Studi <span class="text-red-500">*</span></label>
+                    <div id="prodiWrapper">
+                        ${prodiHTML}
+                    </div>
                 </div>
-            </div>
-            {{-- ⚡ ANGKATAN --}}
-            <div class="form-row mahasiswa-only" style="display: ${currentRole === 'Mahasiswa' ? 'flex' : 'none'};">
-                <label>Angkatan <span>*</span></label>
-                <div class="input-wrapper">
-                    <select id="angkatan" class="custom-input">
+                {{-- ⚡ ANGKATAN --}}
+                <div class="mb-4 mahasiswa-only" style="display: ${currentRole === 'Mahasiswa' ? 'block' : 'none'};">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Angkatan <span class="text-red-500">*</span></label>
+                    <select id="angkatan" class="${inputCls}">
                         <option value="" disabled ${!angkatanValue ? 'selected' : ''}>Pilih Angkatan</option>
                         ${Array.from({length: currentYear - 2014}, (_, i) => currentYear - i).map(year => 
                             `<option value="${year}" ${angkatanValue == year ? 'selected' : ''}>${year}</option>`
                         ).join('')}
                     </select>
                 </div>
-            </div>
-            {{-- ⚡ SEMESTER --}}
-            <div class="form-row mahasiswa-only" style="display: ${currentRole === 'Mahasiswa' ? 'flex' : 'none'};">
-                <label>Semester <span>*</span></label>
-                <div class="input-wrapper">
-                    <select id="semester" class="custom-input">
+                {{-- ⚡ SEMESTER --}}
+                <div class="mb-4 mahasiswa-only" style="display: ${currentRole === 'Mahasiswa' ? 'block' : 'none'};">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Semester <span class="text-red-500">*</span></label>
+                    <select id="semester" class="${inputCls}">
                         ${getSemesterOptions(semesterValue)}
                     </select>
                 </div>
-            </div>
-            <div class="form-row">
-                <label>Email <span>*</span></label>
-                <div class="input-wrapper">
-                    <input id="email" type="email" class="custom-input" value="${user.email}" placeholder="Email">
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Email <span class="text-red-500">*</span></label>
+                    <input id="email" type="email" class="${inputCls}" value="${user.email}" placeholder="Email" required>
                 </div>
             </div>
             `,
 
             didOpen: () => {
+                setTimeout(() => { const input = document.getElementById('name'); if (input) input.focus(); }, 100);
+
                 const roleSelect = document.getElementById('role');
                 const prodiWrapper = document.getElementById('prodiWrapper');
                 const mahasiswaRows = document.querySelectorAll('.mahasiswa-only');
@@ -608,16 +512,21 @@ function editUser(id) {
                 function toggleMahasiswaFields() {
                     const isMahasiswa = roleSelect.value === 'Mahasiswa';
                     mahasiswaRows.forEach(row => {
-                        row.style.display = isMahasiswa ? 'flex' : 'none';
+                        row.style.display = isMahasiswa ? 'block' : 'none';
                     });
+
+                    const angkatanInput = document.getElementById('angkatan');
+                    const semesterInput = document.getElementById('semester');
+                    if (angkatanInput) angkatanInput.required = isMahasiswa;
+                    if (semesterInput) semesterInput.required = isMahasiswa;
                 }
 
                 if (roleSelect && prodiWrapper) {
                     roleSelect.addEventListener('change', function () {
                         if (this.value === 'Admin' || this.value === 'Dosen') {
-                            prodiWrapper.innerHTML = `<input id="prodi" type="text" class="custom-input" value="${user.prodi || ''}" placeholder="Masukkan Program Studi / Fakultas secara manual">`;
+                            prodiWrapper.innerHTML = `<input id="prodi" type="text" class="${inputCls}" value="${user.prodi || ''}" placeholder="Masukkan Program Studi / Fakultas secara manual">`;
                         } else {
-                            prodiWrapper.innerHTML = `<select id="prodi" class="custom-input">${getProdiOptions(user.prodi)}</select>`;
+                            prodiWrapper.innerHTML = `<select id="prodi" class="${inputCls}">${getProdiOptions(user.prodi)}</select>`;
                         }
                         toggleMahasiswaFields();
                     });
