@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Kontak — PRATAMA ISI Yogyakarta</title>
+    <title>{{ config('app.name', 'PRATAMA') }}</title>
 
     <meta name="description" content="Hubungi Bagian Kemahasiswaan ISI Yogyakarta — informasi kontak resmi PRATAMA.">
     <meta name="robots" content="index, follow">

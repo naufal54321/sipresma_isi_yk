@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>{{ config('app.name', 'PRATAMA') }} — Prestasi & Talenta Mahasiswa ISI Yogyakarta</title>
+    <title>{{ config('app.name', 'PRATAMA') }}</title>
 
     <meta name="description" content="PRATAMA — Platform digital resmi Institut Seni Indonesia Yogyakarta untuk mendokumentasikan, mengelola, dan mengembangkan prestasi serta talenta mahasiswa.">
     <meta name="robots" content="index, follow">

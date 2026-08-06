@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Statistik — PRATAMA ISI Yogyakarta</title>
+    <title>{{ config('app.name', 'PRATAMA') }}</title>
 
     <meta name="description" content="Statistik prestasi mahasiswa ISI Yogyakarta — data lengkap prestasi, chart, dan rekap terbaru.">
     <meta name="robots" content="index, follow">
