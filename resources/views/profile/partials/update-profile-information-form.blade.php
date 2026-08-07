@@ -133,6 +133,83 @@
 
 </div>
 
+        {{-- ⚡ ANGKATAN & SEMESTER (khusus Mahasiswa) --}}
+        @if($user->hasRole('Mahasiswa'))
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            {{-- Angkatan --}}
+            <div>
+                <label for="angkatan"
+                       class="block text-sm font-semibold text-slate-700 mb-2">
+                    Angkatan
+                </label>
+
+                <div class="relative">
+                    <i class="fas fa-calendar absolute left-4 top-3.5 text-slate-400"></i>
+
+                    <select
+                        id="angkatan"
+                        name="angkatan"
+                        required
+                        class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+
+                        <option value="">Pilih Angkatan</option>
+
+                        @for($year = date('Y'); $year >= 2015; $year--)
+                            <option
+                                value="{{ $year }}"
+                                {{ old('angkatan', $user->angkatan) == $year ? 'selected' : '' }}>
+                                {{ $year }}
+                            </option>
+                        @endfor
+
+                    </select>
+                </div>
+
+                <x-input-error
+                    :messages="$errors->get('angkatan')"
+                    class="mt-2"/>
+            </div>
+
+            {{-- Semester --}}
+            <div>
+                <label for="semester"
+                       class="block text-sm font-semibold text-slate-700 mb-2">
+                    Semester
+                </label>
+
+                <div class="relative">
+                    <i class="fas fa-layer-group absolute left-4 top-3.5 text-slate-400"></i>
+
+                    <select
+                        id="semester"
+                        name="semester"
+                        required
+                        class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+
+                        <option value="">Pilih Semester</option>
+
+                        @for($i = 1; $i <= 14; $i++)
+                            <option
+                                value="{{ $i }}"
+                                {{ old('semester', $user->semester) == $i ? 'selected' : '' }}>
+                                Semester {{ $i }}
+                            </option>
+                        @endfor
+
+                    </select>
+                </div>
+
+                <x-input-error
+                    :messages="$errors->get('semester')"
+                    class="mt-2"/>
+            </div>
+
+        </div>
+
+        @endif
+
         {{-- Email --}}
         <div>
 

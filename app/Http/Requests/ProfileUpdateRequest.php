@@ -33,6 +33,8 @@ class ProfileUpdateRequest extends FormRequest
     // Mahasiswa wajib mengisi prodi
     if ($this->user()->hasRole('Mahasiswa')) {
         $rules['prodi'] = ['required', 'string', 'max:255'];
+        $rules['angkatan'] = ['required', 'string', 'max:4'];
+        $rules['semester'] = ['required', 'string', 'max:2'];
     } else {
         // Admin & Dosen boleh kosong
         $rules['prodi'] = ['nullable', 'string', 'max:255'];
