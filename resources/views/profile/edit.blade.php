@@ -162,26 +162,6 @@
 
                 </div>
 
-                <div class="bg-white rounded-3xl shadow-lg border border-red-200 overflow-hidden">
-
-                    <div class="px-8 py-5 border-b bg-gradient-to-r from-red-600 to-rose-600">
-
-                        <h2 class="text-xl font-bold text-white">
-                            Zona Berbahaya
-                        </h2>
-
-                        <p class="text-red-100 text-sm mt-1">
-                            Tindakan di bawah ini tidak dapat dibatalkan.
-                        </p>
-
-                    </div>
-
-                    <div class="p-8">
-                        @include('profile.partials.delete-user-form')
-                    </div>
-
-                </div>
-
             </div>
 
         </div>
