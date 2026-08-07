@@ -286,9 +286,12 @@
                                                     </div>
                                                 </div>
                                                 <div class="flex items-center gap-3 mt-1 text-xs text-gray-500">
-                                                    <span><i class="far fa-calendar mr-1"></i>{{ \Carbon\Carbon::parse($kegiatan->tanggal)->format('d M Y') }}</span>
-                                                    <span><i class="fas fa-tag mr-1"></i>{{ $kegiatan->jenis ?? '-' }}</span>
-                                                    <span><i class="fas fa-layer-group mr-1"></i>{{ $kegiatan->tingkat ?? '-' }}</span>
+                                                    @if($kegiatan->tanggal_mulai && $kegiatan->tanggal_selesai)
+                                                        <span><i class="far fa-calendar mr-1"></i>{{ \Carbon\Carbon::parse($kegiatan->tanggal_mulai)->format('d M Y') }} - {{ \Carbon\Carbon::parse($kegiatan->tanggal_selesai)->format('d M Y') }}</span>
+                                                    @elseif($kegiatan->tanggal_mulai)
+                                                        <span><i class="far fa-calendar mr-1"></i>{{ \Carbon\Carbon::parse($kegiatan->tanggal_mulai)->format('d M Y') }}</span>
+                                                    @endif
+                                                    <span><i class="fas fa-tag mr-1"></i>{{ $kegiatan->kategori ?? 'Individu' }}</span>
                                                 </div>
                                             </div>
                                             <table class="w-full text-sm">

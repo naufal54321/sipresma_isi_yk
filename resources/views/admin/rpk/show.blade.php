@@ -192,8 +192,6 @@
                                                 {{ \Carbon\Carbon::parse($kegiatan->tanggal_mulai)->translatedFormat('d F Y') }} - {{ \Carbon\Carbon::parse($kegiatan->tanggal_selesai)->translatedFormat('d F Y') }}
                                             @elseif($kegiatan->tanggal_mulai)
                                                 {{ \Carbon\Carbon::parse($kegiatan->tanggal_mulai)->translatedFormat('d F Y') }}
-                                            @elseif($kegiatan->tanggal)
-                                                {{ \Carbon\Carbon::parse($kegiatan->tanggal)->translatedFormat('d F Y') }}
                                             @else
                                                 -
                                             @endif

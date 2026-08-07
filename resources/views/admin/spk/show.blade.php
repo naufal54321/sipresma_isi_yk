@@ -609,7 +609,7 @@
                                 @endif
                                 
                                 {{-- ⚡ TAMPILKAN INFO POIN DI TIMELINE --}}
-                                @if($spk->hasPoin())
+                                @if($spk->hasPoin() && $spk->poin_added_at)
                                 <div class="mt-2 bg-yellow-50 border border-yellow-200 rounded-lg p-2">
                                     <p class="text-sm text-yellow-700">
                                         Poin: <strong>{{ $spk->poin }}</strong> 
