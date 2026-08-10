@@ -74,6 +74,10 @@ class SpkController extends Controller
             abort(403, 'Anda tidak memiliki akses.');
         }
 
+        if ($spk->status !== 'draft') {
+            abort(403, 'SPK yang sudah diproses tidak dapat disetujui ulang.');
+        }
+
         $spk->update([
             'status' => 'disetujui',
             'catatan_dosen' => $request->catatan_dosen,
@@ -96,6 +100,10 @@ class SpkController extends Controller
     {
         if ($spk->user->dosen_pembimbing_id != Auth::id()) {
             abort(403, 'Anda tidak memiliki akses.');
+        }
+
+        if ($spk->status !== 'draft') {
+            abort(403, 'SPK yang sudah diproses tidak dapat ditolak ulang.');
         }
 
         $spk->update([

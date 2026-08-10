@@ -81,6 +81,10 @@ class RpkController extends Controller
             abort(403);
         }
 
+        if ($rpk->status !== 'draft') {
+            abort(403, 'RPK yang sudah diproses tidak dapat disetujui ulang.');
+        }
+
         $rpk->update([
             'status' => 'disetujui',
             'catatan_dosen' => $request->catatan_dosen,
@@ -103,6 +107,10 @@ class RpkController extends Controller
     {
         if ($rpk->user->dosen_pembimbing_id !== Auth::id()) {
             abort(403);
+        }
+
+        if ($rpk->status !== 'draft') {
+            abort(403, 'RPK yang sudah diproses tidak dapat ditolak ulang.');
         }
 
         $rpk->update([

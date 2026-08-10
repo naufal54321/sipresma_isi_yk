@@ -21,6 +21,27 @@ class KegiatanController extends Controller
 
     public function store(Request $request, Rpk $rpk)
     {
+        if ($rpk->user_id !== Auth::id()) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak dapat menambahkan kegiatan ke RPK ini.'
+                ], 403);
+            }
+            abort(403, 'Anda tidak dapat menambahkan kegiatan ke RPK ini.');
+        }
+
+        if (!in_array($rpk->status, ['draft', 'ditolak'])) {
+            $message = 'Kegiatan tidak dapat ditambahkan karena RPK sedang diajukan atau sudah disetujui.';
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $message
+                ], 422);
+            }
+            return back()->with('error', $message);
+        }
+
         $request->validate([
             'master_kegiatan_id' => 'required|exists:master_kegiatans,id',
             'judul_kegiatan' => 'required|string|max:255',
@@ -100,6 +121,18 @@ class KegiatanController extends Controller
     public function update(Request $request, Kegiatan $kegiatan)
     {
         if ($kegiatan->rpk->user_id !== Auth::id()) abort(403);
+
+        if (!in_array($kegiatan->rpk->status, ['draft', 'ditolak'])) {
+            $message = 'Kegiatan tidak dapat diubah karena RPK sedang diajukan atau sudah disetujui.';
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $message
+                ], 422);
+            }
+            return back()->with('error', $message);
+        }
+
         $request->validate([
             'master_kegiatan_id' => 'required|exists:master_kegiatans,id',
             'judul_kegiatan' => 'required|string|max:255',

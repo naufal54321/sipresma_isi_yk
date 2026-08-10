@@ -149,6 +149,10 @@ class RpkController extends Controller
             abort(403, 'Anda tidak dapat mengupdate RPK ini.');
         }
 
+        if (!in_array($rpk->status, ['draft', 'ditolak'])) {
+            return back()->with('error', 'RPK yang sudah diajukan/disetujui tidak dapat diubah.');
+        }
+
         $request->validate([
             'tahun' => 'required',
             'semester' => 'required',
@@ -177,6 +181,16 @@ class RpkController extends Controller
                 ], 403);
             }
             abort(403, 'Anda tidak dapat menghapus RPK ini.');
+        }
+
+        if (!in_array($rpk->status, ['draft', 'ditolak'])) {
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'RPK yang sedang diajukan atau sudah disetujui tidak dapat dihapus.'
+                ], 422);
+            }
+            return back()->with('error', 'RPK yang sedang diajukan atau sudah disetujui tidak dapat dihapus.');
         }
 
         $rpk->delete();

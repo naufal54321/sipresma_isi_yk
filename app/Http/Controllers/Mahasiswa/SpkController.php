@@ -279,7 +279,25 @@ class SpkController extends Controller
         ]);
 
         // ⚡ AMBIL KEGIATAN UNTUK MENDAPATKAN RANGE TANGGAL
-        $kegiatan = Kegiatan::findOrFail($request->kegiatan_id);
+        $kegiatan = Kegiatan::where('id', $request->kegiatan_id)
+            ->where('rpk_id', $request->rpk_id)
+            ->whereHas('rpk', function ($query) {
+                $query->where('user_id', Auth::id())->where('status', 'disetujui');
+            })
+            ->first();
+
+        if (!$kegiatan) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Kegiatan tidak sesuai dengan RPK yang dipilih atau RPK belum disetujui.'
+                ], 422);
+            }
+            return back()->withErrors([
+                'kegiatan_id' => 'Kegiatan tidak sesuai dengan RPK yang dipilih atau RPK belum disetujui.'
+            ])->withInput();
+        }
+
         $prestasi = MasterPrestasi::findOrFail($request->prestasi_id);
 
         // ⚡ FORMAT RANGE TANGGAL DARI KEGIATAN

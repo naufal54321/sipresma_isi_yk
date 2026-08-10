@@ -196,6 +196,18 @@
     }
 
     // ============================================
+    // FUNGSI HELPER: ESCAPE HTML
+    // ============================================
+    function escapeHtml(value) {
+        return String(value == null ? '' : value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    // ============================================
     // RENDER ROW PRESTASI
     // ============================================
     function renderPrestasiRow(item) {
@@ -204,18 +216,18 @@
         return `
         <tr id="row-${item.id}" class="border-b hover:bg-blue-50 transition duration-150">
             <td class="px-6 py-4 text-center">0</td>
-            <td class="px-6 py-4 font-medium text-gray-800">${item.juara}</td>
-            <td class="px-6 py-4 text-center">${item.tingkat}</td>
+            <td class="px-6 py-4 font-medium text-gray-800">${escapeHtml(item.juara)}</td>
+            <td class="px-6 py-4 text-center">${escapeHtml(item.tingkat)}</td>
             <td class="px-6 py-4 text-center">${statusBadge}</td>
             <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
                     <button type="button" onclick="bukaModalEditPrestasi(this)"
-                        data-id="${item.id}" data-juara="${item.juara}" data-tingkat="${item.tingkat}" data-is_active="${item.is_active ? '1' : '0'}"
+                        data-id="${item.id}" data-juara="${escapeHtml(item.juara)}" data-tingkat="${escapeHtml(item.tingkat)}" data-is_active="${item.is_active ? '1' : '0'}"
                         title="Edit Prestasi"
                         class="flex items-center justify-center w-9 h-9 bg-yellow-500 hover:bg-yellow-400 text-white rounded-lg transition shadow-sm">
                         <i class="fas fa-pen"></i>
                     </button>
-                    <button type="button" onclick="hapusPrestasi(${item.id}, '${item.juara}')"
+                    <button type="button" onclick="hapusPrestasi(${item.id}, '${escapeHtml(item.juara)}')"
                         title="Hapus Prestasi"
                         class="flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-500 text-white rounded-lg transition shadow-sm">
                         <i class="fas fa-trash"></i>

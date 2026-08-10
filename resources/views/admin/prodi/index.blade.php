@@ -157,6 +157,18 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // ============================================
+        // FUNGSI HELPER: ESCAPE HTML
+        // ============================================
+        function escapeHtml(value) {
+            return String(value == null ? '' : value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // ============================================
         // RENDER PRODI (Untuk Tambah)
         // ============================================
         function renderProdi(prodi) {
@@ -167,8 +179,8 @@
             return `
             <tr id="row-${prodi.id}" class="border-b hover:bg-blue-50 transition">
                 <td class="px-6 py-4 text-center">0</td>
-                <td class="px-6 py-4 font-medium text-gray-800">${prodi.nama_prodi}</td>
-                <td class="px-6 py-4 text-gray-700">${prodi.fakultas ?? '-'}</td> {{-- ⚡ FAKULTAS --}}
+                <td class="px-6 py-4 font-medium text-gray-800">${escapeHtml(prodi.nama_prodi)}</td>
+                <td class="px-6 py-4 text-gray-700">${escapeHtml(prodi.fakultas ?? '-')}</td> {{-- ⚡ FAKULTAS --}}
                 <td class="px-6 py-4 text-center">${statusBadge}</td>
                 <td class="px-6 py-4 text-center">
                     <div class="flex justify-center gap-2">

@@ -100,7 +100,7 @@
                         </tr>
                     </thead>
 
-                    <tbody id="userTable">
+                    <tbody id="userTable" data-first-item="{{ method_exists($users, 'firstItem') ? $users->firstItem() : 1 }}">
                         @forelse ($users as $user)
                         <tr id="row-{{ $user->id }}" class="border-b hover:bg-blue-50 transition duration-200">
                             <td class="px-4 py-4 text-center font-semibold text-gray-800">
@@ -148,7 +148,7 @@
                             </td>
                         </tr>
                         @empty
-                        <tr>
+                        <tr id="noUsersRow">
                             <td colspan="10" class="text-center py-10 text-gray-400">Belum ada pengguna</td>
                         </tr>
                         @endforelse
@@ -195,6 +195,18 @@ function getSemesterOptions(selectedValue) {
 }
 
 // =============================================
+// FUNGSI HELPER: ESCAPE HTML
+// =============================================
+function escapeHtml(value) {
+    return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+// =============================================
 // RENDER USER
 // =============================================
 function renderUser(user) {
@@ -214,13 +226,13 @@ function renderUser(user) {
     return `
     <tr id="row-${user.id}" class="border-b hover:bg-blue-50 transition duration-200">
         <td class="px-4 py-4 text-center font-semibold text-gray-800">0</td>
-        <td class="px-4 py-4 font-semibold text-gray-800">${user.name}</td>
-        <td class="px-4 py-4">${user.nim}</td>
-        <td class="px-4 py-4">${prodiName}</td>
-        <td class="px-4 py-4 text-center">${angkatan}</td>
-        <td class="px-4 py-4 text-center">${semester}</td>
+        <td class="px-4 py-4 font-semibold text-gray-800">${escapeHtml(user.name)}</td>
+        <td class="px-4 py-4">${escapeHtml(user.nim)}</td>
+        <td class="px-4 py-4">${escapeHtml(prodiName)}</td>
+        <td class="px-4 py-4 text-center">${escapeHtml(angkatan)}</td>
+        <td class="px-4 py-4 text-center">${escapeHtml(semester)}</td>
         <td class="px-4 py-4">
-                <div class="w-[220px] break-all">${user.email}</div>
+                <div class="w-[220px] break-all">${escapeHtml(user.email)}</div>
             </td>
         <td class="px-4 py-4 text-center">
             <span class="${roleColor} px-3 py-1 rounded-full text-xs font-semibold">${roleName}</span>
@@ -412,6 +424,8 @@ function addUser() {
         .then(data => {
             const tableBody = document.getElementById('userTable');
             if (tableBody) {
+                const emptyRow = document.getElementById('noUsersRow');
+                if (emptyRow) emptyRow.remove();
                 tableBody.insertAdjacentHTML('afterbegin', renderUser(data.user));
             }
             resetTableNumber();
@@ -446,7 +460,7 @@ function editUser(id) {
 
         let isManualInput = ['Admin', 'Dosen'].includes(currentRole);
         let prodiHTML = isManualInput 
-            ? `<input id="prodi" type="text" class="${inputCls}" value="${user.prodi || ''}" placeholder="Masukkan Program Studi / Fakultas">`
+            ? `<input id="prodi" type="text" class="${inputCls}" value="${escapeHtml(user.prodi || '')}" placeholder="Masukkan Program Studi / Fakultas">`
             : `<select id="prodi" class="${inputCls}">${getProdiOptions(user.prodi)}</select>`;
 
         // ⚡ Angkatan & Semester
@@ -469,11 +483,11 @@ Swal.fire({
             <div class="text-left mt-4 max-h-[65vh] overflow-y-auto px-2">
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Nama <span class="text-red-500">*</span></label>
-                    <input id="name" class="${inputCls}" value="${user.name}" placeholder="Nama" required>
+                    <input id="name" class="${inputCls}" value="${escapeHtml(user.name)}" placeholder="Nama" required>
                 </div>
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">NIM/NIP <span class="text-red-500">*</span></label>
-                    <input id="nim" class="${inputCls}" value="${user.nim}" placeholder="NIM/NIP" required>
+                    <input id="nim" class="${inputCls}" value="${escapeHtml(user.nim)}" placeholder="NIM/NIP" required>
                 </div>
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Roles <span class="text-red-500">*</span></label>
@@ -508,7 +522,7 @@ Swal.fire({
                 </div>
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Email <span class="text-red-500">*</span></label>
-                    <input id="email" type="email" class="${inputCls}" value="${user.email}" placeholder="Email" required>
+                    <input id="email" type="email" class="${inputCls}" value="${escapeHtml(user.email)}" placeholder="Email" required>
                 </div>
             </div>
             `,
@@ -535,7 +549,7 @@ Swal.fire({
                 if (roleSelect && prodiWrapper) {
                     roleSelect.addEventListener('change', function () {
                         if (this.value === 'Admin' || this.value === 'Dosen') {
-                            prodiWrapper.innerHTML = `<input id="prodi" type="text" class="${inputCls}" value="${user.prodi || ''}" placeholder="Masukkan Program Studi / Fakultas secara manual">`;
+                            prodiWrapper.innerHTML = `<input id="prodi" type="text" class="${inputCls}" value="${escapeHtml(user.prodi || '')}" placeholder="Masukkan Program Studi / Fakultas secara manual">`;
                         } else {
                             prodiWrapper.innerHTML = `<select id="prodi" class="${inputCls}">${getProdiOptions(user.prodi)}</select>`;
                         }
@@ -664,6 +678,13 @@ function deleteUser(id) {
             if (rowElement) {
                 rowElement.remove();
             }
+            if (document.querySelectorAll('#userTable tr[id]').length === 0) {
+                document.getElementById('userTable').innerHTML = `
+                    <tr id="noUsersRow">
+                        <td colspan="10" class="text-center py-10 text-gray-400">Belum ada pengguna</td>
+                    </tr>
+                `;
+            }
             resetTableNumber();
             updateTotalUser();
             Swal.fire('Berhasil', 'User berhasil dihapus', 'success');
@@ -684,7 +705,7 @@ function resetTableNumber() {
     let firstItem = parseInt(table.getAttribute('data-first-item')) || 1;
     let counter = firstItem;
     
-    document.querySelectorAll('#userTable tr').forEach((row) => {
+    document.querySelectorAll('#userTable tr[id]').forEach((row) => {
         const tds = row.querySelectorAll('td');
         if (tds.length > 0) {
             tds[0].innerText = counter;
@@ -694,7 +715,7 @@ function resetTableNumber() {
 }
 
 function updateTotalUser() {
-    let total = document.querySelectorAll('#userTable tr').length;
+    let total = document.querySelectorAll('#userTable tr[id]').length;
     let totalElement = document.getElementById('totalUser');
     if (totalElement) {
         totalElement.innerText = `Total di Halaman Ini: ${total} Pengguna`;

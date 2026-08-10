@@ -207,6 +207,18 @@
         }
 
         // ============================================
+        // FUNGSI HELPER: ESCAPE HTML
+        // ============================================
+        function escapeHtml(value) {
+            return String(value == null ? '' : value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // ============================================
         // RENDER ROW KEGIATAN
         // ============================================
         function renderKegiatanRow(item) {
@@ -217,17 +229,17 @@
             return `
             <tr id="row-${item.id}" class="border-b hover:bg-blue-50 transition duration-150">
                 <td class="px-6 py-4 text-center">0</td>
-                <td class="px-6 py-4 font-medium text-gray-800">${item.nama_kegiatan}</td>
+                <td class="px-6 py-4 font-medium text-gray-800">${escapeHtml(item.nama_kegiatan)}</td>
                 <td class="px-6 py-4 text-center">${statusBadge}</td>
                 <td class="px-6 py-4 text-center">
                     <div class="flex justify-center gap-2">
                         <button type="button" onclick="bukaModalEditMaster(this)"
-                            data-id="${item.id}" data-nama="${item.nama_kegiatan}" data-status="${item.status}"
+                            data-id="${item.id}" data-nama="${escapeHtml(item.nama_kegiatan)}" data-status="${item.status}"
                             title="Edit Kegiatan"
                             class="flex items-center justify-center w-9 h-9 bg-yellow-500 hover:bg-yellow-400 text-white rounded-lg transition shadow-sm">
                             <i class="fas fa-pen"></i>
                         </button>
-                        <button type="button" onclick="hapusKegiatan(${item.id}, '${item.nama_kegiatan}')"
+                        <button type="button" onclick="hapusKegiatan(${item.id}, '${escapeHtml(item.nama_kegiatan)}')"
                             title="Hapus Kegiatan"
                             class="flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-500 text-white rounded-lg transition shadow-sm">
                             <i class="fas fa-trash"></i>
