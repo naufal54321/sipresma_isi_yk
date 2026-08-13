@@ -561,6 +561,8 @@
                                 
                                 @if($spk->status === 'disetujui' && $spk->verified_at)
                                 <p class="text-sm text-gray-500 mt-1">Disetujui: {{ $spk->verified_at->format('d/m/Y H:i') }} @if($spk->verifiedBy)· {{ $spk->verifiedBy->name }}@endif</p>
+                                @elseif($spk->status === 'ditolak' && $spk->verified_at)
+                                <p class="text-sm text-gray-500 mt-1">Ditolak: {{ $spk->verified_at->format('d/m/Y H:i') }} @if($spk->verifiedBy)· {{ $spk->verifiedBy->name }}@endif</p>
                                 @endif
                                 
                                 {{-- ⚡ TAMPILKAN INFO POIN DI TIMELINE --}}

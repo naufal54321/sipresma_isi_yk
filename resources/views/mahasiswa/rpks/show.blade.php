@@ -342,6 +342,11 @@
                                 <div class="absolute w-4 h-4 bg-blue-500 rounded-full -left-[9px] top-1 border-2 border-white shadow"></div>
                                 <p class="text-xs font-semibold text-blue-600 mb-1">Terbaru</p>
                                 <h4 class="font-bold text-gray-800">Status Diperbarui: {{ ucfirst($rpk->status) }}</h4>
+                                @if($rpk->status === 'disetujui' && $rpk->verified_at)
+                                <p class="text-sm text-gray-500 mt-1">Disetujui: {{ $rpk->verified_at->format('d/m/Y H:i') }} @if($rpk->verifiedBy)· {{ $rpk->verifiedBy->name }}@endif</p>
+                                @elseif($rpk->status === 'ditolak' && $rpk->verified_at)
+                                <p class="text-sm text-gray-500 mt-1">Ditolak: {{ $rpk->verified_at->format('d/m/Y H:i') }} @if($rpk->verifiedBy)· {{ $rpk->verifiedBy->name }}@endif</p>
+                                @endif
                                 <p class="text-sm text-gray-600 mt-1 bg-gray-50 p-3 rounded-lg border border-gray-100">
                                     Catatan: {{ $rpk->catatan_dosen ?? 'Tidak ada catatan yang dilampirkan.' }}
                                 </p>

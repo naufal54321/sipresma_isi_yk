@@ -9,8 +9,11 @@ use App\Models\Rpk;
 use App\Models\Kegiatan;
 use App\Models\MasterPrestasi;
 use App\Services\DashboardService;
+use App\Mail\SpkSubmitted;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
@@ -167,7 +170,7 @@ class SpkController extends Controller
         $fotoPenyerahan = $request->file('foto_penyerahan')->store('foto-penyerahan', 'public');
         $laporan = $request->file('laporan')->store('laporan', 'public');
 
-        Spk::create([
+        $spk = Spk::create([
             'user_id' => Auth::id(),
             'rpk_id' => $request->rpk_id,
             'kegiatan_id' => $request->kegiatan_id,
@@ -193,6 +196,18 @@ class SpkController extends Controller
             'status' => 'draft'
         ]);
         DashboardService::clearAdminCache();
+
+        // ⚡ NOTIFIKASI: Email ke Dosen Pembimbing saat SPK diajukan
+        if ($spk->user->dosen_pembimbing_id) {
+            $dosen = \App\Models\User::find($spk->user->dosen_pembimbing_id);
+            if ($dosen && $dosen->email) {
+                try {
+                    Mail::to($dosen)->send(new SpkSubmitted($spk->fresh()));
+                } catch (\Throwable $e) {
+                    Log::warning('Gagal kirim email SPK submitted ke dosen: ' . $e->getMessage());
+                }
+            }
+        }
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([

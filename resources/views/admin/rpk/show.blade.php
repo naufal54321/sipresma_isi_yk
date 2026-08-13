@@ -289,6 +289,11 @@
                                 <div class="absolute w-4 h-4 bg-blue-500 rounded-full -left-[9px] top-1 border-2 border-white shadow"></div>
                                 <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1">Status Terkini</p>
                                 <h4 class="font-bold text-slate-800">Dokumen: {{ ucfirst($rpk->status) }}</h4>
+                                @if($rpk->status === 'disetujui' && $rpk->verified_at)
+                                <p class="text-xs text-slate-500 font-medium mt-1">Disetujui: {{ $rpk->verified_at->format('d/m/Y H:i') }} @if($rpk->verifiedBy)· {{ $rpk->verifiedBy->name }}@endif</p>
+                                @elseif($rpk->status === 'ditolak' && $rpk->verified_at)
+                                <p class="text-xs text-slate-500 font-medium mt-1">Ditolak: {{ $rpk->verified_at->format('d/m/Y H:i') }} @if($rpk->verifiedBy)· {{ $rpk->verifiedBy->name }}@endif</p>
+                                @endif
                                 <div class="mt-2 bg-slate-50 p-4 rounded-xl border border-slate-100">
                                     <p class="text-xs text-slate-600 font-medium">
                                         @if($rpk->verifiedBy && $rpk->verifiedBy->hasRole('Admin'))

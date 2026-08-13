@@ -10,7 +10,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\MasterKegiatan;
 use App\Models\MasterPrestasi;
+use App\Mail\RpkSubmitted;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class KegiatanController extends Controller
 {
@@ -85,6 +87,18 @@ class KegiatanController extends Controller
         }
 
         $rpk->update(['status' => 'draft']);
+
+        // ⚡ NOTIFIKASI: Email ke Dosen Pembimbing saat kegiatan pertama ditambahkan
+        if ($rpk->kegiatans()->count() == 1 && $rpk->user->dosen_pembimbing_id) {
+            $dosen = \App\Models\User::find($rpk->user->dosen_pembimbing_id);
+            if ($dosen && $dosen->email) {
+                try {
+                    Mail::to($dosen)->send(new RpkSubmitted($rpk->refresh(), 'Dosen'));
+                } catch (\Throwable $e) {
+                    Log::warning('Gagal kirim email RPK submitted ke dosen: ' . $e->getMessage());
+                }
+            }
+        }
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([

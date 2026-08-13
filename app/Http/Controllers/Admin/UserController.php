@@ -7,6 +7,9 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\PlottingMahasiswa;
 
 class UserController extends Controller
 {
@@ -233,6 +236,18 @@ class UserController extends Controller
         $mahasiswa = User::findOrFail($request->mahasiswa_id);
         $mahasiswa->dosen_pembimbing_id = $request->dosen_id ?: null;  // ⚡ '' jadi null
         $mahasiswa->save();
+
+        // ⚡ NOTIFIKASI: Email ke Dosen Pembimbing saat plotting/penetapan baru
+        if ($request->dosen_id) {
+            $dosen = User::find($request->dosen_id);
+            if ($dosen && $dosen->email) {
+                try {
+                    Mail::to($dosen)->send(new PlottingMahasiswa($mahasiswa->fresh(), $dosen));
+                } catch (\Throwable $e) {
+                    Log::warning('Gagal kirim email plotting ke dosen: ' . $e->getMessage());
+                }
+            }
+        }
 
         $pesan = $request->dosen_id
             ? 'Dosen pembimbing berhasil diatur.'

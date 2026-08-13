@@ -8,6 +8,9 @@ use App\Models\Rpk;
 use App\Services\DashboardService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\RpkStatusNotification;
 
 class RpkController extends Controller
 {
@@ -93,6 +96,15 @@ class RpkController extends Controller
         ]);
         DashboardService::clearAdminCache();
 
+        // ⚡ NOTIFIKASI: Email ke mahasiswa saat RPK disetujui
+        if ($rpk->user && $rpk->user->email) {
+            try {
+                Mail::to($rpk->user)->send(new RpkStatusNotification($rpk->fresh(), 'disetujui'));
+            } catch (\Throwable $e) {
+                Log::warning('Gagal kirim email status RPK disetujui: ' . $e->getMessage());
+            }
+        }
+
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'RPK berhasil disetujui']);
         }
@@ -120,6 +132,15 @@ class RpkController extends Controller
             'verified_at' => now(),
         ]);
         DashboardService::clearAdminCache();
+
+        // ⚡ NOTIFIKASI: Email ke mahasiswa saat RPK ditolak
+        if ($rpk->user && $rpk->user->email) {
+            try {
+                Mail::to($rpk->user)->send(new RpkStatusNotification($rpk->fresh(), 'ditolak'));
+            } catch (\Throwable $e) {
+                Log::warning('Gagal kirim email status RPK ditolak: ' . $e->getMessage());
+            }
+        }
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'RPK berhasil ditolak']);

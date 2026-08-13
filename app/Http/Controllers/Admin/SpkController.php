@@ -8,6 +8,10 @@ use App\Models\Spk;
 use App\Services\DashboardService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SpkStatusNotification;
+use App\Mail\SpkApprovedAdmin;
 
 class SpkController extends Controller
 {
@@ -58,6 +62,28 @@ class SpkController extends Controller
         $request->validate(['catatan' => 'nullable|string|max:500']);
         $spk->update(['status' => 'disetujui', 'catatan_dosen' => $request->catatan ?? 'Disetujui oleh Admin', 'verified_by' => Auth::id(), 'verified_at' => now()]);
         DashboardService::clearAdminCache();
+
+        // ⚡ NOTIFIKASI: Email ke mahasiswa saat admin menyetujui SPK
+        if ($spk->user && $spk->user->email) {
+            try {
+                Mail::to($spk->user)->send(new SpkStatusNotification($spk->fresh(), 'disetujui'));
+            } catch (\Throwable $e) {
+                Log::warning('Gagal kirim email status SPK disetujui (admin): ' . $e->getMessage());
+            }
+        }
+
+        // ⚡ NOTIFIKASI: Email ke admin lain (kecuali penyetuju) untuk menambahkan poin
+        $admins = \App\Models\User::role('Admin')
+            ->where('id', '!=', Auth::id())
+            ->whereNotNull('email')
+            ->get();
+        if ($admins->isNotEmpty()) {
+            try {
+                Mail::to($admins)->send(new SpkApprovedAdmin($spk->fresh()));
+            } catch (\Throwable $e) {
+                Log::warning('Gagal kirim email SPK disetujui ke admin: ' . $e->getMessage());
+            }
+        }
         
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'SPK berhasil disetujui']);
@@ -70,6 +96,15 @@ class SpkController extends Controller
         $request->validate(['catatan' => 'required|string|max:500'], ['catatan.required' => 'Alasan penolakan wajib diisi']);
         $spk->update(['status' => 'ditolak', 'catatan_dosen' => $request->catatan, 'verified_by' => Auth::id(), 'verified_at' => now()]);
         DashboardService::clearAdminCache();
+
+        // ⚡ NOTIFIKASI: Email ke mahasiswa saat admin menolak SPK
+        if ($spk->user && $spk->user->email) {
+            try {
+                Mail::to($spk->user)->send(new SpkStatusNotification($spk->fresh(), 'ditolak'));
+            } catch (\Throwable $e) {
+                Log::warning('Gagal kirim email status SPK ditolak (admin): ' . $e->getMessage());
+            }
+        }
         
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'SPK berhasil ditolak']);

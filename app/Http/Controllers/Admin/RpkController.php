@@ -9,6 +9,9 @@ use App\Models\User;
 use App\Services\DashboardService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\RpkStatusNotification;
 
 class RpkController extends Controller
 {
@@ -74,6 +77,15 @@ class RpkController extends Controller
             'verified_at' => now(),
         ]);
         DashboardService::clearAdminCache();
+
+        // ⚡ NOTIFIKASI: Email ke mahasiswa saat admin menyetujui/menolak RPK
+        if (in_array($request->status, ['disetujui', 'ditolak']) && $rpk->user && $rpk->user->email) {
+            try {
+                Mail::to($rpk->user)->send(new RpkStatusNotification($rpk->fresh(), $request->status));
+            } catch (\Throwable $e) {
+                Log::warning('Gagal kirim email status RPK (admin): ' . $e->getMessage());
+            }
+        }
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([

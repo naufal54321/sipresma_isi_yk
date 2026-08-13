@@ -8,6 +8,10 @@ use App\Models\Spk;
 use App\Services\DashboardService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SpkStatusNotification;
+use App\Mail\SpkApprovedAdmin;
 
 class SpkController extends Controller
 {
@@ -86,6 +90,25 @@ class SpkController extends Controller
         ]);
         DashboardService::clearAdminCache();
 
+        // ⚡ NOTIFIKASI: Email ke mahasiswa saat SPK disetujui
+        if ($spk->user && $spk->user->email) {
+            try {
+                Mail::to($spk->user)->send(new SpkStatusNotification($spk->fresh(), 'disetujui'));
+            } catch (\Throwable $e) {
+                Log::warning('Gagal kirim email status SPK disetujui: ' . $e->getMessage());
+            }
+        }
+
+        // ⚡ NOTIFIKASI: Email ke admin untuk menambahkan poin
+        $admins = \App\Models\User::role('Admin')->whereNotNull('email')->get();
+        if ($admins->isNotEmpty()) {
+            try {
+                Mail::to($admins)->send(new SpkApprovedAdmin($spk->fresh()));
+            } catch (\Throwable $e) {
+                Log::warning('Gagal kirim email SPK disetujui ke admin: ' . $e->getMessage());
+            }
+        }
+
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'SPK berhasil disetujui']);
         }
@@ -113,6 +136,15 @@ class SpkController extends Controller
             'verified_at' => now(),
         ]);
         DashboardService::clearAdminCache();
+
+        // ⚡ NOTIFIKASI: Email ke mahasiswa saat SPK ditolak
+        if ($spk->user && $spk->user->email) {
+            try {
+                Mail::to($spk->user)->send(new SpkStatusNotification($spk->fresh(), 'ditolak'));
+            } catch (\Throwable $e) {
+                Log::warning('Gagal kirim email status SPK ditolak: ' . $e->getMessage());
+            }
+        }
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'SPK berhasil ditolak']);
