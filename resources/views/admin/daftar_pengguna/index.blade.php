@@ -114,7 +114,7 @@
                             {{-- ⚡ SEMESTER --}}
                             <td class="px-4 py-4 text-center">{{ $user->semester ?: '-' }}</td>
                             <td class="px-4 py-4">
-                                    <div class="w-[170px] break-all">{{ $user->email }}</div>
+                                    <div class="w-[155px] break-all">{{ $user->email }}</div>
                                 </td>
                             <td class="px-4 py-4 text-center">
                                 @foreach ($user->roles as $role)
@@ -232,7 +232,7 @@ function renderUser(user) {
         <td class="px-4 py-4 text-center">${escapeHtml(angkatan)}</td>
         <td class="px-4 py-4 text-center">${escapeHtml(semester)}</td>
         <td class="px-4 py-4">
-                <div class="w-[220px] break-all">${escapeHtml(user.email)}</div>
+                <div class="w-[155px] break-all">${escapeHtml(user.email)}</div>
             </td>
         <td class="px-4 py-4 text-center">
             <span class="${roleColor} px-3 py-1 rounded-full text-xs font-semibold">${roleName}</span>
