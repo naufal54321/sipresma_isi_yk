@@ -232,6 +232,8 @@ class SpkController extends Controller
             abort(403, 'Anda tidak memiliki akses ke SPK ini.');
         }
 
+        $spk->load('verifiedBy');
+
         return view('mahasiswa.spks.show', compact('spk'));
     }
 

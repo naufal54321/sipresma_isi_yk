@@ -343,12 +343,25 @@
                                 <p class="text-xs font-semibold text-blue-600 mb-1">Terbaru</p>
                                 <h4 class="font-bold text-gray-800">Status Diperbarui: {{ ucfirst($rpk->status) }}</h4>
                                 @if($rpk->status === 'disetujui' && $rpk->verified_at)
-                                <p class="text-sm text-gray-500 mt-1">Disetujui: {{ $rpk->verified_at->format('d/m/Y H:i') }} @if($rpk->verifiedBy)· {{ $rpk->verifiedBy->name }}@endif</p>
+                                @php
+                                    $verifikator = $rpk->verifiedBy ? ($rpk->verifiedBy->hasRole('Admin') ? 'Admin ' . $rpk->verifiedBy->name : 'Dosen ' . $rpk->verifiedBy->name) : null;
+                                @endphp
+                                <p class="text-sm text-gray-500 mt-1">Disetujui oleh <span class="font-semibold">{{ $verifikator ?? '—' }}</span> — {{ $rpk->verified_at->format('d/m/Y H:i') }}</p>
                                 @elseif($rpk->status === 'ditolak' && $rpk->verified_at)
-                                <p class="text-sm text-gray-500 mt-1">Ditolak: {{ $rpk->verified_at->format('d/m/Y H:i') }} @if($rpk->verifiedBy)· {{ $rpk->verifiedBy->name }}@endif</p>
+                                @php
+                                    $verifikator = $rpk->verifiedBy ? ($rpk->verifiedBy->hasRole('Admin') ? 'Admin ' . $rpk->verifiedBy->name : 'Dosen ' . $rpk->verifiedBy->name) : null;
+                                @endphp
+                                <p class="text-sm text-gray-500 mt-1">Ditolak oleh <span class="font-semibold">{{ $verifikator ?? '—' }}</span> — {{ $rpk->verified_at->format('d/m/Y H:i') }}</p>
                                 @endif
-                                <p class="text-sm text-gray-600 mt-1 bg-gray-50 p-3 rounded-lg border border-gray-100">
-                                    Catatan: {{ $rpk->catatan_dosen ?? 'Tidak ada catatan yang dilampirkan.' }}
+                                <p class="text-sm mt-1 p-3 rounded-lg border {{ $rpk->verifiedBy && $rpk->verifiedBy->hasRole('Admin') ? 'bg-blue-50 border-blue-100 text-blue-700' : 'bg-gray-50 border-gray-100 text-gray-600' }}">
+                                    @if($rpk->verifiedBy && $rpk->verifiedBy->hasRole('Admin'))
+                                        <span class="font-semibold">Catatan Admin ({{ $rpk->verifiedBy->name }}):</span>
+                                    @elseif($rpk->verifiedBy)
+                                        <span class="font-semibold">Catatan Dosen ({{ $rpk->verifiedBy->name }}):</span>
+                                    @else
+                                        <span class="font-semibold">Catatan:</span>
+                                    @endif
+                                    {{ $rpk->catatan_dosen ?? 'Tidak ada catatan yang dilampirkan.' }}
                                 </p>
                             </div>
                             <div class="relative pl-6">

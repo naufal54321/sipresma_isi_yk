@@ -132,8 +132,16 @@
 
                     @if($spk->catatan_dosen)
                     <div class="pt-3 border-t border-gray-200">
-                        <span class="text-sm font-bold text-gray-600">Catatan Dosen</span>
-                        <p class="text-sm text-red-600 mt-1 bg-red-50 p-2 rounded-lg">{{ $spk->catatan_dosen }}</p>
+                        <span class="text-sm font-bold text-gray-600">
+                            @if($spk->verifiedBy && $spk->verifiedBy->hasRole('Admin'))
+                                Catatan Admin ({{ $spk->verifiedBy->name }})
+                            @elseif($spk->verifiedBy)
+                                Catatan Dosen ({{ $spk->verifiedBy->name }})
+                            @else
+                                Catatan Dosen
+                            @endif
+                        </span>
+                        <p class="text-sm mt-1 p-2 rounded-lg {{ $spk->verifiedBy && $spk->verifiedBy->hasRole('Admin') ? 'bg-blue-50 text-blue-700' : 'bg-red-50 text-red-600' }}">{{ $spk->catatan_dosen }}</p>
                     </div>
                     @endif
                 </div>
@@ -513,9 +521,15 @@
                                 <h4 class="font-bold text-gray-800">SPK: {{ ucfirst($spk->status) }}</h4>
                                 
                                 @if($spk->status === 'disetujui' && $spk->verified_at)
-                                <p class="text-sm text-gray-500 mt-1">Disetujui: {{ $spk->verified_at->format('d/m/Y H:i') }} @if($spk->verifiedBy)· {{ $spk->verifiedBy->name }}@endif</p>
+                                @php
+                                    $verifikator = $spk->verifiedBy ? ($spk->verifiedBy->hasRole('Admin') ? 'Admin ' . $spk->verifiedBy->name : 'Dosen ' . $spk->verifiedBy->name) : null;
+                                @endphp
+                                <p class="text-sm text-gray-500 mt-1">Disetujui oleh <span class="font-semibold">{{ $verifikator ?? '—' }}</span> — {{ $spk->verified_at->format('d/m/Y H:i') }}</p>
                                 @elseif($spk->status === 'ditolak' && $spk->verified_at)
-                                <p class="text-sm text-gray-500 mt-1">Ditolak: {{ $spk->verified_at->format('d/m/Y H:i') }} @if($spk->verifiedBy)· {{ $spk->verifiedBy->name }}@endif</p>
+                                @php
+                                    $verifikator = $spk->verifiedBy ? ($spk->verifiedBy->hasRole('Admin') ? 'Admin ' . $spk->verifiedBy->name : 'Dosen ' . $spk->verifiedBy->name) : null;
+                                @endphp
+                                <p class="text-sm text-gray-500 mt-1">Ditolak oleh <span class="font-semibold">{{ $verifikator ?? '—' }}</span> — {{ $spk->verified_at->format('d/m/Y H:i') }}</p>
                                 @endif
                                 
                                 {{-- ⚡ TAMPILKAN INFO POIN DI TIMELINE --}}
@@ -529,8 +543,14 @@
                                 @endif
                                 
                                 @if($spk->catatan_dosen)
-                                <p class="text-sm text-gray-600 mt-1 bg-gray-50 p-3 rounded-lg border border-gray-100">
-                                    <span class="font-semibold">Catatan:</span><br>
+                                <p class="text-sm mt-1 p-3 rounded-lg border {{ $spk->verifiedBy && $spk->verifiedBy->hasRole('Admin') ? 'bg-blue-50 border-blue-100 text-blue-700' : 'bg-gray-50 border-gray-100 text-gray-600' }}">
+                                    @if($spk->verifiedBy && $spk->verifiedBy->hasRole('Admin'))
+                                        <span class="font-semibold">Catatan Admin ({{ $spk->verifiedBy->name }}):</span>
+                                    @elseif($spk->verifiedBy)
+                                        <span class="font-semibold">Catatan Dosen ({{ $spk->verifiedBy->name }}):</span>
+                                    @else
+                                        <span class="font-semibold">Catatan:</span>
+                                    @endif
                                     {{ $spk->catatan_dosen }}
                                 </p>
                                 @endif

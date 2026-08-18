@@ -102,7 +102,7 @@ class RpkController extends Controller
         $user = Auth::user();
 
         if ($user->hasRole(['Admin', 'Dosen'])) {
-            $rpk->load(['user', 'kegiatans.masterKegiatan']);
+            $rpk->load(['user', 'kegiatans.masterKegiatan', 'verifiedBy']);
             $masterKegiatans = MasterKegiatan::where('status', 'aktif')->get();
             $isPemilik = false;
             $isAnggota = false;
@@ -123,6 +123,7 @@ class RpkController extends Controller
 
         $rpk->load([
             'user',
+            'verifiedBy',
             'kegiatans' => function ($q) use ($user, $isAnggota) {
                 if ($isAnggota) {
                     $q->whereHas('anggota', function ($subQ) use ($user) {

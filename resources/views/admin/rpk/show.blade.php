@@ -290,9 +290,15 @@
                                 <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1">Status Terkini</p>
                                 <h4 class="font-bold text-slate-800">Dokumen: {{ ucfirst($rpk->status) }}</h4>
                                 @if($rpk->status === 'disetujui' && $rpk->verified_at)
-                                <p class="text-xs text-slate-500 font-medium mt-1">Disetujui: {{ $rpk->verified_at->format('d/m/Y H:i') }} @if($rpk->verifiedBy)· {{ $rpk->verifiedBy->name }}@endif</p>
+                                @php
+                                    $verifikator = $rpk->verifiedBy ? ($rpk->verifiedBy->hasRole('Admin') ? 'Admin ' . $rpk->verifiedBy->name : 'Dosen ' . $rpk->verifiedBy->name) : null;
+                                @endphp
+                                <p class="text-xs text-slate-500 font-medium mt-1">Disetujui oleh <span class="font-semibold">{{ $verifikator ?? '—' }}</span> — {{ $rpk->verified_at->format('d/m/Y H:i') }}</p>
                                 @elseif($rpk->status === 'ditolak' && $rpk->verified_at)
-                                <p class="text-xs text-slate-500 font-medium mt-1">Ditolak: {{ $rpk->verified_at->format('d/m/Y H:i') }} @if($rpk->verifiedBy)· {{ $rpk->verifiedBy->name }}@endif</p>
+                                @php
+                                    $verifikator = $rpk->verifiedBy ? ($rpk->verifiedBy->hasRole('Admin') ? 'Admin ' . $rpk->verifiedBy->name : 'Dosen ' . $rpk->verifiedBy->name) : null;
+                                @endphp
+                                <p class="text-xs text-slate-500 font-medium mt-1">Ditolak oleh <span class="font-semibold">{{ $verifikator ?? '—' }}</span> — {{ $rpk->verified_at->format('d/m/Y H:i') }}</p>
                                 @endif
                                 <div class="mt-2 bg-slate-50 p-4 rounded-xl border border-slate-100">
                                     <p class="text-xs text-slate-600 font-medium">
