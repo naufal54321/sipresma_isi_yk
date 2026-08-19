@@ -246,7 +246,7 @@
                         </a>
                         <div class="relative" x-data="{ uptOpen: false }">
                             <button @click="uptOpen = !uptOpen" @click.away="uptOpen = false" class="text-on-primary/70 hover:text-secondary-fixed transition-all duration-300 flex items-center gap-2 w-full text-left group">
-                                <span class="material-symbols-outlined text-[16px] opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300">arrow_right_alt</span>UPT
+                                <span class="material-symbols-outlined text-[16px] opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300">arrow_right_alt</span>UPA
                                 <span class="material-symbols-outlined text-[16px] transition-transform duration-300" :class="uptOpen ? 'rotate-180' : ''">expand_more</span>
                             </button>
                             <div x-show="uptOpen" x-transition class="absolute z-50 mt-2 ml-4 space-y-2 bg-primary/95 backdrop-blur-md rounded-lg p-3 border border-white/20 shadow-xl min-w-[180px]">
