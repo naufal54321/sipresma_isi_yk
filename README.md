@@ -70,6 +70,19 @@
 
 ---
 
+## 📚 Dokumentasi
+
+Proyek ini dilengkapi dengan dokumentasi lengkap di folder [`docs/`](docs/):
+
+| Dokumentasi | Deskripsi |
+|-------------|-----------|
+| [API Documentation](docs/API.md) | Dokumentasi lengkap semua endpoint API, request/response, dan middleware |
+| [Technical Documentation](docs/TECHNICAL.md) | Dokumentasi teknis untuk developer (arsitektur, models, services, controllers) |
+| [User Guide](docs/USER_GUIDE.md) | Panduan penggunaan aplikasi per role (Admin, Dosen, Mahasiswa) |
+| [Database Documentation](docs/DATABASE.md) | Dokumentasi skema database, relasi, dan migrasi |
+
+---
+
 ## 📋 Persyaratan Sistem
 
 - **PHP** 8.2 atau lebih tinggi
