@@ -292,7 +292,7 @@ function addUser() {
                     <option value="Admin">Admin</option>
                 </select>
             </div>
-            <div class="mb-4">
+            <div class="mb-4" id="prodiFieldContainer">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Program Studi <span class="text-red-500">*</span></label>
                 <div id="prodiWrapper">
                     <select id="prodi" class="${inputCls}">
@@ -350,9 +350,10 @@ function addUser() {
 
             const roleSelect = document.getElementById('role');
             const prodiWrapper = document.getElementById('prodiWrapper');
+            const prodiFieldContainer = document.getElementById('prodiFieldContainer');
             const mahasiswaRows = document.querySelectorAll('.mahasiswa-only');
 
-            // ⚡ Toggle tampilan angkatan/semester & prodi berdasarkan role
+            // ⚡ Toggle tampilan angkatan/semester berdasarkan role
             function toggleMahasiswaFields() {
                 const isMahasiswa = roleSelect.value === 'Mahasiswa';
                 mahasiswaRows.forEach(row => {
@@ -366,17 +367,31 @@ function addUser() {
                 if (semesterInput) semesterInput.required = isMahasiswa;
             }
 
+            // ⚡ Toggle tampilan & isi field Program Studi berdasarkan role
+            function toggleProdiField() {
+                const role = roleSelect.value;
+
+                if (role === 'Admin') {
+                    // Admin: sembunyikan field Program Studi sepenuhnya
+                    if (prodiFieldContainer) prodiFieldContainer.style.display = 'none';
+                    prodiWrapper.innerHTML = `<input type="hidden" id="prodi" value="">`;
+                } else if (role === 'Dosen') {
+                    if (prodiFieldContainer) prodiFieldContainer.style.display = 'block';
+                    prodiWrapper.innerHTML = `<input id="prodi" type="text" class="${inputCls}" placeholder="Masukkan Program Studi / Fakultas secara manual" required>`;
+                } else {
+                    if (prodiFieldContainer) prodiFieldContainer.style.display = 'block';
+                    prodiWrapper.innerHTML = `<select id="prodi" class="${inputCls}" required>` + getProdiOptions() + '</select>';
+                }
+            }
+
             if (roleSelect && prodiWrapper) {
                 roleSelect.addEventListener('change', function () {
-                    if (this.value === 'Admin' || this.value === 'Dosen') {
-                        prodiWrapper.innerHTML = `<input id="prodi" type="text" class="${inputCls}" placeholder="Masukkan Program Studi / Fakultas secara manual">`;
-                    } else {
-                        prodiWrapper.innerHTML = `<select id="prodi" class="${inputCls}">` + getProdiOptions() + '</select>';
-                    }
+                    toggleProdiField();
                     toggleMahasiswaFields();
                 });
                 
                 // Initial state
+                toggleProdiField();
                 toggleMahasiswaFields();
             }
         },
@@ -458,10 +473,15 @@ function editUser(id) {
             currentRole = user.roles[0].name;
         }
 
-        let isManualInput = ['Admin', 'Dosen'].includes(currentRole);
-        let prodiHTML = isManualInput 
-            ? `<input id="prodi" type="text" class="${inputCls}" value="${escapeHtml(user.prodi || '')}" placeholder="Masukkan Program Studi / Fakultas">`
-            : `<select id="prodi" class="${inputCls}">${getProdiOptions(user.prodi)}</select>`;
+        // ⚡ Tentukan HTML awal field Program Studi berdasarkan role saat ini
+        let prodiHTML;
+        if (currentRole === 'Admin') {
+            prodiHTML = `<input type="hidden" id="prodi" value="${escapeHtml(user.prodi || '')}">`;
+        } else if (currentRole === 'Dosen') {
+            prodiHTML = `<input id="prodi" type="text" class="${inputCls}" value="${escapeHtml(user.prodi || '')}" placeholder="Masukkan Program Studi / Fakultas" required>`;
+        } else {
+            prodiHTML = `<select id="prodi" class="${inputCls}" required>${getProdiOptions(user.prodi)}</select>`;
+        }
 
         // ⚡ Angkatan & Semester
         let angkatanValue = user.angkatan || '';
@@ -497,7 +517,7 @@ Swal.fire({
                         <option value="Admin"     ${currentRole === 'Admin'     ? 'selected' : ''}>Admin</option>
                     </select>
                 </div>
-                <div class="mb-4">
+                <div class="mb-4" id="prodiFieldContainer" style="display: ${currentRole === 'Admin' ? 'none' : 'block'};">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Program Studi <span class="text-red-500">*</span></label>
                     <div id="prodiWrapper">
                         ${prodiHTML}
@@ -532,6 +552,7 @@ Swal.fire({
 
                 const roleSelect = document.getElementById('role');
                 const prodiWrapper = document.getElementById('prodiWrapper');
+                const prodiFieldContainer = document.getElementById('prodiFieldContainer');
                 const mahasiswaRows = document.querySelectorAll('.mahasiswa-only');
 
                 function toggleMahasiswaFields() {
@@ -546,13 +567,25 @@ Swal.fire({
                     if (semesterInput) semesterInput.required = isMahasiswa;
                 }
 
+                // ⚡ Toggle tampilan & isi field Program Studi berdasarkan role
+                function toggleProdiField() {
+                    const role = roleSelect.value;
+
+                    if (role === 'Admin') {
+                        if (prodiFieldContainer) prodiFieldContainer.style.display = 'none';
+                        prodiWrapper.innerHTML = `<input type="hidden" id="prodi" value="${escapeHtml(user.prodi || '')}">`;
+                    } else if (role === 'Dosen') {
+                        if (prodiFieldContainer) prodiFieldContainer.style.display = 'block';
+                        prodiWrapper.innerHTML = `<input id="prodi" type="text" class="${inputCls}" value="${escapeHtml(user.prodi || '')}" placeholder="Masukkan Program Studi / Fakultas secara manual" required>`;
+                    } else {
+                        if (prodiFieldContainer) prodiFieldContainer.style.display = 'block';
+                        prodiWrapper.innerHTML = `<select id="prodi" class="${inputCls}" required>${getProdiOptions(user.prodi)}</select>`;
+                    }
+                }
+
                 if (roleSelect && prodiWrapper) {
                     roleSelect.addEventListener('change', function () {
-                        if (this.value === 'Admin' || this.value === 'Dosen') {
-                            prodiWrapper.innerHTML = `<input id="prodi" type="text" class="${inputCls}" value="${escapeHtml(user.prodi || '')}" placeholder="Masukkan Program Studi / Fakultas secara manual">`;
-                        } else {
-                            prodiWrapper.innerHTML = `<select id="prodi" class="${inputCls}">${getProdiOptions(user.prodi)}</select>`;
-                        }
+                        toggleProdiField();
                         toggleMahasiswaFields();
                     });
                 }
@@ -615,7 +648,7 @@ Swal.fire({
                 if (row) {
                     row.children[1].innerText = result.value.name;
                     row.children[2].innerText = result.value.nim;
-                    row.children[3].innerText = result.value.prodi || '-';
+                    row.children[3].innerText = result.value.role === 'Admin' ? '-' : (result.value.prodi || '-');
                     // ⚡ Update angkatan & semester
                     row.children[4].innerText = result.value.role === 'Mahasiswa' ? (result.value.angkatan || '-') : '-';
                     row.children[5].innerText = result.value.role === 'Mahasiswa' ? (result.value.semester || '-') : '-';
