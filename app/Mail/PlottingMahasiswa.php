@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\Rpk;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -13,16 +14,16 @@ class PlottingMahasiswa extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public User $mahasiswa;
+    public Rpk $rpk;
 
     public User $dosen;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(User $mahasiswa, User $dosen)
+    public function __construct(Rpk $rpk, User $dosen)
     {
-        $this->mahasiswa = $mahasiswa;
+        $this->rpk = $rpk->load(['user']);
         $this->dosen = $dosen;
     }
 
@@ -31,8 +32,10 @@ class PlottingMahasiswa extends Mailable
      */
     public function envelope(): Envelope
     {
+        $nama = $this->rpk->user->name ?? 'Mahasiswa';
+
         return new Envelope(
-            subject: 'Mahasiswa Baru Bimbingan — ' . ($this->mahasiswa->name ?? 'Mahasiswa'),
+            subject: 'Plotting Dosen Pembimbing — RPK ' . $nama,
         );
     }
 
@@ -44,7 +47,7 @@ class PlottingMahasiswa extends Mailable
         return new Content(
             markdown: 'emails.plotting-mahasiswa',
             with: [
-                'mahasiswa' => $this->mahasiswa,
+                'rpk' => $this->rpk,
                 'dosen' => $this->dosen,
             ],
         );

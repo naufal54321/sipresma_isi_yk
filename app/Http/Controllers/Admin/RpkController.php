@@ -12,13 +12,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\RpkStatusNotification;
+use App\Mail\PlottingMahasiswa;
 
 class RpkController extends Controller
 {
     public function index(Request $request)
     {
-        // Ambil RPK beserta relasi user dan dosen pembimbingnya
-        $query = Rpk::with(['user.dosenPembimbing']);
+        $query = Rpk::with(['user', 'dosenPembimbing']);
 
         // 1. Filter Pencarian (Nama Mhs, NIM, atau Judul Kegiatan)
         if ($request->filled('search')) {
@@ -36,22 +36,17 @@ class RpkController extends Controller
             $query->where('status', $request->status);
         }
 
-        // 3. Filter Dosen Pembimbing (Kuncian untuk Mahasiswa Tanpa Dosen)
+        // 3. Filter Dosen Pembimbing — langsung dari kolom rpks.dosen_pembimbing_id
         if ($request->filled('dosen_id')) {
             if ($request->dosen_id === 'tanpa_dosen') {
-                $query->whereHas('user', function ($u) {
-                    $u->whereNull('dosen_pembimbing_id');
-                });
+                $query->whereNull('dosen_pembimbing_id');
             } else {
-                $query->whereHas('user', function ($u) use ($request) {
-                    $u->where('dosen_pembimbing_id', $request->dosen_id);
-                });
+                $query->where('dosen_pembimbing_id', $request->dosen_id);
             }
         }
 
         $rpks = $query->latest()->paginate(10)->withQueryString();
         
-        // Ambil daftar dosen untuk dropdown filter
         $dosens = User::role('Dosen')->orderBy('name')->get();
 
         return view('admin.rpk.index', compact('rpks', 'dosens'));
@@ -59,8 +54,46 @@ class RpkController extends Controller
 
     public function show(Rpk $rpk)
     {
-        $rpk->load(['user.dosenPembimbing', 'verifiedBy']);
+        $rpk->load(['user', 'dosenPembimbing', 'verifiedBy']);
         return view('admin.rpk.show', compact('rpk'));
+    }
+
+    /**
+     * AJAX: Atur dosen pembimbing untuk RPK
+     */
+    public function setPembimbing(Request $request, Rpk $rpk)
+    {
+        $request->validate([
+            'dosen_id' => 'nullable|exists:users,id',
+        ]);
+
+        $rpk->update(['dosen_pembimbing_id' => $request->dosen_id ?: null]);
+        DashboardService::clearAdminCache();
+
+        // ⚡ NOTIFIKASI: Email ke dosen jika ditetapkan
+        $emailSent = false;
+        if ($request->dosen_id) {
+            $dosen = User::find($request->dosen_id);
+            if ($dosen && $dosen->email) {
+                try {
+                    Mail::to($dosen)->send(new PlottingMahasiswa($rpk->fresh(), $dosen));
+                    $emailSent = true;
+                } catch (\Throwable $e) {
+                    Log::warning('Gagal kirim email plotting ke dosen: ' . $e->getMessage());
+                }
+            }
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $request->dosen_id ? 'Dosen pembimbing berhasil diatur.' : 'Dosen pembimbing berhasil dihapus.',
+                'dosen_name' => $request->dosen_id ? User::find($request->dosen_id)?->name : null,
+                'email_sent' => $emailSent,
+            ]);
+        }
+
+        return back()->with('success', 'Dosen pembimbing berhasil diatur.');
     }
 
     public function updateStatus(Request $request, Rpk $rpk)
@@ -98,4 +131,3 @@ class RpkController extends Controller
             ->with('success', 'Status RPK milik ' . $rpk->user->name . ' berhasil diubah menjadi ' . strtoupper($request->status));
     }
 }
-

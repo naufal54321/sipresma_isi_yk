@@ -39,7 +39,7 @@
 </div>
     </div>
 
-    @if(!$rpk->user->dosenPembimbing)
+    @if(!$rpk->dosenPembimbing)
         <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-800 rounded-2xl flex items-center gap-3 shadow-sm">
             <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
             <div>
@@ -113,7 +113,7 @@
                     <div class="grid grid-cols-3 gap-2 pb-4 border-t border-slate-100 pt-4">
                         <span class="col-span-1 text-sm font-bold text-slate-500">Dosen Pembimbing</span>
                         <span class="col-span-2 text-sm text-slate-800 font-bold">
-                            {{ $rpk->user?->dosenPembimbing?->name ?? 'Belum ada' }}
+                            {{ $rpk->dosenPembimbing?->name ?? 'Belum ada' }}
                         </span>
                     </div>
 

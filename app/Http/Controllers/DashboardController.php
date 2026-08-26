@@ -50,7 +50,7 @@ class DashboardController extends Controller
             return view('dashboard.dosen', $stats);
         }
 
-        $dosenPembimbing = $user->dosenPembimbing;
+        $dosenPembimbing = $user->rpks()->latest()->first()?->dosenPembimbing;
 
         $stats = $this->dashboardService->getMahasiswaStats($user->id);
         $tingkat = $this->dashboardService->getMahasiswaTingkatChart($user->id);

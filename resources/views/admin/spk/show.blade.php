@@ -102,8 +102,8 @@
             <div class="grid grid-cols-3 gap-2 pb-4 border-b border-gray-200">
                 <span class="text-sm font-bold text-gray-600">Dosen Pembimbing</span>
                 <span class="col-span-2 text-sm text-gray-800 font-medium">
-                    @if($spk->user->dosenPembimbing)
-                        {{ $spk->user->dosenPembimbing->name }}
+                    @if($spk->rpk?->dosenPembimbing)
+                        {{ $spk->rpk->dosenPembimbing->name }}
                     @else
                         <span class="text-red-500 italic text-xs">Belum ada</span>
                     @endif

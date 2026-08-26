@@ -1,73 +1,68 @@
 <x-app-layout>
-
-<div class="py-6">
-
     <div class="max-w-8xl mx-auto py-6">
 
         <div class="mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">
-                Manajemen Semua SPK
-            </h1>
-            <p class="text-gray-500 mt-1">
-                Kelola Semua Satuan Prestasi Kemahasiswaan
-            </p>
+            <h1 class="text-3xl font-bold text-gray-800">Manajemen Semua SPK</h1>
+            <p class="text-gray-500 mt-1">Kelola Semua Satuan Prestasi Kemahasiswaan</p>
         </div>
 
-        {{-- Filter --}}
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 mb-6">
-            <form method="GET" action="{{ route('admin.spk.index') }}" class="flex flex-col md:flex-row gap-4 items-end">
-                
-                <div class="w-full md:w-64 relative">
-                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Cari Data</label>
-                    <input type="text"
-                           name="search"
-                           value="{{ request('search') }}"
-                           placeholder="Nama, NIM, atau Kegiatan..."
-                           class="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 absolute left-3 top-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"/>
-                    </svg>
+        @if(session('success'))
+            <div class="mb-6 p-4 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-start sm:items-center gap-3 shadow-sm shadow-emerald-500/5 animate-[fade-in-down_0.5s_ease-out]">
+                <div class="bg-emerald-500 text-white rounded-full w-8 h-8 flex items-center justify-center shrink-0 shadow-sm mt-0.5 sm:mt-0">
+                    <i class="fas fa-check"></i>
                 </div>
+                <div>
+                    <h4 class="text-sm font-bold text-emerald-800">Berhasil!</h4>
+                    <p class="text-xs font-medium text-emerald-600 mt-0.5">{{ session('success') }}</p>
+                </div>
+            </div>
+        @endif
 
-                <div class="w-full md:w-32">
-                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Tahun</label>
-                    <select name="tahun" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition bg-white">
-                        <option value="">Semua</option>
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-5 sm:p-6 mb-8 relative overflow-hidden group">
+            <div class="absolute right-0 top-0 w-32 h-32 bg-gradient-to-bl from-blue-50 to-transparent rounded-bl-full opacity-50 pointer-events-none"></div>
+
+            <form method="GET" class="relative z-10 flex flex-col gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-slate-400 text-sm"></i>
+                        </div>
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari Mhs, NIM, Kegiatan..."
+                            class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors placeholder-slate-400 font-medium">
+                    </div>
+
+                    <select name="tahun" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors font-medium cursor-pointer">
+                        <option value="">Semua Tahun</option>
                         @foreach($tahunList as $tahun)
                             <option value="{{ $tahun }}" {{ request('tahun') == $tahun ? 'selected' : '' }}>{{ $tahun }}</option>
                         @endforeach
                     </select>
-                </div>
 
-                <div class="w-full md:w-40">
-                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Status</label>
-                    <select name="status" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition bg-white">
+                    <select name="status" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors font-medium cursor-pointer">
                         <option value="">Semua Status</option>
                         <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
                         <option value="disetujui" {{ request('status') == 'disetujui' ? 'selected' : '' }}>Disetujui</option>
                         <option value="ditolak" {{ request('status') == 'ditolak' ? 'selected' : '' }}>Ditolak</option>
                     </select>
-                </div>
 
-                <div class="flex gap-2 w-full md:w-auto">
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition w-full md:w-auto">
-                        Cari
-                    </button>
-                    @if(request('search') || request('tahun') || request('status'))
-                        <a href="{{ route('admin.spk.index') }}" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-5 py-2.5 rounded-xl text-sm font-semibold transition text-center flex items-center justify-center">
-                            Reset
-                        </a>
-                    @endif
+                    <div class="flex gap-2 h-full">
+                        <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors shadow-sm flex items-center justify-center gap-2">
+                            <i class="fas fa-filter"></i> Terapkan
+                        </button>
+                        @if(request('search') || request('tahun') || request('status'))
+                            <a href="{{ route('admin.spk.index') }}" class="px-4 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-sm font-bold flex items-center justify-center transition-colors tooltip" title="Reset Filter">
+                                <i class="fas fa-redo-alt"></i> Reset
+                            </a>
+                        @endif
+                    </div>
                 </div>
-
             </form>
         </div>
 
-    {{-- Tabel SPK --}}
-<div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
     <div class="overflow-x-auto">
         <table class="w-full text-sm text-left text-slate-600">
-            <thead class="bg-slate-50/80 uppercase text-xs font-extrabold tracking-wider text-slate-400 border-b border-slate-100">
+            <thead class="bg-slate-50/80 uppercase text-[10px] sm:text-[11px] font-extrabold tracking-wider text-slate-400 border-b border-slate-100">
                 <tr>
                     <th class="px-2 py-3 text-center w-8">No</th>
                     <th class="px-2 py-3 w-[14%]">Mahasiswa</th>
@@ -85,7 +80,7 @@
             <tbody class="divide-y divide-slate-50">
                 @forelse($spks as $index => $spk)
                 <tr class="hover:bg-blue-50/30 transition-colors group">
-                    
+
                     {{-- No --}}
                     <td class="px-2 py-3 text-center font-bold text-black">
                         {{ $spks->firstItem() + $index }}
@@ -193,125 +188,113 @@
         </table>
     </div>
 
-    {{-- Pagination --}}
     @if($spks->hasPages())
-        <div class="px-6 py-4 border-t border-slate-100 bg-slate-50/50">
+        <div class="px-6 py-4 bg-slate-50/50 border-t border-slate-100">
             {{ $spks->links() }}
         </div>
     @endif
 </div>
 
-            
     </div>
 
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-
-function hapusSpk(button) {
-    Swal.fire({
-        title: 'Hapus SPK?',
-        text: 'Data yang dihapus tidak dapat dikembalikan.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#dc2626',
-        cancelButtonColor: '#6b7280',
-        confirmButtonText: 'Ya, Hapus',
-        cancelButtonText: 'Batal'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            button.closest('form').submit();
+    <style>
+        @keyframes fade-in-down {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
-    });
-}
+    </style>
 
-function approveSpk(id)
-{
-    Swal.fire({
-        title: 'Setujui SPK (Admin)',
-        input: 'textarea',
-        inputLabel: 'Catatan Admin',
-        inputPlaceholder: 'Masukkan catatan persetujuan...',
-        showCancelButton: true,
-        confirmButtonText: 'Setujui',
-        confirmButtonColor: '#16a34a',
-        cancelButtonText: 'Batal'
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
 
-    }).then((result) => {
-
-        if(result.isConfirmed){
-
-            let form = document.createElement('form');
-
-            form.method = 'POST';
-            form.action = '/admin/spk/' + id + '/approve';
-
-            form.innerHTML = `
-                @csrf
-                <input type="hidden" name="catatan" value="${result.value || ''}">
-            `;
-
-            document.body.appendChild(form);
-            form.submit();
-        }
-
-    });
-}
-
-function rejectSpk(id)
-{
-    Swal.fire({
-        title: 'Tolak SPK (Admin)',
-        input: 'textarea',
-        inputLabel: 'Alasan Penolakan',
-        inputPlaceholder: 'Masukkan alasan penolakan...',
-        showCancelButton: true,
-        confirmButtonText: 'Tolak',
-        confirmButtonColor: '#dc2626',
-        cancelButtonText: 'Batal',
-
-        inputValidator: (value) => {
-            if (!value) {
-                return 'Alasan wajib diisi';
+    function hapusSpk(button) {
+        Swal.fire({
+            title: 'Hapus SPK?',
+            text: 'Data yang dihapus tidak dapat dikembalikan.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                button.closest('form').submit();
             }
-        }
+        });
+    }
 
-    }).then((result) => {
+    function approveSpk(id)
+    {
+        Swal.fire({
+            title: 'Setujui SPK (Admin)',
+            input: 'textarea',
+            inputLabel: 'Catatan Admin',
+            inputPlaceholder: 'Masukkan catatan persetujuan...',
+            showCancelButton: true,
+            confirmButtonText: 'Setujui',
+            confirmButtonColor: '#16a34a',
+            cancelButtonText: 'Batal'
 
-        if(result.isConfirmed){
+        }).then((result) => {
 
-            let form = document.createElement('form');
+            if(result.isConfirmed){
 
-            form.method = 'POST';
-            form.action = '/admin/spk/' + id + '/reject';
+                let form = document.createElement('form');
 
-            form.innerHTML = `
-                @csrf
-                <input type="hidden" name="catatan" value="${result.value}">
-            `;
+                form.method = 'POST';
+                form.action = '/admin/spk/' + id + '/approve';
 
-            document.body.appendChild(form);
-            form.submit();
-        }
+                form.innerHTML = `
+                    @csrf
+                    <input type="hidden" name="catatan" value="${result.value || ''}">
+                `;
 
-    });
-}
+                document.body.appendChild(form);
+                form.submit();
+            }
 
-</script>
+        });
+    }
 
-@if(session('success'))
-<script>
-    Swal.fire({
-        icon: 'success',
-        title: 'Berhasil',
-        text: '{{ session("success") }}',
-        timer: 3000,
-        showConfirmButton: false,
-        toast: true,
-        position: 'top-end'
-    });
-</script>
-@endif
+    function rejectSpk(id)
+    {
+        Swal.fire({
+            title: 'Tolak SPK (Admin)',
+            input: 'textarea',
+            inputLabel: 'Alasan Penolakan',
+            inputPlaceholder: 'Masukkan alasan penolakan...',
+            showCancelButton: true,
+            confirmButtonText: 'Tolak',
+            confirmButtonColor: '#dc2626',
+            cancelButtonText: 'Batal',
 
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'Alasan wajib diisi';
+                }
+            }
+
+        }).then((result) => {
+
+            if(result.isConfirmed){
+
+                let form = document.createElement('form');
+
+                form.method = 'POST';
+                form.action = '/admin/spk/' + id + '/reject';
+
+                form.innerHTML = `
+                    @csrf
+                    <input type="hidden" name="catatan" value="${result.value}">
+                `;
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+
+        });
+    }
+
+    </script>
 </x-app-layout>

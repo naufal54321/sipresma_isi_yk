@@ -90,7 +90,7 @@ class LaporanController extends Controller
 
     public function exportPdf(Request $request)
     {
-        $query = Spk::with(['user', 'kegiatan.masterKegiatan'])
+        $query = Spk::with(['user', 'rpk.dosenPembimbing', 'kegiatan.masterKegiatan'])
             ->where('status', 'disetujui');
 
         $query = $this->laporanService->applyFilters($query, $request);
@@ -103,7 +103,7 @@ class LaporanController extends Controller
     public function exportExcel(Request $request)
     {
         try {
-            $query = Spk::with(['user.dosenPembimbing', 'kegiatan.masterKegiatan'])
+            $query = Spk::with(['rpk.dosenPembimbing', 'kegiatan.masterKegiatan'])
                 ->where('status', 'disetujui');
 
             $query = $this->laporanService->applyFilters($query, $request);

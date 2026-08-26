@@ -198,8 +198,8 @@ class SpkController extends Controller
         DashboardService::clearAdminCache();
 
         // ⚡ NOTIFIKASI: Email ke Dosen Pembimbing saat SPK diajukan
-        if ($spk->user->dosen_pembimbing_id) {
-            $dosen = \App\Models\User::find($spk->user->dosen_pembimbing_id);
+        if ($spk->rpk?->dosen_pembimbing_id) {
+            $dosen = \App\Models\User::find($spk->rpk->dosen_pembimbing_id);
             if ($dosen && $dosen->email) {
                 try {
                     Mail::to($dosen)->send(new SpkSubmitted($spk->fresh()));

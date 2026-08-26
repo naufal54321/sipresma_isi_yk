@@ -139,9 +139,8 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('users', UserController::class)->except(['create', 'edit']);
     Route::post('/users/{user}/role', [UserRoleController::class, 'update'])->name('users.role.update');
 
-    /* Dosen Pembimbing */
-    Route::get('/pembimbing', [UserController::class, 'pembimbingIndex'])->name('pembimbing.index');
-    Route::post('/pembimbing/set', [UserController::class, 'setPembimbing'])->name('pembimbing.set');
+    /* ⚡ Plotting Dosen Pembimbing per RPK */
+    Route::post('/rpk/{rpk}/set-pembimbing', [AdminRpkController::class, 'setPembimbing'])->name('rpk.set-pembimbing');
 
     /* Master Kegiatan */
     Route::resource('kegiatan', MasterKegiatanController::class)->except(['show', 'edit']);

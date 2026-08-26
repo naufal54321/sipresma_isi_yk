@@ -129,7 +129,7 @@ class DashboardService
                 ];
             });
 
-        $aktivitasRpkDosen = Rpk::with(['user.dosenPembimbing', 'verifiedBy'])
+        $aktivitasRpkDosen = Rpk::with(['dosenPembimbing', 'verifiedBy'])
             ->whereIn('status', ['disetujui', 'ditolak'])
             ->whereNotNull('verified_at')
             ->latest('verified_at')
@@ -138,7 +138,7 @@ class DashboardService
             ->map(function ($item) {
                 $verifikator = $item->verifiedBy;
                 return [
-                    'aktor' => $verifikator?->name ?? $item->user->dosenPembimbing?->name ?? 'Admin',
+                    'aktor' => $verifikator?->name ?? $item->dosenPembimbing?->name ?? 'Admin',
                     'role' => $verifikator?->hasRole('Admin') ? 'Admin' : 'Dosen',
                     'kategori' => 'RPK',
                     'aktivitas' => $item->status == 'disetujui'
@@ -149,7 +149,7 @@ class DashboardService
                 ];
             });
 
-        $aktivitasSpkDosen = Spk::with(['user.dosenPembimbing', 'kegiatan', 'verifiedBy'])
+        $aktivitasSpkDosen = Spk::with(['rpk', 'kegiatan', 'verifiedBy'])
             ->whereIn('status', ['disetujui', 'ditolak'])
             ->whereNotNull('verified_at')
             ->latest('verified_at')
@@ -158,7 +158,7 @@ class DashboardService
             ->map(function ($item) {
                 $verifikator = $item->verifiedBy;
                 return [
-                    'aktor' => $verifikator?->name ?? $item->user->dosenPembimbing?->name ?? 'Admin',
+                    'aktor' => $verifikator?->name ?? $item->rpk?->dosenPembimbing?->name ?? 'Admin',
                     'role' => $verifikator?->hasRole('Admin') ? 'Admin' : 'Dosen',
                     'kategori' => 'SPK',
                     'aktivitas' => $item->status == 'disetujui'
@@ -198,14 +198,12 @@ class DashboardService
 
     public function getAdminRasioBimbingan()
     {
-        $totalMahasiswa = User::role('Mahasiswa')->whereNotNull('dosen_pembimbing_id')->count();
-
-        $perDosen = User::role('Mahasiswa')
-            ->whereNotNull('dosen_pembimbing_id')
-            ->selectRaw('dosen_pembimbing_id, COUNT(*) as total')
+        $perDosen = Rpk::whereNotNull('dosen_pembimbing_id')
+            ->selectRaw('dosen_pembimbing_id, COUNT(DISTINCT user_id) as total')
             ->groupBy('dosen_pembimbing_id')
             ->get();
 
+        $totalMahasiswa = $perDosen->sum('total');
         $totalDosen = $perDosen->count();
         $rasio = $totalDosen > 0 ? round($totalMahasiswa / $totalDosen, 1) : 0;
 
@@ -230,16 +228,23 @@ class DashboardService
 
     public function getDosenStats($dosenId)
     {
-        $mahasiswaBimbinganIds = User::where('dosen_pembimbing_id', $dosenId)->pluck('id');
+        $rpkDraft = Rpk::where('dosen_pembimbing_id', $dosenId)->where('status', 'draft')->count();
+        $rpkDisetujui = Rpk::where('dosen_pembimbing_id', $dosenId)->where('status', 'disetujui')->count();
+        $rpkDitolak = Rpk::where('dosen_pembimbing_id', $dosenId)->where('status', 'ditolak')->count();
+        $totalMahasiswa = Rpk::where('dosen_pembimbing_id', $dosenId)->distinct('user_id')->count();
+
+        $spkDraft = Spk::whereHas('rpk', fn($q) => $q->where('dosen_pembimbing_id', $dosenId))->where('status', 'draft')->count();
+        $spkDisetujui = Spk::whereHas('rpk', fn($q) => $q->where('dosen_pembimbing_id', $dosenId))->where('status', 'disetujui')->count();
+        $spkDitolak = Spk::whereHas('rpk', fn($q) => $q->where('dosen_pembimbing_id', $dosenId))->where('status', 'ditolak')->count();
 
         return [
-            'totalMahasiswa' => $mahasiswaBimbinganIds->count(),
-            'rpkDraft' => Rpk::whereIn('user_id', $mahasiswaBimbinganIds)->where('status', 'draft')->count(),
-            'rpkDisetujui' => Rpk::whereIn('user_id', $mahasiswaBimbinganIds)->where('status', 'disetujui')->count(),
-            'rpkDitolak' => Rpk::whereIn('user_id', $mahasiswaBimbinganIds)->where('status', 'ditolak')->count(),
-            'spkDraft' => Spk::whereIn('user_id', $mahasiswaBimbinganIds)->where('status', 'draft')->count(),
-            'spkDisetujui' => Spk::whereIn('user_id', $mahasiswaBimbinganIds)->where('status', 'disetujui')->count(),
-            'spkDitolak' => Spk::whereIn('user_id', $mahasiswaBimbinganIds)->where('status', 'ditolak')->count(),
+            'totalMahasiswa' => $totalMahasiswa,
+            'rpkDraft' => $rpkDraft,
+            'rpkDisetujui' => $rpkDisetujui,
+            'rpkDitolak' => $rpkDitolak,
+            'spkDraft' => $spkDraft,
+            'spkDisetujui' => $spkDisetujui,
+            'spkDitolak' => $spkDitolak,
         ];
     }
 

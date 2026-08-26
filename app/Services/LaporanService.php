@@ -239,10 +239,7 @@ class LaporanService
             $angkatanSemester = trim($angkatan . ($semester ? ' / Semester ' . $semester : ''));
             if (empty($angkatanSemester)) $angkatanSemester = '-';
 
-            $dosenPembimbing = '-';
-            if ($user->dosenPembimbing) {
-                $dosenPembimbing = $user->dosenPembimbing->name;
-            }
+            $dosenPembimbing = $item->rpk?->dosenPembimbing?->name ?? '-';
 
             $judulKegiatan = $item->judul_kegiatan
                 ?? $item->kegiatan?->judul_kegiatan

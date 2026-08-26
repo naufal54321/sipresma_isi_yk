@@ -27,7 +27,7 @@ class SpkController extends Controller
 
         $spks = Spk::with(['user', 'rpk', 'kegiatan'])
             
-            ->whereHas('user', function ($query) {
+            ->whereHas('rpk', function ($query) {
                 $query->where('dosen_pembimbing_id', Auth::id());
             })
 
@@ -74,7 +74,7 @@ class SpkController extends Controller
      */
     public function approve(Request $request, Spk $spk)
     {
-        if ($spk->user->dosen_pembimbing_id != Auth::id()) {
+        if ($spk->rpk?->dosen_pembimbing_id != Auth::id()) {
             abort(403, 'Anda tidak memiliki akses.');
         }
 
@@ -121,7 +121,7 @@ class SpkController extends Controller
      */
     public function reject(Request $request, Spk $spk)
     {
-        if ($spk->user->dosen_pembimbing_id != Auth::id()) {
+        if ($spk->rpk?->dosen_pembimbing_id != Auth::id()) {
             abort(403, 'Anda tidak memiliki akses.');
         }
 
@@ -159,7 +159,7 @@ class SpkController extends Controller
     public function show(Spk $spk)
     {
         // Pastikan hanya dosen pembimbing yang bisa melihat detail
-        if ($spk->user->dosen_pembimbing_id != Auth::id()) {
+        if ($spk->rpk?->dosen_pembimbing_id != Auth::id()) {
             abort(403, 'Anda tidak memiliki akses.');
         }
 

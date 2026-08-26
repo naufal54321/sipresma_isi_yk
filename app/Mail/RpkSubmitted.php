@@ -25,9 +25,9 @@ class RpkSubmitted extends Mailable
      */
     public function __construct(Rpk $rpk, string $penerima = 'Admin')
     {
-        $this->rpk = $rpk->load(['user', 'user.dosenPembimbing']);
+        $this->rpk = $rpk->load(['user', 'dosenPembimbing']);
         $this->penerima = $penerima;
-        $this->dosen = $rpk->user->dosenPembimbing;
+        $this->dosen = $rpk->dosenPembimbing;
     }
 
     /**

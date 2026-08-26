@@ -8,6 +8,7 @@ class Rpk extends Model
 {
     protected $fillable = [
         'user_id',
+        'dosen_pembimbing_id',
         'master_kegiatan_id',
         'tahun',
         'semester',
@@ -49,6 +50,11 @@ public function masterKegiatan()
 public function verifiedBy()
 {
     return $this->belongsTo(User::class, 'verified_by');
+}
+
+public function dosenPembimbing()
+{
+    return $this->belongsTo(User::class, 'dosen_pembimbing_id');
 }
 
 }

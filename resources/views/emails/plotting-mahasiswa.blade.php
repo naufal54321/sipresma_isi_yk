@@ -1,23 +1,23 @@
 @component('mail::message')
 # Halo, {{ $dosen->name }}!
 
-Kami informasikan bahwa **mahasiswa baru telah ditetapkan sebagai mahasiswa bimbingan Anda** melalui sistem PRATAMA.
+Kami informasikan bahwa Anda telah ditetapkan sebagai **dosen pembimbing** untuk Rencana Prestasi Kemahasiswaan (RPK) berikut melalui sistem PRATAMA.
 
-### Detail Mahasiswa
+### Detail RPK
 
 @component('mail::table')
 | Keterangan | Detail |
 | --- | --- |
-| **Nama Mahasiswa** | {{ $mahasiswa->name ?? '-' }} |
-| **NIM** | {{ $mahasiswa->nim ?? '-' }} |
-| **Program Studi** | {{ $mahasiswa->prodi ?? '-' }} |
-| **Angkatan** | {{ $mahasiswa->angkatan ?? '-' }} |
+| **Nama Mahasiswa** | {{ $rpk->user->name ?? '-' }} |
+| **NIM** | {{ $rpk->user->nim ?? '-' }} |
+| **Program Studi** | {{ $rpk->user->prodi ?? '-' }} |
+| **Tahun / Semester** | {{ $rpk->tahun ?? '-' }} / {{ $rpk->semester ?? '-' }} |
 @endcomponent
 
 Mohon untuk dapat memantau dan memberikan tindak lanjut terhadap **pengajuan RPK dan SPK** dari mahasiswa tersebut melalui sistem PRATAMA.
 
-@component('mail::button', ['url' => route('dosen.mahasiswa.index')])
-Lihat Daftar Mahasiswa Bimbingan →
+@component('mail::button', ['url' => route('admin.rpk.show', $rpk->id)])
+Lihat Detail RPK
 @endcomponent
 
 Terima kasih atas perhatian dan kerja sama Anda.

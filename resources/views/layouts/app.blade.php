@@ -231,9 +231,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.Alpine) Alpine.initTree(sidebar);
         }
 
-        // Swap konten
+        // Fade out, swap, fade in — hilangkan white flash
         const newWrapper = temp.querySelector('#content-wrapper');
         if (!newWrapper) return false;
+        wrapper.style.transition = 'opacity 0.12s';
+        wrapper.style.opacity = '0';
         wrapper.innerHTML = newWrapper.innerHTML;
         if (window.Alpine) Alpine.initTree(wrapper);
 
@@ -258,6 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.dispatchEvent(new CustomEvent('content-updated'));
                     initCharts();
                     initDatepickers();
+                    wrapper.style.opacity = '1';
                 }, 100);
             });
         });
@@ -336,6 +339,102 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 });
+
+// ⚡ PERSISTENT PLOTTING MODAL — survive SPA navigation
+(function() {
+    const urlPlotting = '{{ url("admin/rpk") }}';
+    const csrf = '{{ csrf_token() }}';
+
+    window.bukaModalPlotting = function(button) {
+        if (typeof Swal === 'undefined') {
+            setTimeout(() => window.bukaModalPlotting(button), 100);
+            return;
+        }
+        const rpkId = button.getAttribute('data-rpk-id');
+        const namaMahasiswa = button.getAttribute('data-nama');
+        const currentDosenId = button.getAttribute('data-dosen-id');
+        const inputCls = 'w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring focus:ring-blue-200';
+        const dosens = window.dosenList || [];
+
+        let html = `
+            <div class="text-left">
+                <p class="text-sm text-gray-500 mb-1">RPK milik:</p>
+                <p class="font-bold text-gray-800 mb-4">${namaMahasiswa}</p>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Dosen Pembimbing</label>
+                <select id="swal-dosen" class="${inputCls}">
+                    <option value="">— Tanpa Dosen —</option>
+                    ${dosens.map(o =>
+                        `<option value="${o.id}" ${o.id == currentDosenId ? 'selected' : ''}>${o.name}</option>`
+                    ).join('')}
+                </select>
+            </div>
+        `;
+
+        Swal.fire({
+            title: 'Atur Dosen Pembimbing',
+            html: html,
+            showCancelButton: true,
+            confirmButtonText: 'Simpan',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#2563eb',
+            customClass: { confirmButton: 'swal2-confirm rounded-xl', cancelButton: 'swal2-cancel rounded-xl' },
+            preConfirm: () => {
+                const dosenId = Swal.getPopup().querySelector('#swal-dosen').value;
+                return { dosen_id: dosenId || null };
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Memproses...',
+                    text: 'Mengatur dosen pembimbing & mengirim notifikasi email...',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                fetch(`${urlPlotting}/${rpkId}/set-pembimbing`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrf,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ dosen_id: result.value.dosen_id })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    Swal.close();
+                    if (data.success) {
+                        let msg = data.message;
+                        if (result.value.dosen_id && data.email_sent) {
+                            msg += ' Email notifikasi telah dikirim ke ' + data.dosen_name + '.';
+                        } else if (result.value.dosen_id && !data.email_sent) {
+                            msg += ' Gagal mengirim email notifikasi.';
+                        }
+                        Swal.fire({ icon: 'success', title: 'Berhasil!', text: msg, timer: 2500, showConfirmButton: false });
+                        const row = document.querySelector(`[data-rpk-id="${rpkId}"]`)?.closest('tr');
+                        if (row) {
+                            const dosenCell = row.querySelector('td:nth-child(6)');
+                            if (data.dosen_name) {
+                                dosenCell.innerHTML = `<span class="block font-semibold text-slate-700">${data.dosen_name}</span>`;
+                            } else {
+                                dosenCell.innerHTML = `<span class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold bg-red-50 text-red-600 border border-red-200"><i class="fas fa-exclamation-triangle text-[9px]"></i> Belum Ada</span>`;
+                            }
+                        } else {
+                            location.reload();
+                        }
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Gagal!', text: data.message || 'Terjadi kesalahan.' });
+                    }
+                })
+                .catch(() => {
+                    Swal.close();
+                    Swal.fire({ icon: 'error', title: 'Gagal!', text: 'Tidak dapat menghubungi server.' });
+                });
+            }
+        });
+    };
+})();
 
 // ⚡ FLATPICKR INIT
 function initDatepickers() {

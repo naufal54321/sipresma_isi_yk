@@ -31,9 +31,7 @@ class RpkController extends Controller
             ->has('kegiatans') 
             
             // Hanya untuk mahasiswa bimbingannya sendiri
-            ->whereHas('user', function ($query) {
-                $query->where('dosen_pembimbing_id', Auth::id());
-            })
+            ->where('dosen_pembimbing_id', Auth::id())
 
             // Logika Pencarian Teks Asli Milik Anda (Tetap Dipertahankan 100%)
             ->when($search, function ($query) use ($search) {
@@ -80,7 +78,7 @@ class RpkController extends Controller
      */
     public function approve(Request $request, Rpk $rpk)
     {
-        if ($rpk->user->dosen_pembimbing_id !== Auth::id()) {
+        if ($rpk->dosen_pembimbing_id !== Auth::id()) {
             abort(403);
         }
 
@@ -117,7 +115,7 @@ class RpkController extends Controller
      */
     public function reject(Request $request, Rpk $rpk)
     {
-        if ($rpk->user->dosen_pembimbing_id !== Auth::id()) {
+        if ($rpk->dosen_pembimbing_id !== Auth::id()) {
             abort(403);
         }
 
@@ -154,7 +152,7 @@ class RpkController extends Controller
      */
     public function show(Rpk $rpk)
     {
-        if ($rpk->user->dosen_pembimbing_id != Auth::id()) {
+        if ($rpk->dosen_pembimbing_id != Auth::id()) {
             abort(403);
         }
 

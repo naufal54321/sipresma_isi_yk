@@ -7,9 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\PlottingMahasiswa;
 
 class UserController extends Controller
 {
@@ -187,83 +184,6 @@ class UserController extends Controller
         return response()->json([
             'message' => 'deleted'
         ]);
-    }
-
-    /*
-    |-----------------------------------
-    | DOSEN PEMBIMBING
-    |-----------------------------------
-    */
-    public function pembimbingIndex(Request $request)
-    {
-        $dosen = User::role('Dosen')->get();
-
-        $query = User::role('Mahasiswa')
-            ->where('status', 'aktif')
-            ->with('dosenPembimbing');
-
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('nim', 'like', "%{$search}%");
-            });
-        }
-
-        $mahasiswa = $query->latest()->paginate(10);
-
-        return view('admin.pembimbing.index', compact('mahasiswa', 'dosen'));
-    }
-
-    public function setPembimbing(Request $request)
-    {
-        $request->validate([
-            'mahasiswa_id' => 'required|exists:users,id',
-            'dosen_id'     => 'nullable'  // ⚡ Hapus exists, validasi manual
-        ]);
-
-        // ⚡ Validasi manual untuk dosen_id
-        if ($request->dosen_id && !User::where('id', $request->dosen_id)->exists()) {
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Dosen tidak ditemukan'
-                ], 422);
-            }
-            return back()->withErrors(['dosen_id' => 'Dosen tidak ditemukan']);
-        }
-
-        $mahasiswa = User::findOrFail($request->mahasiswa_id);
-        $mahasiswa->dosen_pembimbing_id = $request->dosen_id ?: null;  // ⚡ '' jadi null
-        $mahasiswa->save();
-
-        // ⚡ NOTIFIKASI: Email ke Dosen Pembimbing saat plotting/penetapan baru
-        if ($request->dosen_id) {
-            $dosen = User::find($request->dosen_id);
-            if ($dosen && $dosen->email) {
-                try {
-                    Mail::to($dosen)->send(new PlottingMahasiswa($mahasiswa->fresh(), $dosen));
-                } catch (\Throwable $e) {
-                    Log::warning('Gagal kirim email plotting ke dosen: ' . $e->getMessage());
-                }
-            }
-        }
-
-        $pesan = $request->dosen_id
-            ? 'Dosen pembimbing berhasil diatur.'
-            : 'Dosen pembimbing berhasil dihapus.';
-
-        // ⚡ Return JSON untuk AJAX request
-        if ($request->ajax() || $request->wantsJson()) {
-            $dosen = $request->dosen_id ? User::find($request->dosen_id) : null;
-            return response()->json([
-                'success' => true,
-                'message' => $pesan,
-                'dosen_name' => $dosen?->name ?? null
-            ]);
-        }
-
-        return back()->with('success', $pesan);
     }
 
     public function getUsersData()

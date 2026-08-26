@@ -89,8 +89,8 @@ class KegiatanController extends Controller
         $rpk->update(['status' => 'draft']);
 
         // ⚡ NOTIFIKASI: Email ke Dosen Pembimbing saat kegiatan pertama ditambahkan
-        if ($rpk->kegiatans()->count() == 1 && $rpk->user->dosen_pembimbing_id) {
-            $dosen = \App\Models\User::find($rpk->user->dosen_pembimbing_id);
+        if ($rpk->kegiatans()->count() == 1 && $rpk->dosen_pembimbing_id) {
+            $dosen = \App\Models\User::find($rpk->dosen_pembimbing_id);
             if ($dosen && $dosen->email) {
                 try {
                     Mail::to($dosen)->send(new RpkSubmitted($rpk->refresh(), 'Dosen'));

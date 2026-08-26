@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dosen;
 use App\Http\Controllers\Controller;
 
 use App\Models\Spk;
+use App\Models\Rpk;
 use App\Models\User;
 use App\Models\ProgramStudi;
 use App\Services\LaporanService;
@@ -25,10 +26,8 @@ class LaporanController extends Controller
     {
         $dosenId = Auth::id();
 
-        $query = Spk::with(['user', 'kegiatan.masterKegiatan'])
-            ->whereHas('user', function ($q) use ($dosenId) {
-                $q->where('dosen_pembimbing_id', $dosenId);
-            })
+        $query = Spk::with(['user', 'rpk', 'kegiatan.masterKegiatan'])
+            ->whereHas('rpk', fn($q) => $q->where('dosen_pembimbing_id', $dosenId))
             ->where('status', 'disetujui');
 
         $query = $this->laporanService->applyFilters($query, $request);
@@ -46,9 +45,9 @@ class LaporanController extends Controller
         return view('dosen.laporan.index', array_merge(
             compact('laporan'),
             [
-                'totalBimbingan' => User::where('dosen_pembimbing_id', $dosenId)->count(),
-                'totalDisetujui' => Spk::whereHas('user', fn($q) => $q->where('dosen_pembimbing_id', $dosenId))->where('status', 'disetujui')->count(),
-                'totalMenunggu' => Spk::whereHas('user', fn($q) => $q->where('dosen_pembimbing_id', $dosenId))->where('status', 'draft')->count(),
+                'totalBimbingan' => Rpk::where('dosen_pembimbing_id', $dosenId)->distinct('user_id')->count(),
+                'totalDisetujui' => Spk::whereHas('rpk', fn($q) => $q->where('dosen_pembimbing_id', $dosenId))->where('status', 'disetujui')->count(),
+                'totalMenunggu' => Spk::whereHas('rpk', fn($q) => $q->where('dosen_pembimbing_id', $dosenId))->where('status', 'draft')->count(),
                 'programStudis' => ProgramStudi::where('status', 'aktif')->orderBy('nama_prodi')->get(),
                 'fakultasList' => ProgramStudi::select('fakultas')->distinct()->whereNotNull('fakultas')->orderBy('fakultas')->pluck('fakultas'),
                 'tingkatList' => Spk::select('tingkat')->distinct()->whereNotNull('tingkat')->orderBy('tingkat')->pluck('tingkat'),
@@ -60,10 +59,9 @@ class LaporanController extends Controller
     {
         $dosenId = Auth::id();
 
-        $query = Spk::with(['user', 'kegiatan.masterKegiatan'])
-            ->whereHas('user', function ($q) use ($dosenId) {
-                $q->where('dosen_pembimbing_id', $dosenId);
-            })->where('status', 'disetujui');
+        $query = Spk::with(['user', 'rpk', 'kegiatan.masterKegiatan'])
+            ->whereHas('rpk', fn($q) => $q->where('dosen_pembimbing_id', $dosenId))
+            ->where('status', 'disetujui');
 
         $query = $this->laporanService->applyFilters($query, $request);
 
@@ -117,10 +115,9 @@ class LaporanController extends Controller
             $dosenId = Auth::id();
             $dosen = Auth::user();
 
-            $query = Spk::with(['user.dosenPembimbing', 'kegiatan.masterKegiatan'])
-                ->whereHas('user', function ($q) use ($dosenId) {
-                    $q->where('dosen_pembimbing_id', $dosenId);
-                })->where('status', 'disetujui');
+            $query = Spk::with(['user', 'rpk', 'kegiatan.masterKegiatan'])
+                ->whereHas('rpk', fn($q) => $q->where('dosen_pembimbing_id', $dosenId))
+                ->where('status', 'disetujui');
 
             $query = $this->laporanService->applyFilters($query, $request);
             $laporan = $query->latest()->get();
@@ -146,10 +143,9 @@ class LaporanController extends Controller
     {
         $dosenId = Auth::id();
 
-        $query = Spk::with(['user', 'kegiatan.masterKegiatan'])
-            ->whereHas('user', function ($q) use ($dosenId) {
-                $q->where('dosen_pembimbing_id', $dosenId);
-            })->where('status', 'disetujui');
+        $query = Spk::with(['user', 'rpk.dosenPembimbing', 'kegiatan.masterKegiatan'])
+            ->whereHas('rpk', fn($q) => $q->where('dosen_pembimbing_id', $dosenId))
+            ->where('status', 'disetujui');
 
         $query = $this->laporanService->applyFilters($query, $request);
 
@@ -168,5 +164,3 @@ class LaporanController extends Controller
             ->download('laporan.pdf');
     }
 }
-
-

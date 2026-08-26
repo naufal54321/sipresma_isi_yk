@@ -18,7 +18,12 @@ class MahasiswaController extends Controller
         $search = $request->search;
         $filterAngkatan = $request->angkatan;
 
-        $mahasiswa = User::where('dosen_pembimbing_id', $dosenId)
+        // Ambil ID mahasiswa yang RPK-nya dibimbing oleh dosen ini
+        $mahasiswaIds = Rpk::where('dosen_pembimbing_id', $dosenId)
+            ->pluck('user_id')
+            ->unique();
+
+        $mahasiswa = User::whereIn('id', $mahasiswaIds)
             ->withCount(['rpks as total_rpk', 'spks as total_spk'])
 
             ->when($search, function ($query) use ($search) {
@@ -35,7 +40,7 @@ class MahasiswaController extends Controller
 
             ->get();
 
-        $listAngkatan = User::where('dosen_pembimbing_id', $dosenId)
+        $listAngkatan = User::whereIn('id', $mahasiswaIds)
             ->whereNotNull('angkatan')
             ->where('angkatan', '!=', '')
             ->distinct()
@@ -45,4 +50,3 @@ class MahasiswaController extends Controller
         return view('dosen.mahasiswa.index', compact('mahasiswa', 'listAngkatan'));
     }
 }
-

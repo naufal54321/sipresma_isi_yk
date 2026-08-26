@@ -2,7 +2,7 @@
     <div class="max-w-8xl mx-auto py-6">
         
        <div class="mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Manajemen Semua RPK</h1>
+            <h1 class="text-3xl font-bold text-gray-800">Manajemen Semua RPK dan Plotting Dosen</h1>
             <p class="text-gray-500 mt-1">Kelola Semua Rencana Prestasi Kemahasiswaan</p>
         </div>
             
@@ -131,8 +131,8 @@
                     </td>
 
                     <td class="px-3 py-4 text-sm">
-                        @if($item->user && $item->user->dosenPembimbing)
-                            <span class="block">{{ $item->user->dosenPembimbing->name }}</span>
+                        @if($item->dosenPembimbing)
+                            <span class="block font-semibold text-slate-700">{{ $item->dosenPembimbing->name }}</span>
                         @else
                             <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold bg-red-50 text-red-600 border border-red-200">
                                 <i class="fas fa-exclamation-triangle text-[9px]"></i> Belum Ada
@@ -151,11 +151,21 @@
                     </td>
 
                     <td class="px-3 py-4 text-center">
-                        <a href="{{ route('admin.rpk.show', $item->id) }}"
-                            title="Detail RPK"
-                            class="inline-flex items-center justify-center w-7 h-7 bg-gray-400 text-white hover:bg-gray-500 border border-gray-200 rounded-lg transition shadow-sm">
-                            <i class="fas fa-eye text-xs"></i>
-                        </a>
+                        <div class="flex items-center justify-center gap-1">
+                            <button type="button" onclick="bukaModalPlotting(this)"
+                                data-rpk-id="{{ $item->id }}"
+                                data-nama="{{ e($item->user->name ?? '') }}"
+                                data-dosen-id="{{ $item->dosen_pembimbing_id ?? '' }}"
+                                title="Atur Dosen Pembimbing"
+                                class="inline-flex items-center justify-center w-7 h-7 bg-blue-500 text-white hover:bg-blue-600 border border-blue-200 rounded-lg transition shadow-sm">
+                                <i class="fas fa-user-graduate text-xs"></i>
+                            </button>
+                            <a href="{{ route('admin.rpk.show', $item->id) }}"
+                                title="Detail RPK"
+                                class="inline-flex items-center justify-center w-7 h-7 bg-gray-400 text-white hover:bg-gray-500 border border-gray-200 rounded-lg transition shadow-sm">
+                                <i class="fas fa-eye text-xs"></i>
+                            </a>
+                        </div>
                     </td>
                 </tr>
                 @empty
@@ -189,4 +199,6 @@
             100% { opacity: 1; transform: translateY(0); }
         }
     </style>
+
+    <script>window.dosenList = @json($dosens->map(fn($d) => ['id' => (string) $d->id, 'name' => $d->name]));</script>
 </x-app-layout>

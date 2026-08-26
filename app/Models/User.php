@@ -26,9 +26,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'nim',
         'prodi',
-        'angkatan',              // ⚡ TAMBAH
-        'semester',              // ⚡ TAMBAH
-        'dosen_pembimbing_id',
+        'angkatan',
+        'semester',
         'status',
         'is_approved',
         'email_verified_at',
@@ -81,19 +80,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Rpk::class);
     }
 
-    public function mahasiswaBimbingan()
+    public function rpksBimbingan()
     {
-        return $this->hasMany(User::class, 'dosen_pembimbing_id');
-    }
-
-    public function dosenPembimbing()
-    {
-        return $this->belongsTo(User::class, 'dosen_pembimbing_id');
-    }
-
-    public function scopeMahasiswaBimbingan($query, $dosenId)
-    {
-        return $query->where('dosen_pembimbing_id', $dosenId);
+        return $this->hasMany(Rpk::class, 'dosen_pembimbing_id');
     }
 
     public function spks()

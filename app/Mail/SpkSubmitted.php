@@ -23,8 +23,8 @@ class SpkSubmitted extends Mailable
      */
     public function __construct(Spk $spk)
     {
-        $this->spk = $spk->load(['user', 'kegiatan', 'user.dosenPembimbing']);
-        $this->dosen = $spk->user->dosenPembimbing;
+        $this->spk = $spk->load(['user', 'kegiatan', 'rpk']);
+        $this->dosen = $spk->rpk?->dosenPembimbing;
     }
 
     /**

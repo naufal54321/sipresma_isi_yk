@@ -115,7 +115,7 @@
                 $angkatanSemester = trim($angkatan . ($semester ? '/' . $semester : ''));
                 if (empty($angkatanSemester)) $angkatanSemester = '-';
                 
-                $dosenPembimbing = $user->dosenPembimbing->name ?? '-';
+                $dosenPembimbing = $item->rpk?->dosenPembimbing?->name ?? '-';
                 
                 $judulKegiatan = $item->judul_kegiatan ?? $item->kegiatan->judul_kegiatan ?? $item->kegiatan->kegiatan ?? '-';
                 $namaKegiatan = $item->kegiatan->kegiatan ?? '-';
