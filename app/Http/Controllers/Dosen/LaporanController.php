@@ -26,7 +26,7 @@ class LaporanController extends Controller
     {
         $dosenId = Auth::id();
 
-        $query = Spk::with(['user', 'rpk', 'kegiatan.masterKegiatan'])
+        $query = Spk::with(['user', 'rpk', 'kegiatan'])
             ->whereHas('rpk', fn($q) => $q->where('dosen_pembimbing_id', $dosenId))
             ->where('status', 'disetujui');
 
@@ -50,7 +50,13 @@ class LaporanController extends Controller
                 'totalMenunggu' => Spk::whereHas('rpk', fn($q) => $q->where('dosen_pembimbing_id', $dosenId))->where('status', 'draft')->count(),
                 'programStudis' => ProgramStudi::where('status', 'aktif')->orderBy('nama_prodi')->get(),
                 'fakultasList' => ProgramStudi::select('fakultas')->distinct()->whereNotNull('fakultas')->orderBy('fakultas')->pluck('fakultas'),
-                'tingkatList' => Spk::select('tingkat')->distinct()->whereNotNull('tingkat')->orderBy('tingkat')->pluck('tingkat'),
+                'ruangLingkupList' => Spk::join('kegiatans', 'spks.kegiatan_id', '=', 'kegiatans.id')
+                    ->join('kkm_rules', 'kegiatans.kkm_rule_id', '=', 'kkm_rules.id')
+                    ->select('kkm_rules.ruang_lingkup')
+                    ->distinct()
+                    ->whereNotNull('kkm_rules.ruang_lingkup')
+                    ->orderBy('kkm_rules.ruang_lingkup')
+                    ->pluck('kkm_rules.ruang_lingkup'),
             ]
         ));
     }
@@ -59,7 +65,7 @@ class LaporanController extends Controller
     {
         $dosenId = Auth::id();
 
-        $query = Spk::with(['user', 'rpk', 'kegiatan.masterKegiatan'])
+        $query = Spk::with(['user', 'rpk', 'kegiatan'])
             ->whereHas('rpk', fn($q) => $q->where('dosen_pembimbing_id', $dosenId))
             ->where('status', 'disetujui');
 
@@ -85,7 +91,7 @@ class LaporanController extends Controller
         $csvHeaders = [
             'Nama Mahasiswa', 'NIM', 'Prodi', 'Fakultas',
             'Judul Kegiatan', 'Nama Kegiatan', 'Penyelenggara',
-            'Tingkat', 'Hasil', 'Poin', 'Tanggal Kegiatan'
+            'Ruang Lingkup', 'Peran/Sifat', 'Poin', 'Tanggal Kegiatan'
         ];
 
         $mapper = function ($item) {
@@ -97,8 +103,8 @@ class LaporanController extends Controller
                 $item->judul_kegiatan ?? $item->kegiatan->kegiatan ?? '',
                 $item->kegiatan->kegiatan ?? '',
                 $item->penyelenggara ?? '',
-                $item->tingkat ?? '',
-                $item->hasil ?? '',
+                $item->kegiatan?->kkmRule?->ruang_lingkup ?? '',
+                $item->peran_sifat ?? '',
                 $item->poin ?? 0,
                 $this->laporanService->getTanggalSelesai($item),
             ];
@@ -115,7 +121,7 @@ class LaporanController extends Controller
             $dosenId = Auth::id();
             $dosen = Auth::user();
 
-            $query = Spk::with(['user', 'rpk', 'kegiatan.masterKegiatan'])
+            $query = Spk::with(['user', 'rpk', 'kegiatan'])
                 ->whereHas('rpk', fn($q) => $q->where('dosen_pembimbing_id', $dosenId))
                 ->where('status', 'disetujui');
 
@@ -143,7 +149,7 @@ class LaporanController extends Controller
     {
         $dosenId = Auth::id();
 
-        $query = Spk::with(['user', 'rpk.dosenPembimbing', 'kegiatan.masterKegiatan'])
+        $query = Spk::with(['user', 'rpk.dosenPembimbing', 'kegiatan'])
             ->whereHas('rpk', fn($q) => $q->where('dosen_pembimbing_id', $dosenId))
             ->where('status', 'disetujui');
 

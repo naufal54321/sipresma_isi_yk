@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Spk;
 use App\Models\Rpk;
 use App\Models\Kegiatan;
-use App\Models\MasterPrestasi;
+use App\Models\KkmRule;
 use App\Services\DashboardService;
 use App\Mail\SpkSubmitted;
 use Illuminate\Http\Request;
@@ -54,13 +54,15 @@ class SpkController extends Controller
         $kegiatans = Kegiatan::whereHas('rpk', function ($q) use ($user) {
                 $q->where('user_id', $user->id)->where('status', 'disetujui');
             })
-            ->select('id', 'rpk_id', 'kegiatan', 'judul_kegiatan', 'tanggal_mulai', 'tanggal_selesai', 'kategori')
-            ->with('rpk')
+            ->select('id', 'rpk_id', 'kegiatan', 'judul_kegiatan', 'tanggal_mulai', 'tanggal_selesai', 'kategori', 'kkm_rule_id')
+            ->with(['rpk', 'kkmRule'])
             ->get();
 
-        $prestasis = MasterPrestasi::where('is_active', true)->orderBy('juara')->get();
+        $kkmRules = KkmRule::where('is_active', true)
+            ->select('id', 'bidang', 'jenis_kegiatan', 'peran', 'poin')
+            ->get();
 
-        return view('mahasiswa.spks.index', compact('spks', 'rpks', 'kegiatans', 'prestasis'));
+        return view('mahasiswa.spks.index', compact('spks', 'rpks', 'kegiatans', 'kkmRules'));
     }
 
     /**
@@ -73,13 +75,10 @@ class SpkController extends Controller
         
         if ($tanggalMulai && $tanggalSelesai) {
             if ($tanggalMulai->format('Y-m-d') === $tanggalSelesai->format('Y-m-d')) {
-                // Tanggal sama: "15 Januari 2025"
                 return $tanggalMulai->translatedFormat('d F Y');
             } else if ($tanggalMulai->format('m-Y') === $tanggalSelesai->format('m-Y')) {
-                // Bulan sama: "15 - 17 Januari 2025"
                 return $tanggalMulai->translatedFormat('d') . ' - ' . $tanggalSelesai->translatedFormat('d F Y');
             } else {
-                // Bulan berbeda: "30 Januari - 2 Februari 2025"
                 return $tanggalMulai->translatedFormat('d F') . ' - ' . $tanggalSelesai->translatedFormat('d F Y');
             }
         } elseif ($tanggalMulai) {
@@ -108,39 +107,25 @@ class SpkController extends Controller
             'kegiatan_id' => 'required',
             'penyelenggara' => 'required',
             'kategori' => 'required',
-            'prestasi_id' => 'required|exists:master_prestasis,id',
-            'tingkat' => 'nullable|string|max:255',
+            'peran_sifat' => 'required|string|max:255',
             'judul_karya' => 'required|string|max:255',
             'biografi' => 'nullable|string|max:2000',
             'rincian' => 'nullable|string|max:3000',
             'kebaruan' => 'nullable|string|max:2000',
             'url_kegiatan' => 'required|url|max:500',
             'link_drive' => 'required|url|max:500',
-            'surat_tugas' => 'required|mimes:pdf|max:5120',
-            'sertifikat' => 'required|mimes:pdf,jpg,jpeg,png|max:5120',
-            'foto_penyerahan' => 'required|mimes:jpg,jpeg,png|max:5120',
-            'laporan' => 'required|mimes:pdf|max:5120',
+            'surat_tugas' => 'nullable|mimes:pdf|max:5120',
+            'sertifikat' => 'nullable|mimes:pdf,jpg,jpeg,png|max:5120',
+            'foto_penyerahan' => 'nullable|mimes:pdf,jpg,jpeg,png|max:5120',
+            'laporan' => 'nullable|mimes:pdf|max:5120',
         ], [
             'url_kegiatan.required' => 'URL Kegiatan wajib diisi',
             'url_kegiatan.url' => 'URL Kegiatan harus berupa URL yang valid',
             'link_drive.required' => 'Link Google Drive wajib diisi',
             'link_drive.url' => 'Link Google Drive harus berupa URL yang valid',
             'judul_karya.required' => 'Judul Karya/Inovasi/Riset/Prestasi wajib diisi',
-            'surat_tugas.required' => 'Surat Tugas wajib diupload',
-            'surat_tugas.mimes' => 'Surat Tugas harus berformat PDF',
-            'surat_tugas.max' => 'Ukuran Surat Tugas maksimal 5 MB',
-            'sertifikat.required' => 'Sertifikat / Foto Piala wajib diupload',
-            'sertifikat.mimes' => 'Sertifikat harus berformat PDF, JPG, JPEG, atau PNG',
-            'sertifikat.max' => 'Ukuran Sertifikat maksimal 5 MB',
-            'foto_penyerahan.required' => 'Foto Penyerahan Piagam wajib diupload',
-            'foto_penyerahan.mimes' => 'Foto Penyerahan harus berformat JPG, JPEG, atau PNG',
-            'foto_penyerahan.max' => 'Ukuran Foto Penyerahan maksimal 5 MB',
-            'laporan.required' => 'Laporan wajib diupload',
-            'laporan.mimes' => 'Laporan harus berformat PDF',
-            'laporan.max' => 'Ukuran Laporan maksimal 5 MB',
         ]);
 
-        // ⚡ AMBIL KEGIATAN UNTUK MENDAPATKAN RANGE TANGGAL
         $kegiatan = Kegiatan::where('id', $request->kegiatan_id)
             ->where('rpk_id', $request->rpk_id)
             ->whereHas('rpk', function ($query) {
@@ -160,44 +145,85 @@ class SpkController extends Controller
             ])->withInput();
         }
 
-        // ⚡ FORMAT RANGE TANGGAL DARI KEGIATAN
-        $tanggalKegiatan = $this->formatTanggalKegiatan($kegiatan);
+        $kkmRule = $kegiatan->kkmRule;
 
-        $prestasi = MasterPrestasi::findOrFail($request->prestasi_id);
+        if ($kkmRule) {
+            $sameJenisCount = Spk::where('user_id', Auth::id())
+                ->whereHas('kegiatan.kkmRule', function ($q) use ($kkmRule) {
+                    $q->where('bidang', $kkmRule->bidang)
+                      ->where('jenis_kegiatan', $kkmRule->jenis_kegiatan);
+                })
+                ->count();
+
+            if ($sameJenisCount >= 4) {
+                $msg = "Anda sudah menginput maksimal 4 kegiatan dengan jenis yang sama ({$kkmRule->jenis_kegiatan}) di bidang ini.";
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json(['success' => false, 'message' => $msg], 422);
+                }
+                return back()->withErrors(['kegiatan_id' => $msg])->withInput();
+            }
+
+            $required = \App\Services\FileRequirementService::getRequiredFileCols($kkmRule->bidang, $kkmRule->jenis_kegiatan, $request->peran_sifat);
+            $fileLabels = [
+                'surat_tugas' => 'Surat Tugas',
+                'sertifikat' => 'Sertifikat',
+                'foto_penyerahan' => 'Foto Penyerahan',
+                'laporan' => 'Laporan',
+            ];
+            $mimes = [
+                'surat_tugas' => 'pdf',
+                'sertifikat' => 'pdf,jpg,jpeg,png',
+                'foto_penyerahan' => 'pdf,jpg,jpeg,png',
+                'laporan' => 'pdf',
+            ];
+            foreach ($required as $col) {
+                if (!$request->hasFile($col)) {
+                    $label = $fileLabels[$col] ?? $col;
+                    $validator = \Validator::make([], []);
+                    $validator->errors()->add($col, "File {$label} wajib diupload untuk peran/sifat ini.");
+                    return redirect()->back()->withErrors($validator)->withInput();
+                }
+            }
+        }
+
+        $tanggalKegiatan = $this->formatTanggalKegiatan($kegiatan);
         
-        $suratTugas = $request->file('surat_tugas')->store('surat-tugas', 'public');
-        $sertifikat = $request->file('sertifikat')->store('sertifikat', 'public');
-        $fotoPenyerahan = $request->file('foto_penyerahan')->store('foto-penyerahan', 'public');
-        $laporan = $request->file('laporan')->store('laporan', 'public');
+        $fileCols = ['surat_tugas', 'sertifikat', 'foto_penyerahan', 'laporan'];
+        $dirs = ['surat-tugas', 'sertifikat', 'foto-penyerahan', 'laporan'];
+        $filePaths = [];
+        foreach ($fileCols as $idx => $col) {
+            if ($request->hasFile($col)) {
+                $filePaths[$col] = $request->file($col)->store($dirs[$idx], 'public');
+            } else {
+                $filePaths[$col] = null;
+            }
+        }
 
         $spk = Spk::create([
             'user_id' => Auth::id(),
             'rpk_id' => $request->rpk_id,
             'kegiatan_id' => $request->kegiatan_id,
             'tahun' => $request->tahun,
-            'tanggal_kegiatan' => $tanggalKegiatan, // ⚡ RANGE TANGGAL OTOMATIS
+            'tanggal_kegiatan' => $tanggalKegiatan,
             'penyelenggara' => $request->penyelenggara,
             'kategori' => $request->kategori,
-            'prestasi_id' => $request->prestasi_id,
-            'hasil' => $prestasi->juara,
+            'peran_sifat' => $request->peran_sifat,
             'judul_kegiatan' => $kegiatan->judul_kegiatan ?? $kegiatan->kegiatan,
             'poin' => 0,
-            'tingkat' => $prestasi->tingkat,
             'judul_karya' => $request->judul_karya,
             'biografi' => $request->biografi,
             'rincian' => $request->rincian,
             'kebaruan' => $request->kebaruan,
             'url_kegiatan' => $request->url_kegiatan,
             'link_drive' => $request->link_drive,
-            'surat_tugas' => $suratTugas,
-            'sertifikat' => $sertifikat,
-            'foto_penyerahan' => $fotoPenyerahan,
-            'laporan' => $laporan,
+            'surat_tugas' => $filePaths['surat_tugas'],
+            'sertifikat' => $filePaths['sertifikat'],
+            'foto_penyerahan' => $filePaths['foto_penyerahan'],
+            'laporan' => $filePaths['laporan'],
             'status' => 'draft'
         ]);
         DashboardService::clearAdminCache();
 
-        // ⚡ NOTIFIKASI: Email ke Dosen Pembimbing saat SPK diajukan
         if ($spk->rpk?->dosen_pembimbing_id) {
             $dosen = \App\Models\User::find($spk->rpk->dosen_pembimbing_id);
             if ($dosen && $dosen->email) {
@@ -232,9 +258,15 @@ class SpkController extends Controller
             abort(403, 'Anda tidak memiliki akses ke SPK ini.');
         }
 
-        $spk->load('verifiedBy');
+        $spk->load(['verifiedBy', 'kegiatan.kkmRule']);
 
-        return view('mahasiswa.spks.show', compact('spk'));
+        $fileRequirements = [];
+        if ($spk->kegiatan && $spk->kegiatan->kkmRule) {
+            $kkm = $spk->kegiatan->kkmRule;
+            $fileRequirements = \App\Services\FileRequirementService::getRequiredFiles($kkm->bidang, $kkm->jenis_kegiatan, $spk->peran_sifat);
+        }
+
+        return view('mahasiswa.spks.show', compact('spk', 'fileRequirements'));
     }
 
     /**
@@ -273,8 +305,7 @@ class SpkController extends Controller
             'kegiatan_id' => 'required',
             'penyelenggara' => 'required',
             'kategori' => 'required',
-            'prestasi_id' => 'required|exists:master_prestasis,id',
-            'tingkat' => 'nullable|string|max:255',
+            'peran_sifat' => 'required|string|max:255',
             'judul_karya' => 'required|string|max:255',
             'biografi' => 'nullable|string|max:2000',
             'rincian' => 'nullable|string|max:3000',
@@ -283,19 +314,14 @@ class SpkController extends Controller
             'link_drive' => 'required|url|max:500',
             'surat_tugas' => 'nullable|mimes:pdf|max:5120',
             'sertifikat' => 'nullable|mimes:pdf,jpg,jpeg,png|max:5120',
-            'foto_penyerahan' => 'nullable|mimes:jpg,jpeg,png|max:5120',
+            'foto_penyerahan' => 'nullable|mimes:pdf,jpg,jpeg,png|max:5120',
             'laporan' => 'nullable|mimes:pdf|max:5120',
         ], [
             'url_kegiatan.required' => 'URL Kegiatan wajib diisi',
             'link_drive.required' => 'Link Google Drive wajib diisi',
             'judul_karya.required' => 'Judul Karya/Inovasi/Riset/Prestasi wajib diisi',
-            'surat_tugas.max' => 'Ukuran Surat Tugas maksimal 5 MB',
-            'sertifikat.max' => 'Ukuran Sertifikat maksimal 5 MB',
-            'foto_penyerahan.max' => 'Ukuran Foto Penyerahan maksimal 5 MB',
-            'laporan.max' => 'Ukuran Laporan maksimal 5 MB',
         ]);
 
-        // ⚡ AMBIL KEGIATAN UNTUK MENDAPATKAN RANGE TANGGAL
         $kegiatan = Kegiatan::where('id', $request->kegiatan_id)
             ->where('rpk_id', $request->rpk_id)
             ->whereHas('rpk', function ($query) {
@@ -315,22 +341,36 @@ class SpkController extends Controller
             ])->withInput();
         }
 
-        $prestasi = MasterPrestasi::findOrFail($request->prestasi_id);
+        $kkmRule = $kegiatan->kkmRule;
+        if ($kkmRule) {
+            $required = \App\Services\FileRequirementService::getRequiredFileCols($kkmRule->bidang, $kkmRule->jenis_kegiatan, $request->peran_sifat);
+            $fileLabels = [
+                'surat_tugas' => 'Surat Tugas',
+                'sertifikat' => 'Sertifikat',
+                'foto_penyerahan' => 'Foto Penyerahan',
+                'laporan' => 'Laporan',
+            ];
+            foreach ($required as $col) {
+                if (!$request->hasFile($col) && !$spk->$col) {
+                    $label = $fileLabels[$col] ?? $col;
+                    $validator = \Validator::make([], []);
+                    $validator->errors()->add($col, "File {$label} wajib diupload untuk peran/sifat ini.");
+                    return redirect()->back()->withErrors($validator)->withInput();
+                }
+            }
+        }
 
-        // ⚡ FORMAT RANGE TANGGAL DARI KEGIATAN
         $tanggalKegiatan = $this->formatTanggalKegiatan($kegiatan);
 
         $data = [
             'tahun' => $request->tahun,
             'rpk_id' => $request->rpk_id,
             'kegiatan_id' => $request->kegiatan_id,
-            'tanggal_kegiatan' => $tanggalKegiatan, // ⚡ RANGE TANGGAL OTOMATIS
+            'tanggal_kegiatan' => $tanggalKegiatan,
             'penyelenggara' => $request->penyelenggara,
             'kategori' => $request->kategori,
-            'prestasi_id' => $request->prestasi_id,
-            'hasil' => $prestasi->juara,
+            'peran_sifat' => $request->peran_sifat,
             'judul_kegiatan' => $kegiatan->judul_kegiatan ?? $kegiatan->kegiatan,
-            'tingkat' => $prestasi->tingkat,
             'judul_karya' => $request->judul_karya,
             'biografi' => $request->biografi,
             'rincian' => $request->rincian,
@@ -341,33 +381,15 @@ class SpkController extends Controller
             'catatan_dosen' => null
         ];
 
-        // Upload file baru jika ada
-        if ($request->hasFile('surat_tugas')) {
-            if ($spk->surat_tugas && Storage::disk('public')->exists($spk->surat_tugas)) {
-                Storage::disk('public')->delete($spk->surat_tugas);
+        $fileCols = ['surat_tugas', 'sertifikat', 'foto_penyerahan', 'laporan'];
+        $dirs = ['surat-tugas', 'sertifikat', 'foto-penyerahan', 'laporan'];
+        foreach ($fileCols as $idx => $col) {
+            if ($request->hasFile($col)) {
+                if ($spk->$col && Storage::disk('public')->exists($spk->$col)) {
+                    Storage::disk('public')->delete($spk->$col);
+                }
+                $data[$col] = $request->file($col)->store($dirs[$idx], 'public');
             }
-            $data['surat_tugas'] = $request->file('surat_tugas')->store('surat-tugas', 'public');
-        }
-
-        if ($request->hasFile('sertifikat')) {
-            if ($spk->sertifikat && Storage::disk('public')->exists($spk->sertifikat)) {
-                Storage::disk('public')->delete($spk->sertifikat);
-            }
-            $data['sertifikat'] = $request->file('sertifikat')->store('sertifikat', 'public');
-        }
-
-        if ($request->hasFile('foto_penyerahan')) {
-            if ($spk->foto_penyerahan && Storage::disk('public')->exists($spk->foto_penyerahan)) {
-                Storage::disk('public')->delete($spk->foto_penyerahan);
-            }
-            $data['foto_penyerahan'] = $request->file('foto_penyerahan')->store('foto-penyerahan', 'public');
-        }
-
-        if ($request->hasFile('laporan')) {
-            if ($spk->laporan && Storage::disk('public')->exists($spk->laporan)) {
-                Storage::disk('public')->delete($spk->laporan);
-            }
-            $data['laporan'] = $request->file('laporan')->store('laporan', 'public');
         }
 
         $spk->update($data);

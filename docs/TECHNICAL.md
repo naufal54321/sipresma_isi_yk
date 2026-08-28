@@ -118,8 +118,6 @@ pratama/
 │   │   │   ├── Admin/                  # Admin controllers
 │   │   │   │   ├── UserController.php
 │   │   │   │   ├── UserRoleController.php
-│   │   │   │   ├── MasterKegiatanController.php
-│   │   │   │   ├── MasterPrestasiController.php
 │   │   │   │   ├── ProgramStudiController.php
 │   │   │   │   ├── RpkController.php
 │   │   │   │   ├── SpkController.php
@@ -148,8 +146,6 @@ pratama/
 │   │   ├── Rpk.php
 │   │   ├── Spk.php
 │   │   ├── Kegiatan.php
-│   │   ├── MasterKegiatan.php
-│   │   ├── MasterPrestasi.php
 │   │   └── ProgramStudi.php
 │   ├── Services/
 │   │   ├── DashboardService.php
@@ -261,7 +257,7 @@ protected function casts(): array
 **Fillable:**
 ```php
 protected $fillable = [
-    'user_id', 'master_kegiatan_id', 'tahun', 'semester',
+    'user_id', 'tahun', 'semester',
     'status', 'catatan_dosen', 'verified_by', 'verified_at',
 ];
 ```
@@ -272,7 +268,6 @@ protected $fillable = [
 | `user()` | BelongsTo | User | Pemilik RPK |
 | `kegiatans()` | HasMany | Kegiatan | Kegiatan dalam RPK |
 | `spks()` | HasMany | Spk | SPK dari RPK |
-| `masterKegiatan()` | BelongsTo | MasterKegiatan | Master kegiatan |
 | `verifiedBy()` | BelongsTo | User | User yang memverifikasi |
 
 ---
@@ -287,8 +282,8 @@ protected $fillable = [
 ```php
 protected $fillable = [
     'user_id', 'rpk_id', 'kegiatan_id', 'tahun', 'tanggal_kegiatan',
-    'penyelenggara', 'kategori', 'prestasi_id', 'hasil', 'judul_kegiatan',
-    'poin', 'tingkat', 'url_kegiatan', 'link_drive',
+    'penyelenggara', 'kategori', 'judul_kegiatan',
+    'poin', 'url_kegiatan', 'link_drive',
     'surat_tugas', 'sertifikat', 'foto_penyerahan', 'laporan',
     'judul_karya', 'biografi', 'rincian', 'kebaruan',
     'status', 'catatan_dosen', 'verified_by', 'verified_at',
@@ -314,7 +309,6 @@ protected $fillable = [
 | `user()` | BelongsTo | User | Pemilik SPK |
 | `rpk()` | BelongsTo | Rpk | RPK terkait |
 | `kegiatan()` | BelongsTo | Kegiatan | Kegiatan terkait |
-| `prestasi()` | BelongsTo | MasterPrestasi | Master prestasi |
 | `poinAddedBy()` | BelongsTo | User | Admin yang menambahkan poin |
 | `verifiedBy()` | BelongsTo | User | User yang memverifikasi |
 
@@ -329,7 +323,7 @@ protected $fillable = [
 **Fillable:**
 ```php
 protected $fillable = [
-    'rpk_id', 'master_kegiatan_id', 'kegiatan', 'judul_kegiatan',
+    'rpk_id', 'kkm_rule_id', 'kegiatan', 'judul_kegiatan',
     'tanggal_mulai', 'tanggal_selesai', 'kategori', 'peran', 'jumlah_anggota',
 ];
 ```
@@ -354,56 +348,12 @@ protected $casts = [
 | `rpk()` | BelongsTo | Rpk | RPK tempat kegiatan ini |
 | `user()` | BelongsTo | User | User yang membuat |
 | `spks()` | HasMany | Spk | SPK dari kegiatan |
-| `masterKegiatan()` | BelongsTo | MasterKegiatan | Master kegiatan |
+| `kkmRule()` | BelongsTo | KkmRule | Aturan KKM terkait |
 | `anggota()` | BelongsToMany | User | Anggota kelompok (via `kegiatan_user`, with pivot `peran`) |
 
 ---
 
-### 4.5 MasterKegiatan Model
-
-**File:** `app/Models/MasterKegiatan.php`
-
-**Deskripsi:** Master jenis kegiatan yang bisa dipilih mahasiswa.
-
-**Fillable:**
-```php
-protected $fillable = ['nama_kegiatan', 'status'];
-```
-
-**Relationships:**
-| Method | Tipe | Model | Keterangan |
-|--------|------|-------|------------|
-| `rpks()` | HasMany | Rpk | RPK yang menggunakan master ini |
-| `kegiatans()` | HasMany | Kegiatan | Kegiatan yang menggunakan master ini |
-
----
-
-### 4.6 MasterPrestasi Model
-
-**File:** `app/Models/MasterPrestasi.php`
-
-**Deskripsi:** Master tingkat prestasi (Juara 1, Juara 2, Harapan 1, dll).
-
-**Fillable:**
-```php
-protected $fillable = ['juare', 'tingkat', 'is_active'];
-```
-
-**Casts:**
-```php
-protected $casts = [
-    'is_active' => 'boolean',
-];
-```
-
-**Methods:**
-| Method | Deskripsi |
-|--------|-----------|
-| `toggleStatus()` | Toggle status aktif/tidak aktif |
-
----
-
-### 4.7 ProgramStudi Model
+### 4.5 ProgramStudi Model
 
 **File:** `app/Models/ProgramStudi.php`
 
@@ -527,8 +477,6 @@ Semua controller mewarisi dari `App\Http\Controllers\Controller` (base controlle
 |-----------|------|-----------|
 | `UserController` | `Admin/UserController.php` | Manajemen user, dosen pembimbing, API data |
 | `UserRoleController` | `Admin/UserRoleController.php` | Update role user |
-| `MasterKegiatanController` | `Admin/MasterKegiatanController.php` | CRUD master kegiatan |
-| `MasterPrestasiController` | `Admin/MasterPrestasiController.php` | CRUD master prestasi, toggle status |
 | `ProgramStudiController` | `Admin/ProgramStudiController.php` | CRUD program studi, toggle status |
 | `RpkController` | `Admin/RpkController.php` | View RPK, update status (override) |
 | `SpkController` | `Admin/SpkController.php` | CRUD SPK, approve/reject, kelola poin |
@@ -854,7 +802,6 @@ resources/views/
 │   ├── spk/
 │   ├── laporan/
 │   ├── kegiatan/
-│   ├── master-prestasi/
 │   └── prodi/
 ├── dosen/
 │   ├── rpk/

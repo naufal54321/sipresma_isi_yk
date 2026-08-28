@@ -14,11 +14,9 @@ class Spk extends Model
         'tanggal_kegiatan',
         'penyelenggara',
         'kategori',
-        'prestasi_id',
-        'hasil',
+        'peran_sifat',
         'judul_kegiatan',
         'poin',
-        'tingkat',
         'url_kegiatan',
         'link_drive',
         'surat_tugas',
@@ -98,9 +96,5 @@ class Spk extends Model
         return $this->belongsTo(User::class, 'verified_by');
     }
 
-    // Relasi ke master prestasi
-    public function prestasi()
-    {
-        return $this->belongsTo(MasterPrestasi::class, 'prestasi_id');
-    }
+
 }

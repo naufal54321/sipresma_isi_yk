@@ -9,7 +9,6 @@ class Rpk extends Model
     protected $fillable = [
         'user_id',
         'dosen_pembimbing_id',
-        'master_kegiatan_id',
         'tahun',
         'semester',
         'status',
@@ -40,11 +39,6 @@ public function kegiatans()
 public function spks()
 {
     return $this->hasMany(Spk::class);
-}
-
-public function masterKegiatan()
-{
-    return $this->belongsTo(MasterKegiatan::class);
 }
 
 public function verifiedBy()

@@ -158,7 +158,7 @@ class RpkController extends Controller
 
         $rpk->load([
             'user',
-            'kegiatans.masterKegiatan',
+            'kegiatans',
             'verifiedBy',
         ]);
 

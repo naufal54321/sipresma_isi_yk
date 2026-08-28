@@ -5,13 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 
 use App\Models\Spk;
+use App\Models\KkmRule;
 use App\Services\DashboardService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SpkStatusNotification;
-use App\Mail\SpkApprovedAdmin;
 
 class SpkController extends Controller
 {
@@ -48,19 +48,41 @@ class SpkController extends Controller
     
     public function show(Spk $spk)
     {
-        $spk->load(['user', 'rpk', 'kegiatan', 'kegiatan.anggota', 'poinAddedBy', 'verifiedBy']);
+        $spk->load(['user', 'rpk', 'kegiatan', 'kegiatan.anggota', 'kegiatan.kkmRule', 'poinAddedBy', 'verifiedBy']);
         
         $totalSpkDisetujui = Spk::where('user_id', $spk->user_id)->where('status', 'disetujui')->count();
         $totalPoin = Spk::where('user_id', $spk->user_id)->where('status', 'disetujui')->sum('poin');
         $riwayatSpk = Spk::where('user_id', $spk->user_id)->where('status', 'disetujui')->where('id', '!=', $spk->id)->latest()->take(5)->get();
+
+        $fileRequirements = [];
+        if ($spk->kegiatan && $spk->kegiatan->kkmRule) {
+            $kkm = $spk->kegiatan->kkmRule;
+            $fileRequirements = \App\Services\FileRequirementService::getRequiredFiles($kkm->bidang, $kkm->jenis_kegiatan, $spk->peran_sifat);
+        }
         
-        return view('admin.spk.show', compact('spk', 'totalSpkDisetujui', 'totalPoin', 'riwayatSpk'));
+        return view('admin.spk.show', compact('spk', 'totalSpkDisetujui', 'totalPoin', 'riwayatSpk', 'fileRequirements'));
     }
     
     public function approve(Request $request, Spk $spk)
     {
         $request->validate(['catatan' => 'nullable|string|max:500']);
-        $spk->update(['status' => 'disetujui', 'catatan_dosen' => $request->catatan ?? 'Disetujui oleh Admin', 'verified_by' => Auth::id(), 'verified_at' => now()]);
+
+        if ($spk->status !== 'draft') {
+            abort(403, 'SPK yang sudah diproses tidak dapat disetujui ulang.');
+        }
+
+        $kkmRule = KkmRule::where('peran', $spk->peran_sifat)->first();
+        $poin = $kkmRule ? $kkmRule->poin : 0;
+
+        $spk->update([
+            'status' => 'disetujui',
+            'poin' => $poin,
+            'poin_added_at' => now(),
+            'poin_added_by' => Auth::id(),
+            'catatan_dosen' => $request->catatan ?? 'Disetujui oleh Admin',
+            'verified_by' => Auth::id(),
+            'verified_at' => now(),
+        ]);
         DashboardService::clearAdminCache();
 
         // ⚡ NOTIFIKASI: Email ke mahasiswa saat admin menyetujui SPK
@@ -69,19 +91,6 @@ class SpkController extends Controller
                 Mail::to($spk->user)->send(new SpkStatusNotification($spk->fresh(), 'disetujui'));
             } catch (\Throwable $e) {
                 Log::warning('Gagal kirim email status SPK disetujui (admin): ' . $e->getMessage());
-            }
-        }
-
-        // ⚡ NOTIFIKASI: Email ke admin lain (kecuali penyetuju) untuk menambahkan poin
-        $admins = \App\Models\User::role('Admin')
-            ->where('id', '!=', Auth::id())
-            ->whereNotNull('email')
-            ->get();
-        if ($admins->isNotEmpty()) {
-            try {
-                Mail::to($admins)->send(new SpkApprovedAdmin($spk->fresh()));
-            } catch (\Throwable $e) {
-                Log::warning('Gagal kirim email SPK disetujui ke admin: ' . $e->getMessage());
             }
         }
         
@@ -94,6 +103,11 @@ class SpkController extends Controller
     public function reject(Request $request, Spk $spk)
     {
         $request->validate(['catatan' => 'required|string|max:500'], ['catatan.required' => 'Alasan penolakan wajib diisi']);
+
+        if ($spk->status !== 'draft') {
+            abort(403, 'SPK yang sudah diproses tidak dapat ditolak ulang.');
+        }
+
         $spk->update(['status' => 'ditolak', 'catatan_dosen' => $request->catatan, 'verified_by' => Auth::id(), 'verified_at' => now()]);
         DashboardService::clearAdminCache();
 
@@ -123,68 +137,6 @@ class SpkController extends Controller
         $spk->delete();
         DashboardService::clearAdminCache();
         return back()->with('success', 'SPK berhasil dihapus');
-    }
-
-    /**
-     * ⚡ Tambah Poin SPK via AJAX (Hanya untuk SPK yang belum ada poin)
-     */
-    public function tambahPoin(Request $request, Spk $spk)
-    {
-        if ($spk->status !== 'disetujui') {
-            return response()->json(['success' => false, 'message' => 'Poin hanya dapat ditambahkan pada SPK yang sudah disetujui.'], 422);
-        }
-
-        if ($spk->poin > 0) {
-            return response()->json(['success' => false, 'message' => 'Poin sudah ditambahkan sebelumnya. Gunakan Edit Poin.'], 422);
-        }
-
-        $validator = validator($request->all(), [
-            'poin' => 'required|integer|min:1|max:100'
-        ], [
-            'poin.required' => 'Jumlah poin harus diisi',
-            'poin.max' => 'Poin maksimal 100'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['success' => false, 'message' => $validator->errors()->first()], 422);
-        }
-
-        $spk->update(['poin' => $request->poin, 'poin_added_at' => now(), 'poin_added_by' => Auth::id()]);
-        DashboardService::clearAdminCache();
-
-        return response()->json([
-            'success' => true,
-            'message' => "Poin sebesar {$request->poin} berhasil ditambahkan!",
-        ]);
-    }
-
-    /**
-     * ⚡ Edit Poin SPK via AJAX (Untuk SPK yang sudah ada poin)
-     */
-    public function editPoin(Request $request, Spk $spk)
-    {
-        if ($spk->status !== 'disetujui') {
-            return response()->json(['success' => false, 'message' => 'SPK harus disetujui untuk edit poin.'], 422);
-        }
-
-        $validator = validator($request->all(), [
-            'poin' => 'required|integer|min:1|max:100'
-        ], [
-            'poin.required' => 'Jumlah poin harus diisi',
-            'poin.max' => 'Poin maksimal 100'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['success' => false, 'message' => $validator->errors()->first()], 422);
-        }
-
-        $spk->update(['poin' => $request->poin, 'poin_added_at' => now(), 'poin_added_by' => Auth::id()]);
-        DashboardService::clearAdminCache();
-
-        return response()->json([
-            'success' => true,
-            'message' => "Poin berhasil diupdate menjadi {$request->poin}!",
-        ]);
     }
 }
 

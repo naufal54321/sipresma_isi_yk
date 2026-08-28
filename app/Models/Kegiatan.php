@@ -8,11 +8,12 @@ class Kegiatan extends Model
 {
     protected $fillable = [
         'rpk_id',
-        'master_kegiatan_id',
+        'kkm_rule_id',
+        'poin_kkm',
         'kegiatan',
         'judul_kegiatan',
-        'tanggal_mulai',      // ⚡ UBAH: dari 'tanggal' ke 'tanggal_mulai'
-        'tanggal_selesai',    // ⚡ TAMBAH: 'tanggal_selesai'
+        'tanggal_mulai',
+        'tanggal_selesai',
         'kategori',
         'peran',
         'jumlah_anggota',
@@ -75,9 +76,9 @@ class Kegiatan extends Model
         return $this->hasMany(Spk::class);
     }
 
-    public function masterKegiatan()
+    public function kkmRule()
     {
-        return $this->belongsTo(MasterKegiatan::class);
+        return $this->belongsTo(KkmRule::class);
     }
 
     public function anggota()

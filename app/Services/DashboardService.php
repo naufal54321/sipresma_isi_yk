@@ -13,7 +13,7 @@ class DashboardService
     public static function clearAdminCache()
     {
         Cache::forget('admin.stats');
-        Cache::forget('admin.tingkat');
+        Cache::forget('admin.ruangLingkup');
         Cache::forget('admin.kategori');
     }
 
@@ -42,19 +42,17 @@ class DashboardService
         });
     }
 
-    public function getAdminTingkatChart()
+    public function getAdminRuangLingkupChart()
     {
-        return Cache::remember('admin.tingkat', 300, function () {
+        return Cache::remember('admin.ruangLingkup', 300, function () {
             $data = Spk::where('status', 'disetujui')
-                ->selectRaw("SUM(CASE WHEN tingkat = 'Universitas' THEN 1 ELSE 0 END) as universitas, SUM(CASE WHEN tingkat = 'Regional' THEN 1 ELSE 0 END) as regional, SUM(CASE WHEN tingkat = 'Nasional' THEN 1 ELSE 0 END) as nasional, SUM(CASE WHEN tingkat = 'Internasional' THEN 1 ELSE 0 END) as internasional")
-                ->first();
+                ->join('kegiatans', 'spks.kegiatan_id', '=', 'kegiatans.id')
+                ->join('kkm_rules', 'kegiatans.kkm_rule_id', '=', 'kkm_rules.id')
+                ->selectRaw("kkm_rules.ruang_lingkup, COUNT(*) as total")
+                ->groupBy('kkm_rules.ruang_lingkup')
+                ->pluck('total', 'ruang_lingkup');
 
-            return [
-                'universitas' => $data->universitas ?? 0,
-                'regional' => $data->regional ?? 0,
-                'nasional' => $data->nasional ?? 0,
-                'internasional' => $data->internasional ?? 0,
-            ];
+            return $data;
         });
     }
 
@@ -269,7 +267,55 @@ class DashboardService
             ->where('user_id', '!=', $userId)
             ->sum('poin');
 
-        $totalPoin = $poinSendiri + $poinAnggota;
+        $poinProfesional = Spk::where('status', 'disetujui')
+            ->join('kegiatans', 'spks.kegiatan_id', '=', 'kegiatans.id')
+            ->join('kkm_rules', 'kegiatans.kkm_rule_id', '=', 'kkm_rules.id')
+            ->where('kkm_rules.bidang', 'Bidang Orientasi Kompetensi Profesional')
+            ->where(function ($q) use ($userId) {
+                $q->where('spks.user_id', $userId)
+                   ->orWhere(function ($q2) use ($userId) {
+                       $q2->where('spks.user_id', '!=', $userId)
+                          ->whereHas('kegiatan.anggota', fn($a) => $a->where('user_id', $userId));
+                   });
+            })
+            ->sum('spks.poin');
+
+        $poinKepribadian = Spk::where('status', 'disetujui')
+            ->join('kegiatans', 'spks.kegiatan_id', '=', 'kegiatans.id')
+            ->join('kkm_rules', 'kegiatans.kkm_rule_id', '=', 'kkm_rules.id')
+            ->where('kkm_rules.bidang', 'Bidang Kompetensi Kepribadian dan Sosial')
+            ->where(function ($q) use ($userId) {
+                $q->where('spks.user_id', $userId)
+                   ->orWhere(function ($q2) use ($userId) {
+                       $q2->where('spks.user_id', '!=', $userId)
+                          ->whereHas('kegiatan.anggota', fn($a) => $a->where('user_id', $userId));
+                   });
+            })
+            ->sum('spks.poin');
+
+        $totalPoin = $poinProfesional + $poinKepribadian;
+
+        if ($poinProfesional >= 25 && $poinKepribadian >= 25 && $totalPoin >= 50) {
+            $syaratTerpenuhi = true;
+            if ($totalPoin > 150) {
+                $predikat = 'Unggul';
+                $predikatColor = 'emerald';
+            } elseif ($totalPoin >= 100) {
+                $predikat = 'Sangat Baik';
+                $predikatColor = 'blue';
+            } elseif ($totalPoin >= 75) {
+                $predikat = 'Baik';
+                $predikatColor = 'amber';
+            } else {
+                $predikat = 'Cukup';
+                $predikatColor = 'orange';
+            }
+        } else {
+            $syaratTerpenuhi = false;
+            $predikat = 'Belum Memenuhi Syarat';
+            $predikatColor = 'red';
+        }
+
         $totalKegiatan = $rpkDisetujui + $spkDisetujui;
         $jumlahDitolak = $rpkDitolak + $spkDitolak;
         $totalSemua = $totalKegiatan + $jumlahDitolak;
@@ -281,6 +327,11 @@ class DashboardService
             'spkDraft' => $spkDraft,
             'spkDisetujui' => $spkDisetujui,
             'totalPoin' => $totalPoin,
+            'poinProfesional' => $poinProfesional,
+            'poinKepribadian' => $poinKepribadian,
+            'syaratTerpenuhi' => $syaratTerpenuhi,
+            'predikat' => $predikat,
+            'predikatColor' => $predikatColor,
             'totalKegiatan' => $totalKegiatan,
             'persentase' => $persentase,
             'jumlahDitolak' => $jumlahDitolak,
@@ -290,14 +341,16 @@ class DashboardService
         ];
     }
 
-    public function getMahasiswaTingkatChart($userId)
+    public function getMahasiswaRuangLingkupChart($userId)
     {
-        return [
-            'universitas' => Spk::where('user_id', $userId)->where('status', 'disetujui')->where('tingkat', 'Universitas')->count(),
-            'regional' => Spk::where('user_id', $userId)->where('status', 'disetujui')->where('tingkat', 'Regional')->count(),
-            'nasional' => Spk::where('user_id', $userId)->where('status', 'disetujui')->where('tingkat', 'Nasional')->count(),
-            'internasional' => Spk::where('user_id', $userId)->where('status', 'disetujui')->where('tingkat', 'Internasional')->count(),
-        ];
+        $data = Spk::where('spks.user_id', $userId)->where('spks.status', 'disetujui')
+            ->join('kegiatans', 'spks.kegiatan_id', '=', 'kegiatans.id')
+            ->join('kkm_rules', 'kegiatans.kkm_rule_id', '=', 'kkm_rules.id')
+            ->selectRaw("kkm_rules.ruang_lingkup, COUNT(*) as total")
+            ->groupBy('kkm_rules.ruang_lingkup')
+            ->pluck('total', 'ruang_lingkup');
+
+        return $data;
     }
 
     public function getMahasiswaKategoriChart($userId)

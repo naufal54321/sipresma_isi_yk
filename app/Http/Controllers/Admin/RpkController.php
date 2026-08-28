@@ -47,9 +47,22 @@ class RpkController extends Controller
 
         $rpks = $query->latest()->paginate(10)->withQueryString();
         
-        $dosens = User::role('Dosen')->orderBy('name')->get();
+        $dosens = User::role('Dosen')->where('status', 'aktif')->orderBy('name')->get();
 
         return view('admin.rpk.index', compact('rpks', 'dosens'));
+    }
+
+    public function dosenList()
+    {
+        $dosens = User::role('Dosen')
+            ->where('status', 'aktif')
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return response()->json($dosens->map(fn($d) => [
+            'id' => (string) $d->id,
+            'name' => $d->name,
+        ]));
     }
 
     public function show(Rpk $rpk)

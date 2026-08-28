@@ -89,11 +89,11 @@
                         @endforeach
                     </select>
 
-                    <select name="tingkat" class="w-full md:w-44 border border-slate-300 rounded-xl px-4 py-2.5 text-sm">
-                        <option value="">Semua Tingkat</option>
-                        @foreach($tingkatList as $tingkat)
-                            <option value="{{ $tingkat }}" {{ request('tingkat') == $tingkat ? 'selected' : '' }}>
-                                {{ $tingkat }}
+                    <select name="ruang_lingkup" class="w-full md:w-44 border border-slate-300 rounded-xl px-4 py-2.5 text-sm">
+                        <option value="">Semua Ruang Lingkup</option>
+                        @foreach($ruangLingkupList as $rl)
+                            <option value="{{ $rl }}" {{ request('ruang_lingkup') == $rl ? 'selected' : '' }}>
+                                {{ $rl }}
                             </option>
                         @endforeach
                     </select>
@@ -102,7 +102,7 @@
                         <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition w-full md:w-auto whitespace-nowrap">
                             Filter
                         </button>
-                        @if(request('search') || request('tahun') || request('fakultas') || request('prodi') || request('tingkat'))
+                        @if(request('search') || request('tahun') || request('fakultas') || request('prodi') || request('ruang_lingkup'))
                             <a href="{{ route('dosen.laporan.index') }}" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center w-full md:w-auto whitespace-nowrap">
                                 Reset
                             </a>
@@ -123,8 +123,8 @@
                             <th class="px-6 py-4">Fakultas</th>
                             <th class="px-6 py-4">Judul Kegiatan</th>
                             <th class="px-6 py-4">Nama Kegiatan</th>
-                            <th class="px-6 py-4">Tingkat</th>
-                            <th class="px-6 py-4">Hasil</th>
+                            <th class="px-6 py-4">Ruang Lingkup</th>
+                            <th class="px-6 py-4">Peran/Sifat</th>
                             <th class="px-6 py-4 text-center">Poin</th>
                             <th class="px-6 py-4">Tanggal</th>
                         </tr>
@@ -158,15 +158,16 @@
                                 {{ $item->kegiatan->kegiatan ?? '-' }}
                                 <div class="text-xs text-slate-400 font-normal mt-0.5">{{ $item->penyelenggara ?? '-' }} ({{ $item->tahun }})</div>
                             </td>
+                            {{-- ⚡ RUANG LINGKUP DARI KKM RULE --}}
                             <td class="px-6 py-4">
-                                @if($item->tingkat)
-                                    <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">{{ $item->tingkat }}</span>
+                                <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">{{ $item->kegiatan?->kkmRule?->ruang_lingkup ?? '-' }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                @if($item->peran_sifat)
+                                    <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">{{ $item->peran_sifat }}</span>
                                 @else
                                     <span class="text-gray-400">-</span>
                                 @endif
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ $item->hasil ?? '-' }}
                             </td>
                             <td class="px-6 py-4 text-center font-bold text-blue-600">
                                 {{ $item->poin ?? 0 }}
@@ -177,7 +178,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="11" class="text-center py-12">
+                            <td colspan="12" class="text-center py-12">
                                 <div class="flex flex-col items-center justify-center text-slate-400">
                                     <i class="fas fa-folder-open text-4xl mb-3 text-slate-300"></i>
                                     <p class="font-medium text-sm">Tidak ada data prestasi mahasiswa bimbingan.</p>

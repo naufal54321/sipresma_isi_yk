@@ -237,33 +237,28 @@ document.addEventListener('DOMContentLoaded', () => {
         wrapper.style.transition = 'opacity 0.12s';
         wrapper.style.opacity = '0';
         wrapper.innerHTML = newWrapper.innerHTML;
+
+        // Jalankan ulang script inline SEBELUM Alpine init agar data (window.dosenList, dll) tersedia
+        wrapper.querySelectorAll('script:not([src])').forEach(oldScript => {
+            const newScript = document.createElement('script');
+            Array.from(oldScript.attributes).forEach(attr => {
+                newScript.setAttribute(attr.name, attr.value);
+            });
+            newScript.textContent = oldScript.textContent;
+            oldScript.replaceWith(newScript);
+        });
+
         if (window.Alpine) Alpine.initTree(wrapper);
 
         // Reset mobile sidebar setelah navigasi
         if (window.Alpine) { const b = Alpine.$data(document.body); if (b) b.mobileOpen = false; }
 
-        // Tunggu render DOM + Alpine selesai, baru eksekusi script
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                // Jalankan ulang script inline di konten
-                wrapper.querySelectorAll('script:not([src])').forEach(oldScript => {
-                    const newScript = document.createElement('script');
-                    Array.from(oldScript.attributes).forEach(attr => {
-                        newScript.setAttribute(attr.name, attr.value);
-                    });
-                    newScript.textContent = oldScript.textContent;
-                    oldScript.replaceWith(newScript);
-                });
-
-                // Beri waktu script inline jalan, baru trigger event + fix datepicker
-                setTimeout(() => {
-                    document.dispatchEvent(new CustomEvent('content-updated'));
-                    initCharts();
-                    initDatepickers();
-                    wrapper.style.opacity = '1';
-                }, 100);
-            });
-        });
+        setTimeout(() => {
+            document.dispatchEvent(new CustomEvent('content-updated'));
+            initCharts();
+            initDatepickers();
+            wrapper.style.opacity = '1';
+        }, 50);
 
         return true;
     }
@@ -345,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const urlPlotting = '{{ url("admin/rpk") }}';
     const csrf = '{{ csrf_token() }}';
 
-    window.bukaModalPlotting = function(button) {
+    window.bukaModalPlotting = async function(button) {
         if (typeof Swal === 'undefined') {
             setTimeout(() => window.bukaModalPlotting(button), 100);
             return;
@@ -354,7 +349,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const namaMahasiswa = button.getAttribute('data-nama');
         const currentDosenId = button.getAttribute('data-dosen-id');
         const inputCls = 'w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring focus:ring-blue-200';
-        const dosens = window.dosenList || [];
+
+        let dosens = [];
+        try {
+            const res = await fetch('{{ route("admin.dosen-list") }}', {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            dosens = await res.json();
+        } catch (e) {
+            dosens = window.dosenList || [];
+        }
 
         let html = `
             <div class="text-left">

@@ -19,17 +19,6 @@
                 Kembali
             </a>
 
-            {{-- ⚡ TOMBOL TAMBAH POIN - MUNCUL JIKA SPK DISETUJUI & BELUM ADA POIN --}}
-            @if($spk->status === 'disetujui' && !$spk->hasPoin())
-                <button onclick="tambahPoinSweetAlert({{ $spk->id }}, '{{ addslashes($spk->judul_kegiatan) }}')"
-                        class="inline-flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition cursor-pointer w-full sm:w-auto">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                    Tambah Poin
-                </button>
-            @endif
-
             @if($spk->status == 'draft')
                 <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
                     <button onclick="approveSpk({{ $spk->id }})"
@@ -158,23 +147,16 @@
                 </div>
             </div>
 
-            {{-- ⚡ INFORMASI POIN (DENGAN EDIT) --}}
+            {{-- ⚡ INFORMASI POIN --}}
                     <div class="pt-3 border-t border-gray-200">
                         <span class="text-sm font-bold text-gray-600">Poin</span>
                         <div class="mt-2">
                             @if($spk->status === 'disetujui')
                                 @if($spk->hasPoin())
                                     <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                                        <div class="flex items-center justify-between">
-                                            <div class="flex items-center gap-2">
-                                                <span class="text-2xl font-bold text-yellow-600">{{ $spk->poin }}</span>
-                                                <span class="text-sm text-gray-600">Poin</span>
-                                            </div>
-                                            {{-- ⚡ TOMBOL EDIT POIN --}}
-                                            <button onclick="editPoin({{ $spk->id }}, {{ $spk->poin }}, '{{ addslashes($spk->judul_kegiatan ?? $spk->kegiatan?->judul_kegiatan ?? '') }}')"
-                                                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer">
-                                                <i class="fas fa-pen mr-1"></i> Edit
-                                            </button>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-2xl font-bold text-yellow-600">{{ $spk->poin }}</span>
+                                            <span class="text-sm text-gray-600">Poin</span>
                                         </div>
                                         @if($spk->poin_added_at)
                                         <p class="text-xs text-gray-500 mt-2">
@@ -184,10 +166,7 @@
                                         @endif
                                     </div>
                                 @else
-                                    <button onclick="tambahPoinSweetAlert({{ $spk->id }}, '{{ addslashes($spk->judul_kegiatan ?? $spk->kegiatan->judul_kegiatan ?? '') }}')"
-                                            class="w-full bg-yellow-500 hover:bg-yellow-400 text-white px-4 py-2 rounded-lg text-sm font-semibold transition cursor-pointer">
-                                        <i class="fas fa-plus-circle mr-1"></i> Tambah Poin
-                                    </button>
+                                    <span class="text-sm text-gray-400">- (Poin otomatis dari kegiatan)</span>
                                 @endif
                             @else
                                 <span class="text-sm text-gray-400">- (SPK belum disetujui)</span>
@@ -260,9 +239,15 @@
 
                         {{-- Card Grid --}}
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-6">
+                            {{-- Bidang --}}
+                            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-50 transition-all duration-300 md:col-span-2">
+                                <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Bidang</p>
+                                <p class="text-sm font-semibold text-gray-800 leading-relaxed">{{ $spk->kegiatan->kkmRule->bidang ?? '-' }}</p>
+                            </div>
+
                             {{-- Nama Kegiatan --}}
                             <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-50 transition-all duration-300 md:col-span-2">
-                                <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Nama Kegiatan</p>
+                                <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Jenis Kegiatan</p>
                                 <p class="text-sm font-semibold text-gray-800 leading-relaxed">{{ $spk->kegiatan->kegiatan ?? '-' }}</p>
                             </div>
 
@@ -291,18 +276,18 @@
                                 </p>
                             </div>
 
-                            {{-- Tingkat Kegiatan --}}
+                            {{-- Ruang Lingkup --}}
                             <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-50 transition-all duration-300">
                                 <div class="flex items-center gap-2 mb-2">
                                     <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
                                     </svg>
-                                    <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Tingkat Kegiatan</p>
+                                    <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Ruang Lingkup</p>
                                 </div>
                                 <div>
-                                    @if($spk->tingkat)
+                                    @if($spk->kegiatan?->kkmRule?->ruang_lingkup)
                                         <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100">
-                                            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>{{ $spk->tingkat }}
+                                            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>{{ $spk->kegiatan->kkmRule->ruang_lingkup }}
                                         </span>
                                     @else
                                         <span class="text-sm text-gray-400">-</span>
@@ -331,15 +316,15 @@
                                 </div>
                             </div>
 
-                            {{-- Hasil / Prestasi --}}
+                            {{-- Peran / Sifat --}}
                             <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-50 transition-all duration-300">
                                 <div class="flex items-center gap-2 mb-2">
                                     <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
                                     </svg>
-                                    <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Hasil / Prestasi</p>
+                                    <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Peran / Sifat</p>
                                 </div>
-                                <p class="text-sm font-semibold text-gray-800">{{ $spk->hasil ?? '-' }}</p>
+                                <p class="text-sm font-semibold text-gray-800">{{ $spk->peran_sifat ?? '-' }}</p>
                             </div>
 
                             {{-- Poin --}}
@@ -373,9 +358,17 @@
                                     </svg>
                                     <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Dokumen</p>
                                 </div>
-                                <p class="text-sm font-semibold text-emerald-600 flex items-center gap-1.5">
-                                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>Tersedia (Lihat tab Dokumen)
-                                </p>
+                                @if(!empty($fileRequirements))
+                                <div class="flex flex-wrap gap-1.5">
+                                    @foreach($fileRequirements as $f)
+                                    <span class="inline-flex items-center gap-1 text-xs font-semibold {{ $spk->{$f['col']} ? 'text-emerald-600' : 'text-gray-400' }}">
+                                        <span class="w-1.5 h-1.5 {{ $spk->{$f['col']} ? 'bg-emerald-500' : 'bg-gray-300' }} rounded-full"></span>{{ $f['label'] }}
+                                    </span>
+                                    @endforeach
+                                </div>
+                                @else
+                                <p class="text-sm text-gray-400 italic">Tidak ada dokumen wajib</p>
+                                @endif
                             </div>
 
                             {{-- ⚡ BIOGRAFI --}}
@@ -476,121 +469,53 @@
                         </h3>
                         
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
-                            {{-- Surat Tugas --}}
+                            @php
+                            $colorMap = ['surat_tugas' => 'blue', 'sertifikat' => 'yellow', 'foto_penyerahan' => 'purple', 'laporan' => 'orange'];
+                            $iconMap = ['surat_tugas' => 'fa-file-contract', 'sertifikat' => 'fa-certificate', 'foto_penyerahan' => 'fa-certificate', 'laporan' => 'fa-file-alt'];
+                            $emptyIconMap = ['surat_tugas' => 'fa-file-pdf', 'sertifikat' => 'fa-image', 'foto_penyerahan' => 'fa-file', 'laporan' => 'fa-file-alt'];
+                            @endphp
+                            @foreach($fileRequirements as $f)
+                            @php $color = $colorMap[$f['col']] ?? 'gray'; @endphp
                             <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                                <div class="px-4 py-3 bg-gradient-to-r from-blue-50 to-blue-100/50 border-b border-gray-200 flex justify-between items-center">
+                                <div class="px-4 py-3 bg-gradient-to-r from-{{ $color }}-50 to-{{ $color }}-100/50 border-b border-gray-200 flex justify-between items-center">
                                     <h4 class="text-sm font-extrabold text-gray-800 flex items-center gap-2">
-                                        <span class="w-7 h-7 bg-blue-500 rounded-lg flex items-center justify-center">
-                                            <i class="fas fa-file-contract text-white text-xs"></i>
+                                        <span class="w-7 h-7 bg-{{ $color }}-500 rounded-lg flex items-center justify-center">
+                                            <i class="fas {{ $iconMap[$f['col']] ?? 'fa-file' }} text-white text-xs"></i>
                                         </span>
-                                        Surat Tugas
+                                        {{ $f['label'] }}
                                     </h4>
-                                    @if($spk->surat_tugas)
-                                    <a href="{{ asset('storage/' . $spk->surat_tugas) }}" target="_blank" 
-                                    class="inline-flex items-center gap-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                                    @if($spk->{$f['col']})
+                                    <a href="{{ asset('storage/' . $spk->{$f['col']}) }}" target="_blank" 
+                                    class="inline-flex items-center gap-1 bg-{{ $color }}-500 hover:bg-{{ $color }}-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
                                         <i class="fas fa-eye"></i> Tinjau
                                     </a>
                                     @endif
                                 </div>
-                                <div class="bg-gray-100 min-h-[250px] relative">
-                                    @if($spk->surat_tugas)
-                                        <div data-pdf-preview="{{ asset('storage/' . $spk->surat_tugas) }}" data-pdf-fallback="{{ asset('storage/' . $spk->surat_tugas) }}" class="w-full min-h-[250px] flex items-center justify-center p-3"></div>
-                                    @else
-                                        <div class="flex flex-col items-center justify-center h-[250px] text-gray-400">
-                                            <i class="fas fa-file-pdf text-4xl mb-2 text-gray-300"></i>
-                                            <span class="text-sm font-medium">Belum diupload</span>
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-
-                            {{-- Sertifikat / Foto Piala --}}
-                            <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                                <div class="px-4 py-3 bg-gradient-to-r from-yellow-50 to-yellow-100/50 border-b border-gray-200 flex justify-between items-center">
-                                    <h4 class="text-sm font-extrabold text-gray-800 flex items-center gap-2">
-                                        <span class="w-7 h-7 bg-yellow-500 rounded-lg flex items-center justify-center">
-                                            <i class="fas fa-certificate text-white text-xs"></i>
-                                        </span>
-                                        Sertifikat / Foto Piala
-                                    </h4>
-                                    @if($spk->sertifikat)
-                                    <a href="{{ asset('storage/' . $spk->sertifikat) }}" target="_blank" 
-                                    class="inline-flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
-                                        <i class="fas fa-eye"></i> Tinjau
-                                    </a>
-                                    @endif
-                                </div>
-                                <div class="bg-gray-100 min-h-[250px] flex items-center justify-center">
-                                    @if($spk->sertifikat)
-                                        @if(in_array(pathinfo($spk->sertifikat, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
-                                            <img src="{{ asset('storage/' . $spk->sertifikat) }}" class="max-w-full max-h-[350px] object-contain rounded-lg">
+                                <div class="bg-gray-100 min-h-[250px] {{ in_array($f['col'], ['sertifikat', 'foto_penyerahan']) ? 'flex items-center justify-center' : '' }}">
+                                    @if($spk->{$f['col']})
+                                        @if($f['col'] === 'sertifikat' && in_array(pathinfo($spk->{$f['col']}, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
+                                            <img src="{{ asset('storage/' . $spk->{$f['col']}) }}" class="max-w-full max-h-[350px] object-contain rounded-lg">
+                                        @elseif($f['col'] === 'foto_penyerahan' && in_array(pathinfo($spk->{$f['col']}, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
+                                            <img src="{{ asset('storage/' . $spk->{$f['col']}) }}" class="max-w-full max-h-[350px] object-contain rounded-lg">
                                         @else
-                                            <div data-pdf-preview="{{ asset('storage/' . $spk->sertifikat) }}" data-pdf-fallback="{{ asset('storage/' . $spk->sertifikat) }}" class="w-full min-h-[250px] flex items-center justify-center p-3"></div>
+                                            <div data-pdf-preview="{{ asset('storage/' . $spk->{$f['col']}) }}" data-pdf-fallback="{{ asset('storage/' . $spk->{$f['col']}) }}" class="w-full min-h-[250px] flex items-center justify-center p-3"></div>
                                         @endif
                                     @else
                                         <div class="flex flex-col items-center justify-center h-[250px] text-gray-400">
-                                            <i class="fas fa-image text-4xl mb-2 text-gray-300"></i>
+                                            <i class="fas {{ $emptyIconMap[$f['col']] ?? 'fa-file' }} text-4xl mb-2 text-gray-300"></i>
                                             <span class="text-sm font-medium">Belum diupload</span>
                                         </div>
                                     @endif
                                 </div>
                             </div>
+                            @endforeach
 
-                            {{-- Foto Penyerahan --}}
-                            <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                                <div class="px-4 py-3 bg-gradient-to-r from-purple-50 to-purple-100/50 border-b border-gray-200 flex justify-between items-center">
-                                    <h4 class="text-sm font-extrabold text-gray-800 flex items-center gap-2">
-                                        <span class="w-7 h-7 bg-purple-500 rounded-lg flex items-center justify-center">
-                                            <i class="fas fa-camera text-white text-xs"></i>
-                                        </span>
-                                        Foto Penyerahan Piagam
-                                    </h4>
-                                    @if($spk->foto_penyerahan)
-                                    <a href="{{ asset('storage/' . $spk->foto_penyerahan) }}" target="_blank" 
-                                    class="inline-flex items-center gap-1 bg-purple-500 hover:bg-purple-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
-                                        <i class="fas fa-eye"></i> Tinjau
-                                    </a>
-                                    @endif
-                                </div>
-                                <div class="bg-gray-100 min-h-[250px] flex items-center justify-center">
-                                    @if($spk->foto_penyerahan)
-                                        <img src="{{ asset('storage/' . $spk->foto_penyerahan) }}" class="max-w-full max-h-[350px] object-contain rounded-lg">
-                                    @else
-                                        <div class="flex flex-col items-center justify-center h-[250px] text-gray-400">
-                                            <i class="fas fa-camera-retro text-4xl mb-2 text-gray-300"></i>
-                                            <span class="text-sm font-medium">Belum diupload</span>
-                                        </div>
-                                    @endif
-                                </div>
+                            @if(empty($fileRequirements))
+                            <div class="col-span-full flex flex-col items-center justify-center py-12 text-gray-400">
+                                <i class="fas fa-folder-open text-4xl mb-3 text-gray-300"></i>
+                                <span class="text-sm font-medium">Tidak ada dokumen wajib untuk peran/sifat ini</span>
                             </div>
-
-                            {{-- Laporan --}}
-                            <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                                <div class="px-4 py-3 bg-gradient-to-r from-orange-50 to-orange-100/50 border-b border-gray-200 flex justify-between items-center">
-                                    <h4 class="text-sm font-extrabold text-gray-800 flex items-center gap-2">
-                                        <span class="w-7 h-7 bg-orange-500 rounded-lg flex items-center justify-center">
-                                            <i class="fas fa-file-alt text-white text-xs"></i>
-                                        </span>
-                                        Laporan (Format Template)
-                                    </h4>
-                                    @if($spk->laporan)
-                                    <a href="{{ asset('storage/' . $spk->laporan) }}" target="_blank" 
-                                    class="inline-flex items-center gap-1 bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
-                                        <i class="fas fa-eye"></i> Tinjau
-                                    </a>
-                                    @endif
-                                </div>
-                                <div class="bg-gray-100 min-h-[250px] relative">
-                                    @if($spk->laporan)
-                                        <div data-pdf-preview="{{ asset('storage/' . $spk->laporan) }}" data-pdf-fallback="{{ asset('storage/' . $spk->laporan) }}" class="w-full min-h-[250px] flex items-center justify-center p-3"></div>
-                                    @else
-                                        <div class="flex flex-col items-center justify-center h-[250px] text-gray-400">
-                                            <i class="fas fa-file-alt text-4xl mb-2 text-gray-300"></i>
-                                            <span class="text-sm font-medium">Belum diupload</span>
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
+                            @endif
                         </div>
                     </div>
 
@@ -665,130 +590,6 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-// ⚡ FUNGSI TAMBAH POIN DENGAN SWEET ALERT
-window.tambahPoinSweetAlert = function(spkId, judulKegiatan) {
-    Swal.fire({
-        title: 'Tambah Poin SPK',
-        html: `
-            <div class="text-left">
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                    <p class="text-sm text-blue-800">
-                        <strong>Judul Kegiatan:</strong><br>
-                        ${judulKegiatan}
-                    </p>
-                </div>
-                <div class="mb-4">
-                    <label for="swal-poin" class="block text-sm font-bold text-gray-700 mb-2">
-                        Jumlah Poin <span class="text-red-500">*</span>
-                    </label>
-                    <div class="flex rounded-lg shadow-sm">
-                        <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-yellow-50 text-yellow-600">
-                            
-                        </span>
-                        <input type="number" 
-                               id="swal-poin" 
-                               class="flex-1 block w-full rounded-none rounded-r-lg border border-gray-300 px-4 py-2 text-gray-900 focus:ring-yellow-500 focus:border-yellow-500" 
-                               placeholder="" 
-                               min="1" 
-                               max="100"
-                               value="1"
-                               required>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-1">Masukkan poin</p>
-                </div>
-            </div>
-        `,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#eab308',
-        cancelButtonColor: '#6b7280',
-        confirmButtonText: 'Simpan Poin',
-        cancelButtonText: 'Batal',
-        customClass: {
-            confirmButton: 'rounded-lg px-6 py-2 font-semibold',
-            cancelButton: 'rounded-lg px-6 py-2 font-semibold'
-        },
-        didOpen: () => {
-            setTimeout(() => {
-                document.getElementById('swal-poin').focus();
-            }, 100);
-        },
-        preConfirm: () => {
-            const poin = document.getElementById('swal-poin').value;
-            
-            if (!poin || poin < 1 || poin > 100) {
-                Swal.showValidationMessage('Poin harus diisi antara 1 - 100');
-                return false;
-            }
-            
-            return poin;
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const poin = result.value;
-            
-            // Tampilkan loading
-            Swal.fire({
-                title: 'Menyimpan Poin...',
-                text: 'Sedang memproses penambahan poin',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-            
-            // Kirim request AJAX
-            fetch("{{ route('admin.spk.tambah-poin', ':id') }}".replace(':id', spkId), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ poin: poin })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil!',
-                        text: data.message,
-                        showConfirmButton: true,
-                        timer: 3000
-                    }).then(() => {
-                        // Reload halaman
-                        location.reload();
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal!',
-                        text: data.message || 'Terjadi kesalahan'
-                    });
-                }
-            })
-            .catch(error => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal!',
-                    text: 'Terjadi kesalahan saat menyimpan poin'
-                });
-            });
-        }
-    });
-};
-
-// Validasi input poin di Sweet Alert
-document.addEventListener('input', function(e) {
-    if (e.target.id === 'swal-poin') {
-        let val = parseInt(e.target.value);
-        if (isNaN(val)) val = 1;
-        if (val < 1) e.target.value = 1;
-        if (val > 100) e.target.value = 100;
-    }
-});
-
 // ⚡ FUNGSI TAB (Tetap seperti sebelumnya)
 window.geserTab = function(index) {
     var container = document.getElementById('tab-content-container');
@@ -831,6 +632,14 @@ window.approveSpk = function(id) {
         cancelButtonText: 'Batal'
     }).then((result) => {
         if(result.isConfirmed) {
+            Swal.fire({
+                title: 'Memproses...',
+                text: 'Mengirim notifikasi email...',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => Swal.showLoading()
+            });
+
             fetch("{{ route('admin.spk.approve', ':id') }}".replace(':id', id), {
                 method: 'POST',
                 headers: {
@@ -875,6 +684,14 @@ window.rejectSpk = function(id) {
         }
     }).then((result) => {
         if(result.isConfirmed) {
+            Swal.fire({
+                title: 'Memproses...',
+                text: 'Mengirim notifikasi email...',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => Swal.showLoading()
+            });
+
             fetch("{{ route('admin.spk.reject', ':id') }}".replace(':id', id), {
                 method: 'POST',
                 headers: {
@@ -903,93 +720,6 @@ window.rejectSpk = function(id) {
         }
     });
 };
-
-// ⚡ TAMBAH POIN
-function tambahPoin(spkId, judulKegiatan) {
-    Swal.fire({
-        title: 'Tambah Poin SPK',
-        html: `
-            <div class="text-left">
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                    <p class="text-sm text-blue-800"><strong>Judul:</strong><br>${judulKegiatan}</p>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Jumlah Poin <span class="text-red-500">*</span></label>
-                    <input type="number" id="swal-poin" class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm" placeholder="Masukkan poin (1-100)" min="1" max="100" value="1" required>
-                </div>
-            </div>
-        `,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#eab308',
-        cancelButtonColor: '#6b7280',
-        confirmButtonText: '💾 Simpan Poin',
-        cancelButtonText: '❌ Batal',
-        didOpen: () => { setTimeout(() => document.getElementById('swal-poin').focus(), 100); },
-        preConfirm: () => {
-            const poin = document.getElementById('swal-poin').value;
-            if (!poin || poin < 1 || poin > 100) { Swal.showValidationMessage('Poin harus diisi antara 1 - 100'); return false; }
-            return poin;
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            fetch("{{ route('admin.spk.tambah-poin', ':id') }}".replace(':id', spkId), {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                body: JSON.stringify({ poin: result.value })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) { Swal.fire({ icon: 'success', title: 'Berhasil!', text: data.message, timer: 2000, showConfirmButton: false }).then(() => location.reload()); }
-                else Swal.fire({ icon: 'error', title: 'Gagal!', text: data.message });
-            });
-        }
-    });
-}
-
-// ⚡ EDIT POIN
-function editPoin(spkId, poinSekarang, judulKegiatan) {
-    Swal.fire({
-        title: 'Edit Poin SPK',
-        html: `
-            <div class="text-left">
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                    <p class="text-sm text-blue-800"><strong>Judul:</strong><br>${judulKegiatan}</p>
-                    <p class="text-sm text-blue-800 mt-1"><strong>Poin Saat Ini:</strong> ${poinSekarang}</p>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Jumlah Poin Baru <span class="text-red-500">*</span></label>
-                    <input type="number" id="swal-poin" class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm" min="1" max="100" value="${poinSekarang}" required>
-                </div>
-            </div>
-        `,
-        showCancelButton: true,
-        confirmButtonColor: '#3b82f6',
-        confirmButtonText: 'Update Poin',
-        preConfirm: () => {
-            const poin = document.getElementById('swal-poin').value;
-            if (!poin || poin < 1 || poin > 100) { Swal.showValidationMessage('Poin harus 1-100'); return false; }
-            return poin;
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            Swal.fire({ title: 'Mengupdate...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            
-            // ⚡ PAKAI ROUTE edit-poin
-            fetch("{{ route('admin.spk.edit-poin', ':id') }}".replace(':id', spkId), {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
-                body: JSON.stringify({ poin: result.value })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) { Swal.fire({ icon: 'success', title: 'Berhasil!', text: data.message, timer: 2000 }).then(() => location.reload()); }
-                else Swal.fire({ icon: 'error', title: 'Gagal!', text: data.message });
-            });
-        }
-    });
-}
 </script>
 
 </x-app-layout>

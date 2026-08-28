@@ -86,12 +86,12 @@
                             @endforeach
                         </select>
 
-                        {{-- 🔧 TINGKAT DARI DATABASE --}}
-                        <select name="tingkat" class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition-shadow text-slate-600">
-                            <option value="">Semua Tingkat</option>
-                            @foreach($tingkatList as $tingkat)
-                                <option value="{{ $tingkat }}" {{ request('tingkat') == $tingkat ? 'selected' : '' }}>
-                                    {{ $tingkat }}
+                        {{-- 🔧 RUANG LINGKUP DARI DATABASE --}}
+                        <select name="ruang_lingkup" class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition-shadow text-slate-600">
+                            <option value="">Semua Ruang Lingkup</option>
+                            @foreach($ruangLingkupList as $rl)
+                                <option value="{{ $rl }}" {{ request('ruang_lingkup') == $rl ? 'selected' : '' }}>
+                                    {{ $rl }}
                                 </option>
                             @endforeach
                         </select>
@@ -99,7 +99,7 @@
                     </div>
 
                     <div class="flex justify-end gap-2 w-full">
-                        @if(request('search') || request('tahun') || request('prodi') || request('tingkat'))
+                        @if(request('search') || request('tahun') || request('prodi') || request('ruang_lingkup'))
                             <a href="{{ route('admin.laporan.index') }}" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 whitespace-nowrap w-full md:w-auto">
                                 <i class="fas fa-sync-alt"></i> Reset
                             </a>
@@ -122,8 +122,8 @@
                             <th class="px-6 py-4">Prodi</th>
                             <th class="px-6 py-4">Judul Kegiatan</th>
                             <th class="px-6 py-4">Penyelenggara</th>
-                            <th class="px-6 py-4">Tingkat</th>
-                            <th class="px-6 py-4">Hasil</th>
+                            <th class="px-6 py-4">Ruang Lingkup</th>
+                            <th class="px-6 py-4">Peran/Sifat</th>
                             <th class="px-6 py-4 text-center">Poin</th>
                             <th class="px-6 py-4 text-center">Tgl Kegiatan</th>
                         </tr>
@@ -147,16 +147,18 @@
                                 {{ $item->penyelenggara ?? '-' }}
                                 <div class="text-xs text-slate-400 font-normal mt-0.5">({{ $item->tahun }})</div>
                             </td>
-                            {{-- 🔧 TINGKAT DARI SPK --}}
+                            {{-- 🔧 RUANG LINGKUP DARI KKM RULE --}}
                             <td class="px-6 py-4">
-                                @if($item->tingkat)
-                                    <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">{{ $item->tingkat }}</span>
+                                <span class="text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">{{ $item->kegiatan?->kkmRule?->ruang_lingkup ?? '-' }}</span>
+                            </td>
+                            {{-- 🔧 PERAN/SIFAT DARI SPK --}}
+                            <td class="px-6 py-4">
+                                @if($item->peran_sifat)
+                                    <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">{{ $item->peran_sifat }}</span>
                                 @else
                                     <span class="text-gray-400">-</span>
                                 @endif
                             </td>
-                            {{-- 🔧 HASIL DARI SPK --}}
-                            <td class="px-6 py-4">{{ $item->hasil ?? '-' }}</td>
                             {{-- 🔧 POIN DARI SPK --}}
                             <td class="px-6 py-4 text-center font-bold text-blue-600">{{ $item->poin ?? 0 }}</td>
                             <td class="px-6 py-4 text-center">

@@ -1,7 +1,7 @@
 <x-app-layout>
 
 <div class="py-1 overflow-x-hidden">
-    <div class="max-w-8xl mx-auto py-6">
+    <div class="max-w-8xl mx-auto py-1">
 
         <div class="relative bg-slate-900 rounded-3xl p-8 sm:p-10 text-white shadow-2xl shadow-slate-900/20 mb-8 overflow-hidden border border-slate-800">
             <div class="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-gradient-to-br from-blue-600 to-purple-600 opacity-20 rounded-full blur-[80px]"></div>
@@ -126,7 +126,7 @@
         $cfgRpk = json_encode(['type'=>'doughnut','data'=>['labels'=>['Draft','Disetujui','Ditolak'],'datasets'=>[['data'=>[$rpkDraft,$rpkDisetujui,$rpkDitolak],'backgroundColor'=>['#f59e0b','#10b981','#ef4444'],'borderWidth'=>0,'hoverOffset'=>4]]],'options'=>['responsive'=>true,'maintainAspectRatio'=>false,'cutout'=>'65%','plugins'=>['tooltip'=>['backgroundColor'=>'rgba(15,23,42,0.9)','padding'=>12,'cornerRadius'=>8],'legend'=>['position'=>'bottom','labels'=>['usePointStyle'=>true,'padding'=>20]]]]]);
         $cfgSpk = json_encode(['type'=>'doughnut','data'=>['labels'=>['Draft','Disetujui','Ditolak'],'datasets'=>[['data'=>[$spkDraft,$spkDisetujui,$spkDitolak],'backgroundColor'=>['#f59e0b','#10b981','#ef4444'],'borderWidth'=>0,'hoverOffset'=>4]]],'options'=>['responsive'=>true,'maintainAspectRatio'=>false,'cutout'=>'65%','plugins'=>['tooltip'=>['backgroundColor'=>'rgba(15,23,42,0.9)','padding'=>12,'cornerRadius'=>8],'legend'=>['position'=>'bottom','labels'=>['usePointStyle'=>true,'padding'=>20]]]]]);
         $cfgSummary = json_encode(['type'=>'bar','data'=>['labels'=>['Mahasiswa','Dosen','RPK','SPK'],'datasets'=>[['label'=>'Jumlah Data','data'=>[$totalMahasiswa,$totalDosen,$totalRpk,$totalSpk],'backgroundColor'=>['#3b82f6','#8b5cf6','#f59e0b','#10b981'],'borderRadius'=>6,'barPercentage'=>0.5]]],'options'=>['responsive'=>true,'maintainAspectRatio'=>false,'plugins'=>['tooltip'=>['backgroundColor'=>'rgba(15,23,42,0.9)','padding'=>12,'cornerRadius'=>8],'legend'=>['display'=>false]],'scales'=>['y'=>['beginAtZero'=>true,'ticks'=>['stepSize'=>1],'grid'=>['color'=>'#f1f5f9'],'border'=>['display'=>false]],'x'=>['grid'=>['display'=>false],'border'=>['display'=>false]]]]]);
-        $cfgTingkat = json_encode(['type'=>'bar','data'=>['labels'=>['Universitas','Regional','Nasional','Internasional'],'datasets'=>[['label'=>'Jumlah Prestasi','data'=>[$universitas,$regional,$nasional,$internasional],'backgroundColor'=>['#3b82f6','#10b981','#f59e0b','#8b5cf6'],'borderRadius'=>6,'barPercentage'=>0.5]]],'options'=>['responsive'=>true,'maintainAspectRatio'=>false,'plugins'=>['tooltip'=>['backgroundColor'=>'rgba(15,23,42,0.9)','padding'=>12,'cornerRadius'=>8],'legend'=>['display'=>false]],'scales'=>['y'=>['beginAtZero'=>true,'ticks'=>['stepSize'=>1],'grid'=>['color'=>'#f1f5f9'],'border'=>['display'=>false]],'x'=>['grid'=>['display'=>false],'border'=>['display'=>false]]]]]);
+        $cfgTingkat = json_encode(['type'=>'bar','data'=>['labels'=>$tingkat->keys()->toArray(),'datasets'=>[['label'=>'Jumlah Prestasi','data'=>$tingkat->values()->toArray(),'backgroundColor'=>['#3b82f6','#10b981','#f59e0b','#8b5cf6','#0ea5e9','#f43f5e','#14b8a6','#06b6d4'],'borderRadius'=>6,'barPercentage'=>0.5]]],'options'=>['responsive'=>true,'maintainAspectRatio'=>false,'plugins'=>['tooltip'=>['backgroundColor'=>'rgba(15,23,42,0.9)','padding'=>12,'cornerRadius'=>8],'legend'=>['display'=>false]],'scales'=>['y'=>['beginAtZero'=>true,'ticks'=>['stepSize'=>1],'grid'=>['color'=>'#f1f5f9'],'border'=>['display'=>false]],'x'=>['grid'=>['display'=>false],'border'=>['display'=>false]]]]]);
         $cfgJenis = json_encode(['type'=>'doughnut','data'=>['labels'=>$kategoriLabels,'datasets'=>[['data'=>$kategoriData,'backgroundColor'=>['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#0ea5e9','#f43f5e','#14b8a6'],'borderWidth'=>0,'hoverOffset'=>4]]],'options'=>['responsive'=>true,'maintainAspectRatio'=>false,'cutout'=>'65%','plugins'=>['tooltip'=>['backgroundColor'=>'rgba(15,23,42,0.9)','padding'=>12,'cornerRadius'=>8],'legend'=>['position'=>'right','labels'=>['usePointStyle'=>true,'padding'=>15,'font'=>['size'=>11]]]]]]);
         @endphp
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
@@ -147,7 +147,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col min-h-[350px]">
-                <h2 class="font-bold text-slate-800 flex items-center gap-2 mb-4"><span class="p-1.5 rounded-lg bg-blue-50 text-blue-500"><i class="fas fa-layer-group"></i></span> Prestasi Berdasarkan Tingkat</h2>
+                <h2 class="font-bold text-slate-800 flex items-center gap-2 mb-4"><span class="p-1.5 rounded-lg bg-blue-50 text-blue-500"><i class="fas fa-layer-group"></i></span> Distribusi Berdasarkan Ruang Lingkup</h2>
                 <div class="flex-1 relative w-full h-[250px]"><canvas id="tingkatChart" data-chart='{{ $cfgTingkat }}'></canvas></div>
             </div>
             <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col min-h-[350px]">
@@ -386,7 +386,7 @@
                 setChartData('rpkChart', [s.rpkDraft, s.rpkDisetujui, s.rpkDitolak]);
                 setChartData('spkChart', [s.spkDraft, s.spkDisetujui, s.spkDitolak]);
                 setChartData('summaryChart', [s.totalMahasiswa, s.totalDosen, s.totalRpk, s.totalSpk]);
-                if (data.tingkat) setChartData('tingkatChart', [data.tingkat.universitas, data.tingkat.regional, data.tingkat.nasional, data.tingkat.internasional]);
+                if (data.tingkat) { const tLabels = Object.keys(data.tingkat); const tData = Object.values(data.tingkat); setChartData('tingkatChart', tData, tLabels); }
                 if (data.kategori) setChartData('jenisChart', data.kategori.kategoriData, data.kategori.kategoriLabels);
 
                 renderLog(data.aktivitasTerbaru || []);

@@ -129,7 +129,7 @@
                 <th style="width: 7%">Kebaruan/Keunggulan</th>
                 <th style="width: 6%">Nama Ajang/Kegiatan</th>
                 <th style="width: 6%">Penyelenggara</th>
-                <th style="width: 5%">Tingkat</th>
+                <th style="width: 5%">Ruang Lingkup</th>
             </tr>
         </thead>
         <tbody>
@@ -150,8 +150,8 @@
                     $judulKegiatan = $item->judul_kegiatan ?? $item->kegiatan->judul_kegiatan ?? $item->kegiatan->kegiatan ?? '-';
                     $namaKegiatan = $item->kegiatan->kegiatan ?? '-';
                     $penyelenggara = $item->penyelenggara ?? '-';
-                    $tingkat = $item->tingkat ?? '-';
-                    $hasil = $item->hasil ?? '-';
+                    $tingkat = $item->kegiatan?->kkmRule?->ruang_lingkup ?? '-';
+                    $hasil = $item->peran_sifat ?? '-';
                     
                     if ($item->kegiatan && $item->kegiatan->tanggal_selesai) {
                         $tanggal = \Carbon\Carbon::parse($item->kegiatan->tanggal_selesai)->format('d/m/Y');
@@ -161,7 +161,7 @@
                         $tanggal = '-';
                     }
                     
-                    $kategori = $item->kegiatan->kategori ?? $item->kegiatan->masterKegiatan->kategori ?? 'Prestasi';
+                    $kategori = $item->kegiatan->kategori ?? 'Lainnya';
                 @endphp
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>

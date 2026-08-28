@@ -29,10 +29,8 @@ Aplikasi PRATAMA menggunakan **MySQL 8.0+** sebagai database. Skema database dik
 | 2 | `rpks` | Rencana Prestasi Kemahasiswaan |
 | 3 | `kegiatans` | Kegiatan dalam RPK |
 | 4 | `spks` | Sertifikat Prestasi Kegiatan |
-| 5 | `master_kegiatans` | Master jenis kegiatan |
-| 6 | `master_prestasis` | Master tingkat prestasi (Juara 1, 2, 3, dll) |
-| 7 | `program_studis` | Master program studi |
-| 8 | `kegiatan_user` | Pivot — anggota kelompok kegiatan |
+| 5 | `program_studis` | Master program studi |
+| 6 | `kegiatan_user` | Pivot — anggota kelompok kegiatan |
 
 ### Tabel Spatie Permission
 
@@ -74,7 +72,6 @@ Aplikasi PRATAMA menggunakan **MySQL 8.0+** sebagai database. Skema database dik
 |-------|-----------|---------|-----------|
 | `id` | bigint (auto) | PK | Primary key |
 | `user_id` | bigint | FK → users.id (cascade delete) | Pemilik RPK (Mahasiswa) |
-| `master_kegiatan_id` | bigint | nullable, FK → master_kegiatans.id | Master kegiatan (opsional) |
 | `tahun` | varchar(255) | required | Tahun akademik (misal: 2026) |
 | `semester` | enum | required | `Ganjil` atau `Genap` |
 | `status` | enum | default: `draft` | `draft`, `disetujui`, `ditolak` |
@@ -90,8 +87,8 @@ Aplikasi PRATAMA menggunakan **MySQL 8.0+** sebagai database. Skema database dik
 |-------|-----------|---------|-----------|
 | `id` | bigint (auto) | PK | Primary key |
 | `rpk_id` | bigint | FK → rpks.id (cascade delete) | RPK tempat kegiatan ini |
-| `master_kegiatan_id` | bigint | nullable, FK → master_kegiatans.id | Master kegiatan |
-| `kegiatan` | varchar(255) | required | Nama kegiatan (dari master) |
+| `kkm_rule_id` | bigint | nullable, FK → kkm_rules.id | Aturan KKM terkait |
+| `kegiatan` | varchar(255) | required | Nama kegiatan |
 | `judul_kegiatan` | varchar(255) | required | Judul spesifik kegiatan |
 | `tanggal_mulai` | date | required | Tanggal mulai kegiatan |
 | `tanggal_selesai` | date | required | Tanggal selesai kegiatan |
@@ -113,11 +110,8 @@ Aplikasi PRATAMA menggunakan **MySQL 8.0+** sebagai database. Skema database dik
 | `tanggal_kegiatan` | varchar(255) | nullable | Rentang tanggal (format string, misal: "15 Januari 2025 - 17 Januari 2025") |
 | `penyelenggara` | varchar(255) | required | Nama penyelenggara |
 | `kategori` | enum | required | `Individu` atau `Kelompok` |
-| `prestasi_id` | bigint | nullable, FK → master_prestasis.id | Master prestasi |
-| `hasil` | varchar(255) | nullable | Hasil prestasi (dari master_prestasis.juara) |
 | `judul_kegiatan` | varchar(255) | nullable | Judul kegiatan |
 | `poin` | integer | default: 0 | Poin prestasi (diisi oleh Admin) |
-| `tingkat` | varchar(255) | nullable | Tingkat: `Universitas`, `Regional`, `Nasional`, `Internasional` |
 | `url_kegiatan` | varchar(500) | required | URL kegiatan |
 | `link_drive` | varchar(500) | nullable | Link Google Drive |
 | `surat_tugas` | varchar(255) | nullable | Path file surat tugas (PDF, max 5MB) |
@@ -137,28 +131,7 @@ Aplikasi PRATAMA menggunakan **MySQL 8.0+** sebagai database. Skema database dik
 | `created_at` | timestamp | | Waktu pembuatan |
 | `updated_at` | timestamp | | Waktu pembaruan terakhir |
 
-### 2.5 Tabel `master_kegiatans`
-
-| Kolom | Tipe Data | Atribut | Deskripsi |
-|-------|-----------|---------|-----------|
-| `id` | bigint (auto) | PK | Primary key |
-| `nama_kegiatan` | varchar(255) | required | Nama kegiatan (misal: "Lomba", "Workshop", "Seminar") |
-| `status` | enum | default: `aktif` | `aktif` atau `tidak aktif` |
-| `created_at` | timestamp | | Waktu pembuatan |
-| `updated_at` | timestamp | | Waktu pembaruan terakhir |
-
-### 2.6 Tabel `master_prestasis`
-
-| Kolom | Tipe Data | Atribut | Deskripsi |
-|-------|-----------|---------|-----------|
-| `id` | bigint (auto) | PK | Primary key |
-| `juara` | varchar(255) | required | Nama prestasi (misal: "Juara 1", "Harapan 2", "Peserta") |
-| `tingkat` | varchar(255) | nullable | Tingkat: `Universitas`, `Regional`, `Nasional`, `Internasional` |
-| `is_active` | boolean | default: true | Status aktif/tidak aktif |
-| `created_at` | timestamp | | Waktu pembuatan |
-| `updated_at` | timestamp | | Waktu pembaruan terakhir |
-
-### 2.7 Tabel `program_studis`
+### 2.5 Tabel `program_studis`
 
 | Kolom | Tipe Data | Atribut | Deskripsi |
 |-------|-----------|---------|-----------|
@@ -198,22 +171,17 @@ Aplikasi PRATAMA menggunakan **MySQL 8.0+** sebagai database. Skema database dik
 | `Rpk` | `user()` | `User` | BelongsTo |
 | `Rpk` | `kegiatans()` | `Kegiatan` | HasMany |
 | `Rpk` | `spks()` | `Spk` | HasMany |
-| `Rpk` | `masterKegiatan()` | `MasterKegiatan` | BelongsTo |
 | `Rpk` | `verifiedBy()` | `User` | BelongsTo |
 | `Kegiatan` | `rpk()` | `Rpk` | BelongsTo |
 | `Kegiatan` | `user()` | `User` | BelongsTo |
 | `Kegiatan` | `spks()` | `Spk` | HasMany |
-| `Kegiatan` | `masterKegiatan()` | `MasterKegiatan` | BelongsTo |
+| `Kegiatan` | `kkmRule()` | `KkmRule` | BelongsTo |
 | `Kegiatan` | `anggota()` | `User` | BelongsToMany (via `kegiatan_user`) |
 | `Spk` | `user()` | `User` | BelongsTo |
 | `Spk` | `rpk()` | `Rpk` | BelongsTo |
 | `Spk` | `kegiatan()` | `Kegiatan` | BelongsTo |
-| `Spk` | `prestasi()` | `MasterPrestasi` | BelongsTo |
 | `Spk` | `poinAddedBy()` | `User` | BelongsTo |
 | `Spk` | `verifiedBy()` | `User` | BelongsTo |
-| `MasterKegiatan` | `rpks()` | `Rpk` | HasMany |
-| `MasterKegiatan` | `kegiatans()` | `Kegiatan` | HasMany |
-| `MasterPrestasi` | (tidak ada relasi langsung) | — | — |
 | `ProgramStudi` | (relasi dikomentar) | — | — |
 
 ### Foreign Key Summary
@@ -221,14 +189,11 @@ Aplikasi PRATAMA menggunakan **MySQL 8.0+** sebagai database. Skema database dik
 | Tabel | Kolom FK | Referensi | On Delete |
 |-------|----------|-----------|-----------|
 | `rpks` | `user_id` | `users.id` | CASCADE |
-| `rpks` | `master_kegiatan_id` | `master_kegiatans.id` | — |
 | `rpks` | `verified_by` | `users.id` | — |
 | `kegiatans` | `rpk_id` | `rpks.id` | CASCADE |
-| `kegiatans` | `master_kegiatan_id` | `master_kegiatans.id` | — |
 | `spks` | `user_id` | `users.id` | CASCADE |
 | `spks` | `rpk_id` | `rpks.id` | CASCADE |
 | `spks` | `kegiatan_id` | `kegiatans.id` | CASCADE |
-| `spks` | `prestasi_id` | `master_prestasis.id` | — |
 | `spks` | `verified_by` | `users.id` | — |
 | `spks` | `poin_added_by` | `users.id` | SET NULL |
 | `kegiatan_user` | `kegiatan_id` | `kegiatans.id` | CASCADE |
@@ -267,7 +232,6 @@ Aplikasi PRATAMA menggunakan **MySQL 8.0+** sebagai database. Skema database dik
 ├─────────────────────────────────────────────────────────────────────────┤
 │ id (PK)                                                                │
 │ user_id (FK → users.id)                                                │
-│ master_kegiatan_id (FK → master_kegiatans.id)                          │
 │ tahun                                                                  │
 │ semester (Ganjil/Genap)                                                │
 │ status (draft/disetujui/ditolak)                                       │
@@ -285,7 +249,7 @@ Aplikasi PRATAMA menggunakan **MySQL 8.0+** sebagai database. Skema database dik
 ├─────────────────────────────────────────────────────────────────────────┤
 │ id (PK)                                                                │
 │ rpk_id (FK → rpks.id)                                                  │
-│ master_kegiatan_id (FK → master_kegiatans.id)                          │
+│ kkm_rule_id (FK → kkm_rules.id)                                        │
 │ kegiatan                                                               │
 │ judul_kegiatan                                                         │
 │ tanggal_mulai                                                          │
@@ -310,11 +274,8 @@ Aplikasi PRATAMA menggunakan **MySQL 8.0+** sebagai database. Skema database dik
 │ tanggal_kegiatan (string)                                              │
 │ penyelenggara                                                          │
 │ kategori (Individu/Kelompok)                                           │
-│ prestasi_id (FK → master_prestasis.id)                                 │
-│ hasil                                                                  │
 │ judul_kegiatan                                                         │
 │ poin                                                                   │
-│ tingkat                                                                │
 │ url_kegiatan, link_drive                                               │
 │ surat_tugas, sertifikat, foto_penyerahan, laporan                      │
 │ judul_karya, biografi, rincian, kebaruan                               │

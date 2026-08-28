@@ -211,6 +211,14 @@ function approveSpk(id)
 
         if(result.isConfirmed){
 
+            Swal.fire({
+                title: 'Memproses...',
+                text: 'Mengirim notifikasi email...',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => Swal.showLoading()
+            });
+
             let form = document.createElement('form');
 
             form.method = 'POST';
@@ -248,6 +256,14 @@ function rejectSpk(id)
     }).then((result) => {
 
         if(result.isConfirmed){
+
+            Swal.fire({
+                title: 'Memproses...',
+                text: 'Mengirim notifikasi email...',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => Swal.showLoading()
+            });
 
             let form = document.createElement('form');
 

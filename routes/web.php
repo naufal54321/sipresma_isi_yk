@@ -7,8 +7,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\UserRoleController;
-use App\Http\Controllers\Admin\MasterKegiatanController;
-use App\Http\Controllers\Admin\MasterPrestasiController;
+use App\Http\Controllers\Admin\KkmRuleController;
 use App\Http\Controllers\Admin\ProgramStudiController;
 use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\RpkController as AdminRpkController;
@@ -39,7 +38,7 @@ Route::get('/', function () {
         ->count('user_id');
 
     // Rekap 10 Terbaru — query terbatas
-    $rekapPrestasi = Spk::with(['user', 'kegiatan', 'prestasi'])
+    $rekapPrestasi = Spk::with(['user', 'kegiatan'])
         ->where('status', 'disetujui')
         ->latest()
         ->take(10)
@@ -59,7 +58,7 @@ Route::get('/statistik', function () {
     $spkDraft = Spk::where('status', 'draft')->count();
     $spkDisetujui = Spk::where('status', 'disetujui')->count();
 
-    $rekapPrestasi = Spk::with(['user', 'kegiatan', 'prestasi'])
+    $rekapPrestasi = Spk::with(['user', 'kegiatan'])
         ->where('status', 'disetujui')->latest()->take(10)->get();
 
     $prodiData = Spk::selectRaw('users.prodi, COUNT(*) as total')
@@ -68,9 +67,13 @@ Route::get('/statistik', function () {
     $chartLabels = $prodiData->pluck('prodi')->map(fn($v) => $v ?? 'Lainnya')->toArray();
     $chartData = $prodiData->pluck('total')->toArray();
 
-    $tingkatData = Spk::selectRaw('COALESCE(tingkat, "Lainnya") as tingkat, COUNT(*) as total')
-        ->where('status', 'disetujui')->groupBy('tingkat')->get();
-    $tingkatLabels = $tingkatData->pluck('tingkat')->toArray();
+    $tingkatData = Spk::join('kegiatans', 'spks.kegiatan_id', '=', 'kegiatans.id')
+        ->join('kkm_rules', 'kegiatans.kkm_rule_id', '=', 'kkm_rules.id')
+        ->selectRaw('COALESCE(kkm_rules.ruang_lingkup, "Lainnya") as ruang_lingkup, COUNT(*) as total')
+        ->where('spks.status', 'disetujui')
+        ->groupBy('kkm_rules.ruang_lingkup')
+        ->get();
+    $tingkatLabels = $tingkatData->pluck('ruang_lingkup')->toArray();
     $tingkatData = $tingkatData->pluck('total')->toArray();
 
     $jenisData = Spk::selectRaw('kegiatans.kegiatan, COUNT(*) as total')
@@ -122,6 +125,9 @@ Route::get('/dashboard/realtime', [DashboardController::class, 'realtime'])
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    /* KKM Rules Cascade API */
+    Route::get('/kkm-rules/options', [KkmRuleController::class, 'options'])->name('kkm-rules.options');
 });
 
 /*
@@ -141,13 +147,10 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
 
     /* ⚡ Plotting Dosen Pembimbing per RPK */
     Route::post('/rpk/{rpk}/set-pembimbing', [AdminRpkController::class, 'setPembimbing'])->name('rpk.set-pembimbing');
+    Route::get('/dosen-list', [AdminRpkController::class, 'dosenList'])->name('dosen-list');
 
-    /* Master Kegiatan */
-    Route::resource('kegiatan', MasterKegiatanController::class)->except(['show', 'edit']);
-
-    /* Master Prestasi (Dibersihkan dari duplikasi) */
-    Route::resource('master-prestasi', MasterPrestasiController::class)->except(['create', 'edit']);
-    Route::patch('master-prestasi/{master_prestasi}/toggle-status', [MasterPrestasiController::class, 'toggleStatus'])->name('master-prestasi.toggle-status');
+    /* Aturan KKM */
+    Route::resource('kkm-rules', KkmRuleController::class)->except(['create', 'edit', 'show']);
 
     /* Program Studi */
     Route::resource('prodi', ProgramStudiController::class)->except(['create', 'edit'])->parameters(['prodi' => 'prodi']);
@@ -177,10 +180,6 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
 
         // Delete
         Route::delete('/{spk}', [AdminSpkController::class, 'destroy'])->name('destroy');
-
-        // ⚡ POIN
-        Route::post('/{spk}/tambah-poin', [AdminSpkController::class, 'tambahPoin'])->name('tambah-poin');
-        Route::post('/{spk}/edit-poin', [AdminSpkController::class, 'editPoin'])->name('edit-poin'); // ⚡ TAMBAH
     });
 });
 

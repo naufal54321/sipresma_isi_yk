@@ -5,13 +5,13 @@ namespace App\Http\Controllers\Dosen;
 use App\Http\Controllers\Controller;
 
 use App\Models\Spk;
+use App\Models\KkmRule;
 use App\Services\DashboardService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SpkStatusNotification;
-use App\Mail\SpkApprovedAdmin;
 
 class SpkController extends Controller
 {
@@ -82,8 +82,14 @@ class SpkController extends Controller
             abort(403, 'SPK yang sudah diproses tidak dapat disetujui ulang.');
         }
 
+        $kkmRule = KkmRule::where('peran', $spk->peran_sifat)->first();
+        $poin = $kkmRule ? $kkmRule->poin : 0;
+
         $spk->update([
             'status' => 'disetujui',
+            'poin' => $poin,
+            'poin_added_at' => now(),
+            'poin_added_by' => Auth::id(),
             'catatan_dosen' => $request->catatan_dosen,
             'verified_by' => Auth::id(),
             'verified_at' => now(),
@@ -96,16 +102,6 @@ class SpkController extends Controller
                 Mail::to($spk->user)->send(new SpkStatusNotification($spk->fresh(), 'disetujui'));
             } catch (\Throwable $e) {
                 Log::warning('Gagal kirim email status SPK disetujui: ' . $e->getMessage());
-            }
-        }
-
-        // ⚡ NOTIFIKASI: Email ke admin untuk menambahkan poin
-        $admins = \App\Models\User::role('Admin')->whereNotNull('email')->get();
-        if ($admins->isNotEmpty()) {
-            try {
-                Mail::to($admins)->send(new SpkApprovedAdmin($spk->fresh()));
-            } catch (\Throwable $e) {
-                Log::warning('Gagal kirim email SPK disetujui ke admin: ' . $e->getMessage());
             }
         }
 
@@ -158,14 +154,19 @@ class SpkController extends Controller
      */
     public function show(Spk $spk)
     {
-        // Pastikan hanya dosen pembimbing yang bisa melihat detail
         if ($spk->rpk?->dosen_pembimbing_id != Auth::id()) {
             abort(403, 'Anda tidak memiliki akses.');
         }
 
-        $spk->load(['verifiedBy']);
+        $spk->load(['verifiedBy', 'kegiatan.kkmRule']);
 
-        return view('dosen.spk.show', compact('spk'));
+        $fileRequirements = [];
+        if ($spk->kegiatan && $spk->kegiatan->kkmRule) {
+            $kkm = $spk->kegiatan->kkmRule;
+            $fileRequirements = \App\Services\FileRequirementService::getRequiredFiles($kkm->bidang, $kkm->jenis_kegiatan, $spk->peran_sifat);
+        }
+
+        return view('dosen.spk.show', compact('spk', 'fileRequirements'));
     }
 }
 

@@ -238,6 +238,14 @@ function approveRpk(id)
 
     }).then((result) => {
         if(result.isConfirmed){
+            Swal.fire({
+                title: 'Memproses...',
+                text: 'Mengirim notifikasi email...',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => Swal.showLoading()
+            });
+
             let form = document.createElement('form');
             form.method = 'POST';
             form.action = '/dosen/rpk/' + id + '/approve';
@@ -273,6 +281,14 @@ function rejectRpk(id)
 
     }).then((result) => {
         if(result.isConfirmed){
+            Swal.fire({
+                title: 'Memproses...',
+                text: 'Mengirim notifikasi email...',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => Swal.showLoading()
+            });
+
             let form = document.createElement('form');
             form.method = 'POST';
             form.action = '/dosen/rpk/' + id + '/reject';

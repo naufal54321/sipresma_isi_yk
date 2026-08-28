@@ -216,7 +216,7 @@
                 </div>
             </div>
             <div class="xl:col-span-8 modern-card flex flex-col h-[300px] md:h-[450px] overflow-hidden">
-                <div class="px-6 py-4 border-b border-outline-variant/30"><h3 class="font-heading font-bold text-primary">Prestasi Berdasarkan Tingkat</h3></div>
+                <div class="px-6 py-4 border-b border-outline-variant/30"><h3 class="font-heading font-bold text-primary">Distribusi Berdasarkan Ruang Lingkup</h3></div>
                 <div class="p-4 flex-1 relative"><canvas id="tingkatChart"></canvas></div>
             </div>
         </div>

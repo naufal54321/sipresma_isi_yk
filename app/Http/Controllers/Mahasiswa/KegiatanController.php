@@ -6,10 +6,9 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Rpk;
 use App\Models\Kegiatan;
+use App\Models\KkmRule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\MasterKegiatan;
-use App\Models\MasterPrestasi;
 use App\Mail\RpkSubmitted;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -36,40 +35,52 @@ class KegiatanController extends Controller
         if (!in_array($rpk->status, ['draft', 'ditolak'])) {
             $message = 'Kegiatan tidak dapat ditambahkan karena RPK sedang diajukan atau sudah disetujui.';
             if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $message
-                ], 422);
+                return response()->json(['success' => false, 'message' => $message], 422);
             }
             return back()->with('error', $message);
         }
 
         $request->validate([
-            'master_kegiatan_id' => 'required|exists:master_kegiatans,id',
+            'kkm_rule_id' => 'required|exists:kkm_rules,id',
             'judul_kegiatan' => 'required|string|max:255',
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'kategori' => 'required|in:Individu,Kelompok',
-            'peran' => 'nullable|string|max:255',
             'jumlah_anggota' => 'nullable|integer|min:1',
             'anggota_ids' => 'nullable|string',
         ], [
+            'kkm_rule_id.required' => 'Aturan KKM wajib dipilih',
+            'kkm_rule_id.exists' => 'Aturan KKM tidak valid',
+            'judul_kegiatan.required' => 'Judul kegiatan wajib diisi',
             'tanggal_mulai.required' => 'Tanggal mulai wajib diisi',
             'tanggal_selesai.required' => 'Tanggal selesai wajib diisi',
             'tanggal_selesai.after_or_equal' => 'Tanggal selesai harus setelah atau sama dengan tanggal mulai',
         ]);
 
-        $master = MasterKegiatan::findOrFail($request->master_kegiatan_id);
+        $kkmRule = KkmRule::findOrFail($request->kkm_rule_id);
+
+        $count = Kegiatan::whereHas('kkmRule', function ($q) use ($kkmRule) {
+            $q->where('jenis_kegiatan', $kkmRule->jenis_kegiatan);
+        })->whereHas('rpk', function ($q) {
+            $q->where('user_id', Auth::id());
+        })->count();
+
+        if ($count >= 4) {
+            $message = "Batas maksimal 4 kegiatan untuk jenis \"{$kkmRule->jenis_kegiatan}\" sudah tercapai.";
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $message], 422);
+            }
+            return back()->with('error', $message);
+        }
 
         $kegiatan = Kegiatan::create([
             'rpk_id' => $rpk->id,
-            'master_kegiatan_id' => $master->id,
-            'kegiatan' => $master->nama_kegiatan,
+            'kkm_rule_id' => $kkmRule->id,
+            'kegiatan' => $kkmRule->jenis_kegiatan,
             'judul_kegiatan' => $request->judul_kegiatan,
             'tanggal_mulai' => $request->tanggal_mulai,
             'tanggal_selesai' => $request->tanggal_selesai,
             'kategori' => $request->kategori,
-            'peran' => $request->kategori == 'Individu' ? 'Individu' : ($request->peran ?? 'Anggota'),
             'jumlah_anggota' => $request->kategori == 'Kelompok' ? $request->jumlah_anggota : null,
         ]);
 
@@ -88,8 +99,7 @@ class KegiatanController extends Controller
 
         $rpk->update(['status' => 'draft']);
 
-        // ⚡ NOTIFIKASI: Email ke Dosen Pembimbing saat kegiatan pertama ditambahkan
-        if ($rpk->kegiatans()->count() == 1 && $rpk->dosen_pembimbing_id) {
+        if ($rpk->dosen_pembimbing_id) {
             $dosen = \App\Models\User::find($rpk->dosen_pembimbing_id);
             if ($dosen && $dosen->email) {
                 try {
@@ -118,13 +128,9 @@ class KegiatanController extends Controller
         if ($kegiatan->rpk->user_id !== Auth::id()) abort(403);
 
         if ($request->wantsJson()) {
-            $masterKegiatans = MasterKegiatan::where('status', 'aktif')->get();
-            $prestasis = MasterPrestasi::where('is_active', true)->get();
             return response()->json([
                 'success' => true,
-                'data' => $kegiatan->load('masterKegiatan'),
-                'masterKegiatans' => $masterKegiatans,
-                'prestasis' => $prestasis,
+                'data' => $kegiatan,
             ]);
         }
 
@@ -139,39 +145,37 @@ class KegiatanController extends Controller
         if (!in_array($kegiatan->rpk->status, ['draft', 'ditolak'])) {
             $message = 'Kegiatan tidak dapat diubah karena RPK sedang diajukan atau sudah disetujui.';
             if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $message
-                ], 422);
+                return response()->json(['success' => false, 'message' => $message], 422);
             }
             return back()->with('error', $message);
         }
 
         $request->validate([
-            'master_kegiatan_id' => 'required|exists:master_kegiatans,id',
+            'kkm_rule_id' => 'required|exists:kkm_rules,id',
             'judul_kegiatan' => 'required|string|max:255',
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'kategori' => 'required|in:Individu,Kelompok',
-            'peran' => 'nullable|string|max:255',
             'jumlah_anggota' => 'nullable|integer|min:1',
             'anggota_ids' => 'nullable|string',
         ], [
+            'kkm_rule_id.required' => 'Aturan KKM wajib dipilih',
+            'kkm_rule_id.exists' => 'Aturan KKM tidak valid',
+            'judul_kegiatan.required' => 'Judul kegiatan wajib diisi',
             'tanggal_mulai.required' => 'Tanggal mulai wajib diisi',
             'tanggal_selesai.required' => 'Tanggal selesai wajib diisi',
             'tanggal_selesai.after_or_equal' => 'Tanggal selesai harus setelah atau sama dengan tanggal mulai',
         ]);
 
-        $master = MasterKegiatan::findOrFail($request->master_kegiatan_id);
+        $kkmRule = KkmRule::findOrFail($request->kkm_rule_id);
 
         $kegiatan->update([
-            'master_kegiatan_id' => $master->id,
-            'kegiatan' => $master->nama_kegiatan,
+            'kkm_rule_id' => $kkmRule->id,
+            'kegiatan' => $kkmRule->jenis_kegiatan,
             'judul_kegiatan' => $request->judul_kegiatan,
             'tanggal_mulai' => $request->tanggal_mulai,
             'tanggal_selesai' => $request->tanggal_selesai,
             'kategori' => $request->kategori,
-            'peran' => $request->kategori == 'Individu' ? 'Individu' : ($request->peran ?? 'Anggota'),
             'jumlah_anggota' => $request->kategori == 'Kelompok' ? $request->jumlah_anggota : null,
         ]);
 
@@ -198,7 +202,7 @@ class KegiatanController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Kegiatan berhasil diperbarui',
-                'data' => $kegiatan->fresh()->load('masterKegiatan')
+                'data' => $kegiatan->fresh()->load('kkmRule')
             ]);
         }
 

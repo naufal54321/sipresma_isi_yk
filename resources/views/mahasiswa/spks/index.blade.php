@@ -73,7 +73,7 @@
                             <th class="px-6 py-4">Judul Kegiatan</th>
                             <th class="px-6 py-4">Kategori</th>
                             <th class="px-6 py-4">Tanggal Kegiatan</th>
-                            <th class="px-6 py-4">Hasil</th>
+                            <th class="px-6 py-4">Peran/Sifat</th>
                             <th class="px-6 py-4 text-center">Poin</th>
                             <th class="px-6 py-4 text-center">Status</th>
                             <th class="px-6 py-4 text-center">Aksi</th>
@@ -112,7 +112,7 @@
                                     <span class="text-gray-800">{{ $spk->tanggal_kegiatan ?? '-' }}</span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4">{{ $spk->hasil ?? '-' }}</td>
+                            <td class="px-6 py-4">{{ $spk->peran_sifat ?? '-' }}</td>
                             <td class="px-6 py-4 text-center font-bold text-blue-600">{{ $spk->poin ?? '0' }}</td>
                             <td class="px-6 py-4 text-center">
                                 @if($spk->status == 'draft')
@@ -136,12 +136,13 @@
                                                 data-tahun="{{ $spk->tahun }}"
                                                 data-rpk="{{ $spk->rpk_id }}"
                                                 data-kegiatan="{{ $spk->kegiatan_id }}"
+                                                data-bidang="{{ $spk->kegiatan->kkmRule->bidang ?? '' }}"
+                                                data-jenis="{{ $spk->kegiatan->kkmRule->jenis_kegiatan ?? '' }}"
                                                 data-tanggal="{{ $spk->tanggal_kegiatan }}"
                                                 data-penyelenggara="{{ e($spk->penyelenggara) }}"
                                                 data-kategori="{{ $spk->kategori }}"
-                                                data-prestasi="{{ $spk->prestasi_id }}"
+                                                data-peran-sifat="{{ $spk->peran_sifat }}"
                                                 data-poin="{{ $spk->poin }}"
-                                                data-tingkat="{{ $spk->tingkat }}"
                                                 data-url="{{ $spk->url_kegiatan }}"
                                                 data-link-drive="{{ $spk->link_drive }}"
                                                 data-judul-karya="{{ e($spk->judul_karya) }}"
@@ -196,6 +197,289 @@
 @if(!$isAnggotaOnly)
 <script>
 var MAX_FILE_SIZE = 5 * 1024 * 1024;
+const kkmRules = @json($kkmRules);
+
+const kkmData = {};
+kkmRules.forEach(r => {
+    if (!kkmData[r.bidang]) kkmData[r.bidang] = {};
+    if (!kkmData[r.bidang][r.jenis_kegiatan]) kkmData[r.bidang][r.jenis_kegiatan] = [];
+    kkmData[r.bidang][r.jenis_kegiatan].push({ peran: r.peran, poin: r.poin });
+});
+
+const fileRequirements = {
+    'Bidang Orientasi Kompetensi Profesional': {
+        'Kompetisi sesuai dengan bidang keilmuan': {
+            'Peserta': [{ col: 'surat_tugas', label: 'Surat Tugas', accept: '.pdf', required: true }],
+            'Finalis': [
+                { col: 'surat_tugas', label: 'Surat Tugas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat / Foto Piala', accept: '.pdf,.jpg,.jpeg,.png', required: true },
+                { col: 'foto_penyerahan', label: 'Foto Penyerahan', accept: '.jpg,.jpeg,.png', required: true },
+                { col: 'laporan', label: 'Laporan (Format Template)', accept: '.pdf', required: true }
+            ],
+            'Juara III': [
+                { col: 'surat_tugas', label: 'Surat Tugas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat / Foto Piala', accept: '.pdf,.jpg,.jpeg,.png', required: true },
+                { col: 'foto_penyerahan', label: 'Foto Penyerahan', accept: '.jpg,.jpeg,.png', required: true },
+                { col: 'laporan', label: 'Laporan (Format Template)', accept: '.pdf', required: true }
+            ],
+            'Juara II': [
+                { col: 'surat_tugas', label: 'Surat Tugas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat / Foto Piala', accept: '.pdf,.jpg,.jpeg,.png', required: true },
+                { col: 'foto_penyerahan', label: 'Foto Penyerahan', accept: '.jpg,.jpeg,.png', required: true },
+                { col: 'laporan', label: 'Laporan (Format Template)', accept: '.pdf', required: true }
+            ],
+            'Juara I': [
+                { col: 'surat_tugas', label: 'Surat Tugas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat / Foto Piala', accept: '.pdf,.jpg,.jpeg,.png', required: true },
+                { col: 'foto_penyerahan', label: 'Foto Penyerahan', accept: '.jpg,.jpeg,.png', required: true },
+                { col: 'laporan', label: 'Laporan (Format Template)', accept: '.pdf', required: true }
+            ]
+        },
+        'Penelitian': {
+            'Terlibat Penelitian Dosen': [
+                { col: 'surat_tugas', label: 'Surat Keputusan Penelitian', accept: '.pdf', required: true },
+                { col: 'laporan', label: 'Laporan (Format Template)', accept: '.pdf', required: true }
+            ]
+        },
+        'Program Kreativitas Mahasiswa (PKM)/Program Mahasiswa Wirausaha (PMW) (kegiatan lain sejenis)': {
+            'Proposal': [
+                { col: 'surat_tugas', label: 'Surat Tugas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Proposal', accept: '.pdf', required: true }
+            ],
+            'Proposal diunggah': [
+                { col: 'surat_tugas', label: 'Surat Tugas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Bukti Proposal Diunggah', accept: '.pdf,.jpg,.jpeg,.png', required: true }
+            ],
+            'Pelaksanaan dan Pelaporan': [
+                { col: 'surat_tugas', label: 'Surat Tugas', accept: '.pdf', required: true },
+                { col: 'laporan', label: 'Laporan Penelitian', accept: '.pdf', required: true }
+            ]
+        },
+        'Kegiatan ilmiah (Seminar, Workshop, dll)': {
+            'Peserta': [{ col: 'sertifikat', label: 'Sertifikat / Surat Keterangan', accept: '.pdf,.jpg,.jpeg,.png', required: true }],
+            'Moderator': [
+                { col: 'surat_tugas', label: 'Surat Undangan', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat / Surat Keterangan', accept: '.pdf,.jpg,.jpeg,.png', required: true }
+            ],
+            'Narasumber': [
+                { col: 'surat_tugas', label: 'Makalah', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Surat Undangan', accept: '.pdf', required: true },
+                { col: 'foto_penyerahan', label: 'Sertifikat', accept: '.pdf,.jpg,.jpeg,.png', required: true }
+            ]
+        },
+        'Publikasi': {
+            'Tulisan di koran/majalah': [{ col: 'sertifikat', label: 'Berkas Tulisan Asli', accept: '.pdf,.jpg,.jpeg,.png', required: true }],
+            'Karya seni dipublikasikan': [{ col: 'laporan', label: 'Laporan Karya', accept: '.pdf', required: true }],
+            'Artikel Jurnal Ilmiah Non Terakreditasi': [
+                { col: 'surat_tugas', label: 'Surat LoA (Letter of Acceptance)', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Berkas Tulisan Asli', accept: '.pdf', required: true }
+            ],
+            'Artikel Jurnal Ilmiah Terakreditasi': [
+                { col: 'surat_tugas', label: 'Surat LoA (Letter of Acceptance)', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Berkas Tulisan Asli', accept: '.pdf', required: true }
+            ],
+            'Buku ISBN (bukan penulis utama)': [{ col: 'sertifikat', label: 'Buku Asli', accept: '.pdf', required: true }],
+            'Buku ISBN (penulis utama)': [{ col: 'sertifikat', label: 'Buku Asli', accept: '.pdf', required: true }],
+            'Memperoleh HKI': [{ col: 'sertifikat', label: 'Sertifikat HKI', accept: '.pdf,.jpg,.jpeg,.png', required: true }]
+        },
+        'Pengabdian Masyarakat sesuai bidang': {
+            'Rutin (Min. 8 Jam)': [
+                { col: 'surat_tugas', label: 'Surat Permintaan / SK Program', accept: '.pdf', required: true },
+                { col: 'laporan', label: 'Laporan (Format Template)', accept: '.pdf', required: true }
+            ],
+            'Insidental': [{ col: 'sertifikat', label: 'Sertifikat / Surat Tugas', accept: '.pdf,.jpg,.jpeg,.png', required: true }]
+        },
+        'Pertunjukan/Konser sesuai bidang': {
+            'Tunggal': [
+                { col: 'surat_tugas', label: 'Surat Keterangan dari Fakultas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Buku Acara Pertunjukan/Konser', accept: '.pdf', required: true }
+            ],
+            'Bersama': [
+                { col: 'sertifikat', label: 'Sertifikat / Surat Keterangan Penyelenggara', accept: '.pdf,.jpg,.jpeg,.png', required: true },
+                { col: 'laporan', label: 'Buku Acara Pertunjukan/Konser', accept: '.pdf', required: true }
+            ]
+        }
+    },
+    'Bidang Kompetensi Kepribadian dan Sosial': {
+        'Kerohanian': {
+            'Peserta (Rutin)': [{ col: 'laporan', label: 'Laporan (Format Template)', accept: '.pdf', required: true }],
+            'Peserta (Insidental)': [
+                { col: 'surat_tugas', label: 'Surat Tugas dari Fakultas/Universitas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat', accept: '.pdf,.jpg,.jpeg,.png', required: true },
+                { col: 'laporan', label: 'Laporan (Format Template)', accept: '.pdf', required: true }
+            ],
+            'Fasilitator/Mentor (Rutin)': [{ col: 'laporan', label: 'Laporan (Format Template)', accept: '.pdf', required: true }],
+            'Fasilitator/Mentor (Insidental)': [
+                { col: 'surat_tugas', label: 'Surat Tugas dari Fakultas/Universitas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat', accept: '.pdf,.jpg,.jpeg,.png', required: true },
+                { col: 'laporan', label: 'Laporan (Format Template)', accept: '.pdf', required: true }
+            ]
+        },
+        'Fasilitator/Mentor/Narasumber': {
+            'Rutin': [
+                { col: 'sertifikat', label: 'Sertifikat', accept: '.pdf,.jpg,.jpeg,.png', required: true },
+                { col: 'foto_penyerahan', label: 'Daftar Hadir (Min. 8 Tatap Muka)', accept: '.pdf,.jpg,.jpeg,.png', required: true }
+            ],
+            'Insidental': [
+                { col: 'surat_tugas', label: 'Surat Tugas dari Fakultas/Universitas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat', accept: '.pdf,.jpg,.jpeg,.png', required: true }
+            ]
+        },
+        'Kepemimpinan': {
+            'Peserta Pelatihan': [{ col: 'sertifikat', label: 'Sertifikat', accept: '.pdf,.jpg,.jpeg,.png', required: true }],
+            'Pemateri/Pelatih': [
+                { col: 'surat_tugas', label: 'Makalah', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Undangan dari Penyelenggara', accept: '.pdf', required: true },
+                { col: 'foto_penyerahan', label: 'Sertifikat', accept: '.pdf,.jpg,.jpeg,.png', required: true }
+            ]
+        },
+        'Organisasi - Lembaga Kemahasiswaan': {
+            'Anggota bidang': [
+                { col: 'surat_tugas', label: 'SK Periode Kepengurusan', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat', accept: '.pdf,.jpg,.jpeg,.png', required: true }
+            ],
+            'Sekretaris/Bendahara/Kabid': [
+                { col: 'surat_tugas', label: 'Surat Keputusan', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat', accept: '.pdf,.jpg,.jpeg,.png', required: true }
+            ],
+            'Ketua': [
+                { col: 'surat_tugas', label: 'Surat Keputusan', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat', accept: '.pdf,.jpg,.jpeg,.png', required: true }
+            ]
+        },
+        'Organisasi - Kelompok Minat Bakat': {
+            'Anggota': [
+                { col: 'surat_tugas', label: 'Surat Keputusan', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat', accept: '.pdf,.jpg,.jpeg,.png', required: true }
+            ],
+            'Sekretaris/Bendahara/Kabid': [
+                { col: 'surat_tugas', label: 'Surat Keputusan', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat', accept: '.pdf,.jpg,.jpeg,.png', required: true }
+            ],
+            'Ketua': [
+                { col: 'surat_tugas', label: 'Surat Keputusan', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat', accept: '.pdf,.jpg,.jpeg,.png', required: true }
+            ]
+        },
+        'Organisasi - Kepanitiaan': {
+            'Tim Pengarah/Satgas': [
+                { col: 'surat_tugas', label: 'Surat Tugas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat', accept: '.pdf,.jpg,.jpeg,.png', required: true }
+            ],
+            'Sekretaris/Bendahara/Kabid': [
+                { col: 'surat_tugas', label: 'Surat Tugas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat', accept: '.pdf,.jpg,.jpeg,.png', required: true }
+            ],
+            'Ketua Panitia': [
+                { col: 'surat_tugas', label: 'Surat Tugas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat', accept: '.pdf,.jpg,.jpeg,.png', required: true }
+            ]
+        },
+        'Bakat dan Minat - Kompetisi': {
+            'Peserta': [
+                { col: 'surat_tugas', label: 'Surat Tugas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Berkas Pendaftaran', accept: '.pdf,.jpg,.jpeg,.png', required: true },
+                { col: 'foto_penyerahan', label: 'Sertifikat / Surat Keterangan', accept: '.pdf,.jpg,.jpeg,.png', required: true }
+            ],
+            'Finalis': [
+                { col: 'surat_tugas', label: 'Surat Tugas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat / Foto Piala', accept: '.pdf,.jpg,.jpeg,.png', required: true },
+                { col: 'foto_penyerahan', label: 'Foto Penyerahan', accept: '.jpg,.jpeg,.png', required: true },
+                { col: 'laporan', label: 'Laporan (Format Template)', accept: '.pdf', required: true }
+            ],
+            'Juara III': [
+                { col: 'surat_tugas', label: 'Surat Tugas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat / Foto Piala', accept: '.pdf,.jpg,.jpeg,.png', required: true },
+                { col: 'foto_penyerahan', label: 'Foto Penyerahan', accept: '.jpg,.jpeg,.png', required: true },
+                { col: 'laporan', label: 'Laporan (Format Template)', accept: '.pdf', required: true }
+            ],
+            'Juara II': [
+                { col: 'surat_tugas', label: 'Surat Tugas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat / Foto Piala', accept: '.pdf,.jpg,.jpeg,.png', required: true },
+                { col: 'foto_penyerahan', label: 'Foto Penyerahan', accept: '.jpg,.jpeg,.png', required: true },
+                { col: 'laporan', label: 'Laporan (Format Template)', accept: '.pdf', required: true }
+            ],
+            'Juara I': [
+                { col: 'surat_tugas', label: 'Surat Tugas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat / Foto Piala', accept: '.pdf,.jpg,.jpeg,.png', required: true },
+                { col: 'foto_penyerahan', label: 'Foto Penyerahan', accept: '.jpg,.jpeg,.png', required: true },
+                { col: 'laporan', label: 'Laporan (Format Template)', accept: '.pdf', required: true }
+            ]
+        },
+        'Bakat dan Minat - Konser/Pameran Luar Bidang': {
+            'Tunggal': [
+                { col: 'surat_tugas', label: 'Surat Keterangan dari Fakultas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Buku Acara Konser/Pameran', accept: '.pdf', required: true }
+            ],
+            'Bersama': [
+                { col: 'surat_tugas', label: 'Surat Keterangan dari Fakultas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Buku Acara Konser/Pameran', accept: '.pdf', required: true }
+            ]
+        },
+        'Pengabdian Masyarakat luar bidang': {
+            'Rutin (Min. 8 Jam)': [
+                { col: 'surat_tugas', label: 'Surat Permintaan / SK Program', accept: '.pdf', required: true },
+                { col: 'laporan', label: 'Laporan (Format Template)', accept: '.pdf', required: true }
+            ],
+            'Insidental': [
+                { col: 'surat_tugas', label: 'Surat Tugas dari Fakultas/Universitas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat', accept: '.pdf,.jpg,.jpeg,.png', required: true }
+            ]
+        },
+        'Peserta pertukaran mahasiswa': {
+            'Peserta': [
+                { col: 'surat_tugas', label: 'Surat Keterangan dari Fakultas/Universitas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat', accept: '.pdf,.jpg,.jpeg,.png', required: true }
+            ]
+        },
+        'Membantu pembuatan web/database': {
+            'Tim/Kreator': [{ col: 'sertifikat', label: 'Surat Keterangan Fakultas/Universitas', accept: '.pdf,.jpg,.jpeg,.png', required: true }]
+        },
+        'Kegiatan di luar kompetensi profesional & sosial': {
+            'Peserta/Panitia': [
+                { col: 'surat_tugas', label: 'Surat Tugas dari Fakultas/Universitas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat', accept: '.pdf,.jpg,.jpeg,.png', required: true }
+            ]
+        },
+        'Kegiatan pengelolaan kampus': {
+            'Asisten Dosen': [
+                { col: 'surat_tugas', label: 'Surat Tugas dari Fakultas/Universitas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat', accept: '.pdf,.jpg,.jpeg,.png', required: true }
+            ],
+            'Kehumasan': [
+                { col: 'surat_tugas', label: 'Surat Tugas dari Fakultas/Universitas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat', accept: '.pdf,.jpg,.jpeg,.png', required: true }
+            ],
+            'Tim Akreditasi': [
+                { col: 'surat_tugas', label: 'Surat Tugas dari Fakultas/Universitas', accept: '.pdf', required: true },
+                { col: 'sertifikat', label: 'Sertifikat', accept: '.pdf,.jpg,.jpeg,.png', required: true }
+            ]
+        }
+    }
+};
+
+function renderFileInputs(prefix, reqs) {
+    const star = ' <span class="text-red-500">*</span>';
+    if (!reqs || reqs.length === 0) return '<p class="text-sm text-gray-400 italic">Pilih Peran/Sifat untuk melihat dokumen yang diperlukan</p>';
+    return reqs.map(r => `
+        <div class="mb-4" id="${prefix}_file_${r.col}_wrapper">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">${r.label}${r.required ? star : ''}</label>
+            <div id="${prefix}_${r.col}_preview"></div>
+            <input type="file" name="${r.col}" id="${prefix}_${r.col}" accept="${r.accept}" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none" ${r.required ? 'required' : ''} onchange="validateFileSize(this, '${r.label.replace(/'/g, "\\'")}')">
+            <p class="text-xs text-gray-400 mt-1">Format: ${r.accept.replace(/\./g, '').toUpperCase().replace(/,/g, ', ')} | Maksimal: 5 MB</p>
+            <span class="file-error text-red-500 text-xs mt-1 hidden" id="${prefix}_${r.col}_error">File terlalu besar! Maksimal 5 MB.</span>
+        </div>
+    `).join('');
+}
+
+function getFileReqs(bidang, jenis, peran) {
+    if (!bidang || !jenis || !peran) return [];
+    const b = fileRequirements[bidang];
+    if (!b) return [];
+    const j = b[jenis];
+    if (!j) return [];
+    return j[peran] || [];
+}
 
 // ⚡ VALIDASI UKURAN FILE — INLINE ERROR (TIDAK PAKAI SWEET ALERT)
 function validateFileSize(input, label) {
@@ -273,7 +557,10 @@ function generateSpkFormHTML(prefix) {
                         data-kegiatan-nama="{{ $firstKeg->kegiatan ?? '' }}"
                         data-kegiatan-tanggal-mulai="{{ $firstKeg->tanggal_mulai ?? '' }}"
                         data-kegiatan-tanggal-selesai="{{ $firstKeg->tanggal_selesai ?? '' }}"
-                        data-kegiatan-kategori="{{ $firstKeg->kategori ?? '' }}">{{ $rpk->tahun }} - {{ $rpk->semester }} ({{ $rpk->user->name ?? '' }})</option>
+                        data-kegiatan-kategori="{{ $firstKeg->kategori ?? '' }}"
+                        data-bidang="{{ $firstKeg->kkmRule->bidang ?? '' }}"
+                        data-jenis="{{ $firstKeg->kkmRule->jenis_kegiatan ?? '' }}"
+                        data-ruang="{{ $firstKeg->kkmRule->ruang_lingkup ?? '' }}">{{ $rpk->tahun }} - {{ ucfirst($rpk->semester) }} - {{ $firstKeg->kkmRule->jenis_kegiatan ?? '-' }} ({{ $rpk->user->name ?? '' }})</option>
                 @endforeach
             </select>
         </div>
@@ -295,17 +582,20 @@ function generateSpkFormHTML(prefix) {
         </div>
         <div class="grid grid-cols-2 gap-3 mb-4">
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Hasil / Prestasi <span class="text-red-500">*</span></label>
-                <select name="prestasi_id" id="${prefix}_prestasi" class="w-full border border-gray-300 rounded-lg px-3 py-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm" required>
-                    <option value="" data-tingkat="">-- Pilih --</option>
-                    @foreach($prestasis as $prestasi)<option value="{{ $prestasi->id }}" data-tingkat="{{ $prestasi->tingkat }}">{{ $prestasi->juara }}</option>@endforeach
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Peran / Sifat Kegiatan <span class="text-red-500">*</span></label>
+                <select id="${prefix}_peran_sifat" class="w-full border border-gray-300 rounded-lg px-3 py-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm" required>
+                    <option value="">Pilih Peran/Sifat</option>
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Tingkat</label>
-                <input type="text" id="${prefix}_tingkat_display" class="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-3 outline-none text-sm" readonly>
-                <input type="hidden" name="tingkat" id="${prefix}_tingkat" value="">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Poin Kegiatan</label>
+                <input type="text" id="${prefix}_poin_display" class="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-3 outline-none text-sm" readonly placeholder="Otomatis">
+                <input type="hidden" name="poin" id="${prefix}_poin">
             </div>
+        </div>
+        <div id="${prefix}_estimasiPoinBox" class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg" style="display:none">
+            <p class="text-sm text-blue-700">Estimasi Poin: <span class="font-bold text-lg" id="${prefix}_estimasiPoinValue">0</span></p>
+            <p class="text-xs text-blue-500 mt-1 italic">Poin masuk setelah status SPK sudah disetujui</p>
         </div>
         <div class="mb-4">
             <label class="block text-sm font-semibold text-gray-700 mb-2">Penyelenggara <span class="text-red-500">*</span></label>
@@ -337,33 +627,10 @@ function generateSpkFormHTML(prefix) {
             <input type="url" name="link_drive" id="${prefix}_link_drive" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none" placeholder="https://drive.google.com/..." ${requiredAttr}>
             <p class="text-xs text-gray-400 mt-1">Contoh: https://drive.google.com/drive/folders/...</p>
         </div>
-        <div class="mb-4">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Surat Tugas${requiredStar}</label>
-            <div id="${prefix}_surat_tugas_preview"></div>
-            <input type="file" name="surat_tugas" id="${prefix}_surat_tugas" accept=".pdf" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none" ${requiredAttr} onchange="validateFileSize(this, 'Surat Tugas')">
-            <p class="text-xs text-gray-400 mt-1">Format: PDF | Maksimal: 5 MB</p>
-            <span class="file-error text-red-500 text-xs mt-1 hidden" id="${prefix}_surat_tugas_error">File terlalu besar! Maksimal 5 MB.</span>
-        </div>
-        <div class="mb-4">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Sertifikat / Foto Piala${requiredStar}</label>
-            <div id="${prefix}_sertifikat_preview"></div>
-            <input type="file" name="sertifikat" id="${prefix}_sertifikat" accept=".pdf,.jpg,.jpeg,.png" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none" ${requiredAttr} onchange="validateFileSize(this, 'Sertifikat')">
-            <p class="text-xs text-gray-400 mt-1">Format: PDF, JPG, JPEG, PNG | Maksimal: 5 MB</p>
-            <span class="file-error text-red-500 text-xs mt-1 hidden" id="${prefix}_sertifikat_error">File terlalu besar! Maksimal 5 MB.</span>
-        </div>
-        <div class="mb-4">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Foto Penyerahan${requiredStar}</label>
-            <div id="${prefix}_foto_penyerahan_preview"></div>
-            <input type="file" name="foto_penyerahan" id="${prefix}_foto_penyerahan" accept=".jpg,.jpeg,.png" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none" ${requiredAttr} onchange="validateFileSize(this, 'Foto Penyerahan')">
-            <p class="text-xs text-gray-400 mt-1">Format: JPG, JPEG, PNG | Maksimal: 5 MB</p>
-            <span class="file-error text-red-500 text-xs mt-1 hidden" id="${prefix}_foto_penyerahan_error">File terlalu besar! Maksimal 5 MB.</span>
-        </div>
-        <div class="mb-4">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Laporan (Format Template)${requiredStar}</label>
-            <div id="${prefix}_laporan_preview"></div>
-            <input type="file" name="laporan" id="${prefix}_laporan" accept=".pdf" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none" ${requiredAttr} onchange="validateFileSize(this, 'Laporan')">
-            <p class="text-xs text-gray-400 mt-1">Format: PDF | Maksimal: 5 MB</p>
-            <span class="file-error text-red-500 text-xs mt-1 hidden" id="${prefix}_laporan_error">File terlalu besar! Maksimal 5 MB.</span>
+        <input type="hidden" name="bidang" id="${prefix}_bidang_hidden">
+        <input type="hidden" name="jenis_kegiatan" id="${prefix}_jenis_hidden">
+        <div id="${prefix}_file_section">
+            <p class="text-sm text-gray-400 italic">Pilih Peran/Sifat untuk melihat dokumen yang diperlukan</p>
         </div>
     `;
 }
@@ -376,8 +643,8 @@ function bindLogikaFormSPK(prefix) {
             const opt = this.options[this.selectedIndex];
             document.getElementById(`${prefix}_kegiatan`).value = opt.dataset.kegiatanId || '';
             const judul = opt.dataset.kegiatanJudul || '';
-            const nama = opt.dataset.kegiatanNama || '';
-            document.getElementById(`${prefix}_kegiatan_display`).value = judul ? `${judul} (${nama})` : (nama || 'Tidak ada kegiatan');
+            const ruang = opt.dataset.ruang || '';
+            document.getElementById(`${prefix}_kegiatan_display`).value = judul ? `${judul} (${ruang})` : (ruang || 'Tidak ada kegiatan');
             const tMulai = opt.dataset.kegiatanTanggalMulai || '', tSelesai = opt.dataset.kegiatanTanggalSelesai || '';
             const display = document.getElementById(`${prefix}_tanggal_range_display`);
             if (display) {
@@ -388,10 +655,53 @@ function bindLogikaFormSPK(prefix) {
             document.getElementById(`${prefix}_tanggal`).value = tMulai;
             document.getElementById(`${prefix}_kategori_display`).value = opt.dataset.kegiatanKategori || '-';
             document.getElementById(`${prefix}_kategori`).value = opt.dataset.kegiatanKategori || '';
+
+            // Populate peran dropdown from kkmData hierarchy (bidang + jenis)
+            const bidang = opt.dataset.bidang || '';
+            const jenis = opt.dataset.jenis || '';
+            document.getElementById(`${prefix}_bidang_hidden`).value = bidang;
+            document.getElementById(`${prefix}_jenis_hidden`).value = jenis;
+            const peranSelect = document.getElementById(`${prefix}_peran_sifat`);
+            peranSelect.innerHTML = '<option value="">Pilih Peran/Sifat</option>';
+            if (bidang && jenis && kkmData[bidang] && kkmData[bidang][jenis]) {
+                kkmData[bidang][jenis].forEach(r => {
+                    const o = document.createElement('option');
+                    o.value = r.peran;
+                    o.textContent = r.peran;
+                    o.dataset.poin = r.poin;
+                    peranSelect.appendChild(o);
+                });
+            }
+            document.getElementById(`${prefix}_poin_display`).value = '';
+            document.getElementById(`${prefix}_poin`).value = '';
+            const estimasiBox = document.getElementById(`${prefix}_estimasiPoinBox`);
+            if (estimasiBox) estimasiBox.style.display = 'none';
+            document.getElementById(`${prefix}_file_section`).innerHTML = '<p class="text-sm text-gray-400 italic">Pilih Peran/Sifat untuk melihat dokumen yang diperlukan</p>';
         };
     }
-    const elPrestasi = document.getElementById(`${prefix}_prestasi`);
-    if (elPrestasi) elPrestasi.onchange = function() { const opt = this.options[this.selectedIndex]; document.getElementById(`${prefix}_tingkat_display`).value = opt.dataset.tingkat || ''; document.getElementById(`${prefix}_tingkat`).value = opt.dataset.tingkat || ''; };
+
+    const peranSelect = document.getElementById(`${prefix}_peran_sifat`);
+    if (peranSelect) {
+        peranSelect.onchange = function() {
+            const selected = this.options[this.selectedIndex];
+            const poin = selected.dataset.poin || '0';
+            document.getElementById(`${prefix}_poin_display`).value = poin;
+            document.getElementById(`${prefix}_poin`).value = poin;
+            const estimasiBox = document.getElementById(`${prefix}_estimasiPoinBox`);
+            const estimasiValue = document.getElementById(`${prefix}_estimasiPoinValue`);
+            if (poin && poin !== '0') {
+                estimasiValue.textContent = poin;
+                estimasiBox.style.display = '';
+            } else {
+                estimasiBox.style.display = 'none';
+            }
+            const bidang = document.getElementById(`${prefix}_bidang_hidden`).value;
+            const jenis = document.getElementById(`${prefix}_jenis_hidden`).value;
+            const peran = this.value;
+            const fileSection = document.getElementById(`${prefix}_file_section`);
+            fileSection.innerHTML = renderFileInputs(prefix, getFileReqs(bidang, jenis, peran));
+        };
+    }
 }
 
 // ⚡ TAMBAH SPK (FULL AJAX)
@@ -414,23 +724,19 @@ function bukaModalTambahSPK() {
             formData.append('tanggal_kegiatan', document.getElementById('add_tanggal').value);
             formData.append('penyelenggara', document.getElementById('add_penyelenggara').value);
             formData.append('kategori', document.getElementById('add_kategori').value);
-            formData.append('prestasi_id', document.getElementById('add_prestasi').value);
-            formData.append('tingkat', document.getElementById('add_tingkat').value);
+            formData.append('peran_sifat', document.getElementById('add_peran_sifat').value);
+            formData.append('poin', document.getElementById('add_poin').value);
             formData.append('judul_karya', document.getElementById('add_judul_karya').value);
             formData.append('biografi', document.getElementById('add_biografi')?.value || '');
             formData.append('rincian', document.getElementById('add_rincian')?.value || '');
             formData.append('kebaruan', document.getElementById('add_kebaruan')?.value || '');
             formData.append('url_kegiatan', document.getElementById('add_url').value);
             formData.append('link_drive', document.getElementById('add_link_drive').value);
+            formData.append('bidang', document.getElementById('add_bidang_hidden').value);
+            formData.append('jenis_kegiatan', document.getElementById('add_jenis_hidden').value);
             
-            const suratTugas = document.getElementById('add_surat_tugas').files[0];
-            const sertifikat = document.getElementById('add_sertifikat').files[0];
-            const fotoPenyerahan = document.getElementById('add_foto_penyerahan').files[0];
-            const laporan = document.getElementById('add_laporan').files[0];
-            if (suratTugas) formData.append('surat_tugas', suratTugas);
-            if (sertifikat) formData.append('sertifikat', sertifikat);
-            if (fotoPenyerahan) formData.append('foto_penyerahan', fotoPenyerahan);
-            if (laporan) formData.append('laporan', laporan);
+            const fileInputs = document.querySelectorAll('#add_file_section input[type="file"]');
+            fileInputs.forEach(input => { if (input.files[0]) formData.append(input.name, input.files[0]); });
             
             return fetch("{{ route('spks.store') }}", { method: 'POST', headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: formData })
             .then(res => res.json()).then(data => { if (data.success) return data; throw new Error(data.message); }).catch(err => { Swal.showValidationMessage(err.message); return false; });
@@ -453,8 +759,10 @@ function bukaModalEditSPK(button) {
             bindLogikaFormSPK('edit');
             document.getElementById('edit_tahun').value = button.getAttribute('data-tahun') || '';
             document.getElementById('edit_rpk').value = button.getAttribute('data-rpk'); document.getElementById('edit_rpk').dispatchEvent(new Event('change'));
-            ['surat_tugas','sertifikat','foto_penyerahan','laporan'].forEach(f => document.getElementById('edit_'+f+'_preview').innerHTML = generateFilePreview(f, button.getAttribute('data-'+f.replace(/_/g,'-'))));
-            if (typeof initPdfPreviews === 'function') initPdfPreviews();
+            const bidang = button.getAttribute('data-bidang') || '';
+            const jenis = button.getAttribute('data-jenis') || '';
+            document.getElementById('edit_bidang_hidden').value = bidang;
+            document.getElementById('edit_jenis_hidden').value = jenis;
             setTimeout(() => {
                 document.getElementById('edit_penyelenggara').value = button.getAttribute('data-penyelenggara') || '';
                 document.getElementById('edit_judul_karya').value = button.getAttribute('data-judul-karya') || '';
@@ -463,8 +771,34 @@ function bukaModalEditSPK(button) {
                 document.getElementById('edit_kebaruan').value = button.getAttribute('data-kebaruan') || '';
                 document.getElementById('edit_url').value = button.getAttribute('data-url') === 'null' ? '' : (button.getAttribute('data-url') || '');
                 document.getElementById('edit_link_drive').value = button.getAttribute('data-link-drive') === 'null' ? '' : (button.getAttribute('data-link-drive') || '');
-                const prestasiId = button.getAttribute('data-prestasi');
-                if (prestasiId && prestasiId !== 'null') { const el = document.getElementById('edit_prestasi'); if (el) { el.value = prestasiId; el.dispatchEvent(new Event('change')); } }
+                const peranSifat = button.getAttribute('data-peran-sifat');
+                if (peranSifat) {
+                    const el = document.getElementById('edit_peran_sifat');
+                    if (el) { el.value = peranSifat; el.dispatchEvent(new Event('change')); }
+                    const fileSection = document.getElementById('edit_file_section');
+                    const reqs = getFileReqs(bidang, jenis, peranSifat);
+                    const fileHtml = renderFileInputs('edit', reqs);
+                    fileSection.innerHTML = fileHtml;
+                    reqs.forEach(r => {
+                        const val = button.getAttribute('data-' + r.col.replace(/_/g, '-'));
+                        if (val && val !== 'null') {
+                            const prev = document.getElementById('edit_' + r.col + '_preview');
+                            if (prev) prev.innerHTML = generateFilePreview(r.label, val);
+                        }
+                    });
+                    if (typeof initPdfPreviews === 'function') initPdfPreviews();
+                }
+                const poinVal = button.getAttribute('data-poin') || '0';
+                document.getElementById('edit_poin_display').value = poinVal;
+                document.getElementById('edit_poin').value = poinVal;
+                const estimasiBox = document.getElementById('edit_estimasiPoinBox');
+                const estimasiValue = document.getElementById('edit_estimasiPoinValue');
+                if (poinVal && poinVal !== '0') {
+                    estimasiValue.textContent = poinVal;
+                    estimasiBox.style.display = '';
+                } else {
+                    estimasiBox.style.display = 'none';
+                }
             }, 200);
         },
         preConfirm: () => { 
@@ -479,23 +813,19 @@ function bukaModalEditSPK(button) {
             formData.append('tanggal_kegiatan', document.getElementById('edit_tanggal').value);
             formData.append('penyelenggara', document.getElementById('edit_penyelenggara').value);
             formData.append('kategori', document.getElementById('edit_kategori').value);
-            formData.append('prestasi_id', document.getElementById('edit_prestasi').value);
-            formData.append('tingkat', document.getElementById('edit_tingkat').value);
+            formData.append('peran_sifat', document.getElementById('edit_peran_sifat').value);
+            formData.append('poin', document.getElementById('edit_poin').value);
             formData.append('judul_karya', document.getElementById('edit_judul_karya').value);
             formData.append('biografi', document.getElementById('edit_biografi')?.value || '');
             formData.append('rincian', document.getElementById('edit_rincian')?.value || '');
             formData.append('kebaruan', document.getElementById('edit_kebaruan')?.value || '');
             formData.append('url_kegiatan', document.getElementById('edit_url').value);
             formData.append('link_drive', document.getElementById('edit_link_drive').value);
+            formData.append('bidang', document.getElementById('edit_bidang_hidden').value);
+            formData.append('jenis_kegiatan', document.getElementById('edit_jenis_hidden').value);
             
-            const suratTugas = document.getElementById('edit_surat_tugas').files[0];
-            const sertifikat = document.getElementById('edit_sertifikat').files[0];
-            const fotoPenyerahan = document.getElementById('edit_foto_penyerahan').files[0];
-            const laporan = document.getElementById('edit_laporan').files[0];
-            if (suratTugas) formData.append('surat_tugas', suratTugas);
-            if (sertifikat) formData.append('sertifikat', sertifikat);
-            if (fotoPenyerahan) formData.append('foto_penyerahan', fotoPenyerahan);
-            if (laporan) formData.append('laporan', laporan);
+            const fileInputs = document.querySelectorAll('#edit_file_section input[type="file"]');
+            fileInputs.forEach(input => { if (input.files[0]) formData.append(input.name, input.files[0]); });
             
             return fetch(`/spks/${id}`, { method: 'POST', headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: formData })
             .then(res => res.json()).then(data => { if (data.success) return data; throw new Error(data.message); }).catch(err => { Swal.showValidationMessage(err.message); return false; });
@@ -510,15 +840,17 @@ function validasiFormSPK(prefix) {
     if (!el('tahun')?.value) { Swal.showValidationMessage('Harap pilih Tahun Pengajuan!'); return false; }
     if (!el('rpk')?.value) { Swal.showValidationMessage('Harap pilih RPK!'); return false; }
     if (!el('kegiatan')?.value) { Swal.showValidationMessage('Kegiatan tidak tersedia!'); return false; }
-    if (!el('prestasi')?.value) { Swal.showValidationMessage('Harap pilih Hasil / Prestasi!'); return false; }
+    if (!el('peran_sifat')?.value) { Swal.showValidationMessage('Harap pilih Peran / Sifat Kegiatan!'); return false; }
     if (!el('penyelenggara')?.value) { Swal.showValidationMessage('Harap isi Penyelenggara!'); return false; }
     if (!el('judul_karya')?.value) { Swal.showValidationMessage('Harap isi Judul Karya!'); return false; }
     
-    if (prefix === 'add') {
-        if (!document.getElementById('add_surat_tugas')?.files[0]) { Swal.showValidationMessage('Harap upload Surat Tugas!'); return false; }
-        if (!document.getElementById('add_sertifikat')?.files[0]) { Swal.showValidationMessage('Harap upload Sertifikat!'); return false; }
-        if (!document.getElementById('add_foto_penyerahan')?.files[0]) { Swal.showValidationMessage('Harap upload Foto Penyerahan!'); return false; }
-        if (!document.getElementById('add_laporan')?.files[0]) { Swal.showValidationMessage('Harap upload Laporan!'); return false; }
+    const fileInputs = document.querySelectorAll(`#${prefix}_file_section input[type="file"][required]`);
+    for (const input of fileInputs) {
+        if (!input.files[0]) {
+            const label = input.closest('.mb-4')?.querySelector('label')?.textContent?.replace('*', '').trim() || 'File';
+            Swal.showValidationMessage(`Harap upload ${label}!`);
+            return false;
+        }
     }
     
     return true;

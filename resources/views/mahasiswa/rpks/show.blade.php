@@ -226,12 +226,14 @@
                     <td class="px-4 py-3 text-center">
                         <button onclick="bukaModalEditKegiatan(this)"
                             data-id="{{ $kegiatan->id }}"
-                            data-master="{{ $kegiatan->master_kegiatan_id }}"
+                            data-kkm-rule-id="{{ $kegiatan->kkm_rule_id ?? '' }}"
+                            data-bidang="{{ e($kegiatan->kkmRule->bidang ?? '') }}"
+                            data-jenis="{{ e($kegiatan->kkmRule->jenis_kegiatan ?? '') }}"
+                            data-ruang="{{ e($kegiatan->kkmRule->ruang_lingkup ?? '') }}"
                             data-judul="{{ $kegiatan->judul_kegiatan }}"
                             data-tanggal-mulai="{{ $kegiatan->tanggal_mulai ? \Carbon\Carbon::parse($kegiatan->tanggal_mulai)->format('Y-m-d') : '' }}"
                             data-tanggal-selesai="{{ $kegiatan->tanggal_selesai ? \Carbon\Carbon::parse($kegiatan->tanggal_selesai)->format('Y-m-d') : '' }}"
                             data-kategori="{{ $kegiatan->kategori }}"
-                            data-peran="{{ $kegiatan->peran ?? '' }}"
                             data-jumlah="{{ $kegiatan->jumlah_anggota ?? '' }}"
                             class="bg-yellow-500 hover:bg-yellow-400 text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition">
                             Edit
@@ -592,8 +594,6 @@ window.initDateRangePicker = function(prefix) {
 // 📋 BIND LOGIKA FORM
 window.bindLogikaForm = function(prefix) {
     var elKat = document.getElementById(`${prefix}_kategori`);
-    var elPeran = document.getElementById(`${prefix}_peran`);
-    var elPeranField = document.getElementById(`${prefix}_peranField`);
     var elJumlah = document.getElementById(`${prefix}_jumlah`);
     var elJumlahField = document.getElementById(`${prefix}_jumlahField`);
     var elAnggotaContainer = document.getElementById(`${prefix}_anggotaContainer`);
@@ -601,12 +601,10 @@ window.bindLogikaForm = function(prefix) {
 
     window.anggotaTerpilih[prefix] = [];
     
-    // Inisialisasi date range picker
     setTimeout(() => {
         window.initDateRangePicker(prefix);
     }, 100);
     
-    // Reset pencarian
     if (elCariAnggota) {
         elCariAnggota.value = '';
         elCariAnggota.placeholder = '🔍 Cari dan pilih mahasiswa...';
@@ -614,10 +612,9 @@ window.bindLogikaForm = function(prefix) {
 
     function updateAnggotaVisibility() {
         var kat = elKat?.value;
-        var peran = elPeran?.value;
         var jumlah = parseInt(elJumlah?.value || 0);
         
-        if (kat === 'Kelompok' && peran === 'Ketua' && jumlah > 0) {
+        if (kat === 'Kelompok' && jumlah > 0) {
             if (elAnggotaContainer) {
                 elAnggotaContainer.classList.remove('hidden');
                 if (elCariAnggota) {
@@ -635,22 +632,6 @@ window.bindLogikaForm = function(prefix) {
     if (elKat) {
         elKat.addEventListener('change', function() {
             if (this.value === 'Kelompok') {
-                if (elPeranField) elPeranField.classList.remove('hidden');
-            } else { 
-                if (elPeranField) elPeranField.classList.add('hidden'); 
-                if (elJumlahField) elJumlahField.classList.add('hidden'); 
-                if (elAnggotaContainer) elAnggotaContainer.classList.add('hidden'); 
-                if (elPeran) elPeran.value = ''; 
-                if (elJumlah) elJumlah.value = ''; 
-                window.anggotaTerpilih[prefix] = []; 
-                window.renderAnggotaTerpilih(prefix); 
-            }
-        });
-    }
-    
-    if (elPeran) {
-        elPeran.addEventListener('change', function() {
-            if (this.value === 'Ketua') {
                 if (elJumlahField) elJumlahField.classList.remove('hidden');
             } else { 
                 if (elJumlahField) elJumlahField.classList.add('hidden'); 
@@ -666,7 +647,7 @@ window.bindLogikaForm = function(prefix) {
         elJumlah.addEventListener('change', function() { updateAnggotaVisibility(); });
         elJumlah.addEventListener('input', function() {
             var j = parseInt(this.value);
-            if (j > 0 && elKat?.value === 'Kelompok' && elPeran?.value === 'Ketua') {
+            if (j > 0 && elKat?.value === 'Kelompok') {
                 if (elAnggotaContainer) elAnggotaContainer.classList.remove('hidden');
             }
         });
@@ -701,22 +682,39 @@ window.hapusAnggota = function(prefix, index) {
 
 // ✅ VALIDASI FORM
 window.validasiForm = function(prefix) {
-    var m = document.getElementById(`${prefix}_master`)?.value;
+    var bidang = document.getElementById(`${prefix}_bidang`)?.value;
+    var jenis = document.getElementById(`${prefix}_jenis`)?.value;
+    var ruang = document.getElementById(`${prefix}_ruang`)?.value;
+    var kkmRuleId = document.getElementById(`${prefix}_kkm_rule_id`)?.value;
     var j = document.getElementById(`${prefix}_judul`)?.value?.trim();
     var tMulai = document.getElementById(`${prefix}_tanggal_mulai`)?.value;
     var tSelesai = document.getElementById(`${prefix}_tanggal_selesai`)?.value;
     var tRange = document.getElementById(`${prefix}_tanggal_range`)?.value;
     var k = document.getElementById(`${prefix}_kategori`)?.value;
-    var p = document.getElementById(`${prefix}_peran`)?.value;
     var jml = document.getElementById(`${prefix}_jumlah`)?.value;
     
-    if (!m || !j || !tRange || !k) { 
-        Swal.showValidationMessage('Kegiatan, Judul, Tanggal, dan Kategori wajib diisi!'); 
+    if (!bidang || !jenis) { 
+        Swal.showValidationMessage('Bidang dan Jenis Kegiatan wajib dipilih!'); 
+        return false; 
+    }
+
+    if (!ruang) {
+        Swal.showValidationMessage('Ruang Lingkup wajib dipilih!');
+        return false;
+    }
+
+    if (!kkmRuleId) {
+        Swal.showValidationMessage('Silakan lengkapi pemilihan aturan KKM!');
+        return false;
+    }
+    
+    if (!j || !tRange || !k) { 
+        Swal.showValidationMessage('Judul, Tanggal, dan Kategori wajib diisi!'); 
         return false; 
     }
     
     if (!tMulai || !tSelesai) {
-        Swal.showValidationMessage('Harap pilih rentang tanggal dengan lengkap (tanggal mulai dan selesai)!');
+        Swal.showValidationMessage('Harap pilih rentang tanggal dengan lengkap!');
         return false;
     }
     
@@ -725,13 +723,9 @@ window.validasiForm = function(prefix) {
         return false;
     }
     
-    if (k === 'Kelompok' && !p) { 
-        Swal.showValidationMessage('Karena Kelompok, harap pilih Peran!'); 
-        return false; 
-    }
-    if (k === 'Kelompok' && p === 'Ketua') {
+    if (k === 'Kelompok') {
         if (!jml) { 
-            Swal.showValidationMessage('Karena Anda Ketua, harap isi Jumlah Anggota!'); 
+            Swal.showValidationMessage('Karena Kelompok, harap isi Jumlah Anggota!'); 
             return false; 
         }
         var dipilih = (window.anggotaTerpilih[prefix] || []).length;
@@ -744,19 +738,32 @@ window.validasiForm = function(prefix) {
     return true;
 };
 
-// 📝 GENERATE FORM HTML
+// 📝 GENERATE FORM HTML (KKM CASCADE — MATCHES ADMIN FORM)
 window.generateFormHTML = function(prefix) {
     return `
         <div class="mb-4">
-           <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Kegiatan <span class="text-red-500">*</span></label>
-            <select name="master_kegiatan_id" id="${prefix}_master" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" required>
-                <option value="">Pilih Kegiatan</option>
-                @foreach($masterKegiatans as $item)
-                    <option value="{{ $item->id }}">{{ $item->nama_kegiatan }}</option>
-                @endforeach
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Bidang <span class="text-red-500">*</span></label>
+            <select id="${prefix}_bidang" onchange="window.onBidangChange('${prefix}')" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" required>
+                <option value="">Pilih Bidang</option>
             </select>
         </div>
-    
+
+        <div class="mb-4">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Jenis Kegiatan <span class="text-red-500">*</span></label>
+            <select id="${prefix}_jenis" onchange="window.onJenisChange('${prefix}')" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" required disabled>
+                <option value="">-- Pilih Bidang Terlebih Dahulu --</option>
+            </select>
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Ruang Lingkup <span class="text-red-500">*</span></label>
+            <select id="${prefix}_ruang" onchange="window.onRuangChange('${prefix}')" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" disabled>
+                <option value="">-- Pilih Jenis Terlebih Dahulu --</option>
+            </select>
+        </div>
+
+        <input type="hidden" id="${prefix}_kkm_rule_id" value="">
+
         <div class="mb-4">
             <label class="block text-sm font-semibold text-gray-700 mb-2">Judul Kegiatan <span class="text-red-500">*</span></label>
             <input type="text" name="judul_kegiatan" id="${prefix}_judul" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Masukkan judul kegiatan" required>
@@ -780,18 +787,10 @@ window.generateFormHTML = function(prefix) {
         
         <div class="mb-4">
             <label class="block text-sm font-semibold text-gray-700 mb-2">Kategori <span class="text-red-500">*</span></label>
-            <select name="kategori" id="${prefix}_kategori" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" required>
+            <select name="kategori" id="${prefix}_kategori" onchange="window.bindLogikaForm('${prefix}')" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition" required>
                 <option value="">Pilih Kategori</option>
                 <option value="Individu">Individu</option>
                 <option value="Kelompok">Kelompok</option>
-            </select>
-        </div>
-        
-        <div class="mb-4 hidden" id="${prefix}_peranField">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Peran <span class="text-red-500">*</span></label>
-            <select name="peran" id="${prefix}_peran" class="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition">
-                <option value="">Pilih Peran</option>
-                <option value="Ketua">Ketua</option>
             </select>
         </div>
         
@@ -849,6 +848,69 @@ window.generateFormHTML = function(prefix) {
         </div>`;
 };
 
+// ⚡ KKM CASCADE LOGIC (MATCHES ADMIN: Bidang → Jenis → Peran → Ruang → Poin)
+window.fetchKKMOptions = async function(params = {}) {
+    const qs = new URLSearchParams(params).toString();
+    const url = '{{ route("kkm-rules.options") }}?' + qs;
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    return res.json();
+};
+
+window.initKKMCascade = async function(prefix) {
+    const data = await window.fetchKKMOptions();
+    const bidangSelect = document.getElementById(`${prefix}_bidang`);
+    if (!bidangSelect) return;
+    bidangSelect.innerHTML = '<option value="">Pilih Bidang</option>';
+    data.bidang.forEach(b => {
+        bidangSelect.innerHTML += `<option value="${b}">${b}</option>`;
+    });
+    bidangSelect.disabled = false;
+};
+
+window.onBidangChange = async function(prefix) {
+    const bidang = document.getElementById(`${prefix}_bidang`).value;
+    const jenisSelect = document.getElementById(`${prefix}_jenis`);
+    const ruangSelect = document.getElementById(`${prefix}_ruang`);
+    
+    jenisSelect.innerHTML = '<option value="">Pilih Jenis Kegiatan</option>';
+    jenisSelect.disabled = true;
+    ruangSelect.innerHTML = '<option value="">-- Pilih Jenis Terlebih Dahulu --</option>';
+    ruangSelect.disabled = true;
+    document.getElementById(`${prefix}_kkm_rule_id`).value = '';
+
+    if (!bidang) return;
+    const data = await window.fetchKKMOptions({ bidang });
+    data.jenis_kegiatan.forEach(j => {
+        jenisSelect.innerHTML += `<option value="${j}">${j}</option>`;
+    });
+    jenisSelect.disabled = false;
+};
+
+window.onJenisChange = async function(prefix) {
+    const bidang = document.getElementById(`${prefix}_bidang`).value;
+    const jenis = document.getElementById(`${prefix}_jenis`).value;
+    const ruangSelect = document.getElementById(`${prefix}_ruang`);
+
+    ruangSelect.innerHTML = '<option value="">-- Pilih Ruang Lingkup --</option>';
+    ruangSelect.disabled = true;
+    document.getElementById(`${prefix}_kkm_rule_id`).value = '';
+
+    if (!bidang || !jenis) return;
+    const data = await window.fetchKKMOptions({ bidang, jenis_kegiatan: jenis });
+
+    ruangSelect.innerHTML += '<option value="Tidak Ada / Statis">Tidak Ada / Statis</option>';
+    if (data.ruang_lingkup.length > 0) {
+        data.ruang_lingkup.forEach(r => {
+            ruangSelect.innerHTML += `<option value="${r}">${r}</option>`;
+        });
+    }
+    ruangSelect.disabled = false;
+
+    if (data.preview) {
+        document.getElementById(`${prefix}_kkm_rule_id`).value = data.preview.kkm_rule_id;
+    }
+};
+
 // ➕ BUKA MODAL TAMBAH KEGIATAN (FULL AJAX)
 window.bukaModalTambahKegiatan = function() {
     Swal.fire({
@@ -863,6 +925,7 @@ window.bukaModalTambahKegiatan = function() {
         allowOutsideClick: false,  // ⚡ TAMBAH
         customClass: { popup: 'rounded-2xl p-6' },  // ⚡ TAMBAH
         didOpen: () => { 
+            window.initKKMCascade('add');
             window.bindLogikaForm('add'); 
             window.anggotaTerpilih['add'] = []; 
         },
@@ -873,12 +936,11 @@ window.bukaModalTambahKegiatan = function() {
             
             const formData = new FormData();
             formData.append('_token', '{{ csrf_token() }}');
-            formData.append('master_kegiatan_id', document.getElementById('add_master').value);
+            formData.append('kkm_rule_id', document.getElementById('add_kkm_rule_id').value);
             formData.append('judul_kegiatan', document.getElementById('add_judul').value);
             formData.append('tanggal_mulai', document.getElementById('add_tanggal_mulai').value);
             formData.append('tanggal_selesai', document.getElementById('add_tanggal_selesai').value);
             formData.append('kategori', document.getElementById('add_kategori').value);
-            formData.append('peran', document.getElementById('add_peran')?.value || '');
             formData.append('jumlah_anggota', document.getElementById('add_jumlah')?.value || '');
             formData.append('anggota_ids', document.getElementById('add_anggotaHidden')?.value || '');
             
@@ -902,11 +964,15 @@ window.bukaModalTambahKegiatan = function() {
     });
 };
 
-// ✏️ BUKA MODAL EDIT KEGIATAN (FLATPICKR RANGE + AJAX INLINE)
+// ✏️ BUKA MODAL EDIT KEGIATAN (FLATPICKR RANGE + CASCADE RECONSTRUCTION)
 window.bukaModalEditKegiatan = function(button) {
     var id = button.getAttribute('data-id');
     var tMulai = button.getAttribute('data-tanggal-mulai') || '';
     var tSelesai = button.getAttribute('data-tanggal-selesai') || '';
+
+    var editBidang = button.getAttribute('data-bidang') || '';
+    var editJenis = button.getAttribute('data-jenis') || '';
+    var editRuang = button.getAttribute('data-ruang') || '';
 
     Swal.fire({
         title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Edit Kegiatan</h2>',
@@ -919,23 +985,37 @@ window.bukaModalEditKegiatan = function(button) {
         cancelButtonColor: '#9CA3AF',
         allowOutsideClick: false,
         customClass: { popup: 'rounded-2xl p-6' },
-        didOpen: () => {
+        didOpen: async () => {
             window.bindLogikaForm('edit');
             window.anggotaTerpilih['edit'] = [];
 
-            document.getElementById('edit_master').value = button.getAttribute('data-master');
             document.getElementById('edit_judul').value = button.getAttribute('data-judul') || '';
 
             var katValue = button.getAttribute('data-kategori');
             document.getElementById('edit_kategori').value = katValue;
 
             if (katValue === 'Kelompok') {
-                document.getElementById('edit_peranField').classList.remove('hidden');
-                document.getElementById('edit_peran').value = button.getAttribute('data-peran');
-                if (button.getAttribute('data-peran') === 'Ketua') {
-                    document.getElementById('edit_jumlahField').classList.remove('hidden');
-                    document.getElementById('edit_jumlah').value = button.getAttribute('data-jumlah');
-                    document.getElementById('edit_anggotaContainer').classList.remove('hidden');
+                document.getElementById('edit_jumlahField').classList.remove('hidden');
+                document.getElementById('edit_jumlah').value = button.getAttribute('data-jumlah');
+                document.getElementById('edit_anggotaContainer').classList.remove('hidden');
+            }
+
+            // ⚡ Reconstruct KKM cascade from data attributes
+            if (editBidang) {
+                await window.initKKMCascade('edit');
+                document.getElementById('edit_bidang').value = editBidang;
+                await window.onBidangChange('edit');
+            }
+            if (editJenis) {
+                document.getElementById('edit_jenis').value = editJenis;
+                await window.onJenisChange('edit');
+            }
+            if (editRuang) {
+                await new Promise(r => setTimeout(r, 100));
+                var ruangOpt = document.querySelector('#edit_ruang option[value="' + editRuang + '"]');
+                if (ruangOpt) {
+                    document.getElementById('edit_ruang').value = editRuang;
+                    await window.onRuangChange('edit');
                 }
             }
 
@@ -955,12 +1035,11 @@ window.bukaModalEditKegiatan = function(button) {
 
             var formData = new FormData();
             formData.append('_method', 'PUT');
-            formData.append('master_kegiatan_id', document.getElementById('edit_master').value);
+            formData.append('kkm_rule_id', document.getElementById('edit_kkm_rule_id').value);
             formData.append('judul_kegiatan', document.getElementById('edit_judul').value);
             formData.append('tanggal_mulai', document.getElementById('edit_tanggal_mulai').value);
             formData.append('tanggal_selesai', document.getElementById('edit_tanggal_selesai').value);
             formData.append('kategori', document.getElementById('edit_kategori').value);
-            formData.append('peran', document.getElementById('edit_peran')?.value || '');
             formData.append('jumlah_anggota', document.getElementById('edit_jumlah')?.value || '');
             formData.append('anggota_ids', document.getElementById('edit_anggotaHidden')?.value || '');
 

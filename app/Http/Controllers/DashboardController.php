@@ -24,15 +24,15 @@ class DashboardController extends Controller
 
         if ($user->roles->contains('name', 'Admin')) {
             $stats = $this->dashboardService->getAdminStats();
-            $tingkat = $this->dashboardService->getAdminTingkatChart();
+            $tingkat = $this->dashboardService->getAdminRuangLingkupChart();
             $kategori = $this->dashboardService->getAdminKategoriChart();
             $topMahasiswa = $this->dashboardService->getTopMahasiswa();
             $aktivitasTerbaru = $this->dashboardService->getAktivitasTerbaru();
             $rasio = $this->dashboardService->getAdminRasioBimbingan();
 
             return view('dashboard.admin', array_merge(
-                $stats, $tingkat, $kategori,
-                compact('topMahasiswa', 'aktivitasTerbaru', 'rasio')
+                $stats, $kategori,
+                compact('topMahasiswa', 'aktivitasTerbaru', 'rasio', 'tingkat')
             ));
         }
 
@@ -53,14 +53,14 @@ class DashboardController extends Controller
         $dosenPembimbing = $user->rpks()->latest()->first()?->dosenPembimbing;
 
         $stats = $this->dashboardService->getMahasiswaStats($user->id);
-        $tingkat = $this->dashboardService->getMahasiswaTingkatChart($user->id);
+        $tingkat = $this->dashboardService->getMahasiswaRuangLingkupChart($user->id);
         $kategori = $this->dashboardService->getMahasiswaKategoriChart($user->id);
         $bulanan = $this->dashboardService->getMahasiswaBulananChart($user->id);
         $kegiatanTerbaru = $this->dashboardService->getMahasiswaKegiatanTerbaru($user->id);
 
         return view('dashboard.mahasiswa', array_merge(
-            compact('dosenPembimbing', 'kegiatanTerbaru'),
-            $stats, $tingkat, $kategori, $bulanan
+            $stats, $kategori, $bulanan,
+            compact('dosenPembimbing', 'kegiatanTerbaru', 'tingkat')
         ));
     }
 
@@ -70,7 +70,7 @@ class DashboardController extends Controller
 
         if ($user->roles->contains('name', 'Admin')) {
             $stats = $this->dashboardService->getAdminStats();
-            $tingkat = $this->dashboardService->getAdminTingkatChart();
+            $tingkat = $this->dashboardService->getAdminRuangLingkupChart();
             $kategori = $this->dashboardService->getAdminKategoriChart();
 
             $aktivitasTerbaru = $this->dashboardService->getAktivitasTerbaru()
@@ -83,7 +83,7 @@ class DashboardController extends Controller
             return response()->json([
                 'role' => 'Admin',
                 'stats' => $stats,
-                'tingkat' => $tingkat,
+                'tingkat' => $tingkat->toArray(),
                 'kategori' => $kategori,
                 'aktivitasTerbaru' => $aktivitasTerbaru,
             ]);
@@ -97,14 +97,14 @@ class DashboardController extends Controller
         }
 
         $stats = $this->dashboardService->getMahasiswaStats($user->id);
-        $tingkat = $this->dashboardService->getMahasiswaTingkatChart($user->id);
+        $tingkat = $this->dashboardService->getMahasiswaRuangLingkupChart($user->id);
         $kategori = $this->dashboardService->getMahasiswaKategoriChart($user->id);
         $bulanan = $this->dashboardService->getMahasiswaBulananChart($user->id);
 
         return response()->json([
             'role' => 'Mahasiswa',
             'stats' => $stats,
-            'tingkat' => $tingkat,
+            'tingkat' => $tingkat->toArray(),
             'kategori' => $kategori,
             'bulanan' => $bulanan,
         ]);

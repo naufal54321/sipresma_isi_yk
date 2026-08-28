@@ -372,6 +372,14 @@ window.approveKegiatan = function(id) {
     }).then((result) => {
         if (!result.isConfirmed) return;
 
+        Swal.fire({
+            title: 'Memproses...',
+            text: 'Mengirim notifikasi email...',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            didOpen: () => Swal.showLoading()
+        });
+
         fetch('/dosen/rpk/' + id + '/approve', {
             method: 'PUT',
             headers: {
@@ -410,6 +418,14 @@ window.rejectKegiatan = function(id) {
         }
     }).then((result) => {
         if (!result.isConfirmed) return;
+
+        Swal.fire({
+            title: 'Memproses...',
+            text: 'Mengirim notifikasi email...',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            didOpen: () => Swal.showLoading()
+        });
 
         fetch('/dosen/rpk/' + id + '/reject', {
             method: 'PUT',

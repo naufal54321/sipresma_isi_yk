@@ -1,7 +1,7 @@
 <x-app-layout>
 
-<div class="py-6 overflow-x-hidden">
-    <div class="max-w-8xl mx-auto py-6">
+<div class="py-1 overflow-x-hidden">
+    <div class="max-w-8xl mx-auto py-1">
 
         {{-- HERO --}}
         <div class="relative bg-slate-900 rounded-3xl p-8 sm:p-10 text-white shadow-2xl shadow-slate-900/20 mb-6 overflow-hidden border border-slate-800">
@@ -54,6 +54,65 @@
                         <i class="fas fa-exclamation-circle animate-pulse-soft"></i> Belum memiliki dosen pembimbing
                     </p>
                 @endif
+            </div>
+        </div>
+
+        {{-- Predikat Section --}}
+        <div class="mb-8 animate-fade-in-up" style="animation-delay: 0.45s">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow duration-300">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 bg-gradient-to-br from-{{ $predikatColor }}-400 to-{{ $predikatColor }}-600 rounded-2xl flex items-center justify-center text-white text-2xl shrink-0 shadow-lg shadow-{{ $predikatColor }}-500/20">
+                        <i class="fas {{ $syaratTerpenuhi ? 'fa-award' : 'fa-exclamation-triangle' }}"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Predikat Prestasi</p>
+                        <h2 class="text-2xl font-extrabold text-slate-800 mt-0.5" id="predikat-text">{{ $predikat }}</h2>
+                        @if(!$syaratTerpenuhi)
+                        <div class="flex gap-3 mt-2 text-xs" id="poin-breakdown">
+                            <span class="px-2 py-0.5 rounded {{ $poinProfesional >= 25 ? 'bg-blue-50 text-blue-600' : 'bg-red-50 text-red-500' }}">
+                                Orientasi Kompetensi Profesional: {{ $poinProfesional }}/25
+                            </span>
+                            <span class="px-2 py-0.5 rounded {{ $poinKepribadian >= 25 ? 'bg-purple-50 text-purple-600' : 'bg-red-50 text-red-500' }}">
+                                Kompetensi Kepribadian dan Sosial: {{ $poinKepribadian }}/25
+                            </span>
+                        </div>
+                        @endif
+                    </div>
+                    <div class="px-4 py-2 bg-{{ $predikatColor }}-50 text-{{ $predikatColor }}-600 rounded-xl text-sm font-bold border border-{{ $predikatColor }}-100" id="predikat-badge">
+                        {{ $totalPoin }} Poin
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Kriteria Predikat --}}
+        <div class="mb-8 bg-white p-5 rounded-2xl shadow-sm border border-slate-100 animate-fade-in-up" style="animation-delay: 0.45s">
+            <p class="text-[12px] font-bold uppercase tracking-widest text-slate-400 mb-3">Kriteria Predikat</p>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                    <span class="font-semibold text-slate-700">Unggul</span>
+                    <span class="text-slate-400">&gt; 150 poin</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
+                    <span class="font-semibold text-slate-700">Sangat Baik</span>
+                    <span class="text-slate-400">100 – 149 poin</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+                    <span class="font-semibold text-slate-700">Baik</span>
+                    <span class="text-slate-400">75 – 99 poin</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-orange-500 shrink-0"></span>
+                    <span class="font-semibold text-slate-700">Cukup</span>
+                    <span class="text-slate-400">50 – 74 poin</span>
+                </div>
+            </div>
+            <div class="mt-3 flex items-start gap-2 text-[14px] text-red-600 bg-red-50 rounded-lg px-3 py-2">
+                <i class="fas fa-info-circle text-red-600 mt-0.5 shrink-0"></i>
+                <span>Mahasiswa pada program Strata 1 dan Diploma wajib memenuhi minimal 50 poin kredit keaktifan mahasiswa dari kedua bidang kompetensi.</span>
             </div>
         </div>
 
@@ -112,7 +171,7 @@
 
         @php
         $cfgPieMhs = json_encode(['type'=>'pie','data'=>['labels'=>['Draft','Disetujui','Ditolak'],'datasets'=>[['data'=>[$draft,$disetujui,$ditolak],'backgroundColor'=>['#f97316','#10b981','#ef4444'],'borderWidth'=>0,'hoverOffset'=>4]]],'options'=>['responsive'=>true,'maintainAspectRatio'=>false,'animation'=>['animateScale'=>true,'duration'=>1000],'plugins'=>['tooltip'=>['backgroundColor'=>'rgba(15,23,42,0.9)','padding'=>12,'cornerRadius'=>8],'legend'=>['position'=>'bottom','labels'=>['usePointStyle'=>true,'padding'=>20]]]]]);
-        $cfgBarMhs = json_encode(['type'=>'bar','data'=>['labels'=>['Universitas','Regional','Nasional','Internasional'],'datasets'=>[['label'=>'Jumlah Prestasi','data'=>[$universitas,$regional,$nasional,$internasional],'backgroundColor'=>'#3b82f6','borderRadius'=>6,'barPercentage'=>0.5]]],'options'=>['responsive'=>true,'maintainAspectRatio'=>false,'animation'=>['duration'=>1200,'easing'=>'easeOutQuart'],'plugins'=>['tooltip'=>['backgroundColor'=>'rgba(15,23,42,0.9)','padding'=>12,'cornerRadius'=>8],'legend'=>['display'=>false]],'scales'=>['y'=>['beginAtZero'=>true,'ticks'=>['stepSize'=>1],'grid'=>['color'=>'#f1f5f9'],'border'=>['display'=>false]],'x'=>['grid'=>['display'=>false],'border'=>['display'=>false]]]]]);
+        $cfgBarMhs = json_encode(['type'=>'bar','data'=>['labels'=>$tingkat->keys()->toArray(),'datasets'=>[['label'=>'Jumlah Prestasi','data'=>$tingkat->values()->toArray(),'backgroundColor'=>'#3b82f6','borderRadius'=>6,'barPercentage'=>0.5]]],'options'=>['responsive'=>true,'maintainAspectRatio'=>false,'animation'=>['duration'=>1200,'easing'=>'easeOutQuart'],'plugins'=>['tooltip'=>['backgroundColor'=>'rgba(15,23,42,0.9)','padding'=>12,'cornerRadius'=>8],'legend'=>['display'=>false]],'scales'=>['y'=>['beginAtZero'=>true,'ticks'=>['stepSize'=>1],'grid'=>['color'=>'#f1f5f9'],'border'=>['display'=>false]],'x'=>['grid'=>['display'=>false],'border'=>['display'=>false]]]]]);
         $cfgDonutMhs = json_encode(['type'=>'doughnut','data'=>['labels'=>$kategoriLabels,'datasets'=>[['data'=>$kategoriData,'backgroundColor'=>['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#0ea5e9','#f43f5e','#14b8a6'],'borderWidth'=>0,'hoverOffset'=>4]]],'options'=>['responsive'=>true,'maintainAspectRatio'=>false,'cutout'=>'65%','animation'=>['animateScale'=>true,'animateRotate'=>true,'duration'=>1500,'easing'=>'easeOutBounce'],'plugins'=>['tooltip'=>['backgroundColor'=>'rgba(15,23,42,0.9)','padding'=>12,'cornerRadius'=>8],'legend'=>['position'=>'right','labels'=>['usePointStyle'=>true,'padding'=>15,'font'=>['size'=>11]]]]]]);
         $cfgLineMhs = json_encode(['type'=>'line','data'=>['labels'=>$bulanLabels,'datasets'=>[['label'=>'Aktivitas','data'=>$bulanData,'borderColor'=>'#2563eb','backgroundColor'=>'rgba(37,99,235,0.08)','borderWidth'=>3,'tension'=>0.4,'fill'=>true,'pointBackgroundColor'=>'#ffffff','pointBorderColor'=>'#2563eb','pointBorderWidth'=>2,'pointRadius'=>4,'pointHoverRadius'=>6]]],'options'=>['responsive'=>true,'maintainAspectRatio'=>false,'animation'=>['duration'=>1500,'easing'=>'easeOutQuart'],'plugins'=>['tooltip'=>['backgroundColor'=>'rgba(15,23,42,0.9)','padding'=>12,'cornerRadius'=>8],'legend'=>['display'=>false]],'scales'=>['y'=>['beginAtZero'=>true,'ticks'=>['stepSize'=>1],'grid'=>['color'=>'#f1f5f9'],'border'=>['display'=>false]],'x'=>['grid'=>['display'=>false],'border'=>['display'=>false]]]]]);
         @endphp
@@ -123,7 +182,7 @@
                 <div class="flex-1 relative w-full h-[280px]"><canvas id="pieChart" data-chart='{{ $cfgPieMhs }}'></canvas></div>
             </div>
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col min-h-[400px] hover:shadow-md transition-shadow duration-300 animate-fade-in-up" style="animation-delay: 0.55s">
-                <h2 class="font-bold text-slate-800 flex items-center gap-2 mb-6"><span class="p-1.5 rounded-lg bg-orange-50 text-orange-500"><i class="fas fa-layer-group"></i></span>Prestasi Berdasarkan Tingkat</h2>
+                <h2 class="font-bold text-slate-800 flex items-center gap-2 mb-6"><span class="p-1.5 rounded-lg bg-orange-50 text-orange-500"><i class="fas fa-layer-group"></i></span>Distribusi Berdasarkan Ruang Lingkup</h2>
                 <div class="flex-1 relative w-full h-[280px]"><canvas id="barChart" data-chart='{{ $cfgBarMhs }}'></canvas></div>
             </div>
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col min-h-[400px] hover:shadow-md transition-shadow duration-300 animate-fade-in-up" style="animation-delay: 0.6s">
@@ -144,6 +203,16 @@
     const url = '{{ route('dashboard.realtime') }}';
     const INTERVAL = 30000;
     let lastSig = '';
+
+    function getPredikat(totalPoin, poinProf, poinKep, syaratTerpenuhi) {
+        if (!syaratTerpenuhi || poinProf < 25 || poinKep < 25 || totalPoin < 50) {
+            return { label: 'Belum Memenuhi Syarat', color: 'red' };
+        }
+        if (totalPoin > 150) return { label: 'Unggul', color: 'emerald' };
+        if (totalPoin >= 100) return { label: 'Sangat Baik', color: 'blue' };
+        if (totalPoin >= 75) return { label: 'Baik', color: 'amber' };
+        return { label: 'Cukup', color: 'orange' };
+    }
 
     function setChartData(id, data, labels) {
         if (typeof Chart === 'undefined') return;
@@ -172,8 +241,27 @@
                     if (el && value !== undefined) el.textContent = value;
                 });
 
+                const pred = getPredikat(s.totalPoin || 0, s.poinProfesional || 0, s.poinKepribadian || 0, s.syaratTerpenuhi);
+                const predikatEl = document.getElementById('predikat-text');
+                const predikatBadge = document.getElementById('predikat-badge');
+                if (predikatEl) predikatEl.textContent = pred.label;
+                if (predikatBadge) {
+                    predikatBadge.textContent = (s.totalPoin || 0) + ' Poin';
+                    predikatBadge.className = 'px-4 py-2 bg-' + pred.color + '-50 text-' + pred.color + '-600 rounded-xl text-sm font-bold border border-' + pred.color + '-100';
+                }
+
+                const breakdown = document.getElementById('poin-breakdown');
+                if (breakdown) {
+                    const prof = s.poinProfesional || 0;
+                    const kep = s.poinKepribadian || 0;
+                    breakdown.children[0].textContent = 'Profesional: ' + prof + '/25';
+                    breakdown.children[0].className = 'px-2 py-0.5 rounded ' + (prof >= 25 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500');
+                    breakdown.children[1].textContent = 'Kepribadian: ' + kep + '/25';
+                    breakdown.children[1].className = 'px-2 py-0.5 rounded ' + (kep >= 25 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500');
+                }
+
                 setChartData('pieChart', [s.draft, s.disetujui, s.ditolak]);
-                if (data.tingkat) setChartData('barChart', [data.tingkat.universitas, data.tingkat.regional, data.tingkat.nasional, data.tingkat.internasional]);
+                if (data.tingkat) { const tLabels = Object.keys(data.tingkat); const tData = Object.values(data.tingkat); setChartData('barChart', tData, tLabels); }
                 if (data.kategori) setChartData('donutChart', data.kategori.kategoriData, data.kategori.kategoriLabels);
                 if (data.bulanan) setChartData('lineChart', data.bulanan.bulanData, data.bulanan.bulanLabels);
             })

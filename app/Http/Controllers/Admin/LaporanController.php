@@ -22,7 +22,7 @@ class LaporanController extends Controller
 
     public function index(Request $request)
     {
-        $query = Spk::with(['user', 'kegiatan.masterKegiatan'])
+        $query = Spk::with(['user', 'kegiatan'])
             ->where('status', 'disetujui');
 
         $query = $this->laporanService->applyFilters($query, $request);
@@ -31,14 +31,16 @@ class LaporanController extends Controller
 
         $prodis = ProgramStudi::where('status', 'aktif')->orderBy('nama_prodi')->get();
 
-        $tingkatList = Spk::select('tingkat')
+        $ruangLingkupList = Spk::join('kegiatans', 'spks.kegiatan_id', '=', 'kegiatans.id')
+            ->join('kkm_rules', 'kegiatans.kkm_rule_id', '=', 'kkm_rules.id')
+            ->select('kkm_rules.ruang_lingkup')
             ->distinct()
-            ->whereNotNull('tingkat')
-            ->orderBy('tingkat')
-            ->pluck('tingkat');
+            ->whereNotNull('kkm_rules.ruang_lingkup')
+            ->orderBy('kkm_rules.ruang_lingkup')
+            ->pluck('kkm_rules.ruang_lingkup');
 
         return view('admin.laporan.index', array_merge(
-            compact('laporan', 'prodis', 'tingkatList'),
+            compact('laporan', 'prodis', 'ruangLingkupList'),
             [
                 'totalMahasiswa' => User::role('Mahasiswa')->count(),
                 'totalDosen' => User::role('Dosen')->count(),
@@ -50,7 +52,7 @@ class LaporanController extends Controller
 
     public function export(Request $request)
     {
-        $query = Spk::with(['user', 'kegiatan.masterKegiatan'])
+        $query = Spk::with(['user', 'kegiatan'])
             ->where('status', 'disetujui');
 
         $query = $this->laporanService->applyFilters($query, $request);
@@ -65,7 +67,7 @@ class LaporanController extends Controller
 
         $csvHeaders = [
             'Nama', 'NIM', 'Prodi', 'Judul Kegiatan', 'Nama Kegiatan',
-            'Penyelenggara', 'Tingkat', 'Hasil', 'Poin', 'Tanggal Kegiatan'
+            'Penyelenggara', 'Ruang Lingkup', 'Peran/Sifat', 'Poin', 'Tanggal Kegiatan'
         ];
 
         $mapper = function ($item) {
@@ -76,8 +78,8 @@ class LaporanController extends Controller
                 $item->judul_kegiatan ?? $item->kegiatan->judul_kegiatan ?? $item->kegiatan->kegiatan ?? '',
                 $item->kegiatan->kegiatan ?? '',
                 $item->penyelenggara ?? '',
-                $item->tingkat ?? '',
-                $item->hasil ?? '',
+                $item->kegiatan?->kkmRule?->ruang_lingkup ?? '',
+                $item->peran_sifat ?? '',
                 $item->poin ?? 0,
                 $this->laporanService->getTanggalSelesai($item),
             ];
@@ -90,7 +92,7 @@ class LaporanController extends Controller
 
     public function exportPdf(Request $request)
     {
-        $query = Spk::with(['user', 'rpk.dosenPembimbing', 'kegiatan.masterKegiatan'])
+        $query = Spk::with(['user', 'rpk.dosenPembimbing', 'kegiatan'])
             ->where('status', 'disetujui');
 
         $query = $this->laporanService->applyFilters($query, $request);
@@ -103,7 +105,7 @@ class LaporanController extends Controller
     public function exportExcel(Request $request)
     {
         try {
-            $query = Spk::with(['rpk.dosenPembimbing', 'kegiatan.masterKegiatan'])
+            $query = Spk::with(['rpk.dosenPembimbing', 'kegiatan'])
                 ->where('status', 'disetujui');
 
             $query = $this->laporanService->applyFilters($query, $request);

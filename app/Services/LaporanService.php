@@ -20,7 +20,7 @@ class LaporanService
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('penyelenggara', 'like', "%{$search}%")
-                    ->orWhere('hasil', 'like', "%{$search}%")
+                    ->orWhere('peran_sifat', 'like', "%{$search}%")
                     ->orWhere('judul_kegiatan', 'like', "%{$search}%")
                     ->orWhereHas('user', function ($userQuery) use ($search) {
                         $userQuery->where('name', 'like', "%{$search}%")
@@ -43,8 +43,10 @@ class LaporanService
             });
         }
 
-        if ($request->filled('tingkat')) {
-            $query->where('tingkat', $request->tingkat);
+        if ($request->filled('ruang_lingkup')) {
+            $query->whereHas('kegiatan.kkmRule', function ($q) use ($request) {
+                $q->where('ruang_lingkup', $request->ruang_lingkup);
+            });
         }
 
         return $query;
@@ -248,14 +250,12 @@ class LaporanService
 
             $namaKegiatan = $item->kegiatan?->kegiatan ?? '-';
             $penyelenggara = $item->penyelenggara ?? '-';
-            $tingkat = $item->tingkat ?? '-';
-            $hasil = $item->hasil ?? '-';
+            $tingkat = $item->kegiatan?->kkmRule?->ruang_lingkup ?? '-';
+            $hasil = $item->peran_sifat ?? '-';
 
             $tanggal = $this->getTanggalSelesai($item);
 
-            $kategori = $item->kegiatan?->kategori
-                ?? $item->kegiatan?->masterKegiatan?->kategori
-                ?? 'Prestasi';
+            $kategori = $item->kegiatan?->kategori ?? 'Lainnya';
 
             $rowData = [
                 $no++, $tanggal, $hasil, $kategori, $nama, $prodi, $angkatanSemester,

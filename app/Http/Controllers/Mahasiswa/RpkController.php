@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\RpkSubmitted;
-use App\Models\MasterKegiatan;
 
 class RpkController extends Controller
 {
@@ -71,15 +70,13 @@ class RpkController extends Controller
         ]);
         DashboardService::clearAdminCache();
 
-        // ⚡ NOTIFIKASI: Email ke Admin saat RPK pertama kali dibuat oleh mahasiswa
-        if (Rpk::where('user_id', Auth::id())->count() == 1) {
-            $admins = \App\Models\User::role('Admin')->whereNotNull('email')->get();
-            if ($admins->isNotEmpty()) {
-                try {
-                    Mail::to($admins)->send(new RpkSubmitted($rpk->refresh()));
-                } catch (\Throwable $e) {
-                    Log::warning('Gagal kirim email RPK submitted ke admin: ' . $e->getMessage());
-                }
+        // ⚡ NOTIFIKASI: Email ke Admin saat RPK dibuat oleh mahasiswa
+        $admins = \App\Models\User::role('Admin')->whereNotNull('email')->get();
+        if ($admins->isNotEmpty()) {
+            try {
+                Mail::to($admins)->send(new RpkSubmitted($rpk->refresh()));
+            } catch (\Throwable $e) {
+                Log::warning('Gagal kirim email RPK submitted ke admin: ' . $e->getMessage());
             }
         }
 
@@ -102,12 +99,11 @@ class RpkController extends Controller
         $user = Auth::user();
 
         if ($user->hasRole(['Admin', 'Dosen'])) {
-            $rpk->load(['user', 'kegiatans.masterKegiatan', 'verifiedBy']);
-            $masterKegiatans = MasterKegiatan::where('status', 'aktif')->get();
+            $rpk->load(['user', 'kegiatans', 'verifiedBy']);
             $isPemilik = false;
             $isAnggota = false;
 
-            return view('mahasiswa.rpks.show', compact('rpk', 'masterKegiatans', 'isPemilik', 'isAnggota'));
+            return view('mahasiswa.rpks.show', compact('rpk', 'isPemilik', 'isAnggota'));
         }
 
         $isPemilik = $rpk->user_id == $user->id;
@@ -130,14 +126,13 @@ class RpkController extends Controller
                         $subQ->where('user_id', $user->id);
                     });
                 }
-                $q->with(['masterKegiatan', 'anggota']);
+                $q->with(['anggota']);
             }
         ]);
 
-        $masterKegiatans = MasterKegiatan::where('status', 'aktif')->get();
         $mahasiswaList = \App\Models\User::role('Mahasiswa')->where('id', '!=', $user->id)->orderBy('name')->get();
 
-        return view('mahasiswa.rpks.show', compact('rpk', 'masterKegiatans', 'mahasiswaList', 'isPemilik', 'isAnggota'));
+        return view('mahasiswa.rpks.show', compact('rpk', 'mahasiswaList', 'isPemilik', 'isAnggota'));
     }
 
     /**

@@ -705,101 +705,7 @@ DELETE /admin/kegiatan/{kegiatan}
 
 ---
 
-### 7.5 Master Prestasi
-
-#### Daftar Master Prestasi
-```
-GET /admin/master-prestasi
-```
-**Name:** `admin.master-prestasi.index`
-**Middleware:** `auth`, `role:Admin`
-
-**Response:** HTML View
-
----
-
-#### Tambah Master Prestasi
-```
-POST /admin/master-prestasi
-```
-**Name:** `admin.master-prestasi.store`
-**Middleware:** `auth`, `role:Admin`
-
-**Request Body:**
-| Field | Type | Required | Validasi |
-|-------|------|----------|----------|
-| `juare` | string | ✅ | required |
-| `tingkat` | string | ❌ | nullable |
-| `is_active` | boolean | ❌ | default: true |
-
-**Response (AJAX):**
-```json
-{
-    "message": "success",
-    "data": { ... }
-}
-```
-
----
-
-#### Update Master Prestasi
-```
-PUT/PATCH /admin/master-prestasi/{master_prestasi}
-```
-**Name:** `admin.master-prestasi.update`
-**Middleware:** `auth`, `role:Admin`
-
-**Request Body:**
-| Field | Type | Required |
-|-------|------|----------|
-| `juare` | string | ✅ |
-| `tingkat` | string | ❌ |
-| `is_active` | boolean | ❌ |
-
-**Response (AJAX):**
-```json
-{
-    "message": "updated",
-    "data": { ... }
-}
-```
-
----
-
-#### Hapus Master Prestasi
-```
-DELETE /admin/master-prestasi/{master_prestasi}
-```
-**Name:** `admin.master-prestasi.destroy`
-**Middleware:** `auth`, `role:Admin`
-
-**Response (AJAX):**
-```json
-{
-    "message": "deleted"
-}
-```
-
----
-
-#### Toggle Status Master Prestasi
-```
-PATCH /admin/master-prestasi/{master_prestasi}/toggle-status
-```
-**Name:** `admin.master-prestasi.toggle-status`
-**Middleware:** `auth`, `role:Admin`
-
-**Response (AJAX):**
-```json
-{
-    "message": "updated",
-    "data": { ... }
-}
-```
-
----
-
-### 7.6 Program Studi
+### 7.5 Program Studi
 
 #### Daftar Program Studi
 ```
@@ -1481,7 +1387,6 @@ POST /rpks/{rpk}/kegiatans
 **Request Body:**
 | Field | Type | Required | Validasi |
 |-------|------|----------|----------|
-| `master_kegiatan_id` | integer | ✅ | required, exists:master_kegiatans,id |
 | `judul_kegiatan` | string | ✅ | required, max:255 |
 | `tanggal_mulai` | date | ✅ | required, date |
 | `tanggal_selesai` | date | ✅ | required, date, after_or_equal:tanggal_mulai |
@@ -1512,9 +1417,7 @@ GET /kegiatan/{kegiatan}/edit
 ```json
 {
     "success": true,
-    "data": { ... },
-    "masterKegiatans": [ ... ],
-    "prestasis": [ ... ]
+    "data": { ... }
 }
 ```
 
@@ -1602,8 +1505,7 @@ POST /spks
 | `kegiatan_id` | integer | ✅ | required |
 | `penyelenggara` | string | ✅ | required |
 | `kategori` | enum | ✅ | in:Individu,Kelompok |
-| `prestasi_id` | integer | ✅ | required, exists:master_prestasis,id |
-| `tingkat` | string | ❌ | nullable, max:255 |
+
 | `judul_karya` | string | ✅ | required, max:255 |
 | `biografi` | string | ❌ | nullable, max:2000 |
 | `rincian` | string | ❌ | nullable, max:3000 |
@@ -1662,8 +1564,7 @@ PUT/PATCH /spks/{spk}
 | `kegiatan_id` | integer | ✅ | required |
 | `penyelenggara` | string | ✅ | required |
 | `kategori` | enum | ✅ | in:Individu,Kelompok |
-| `prestasi_id` | integer | ✅ | required, exists:master_prestasis,id |
-| `tingkat` | string | ❌ | nullable, max:255 |
+
 | `judul_karya` | string | ✅ | required, max:255 |
 | `biografi` | string | ❌ | nullable, max:2000 |
 | `rincian` | string | ❌ | nullable, max:3000 |

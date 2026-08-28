@@ -12,6 +12,7 @@ Mahasiswa bimbingan Anda mengajukan Sertifikat Prestasi Kegiatan (SPK) baru:
 | **Judul Karya** | {{ $spk->judul_karya ?? '-' }} |
 | **Kegiatan** | {{ $spk->kegiatan?->judul_kegiatan ?? $spk->kegiatan?->kegiatan ?? '-' }} |
 | **Kategori** | {{ $spk->kategori ?? '-' }} |
+| **Poin KKM** | {{ $spk->poin ?? 0 }} |
 @endcomponent
 
 Silakan tinjau SPK tersebut dan lakukan persetujuan atau penolakan melalui sistem.
