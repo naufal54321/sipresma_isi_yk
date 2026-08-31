@@ -227,11 +227,32 @@ Membuat SPK
 Verifikasi Dosen
       │
       ▼
-Admin Menambahkan Poin Prestasi
+Penentuan Predikat berdasarkan poin kompetensi
+      │
+      ▼
+Cek Syarat Minimal (50 poin, 25 per bidang)
+      │
+      │
+      ├── ✅ Syarat Terpenuhi
+      │   │
+      │   ├── > 150 poin → Unggul
+      │   ├── 100‑149 poin → Sangat Baik
+      │   ├── 75‑99 poin → Baik
+      │   └── 50‑74 poin → Cukup
+      │
+      └── ❌ Belum Memenuhi Syarat
+              │
+              ▼
+              Tampilan "Belum Memenuhi Syarat" (icon peringatan + warna merah)
       │
       ▼
 Data Masuk Laporan
 ```
+
+Catatan: Setiap verifikasi SPK akan otomatis merecalculate total poin mahasiswa di dashboard. Predikat hanya akan muncul jika syarat minimal (25 poin per bidang + 50 total) terpenuhi.
+```
+
+---
 
 ---
 

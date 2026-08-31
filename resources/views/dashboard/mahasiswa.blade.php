@@ -254,9 +254,9 @@
                 if (breakdown) {
                     const prof = s.poinProfesional || 0;
                     const kep = s.poinKepribadian || 0;
-                    breakdown.children[0].textContent = 'Profesional: ' + prof + '/25';
+                    breakdown.children[0].textContent = 'Orientasi Kompetensi Profesional: ' + prof + '/25';
                     breakdown.children[0].className = 'px-2 py-0.5 rounded ' + (prof >= 25 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500');
-                    breakdown.children[1].textContent = 'Kepribadian: ' + kep + '/25';
+                    breakdown.children[1].textContent = 'Kompetensi Kepribadian dan Sosial: ' + kep + '/25';
                     breakdown.children[1].className = 'px-2 py-0.5 rounded ' + (kep >= 25 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500');
                 }
 
