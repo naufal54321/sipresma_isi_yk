@@ -1,9 +1,9 @@
-# Project Handover - PRATAMA SIPRESMA ISI Yogyakarta
+# Project Handover - PRATAMA ISI Yogyakarta
 
 ## 1. Project Overview
 - **Nama Project:** PRATAMA - Prestasi dan Talenta Mahasiswa
 - **Institusi:** Institut Seni Indonesia Yogyakarta
-- **Tech Stack:** Laravel 11, PHP 8.2+, MySQL 8.0, TailwindCSS 3.x, Alpine.js 3.x, Spatie Laravel-Permission 6.x
+- **Tech Stack:** Laravel 12.62.0, PHP 8.5+, MySQL 8.0, TailwindCSS 3.x, Alpine.js 3.x, Spatie Laravel-Permission 6.x
 - **Repository:** https://github.com/naufal54321/sipresma_isi_yk (branch: main)
 - **Status:** ✅ Deployed & Hosted
 - **Versi Terakhir:** v1.0 (lihat CHANGELOG.md)
