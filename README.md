@@ -31,7 +31,7 @@
 | **RPK** | Membuat dan mengelola Rencana Prestasi Kemahasiswaan |
 | **SPK** | Membuat dan mengelola Satuan Prestasi Kemahasiswaan |
 | **Upload** | Upload dokumen pendukung (Surat Tugas, Sertifikat, Foto, Laporan) |
-| **Dashboard** | Statistik pribadi dengan grafik interaktif |
+| **Dashboard** | Statistik pribadi dengan grafik interaktif serta penentuan predikat berdasarkan poin kompetensi |
 
 ### 👨‍🏫 Dosen Pembimbing
 | Fitur | Deskripsi |
@@ -50,6 +50,48 @@
 | **Verifikasi** | Persetujuan RPK dan SPK |
 | **Poin** | Menambahkan poin pada SPK yang disetujui |
 | **Laporan** | Export data dalam format PDF/Excel |
+
+### 🎯 Sistem Poin Mahasiswa
+
+| Fitur | Deskripsi |
+|-------|-----------|
+| **Validasi Duplikasi** | Maksimal 4 kegiatan yang sama boleh diinput per bidang kompetensi |
+| **Validasi Minimal Poin** | Total poin minimum 50, dengan minimal 25 poin di Bidang Kompetensi Profesional dan 25 poin di Bidang Kompetensi Kepribadian dan Sosial |
+| **Penentuan Predikat** | Jika syarat poin terpenuhi: Lebih dari 150 = Unggul, 100‑149 = Sangat Baik, 75‑99 = Baik, 50‑74 = Cukup |
+| **Status Tidak Terpenuhi** | Jika syarat minimal tidak tercapai: Menampilkan "Belum Memenuhi Syarat" dengan icon peringatan |
+| **Breakdown Poin** | Menampilkan distribusi poin per bidang (Orientasi Kompetensi Profesional & Kompetensi Kepribadian dan Sosial) |
+
+### 👨‍🎓 Mahasiswa
+
+| Fitur | Deskripsi |
+|-------|-----------|
+| **Registrasi** | Pendaftaran dengan NIM, Prodi, Angkatan, Semester |
+| **RPK** | Membuat dan mengelola Rencana Prestasi Kemahasiswaan |
+| **SPK** | Membuat dan mengelola Satuan Prestasi Kemahasiswaan |
+| **Upload** | Upload dokumen pendukung (Surat Tugas, Sertifikat, Foto, Laporan) |
+| **Dashboard** | Statistik pribadi dengan grafik interaktif serta penentuan predikat berdasarkan poin kompetensi |
+
+### 👨‍🏫 Dosen Pembimbing
+
+| Fitur | Deskripsi |
+|-------|-----------|
+| **Dashboard** | Statistik mahasiswa bimbingan dengan grafik |
+| **Verifikasi RPK** | Menyetujui/menolak RPK mahasiswa bimbingan |
+| **Verifikasi SPK** | Menyetujui/menolak SPK mahasiswa bimbingan |
+| **Monitoring** | Melihat data dan progres mahasiswa bimbingan |
+
+### 👑 Admin
+
+| Fitur | Deskripsi |
+|-------|-----------|
+| **Manajemen User** | CRUD pengguna dengan role Admin, Dosen, Mahasiswa |
+| **Ploting Dosen** | Mengatur dosen pembimbing untuk mahasiswa |
+| **Master Data** | Kelola Kegiatan, Prestasi, Program Studi |
+| **Verifikasi** | Persetujuan RPK dan SPK |
+| **Poin** | Menambahkan poin pada SPK yang disetujui |
+| **Laporan** | Export data dalam format PDF/Excel |
+
+---
 
 ---
 

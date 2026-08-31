@@ -570,3 +570,56 @@ Di sidebar, klik **"Mahasiswa Bimbingan"**. Anda akan melihat daftar mahasiswa y
 > **PRATAMA v1.0** — Prestasi dan Talenta Mahasiswa
 > Institut Seni Indonesia Yogyakarta
 > UPA TIK ISI Yogyakarta
+
+### 9.4 Sistem Poin Mahasiswa
+
+Sistem penentuan predikat dan validasi poin untuk mahasiswa program **Strata 1** dan **Diploma** memiliki ketentuan sebagai berikut:
+
+**Syarat Minimal Poin:**
+- **Total poin minimum**: 50 poin
+- **Bidang Kompetensi Profesional**: minimum 25 poin
+- **Bidang Kompetensi Kepribadian dan Sosial**: minimum 25 poin
+
+Jika syarat minimal **tidak** terpenuhi, status mahasiswa akan menampilkan **"Belum Memenuhi Syarat"** tanpa predikat kualitatif.
+
+**Penentuan Predikat (Jika Syarat Terpenuhi):**
+
+| Predikat | Perolehan Poin |
+|----------|---------------|
+| Unggul | > 150 poin |
+| Sangat Baik | 100 – 149 poin |
+| Baik | 75 – 99 poin |
+| Cukup | 50 – 74 poin |
+
+**Warna Font Breakdown di Dashboard:**
+- **Orientasi Kompetensi Profesional**: >= 25 poin → biru (`text-blue-600`), < 25 poin → merah (`text-red-500`)
+- **Kompetensi Kepribadian dan Sosial**: **selalu ungu** (`text-purple-600`) untuk **semua** nilai poin
+
+**Icon Status Predikat:**
+- **Syarat Terpenuhi**: `fa-award` (medali) dengan gradient warna sesuai predikat
+- **Belum Memenuhi Syarat**: `fa-exclamation-triangle` (peringatan) warna merah
+
+**Validasi Input Kegiatan:**
+- **Pencegah Duplikasi**: Maksimal 4 kegiatan yang sama boleh diinput per bidang kompetensi. Jika melebihati, tolak dengan pesan error.
+- **Sumber Poin**: Diri (owner SPK) + Anggota (kegiatan bersama, bukan owner)
+
+**Breakdown Poin di Dashboard:**
+- Menampilkan distribusi poin per bidang dengan warna font kustom
+- Format: `"Orientasi Kompetensi Profesional: XX/25"` dan `"Kompetensi Kepribadian dan Sosial: XX/25"`
+
+**Info Bar di Dashboard:**
+- *"Mahasiswa pada program Strata 1 dan Diploma wajib memenuhi minimal 50 poin kredit keaktifan mahasiswa dari kedua bidang kompetensi."*
+
+**Contoh Perhitungan:**
+
+| Kasus | Poin Profesional | Poin Kepribadian | Total | Syarat | Predikat |
+|-------|------------------|------------------|-------|--------|----------|
+| A | 30 | 20 | 50 | **TIDAK** (prof < 25) | Belum Memenuhi Syarat |
+| B | 30 | 25 | 55 | **YA** | Cukup (50-74) |
+| C | 80 | 70 | 150 | **YA** | Sangat Baik (100-149) |
+| D | 90 | 80 | 170 | **YA** | Unggul (>150) |
+
+---
+> **PRATAMA v1.0** — Prestasi dan Talenta Mahasiswa
+> Institut Seni Indonesia Yogyakarta
+> UPA TIK ISI Yogyakarta
