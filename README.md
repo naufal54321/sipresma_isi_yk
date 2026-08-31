@@ -314,6 +314,7 @@ php artisan storage:link
 
 - **Email Verification**: Mahasiswa harus verifikasi email sebelum akses dashboard
 - **Dosen Bimbingan**: Dosen hanya melihat data mahasiswa bimbingannya
+- **Poin SPK**: Admin menambahkan poin pada SPK yang sudah disetujui
 - **File Upload**: Maksimal 5MB (PDF, JPG, PNG)
 - **Status**: Draft → Disetujui/Ditolak
 

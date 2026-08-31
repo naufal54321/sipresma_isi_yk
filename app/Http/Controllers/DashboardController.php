@@ -50,6 +50,8 @@ class DashboardController extends Controller
             return view('dashboard.dosen', $stats);
         }
 
+        $dosenPembimbing = $user->rpks()->latest()->first()?->dosenPembimbing;
+
         $dosenKegiatan = $this->dashboardService->getMahasiswaDosenKegiatan($user->id);
 
         $stats = $this->dashboardService->getMahasiswaStats($user->id);
@@ -60,7 +62,7 @@ class DashboardController extends Controller
 
         return view('dashboard.mahasiswa', array_merge(
             $stats, $kategori, $bulanan,
-            compact('dosenKegiatan', 'kegiatanTerbaru', 'tingkat')
+            compact('dosenPembimbing', 'kegiatanTerbaru', 'tingkat', 'dosenKegiatan')
         ));
     }
 
@@ -100,12 +102,10 @@ class DashboardController extends Controller
         $tingkat = $this->dashboardService->getMahasiswaRuangLingkupChart($user->id);
         $kategori = $this->dashboardService->getMahasiswaKategoriChart($user->id);
         $bulanan = $this->dashboardService->getMahasiswaBulananChart($user->id);
-        $dosenKegiatan = $this->dashboardService->getMahasiswaDosenKegiatan($user->id);
 
         return response()->json([
             'role' => 'Mahasiswa',
             'stats' => $stats,
-            'dosenKegiatan' => $dosenKegiatan,
             'tingkat' => $tingkat->toArray(),
             'kategori' => $kategori,
             'bulanan' => $bulanan,

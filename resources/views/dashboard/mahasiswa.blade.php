@@ -35,99 +35,63 @@
         </div>
 
         {{-- Dosen Pembimbing --}}
-        <div id="dosen-pembimbing-container">
-            @if($dosenKegiatan && $dosenKegiatan->count() > 0)
-                @foreach($dosenKegiatan as $data)
-                    <div class="relative bg-gradient-to-r from-indigo-50 to-white rounded-2xl shadow-sm border border-indigo-100 p-6 mb-6 flex flex-col md:flex-row md:items-start gap-5 hover:shadow-md transition-all duration-300 overflow-hidden group animate-fade-in-up">
-                    <div class="absolute right-0 top-0 w-32 h-32 bg-indigo-100/50 rounded-bl-full opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
-                    
-                    <div class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shrink-0 border border-indigo-100 shadow-sm relative z-10 group-hover:rotate-12 transition-transform duration-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-                            <path d="M11.7 2.805a.75.75 0 0 1 .6 0A60.65 60.65 0 0 1 22.83 8.72a.75.75 0 0 1-.231 1.337 49.948 49.948 0 0 0-9.902 3.912l-.003.002c-.114.06-.227.119-.34.18a.75.75 0 0 1-.707 0A50.88 50.88 0 0 0 7.5 12.173v-.224c0-.131.067-.248.172-.311a54.615 54.615 0 0 1 4.653-2.52.75.75 0 0 0-.65-1.352 56.123 56.123 0 0 0-4.78 2.589 1.858 1.858 0 0 0-.859 1.228 49.803 49.803 0 0 0-4.634-1.527.75.75 0 0 1-.231-1.337A60.653 60.653 0 0 1 11.7 2.805Z" />
-                            <path d="M13.06 15.473a48.45 48.45 0 0 1 7.666-3.282c.134 1.414.22 2.843.255 4.284a.75.75 0 0 1-.46.711 47.87 47.87 0 0 0-8.105 4.342.75.75 0 0 1-.832 0 47.87 47.87 0 0 0-8.104-4.342.75.75 0 0 1-.461-.71c.035-1.442.121-2.87.255-4.286.921.304 1.83.634 2.726.99v1.27a1.5 1.5 0 0 0-.14 2.508c-.09.38-.222.753-.397 1.11.452.213.901.434 1.346.66a6.727 6.727 0 0 0 .551-1.607 1.5 1.5 0 0 0 .14-2.67v-.645a48.549 48.549 0 0 1 3.44 1.667 2.25 2.25 0 0 0 2.12 0Z" />
-                            <path d="M4.462 19.462c.42-.419.753-.89 1-1.395.453.214.902.435 1.347.662a6.742 6.742 0 0 1-1.286 1.794.75.75 0 0 1-1.06-1.06Z" />
-                        </svg>
-                    </div>
-                    <div class="relative z-10 min-w-0 w-full md:w-auto">
-                        <div class="flex items-center gap-3 mb-3">
-                            <h2 class="text-xs font-bold text-indigo-400 uppercase tracking-widest">Dosen Pembimbing</h2>
-                            @if($data['dosen'])
-                                <p class="text-xl font-extrabold text-slate-800 truncate">{{ $data['dosen']->name }}</p>
-                            @else
-                                <p class="text-lg font-bold text-red-500 flex items-center gap-2">
-                                    <i class="fas fa-exclamation-circle animate-pulse-soft"></i> Belum memiliki dosen pembimbing
-                                </p>
-                            @endif
-                        </div>
-                        
-                        {{-- Ringkasan Kegiatan --}}
-                        <div class="flex flex-wrap gap-4 mb-4">
-                            <span class="px-3 py-1 text-xs font-medium rounded-full bg-indigo-100 text-indigo-700">
-                                {{ $data['total_kegiatan'] }} Kegiatan
-                            </span>
-                            <span class="px-3 py-1 text-xs font-medium rounded-full bg-emerald-100 text-emerald-700">
-                                Total Poin: {{ $data['total_poin'] }}
-                            </span>
-                        </div>
-                        
-                        {{-- Daftar Kegiatan --}}
-                        <div class="space-y-2">
-                            @foreach($data['kegiatan'] as $kegiatan)
-                                <div class="bg-white rounded-lg border border-indigo-100 p-4 hover:border-indigo-300 transition-colors">
-                                    <div class="flex items-start gap-3">
-                                        <div class="w-2 h-2 mt-2 bg-indigo-500 rounded-full shrink-0"></div>
-                                        <div class="flex-1 min-w-0">
-                                            <p class="font-medium text-slate-800 truncate">{{ $kegiatan['judul'] }}</p>
-                                            <div class="flex flex-wrap gap-2 mt-1 text-xs">
-                                                @if($kegiatan['bidang'])
-                                                    <span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700">{{ $kegiatan['bidang'] }}</span>
-                                                @endif
-                                                @if($kegiatan['jenis_kegiatan'])
-                                                    <span class="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700">{{ $kegiatan['jenis_kegiatan'] }}</span>
-                                                @endif
-                                                <span class="px-2 py-0.5 rounded 
-                                                    @if($kegiatan['status'] === 'disetujui')
-                                                        bg-emerald-50 text-emerald-700
-                                                    @elseif($kegiatan['status'] === 'ditolak')
-                                                        bg-red-50 text-red-700
-                                                    @else
-                                                        bg-amber-50 text-amber-700
-                                                    @endif
-                                                ">
-                                                    {{ ucfirst($kegiatan['status']) }}
-                                                </span>
-                                            </div>
-                                            @if($kegiatan['poin'] > 0)
-                                                <p class="text-sm font-semibold text-emerald-600 mt-1">Poin: {{ $kegiatan['poin'] }}</p>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        @else
-            <div class="relative bg-gradient-to-r from-indigo-50 to-white rounded-2xl shadow-sm border border-indigo-100 p-6 mb-8 flex items-center gap-5 hover:shadow-md transition-all duration-300 overflow-hidden group animate-fade-in-up">
-                <div class="absolute right-0 top-0 w-32 h-32 bg-indigo-100/50 rounded-bl-full opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
+@if(isset($dosenKegiatan) && $dosenKegiatan->isNotEmpty())
+    @foreach($dosenKegiatan as $item)
+        @php
+            $dosen = $item['dosen'];
+            $kegiatans = $item['kegiatans'];
+        @endphp
+        <div class="relative bg-gradient-to-r from-indigo-50 to-white rounded-2xl shadow-sm border border-indigo-100 p-4 mb-4 flex items-start gap-4 hover:shadow-md transition-all duration-300 animate-fade-in-up">
+            <div class="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0 border border-indigo-100 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-5 text-indigo-500">
+                    <path d="M11.7 2.805a.75.75 0 0 1 .6 0A60.65 60.65 0 0 1 22.83 8.72a.75.75 0 0 1-.231 1.337 49.948 49.948 0 0 0-9.902 3.912l-.003.002c-.114.06-.227.119-.34.18a.75.75 0 0 1-.707 0A50.88 50.88 0 0 0 7.5 12.173v-.224c0-.131.067-.248.172-.311a54.615 54.615 0 0 1 4.653-2.52.75.75 0 0 0-.65-1.352 56.123 56.123 0 0 0-4.78 2.589 1.858 1.858 0 0 0-.859 1.228 49.803 49.803 0 0 0-4.634-1.527.75.75 0 0 1-.231-1.337A60.653 60.653 0 0 1 11.7 2.805Z" />
+                    <path d="M13.06 15.473a48.45 48.45 0 0 1 7.666-3.282c.134 1.414.22 2.843.255 4.284a.75.75 0 0 1-.46.711 47.87 47.87 0 0 0-8.105 4.342.75.75 0 0 1-.832 0 47.87 47.87 0 0 0-8.104-4.342.75.75 0 0 1-.461-.71c.035-1.442.121-2.87.255-4.286.921.304 1.83.634 2.726.99v1.27a1.5 1.5 0 0 0-.14 2.508c-.09.38-.222.753-.397 1.11.452.213.901.434 1.346.66a6.727 6.727 0 0 0 .551-1.607 1.5 1.5 0 0 0 .14-2.67v-.645a48.549 48.549 0 0 1 3.44 1.667 2.25 2.25 0 0 0 2.12 0Z" />
+                    <path d="M4.462 19.462c.42-.419.753-.89 1-1.395.453.214.902.435 1.347.662a6.742 6.742 0 0 1-1.286 1.794.75.75 0 0 1-1.06-1.06Z" />
+                </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+                <h3 class="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1">Dosen Pembimbing</h3>
+                <p class="text-lg font-extrabold text-slate-800 truncate">{{ $dosen->name }}</p>
                 
-                <div class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shrink-0 border border-indigo-100 shadow-sm relative z-10 group-hover:rotate-12 transition-transform duration-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-                        <path d="M11.7 2.805a.75.75 0 0 1 .6 0A60.65 60.65 0 0 1 22.83 8.72a.75.75 0 0 1-.231 1.337 49.948 49.948 0 0 0-9.902 3.912l-.003.002c-.114.06-.227.119-.34.18a.75.75 0 0 1-.707 0A50.88 50.88 0 0 0 7.5 12.173v-.224c0-.131.067-.248.172-.311a54.615 54.615 0 0 1 4.653-2.52.75.75 0 0 0-.65-1.352 56.123 56.123 0 0 0-4.78 2.589 1.858 1.858 0 0 0-.859 1.228 49.803 49.803 0 0 0-4.634-1.527.75.75 0 0 1-.231-1.337A60.653 60.653 0 0 1 11.7 2.805Z" />
-                        <path d="M13.06 15.473a48.45 48.45 0 0 1 7.666-3.282c.134 1.414.22 2.843.255 4.284a.75.75 0 0 1-.46.711 47.87 47.87 0 0 0-8.105 4.342.75.75 0 0 1-.832 0 47.87 47.87 0 0 0-8.104-4.342.75.75 0 0 1-.461-.71c.035-1.442.121-2.87.255-4.286.921.304 1.83.634 2.726.99v1.27a1.5 1.5 0 0 0-.14 2.508c-.09.38-.222.753-.397 1.11.452.213.901.434 1.346.66a6.727 6.727 0 0 0 .551-1.607 1.5 1.5 0 0 0 .14-2.67v-.645a48.549 48.549 0 0 1 3.44 1.667 2.25 2.25 0 0 0 2.12 0Z" />
-                        <path d="M4.462 19.462c.42-.419.753-.89 1-1.395.453.214.902.435 1.347.662a6.742 6.742 0 0 1-1.286 1.794.75.75 0 0 1-1.06-1.06Z" />
-                    </svg>
-                </div>
-                <div class="relative z-10 min-w-0">
-                    <h2 class="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1">Dosen Pembimbing</h2>
-                    <p class="text-lg font-bold text-red-500 flex items-center gap-2">
-                        <i class="fas fa-exclamation-circle animate-pulse-soft"></i> Belum memiliki dosen pembimbing
-                    </p>
+                {{-- Daftar Kegiatan Singkat --}}
+                <div class="mt-2 space-y-1">
+                    @foreach($kegiatans as $kegiatan)
+                        <div class="flex items-center gap-2 text-xs text-slate-600 px-2 py-1 rounded bg-white border border-indigo-50">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0"></span>
+                            <span class="font-medium truncate">{{ $kegiatan->judul_kegiatan ?? $kegiatan->kegiatan }}</span>
+                            <span class="text-indigo-500 px-1.5 py-0.5 rounded text-[9px] font-medium">{{ $kegiatan->kkmRule?->bidang }}</span>
+                            <span class="text-slate-400 px-1.5 py-0.5 rounded text-[9px]">{{ $kegiatan->kkmRule?->jenis_kegiatan }}</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] font-medium
+                                @if($kegiatan->status === 'disetujui') bg-emerald-50 text-emerald-600
+                                @elseif($kegiatan->status === 'ditolak') bg-red-50 text-red-600
+                                @else bg-amber-50 text-amber-600 @endif">
+                                {{ ucfirst($kegiatan->status) }}
+                            </span>
+                        </div>
+                    @endforeach
                 </div>
             </div>
-        @endif
         </div>
+    @endforeach
+@else
+    <div class="relative bg-gradient-to-r from-indigo-50 to-white rounded-2xl shadow-sm border border-indigo-100 p-6 mb-8 flex items-center gap-5 hover:shadow-md transition-all duration-300 overflow-hidden group animate-fade-in-up">
+        <div class="absolute right-0 top-0 w-32 h-32 bg-indigo-100/50 rounded-bl-full opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
+        
+        <div class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shrink-0 border border-indigo-100 shadow-sm relative z-10 group-hover:rotate-12 transition-transform duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                <path d="M11.7 2.805a.75.75 0 0 1 .6 0A60.65 60.65 0 0 1 22.83 8.72a.75.75 0 0 1-.231 1.337 49.948 49.948 0 0 0-9.902 3.912l-.003.002c-.114.06-.227.119-.34.18a.75.75 0 0 1-.707 0A50.88 50.88 0 0 0 7.5 12.173v-.224c0-.131.067-.248.172-.311a54.615 54.615 0 0 1 4.653-2.52.75.75 0 0 0-.65-1.352 56.123 56.123 0 0 0-4.78 2.589 1.858 1.858 0 0 0-.859 1.228 49.803 49.803 0 0 0-4.634-1.527.75.75 0 0 1-.231-1.337A60.653 60.653 0 0 1 11.7 2.805Z" />
+                <path d="M13.06 15.473a48.45 48.45 0 0 1 7.666-3.282c.134 1.414.22 2.843.255 4.284a.75.75 0 0 1-.46.711 47.87 47.87 0 0 0-8.105 4.342.75.75 0 0 1-.832 0 47.87 47.87 0 0 0-8.104-4.342.75.75 0 0 1-.461-.71c.035-1.442.121-2.87.255-4.286.921.304 1.83.634 2.726.99v1.27a1.5 1.5 0 0 0-.14 2.508c-.09.38-.222.753-.397 1.11.452.213.901.434 1.346.66a6.727 6.727 0 0 0 .551-1.607 1.5 1.5 0 0 0 .14-2.67v-.645a48.549 48.549 0 0 1 3.44 1.667 2.25 2.25 0 0 0 2.12 0Z" />
+                <path d="M4.462 19.462c.42-.419.753-.89 1-1.395.453.214.902.435 1.347.662a6.742 6.742 0 0 1-1.286 1.794.75.75 0 0 1-1.06-1.06Z" />
+            </svg>
+        </div>
+        <div class="relative z-10 min-w-0">
+            <h2 class="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1">Dosen Pembimbing</h2>
+            <p class="text-lg font-bold text-red-500 flex items-center gap-2">
+                <i class="fas fa-exclamation-circle animate-pulse-soft"></i> Belum memiliki dosen pembimbing
+            </p>
+        </div>
+    </div>
+@endif
 
         {{-- Predikat Section --}}
         <div class="mb-8 animate-fade-in-up" style="animation-delay: 0.45s">
@@ -286,127 +250,6 @@
         return { label: 'Cukup', color: 'orange' };
     }
 
-    function updateDosenKegiatan(dosenKegiatan) {
-        const container = document.getElementById('dosen-pembimbing-container');
-        if (!container) return;
-
-        if (dosenKegiatan && dosenKegiatan.length > 0) {
-            let html = '';
-            dosenKegiatan.forEach(function(data) {
-                let kegiatanHtml = '';
-                if (data.kegiatan && data.kegiatan.length > 0) {
-                    data.kegiatan.forEach(function(k) {
-                        let statusClass = 'bg-amber-50 text-amber-700';
-                        if (k.status === 'disetujui') statusClass = 'bg-emerald-50 text-emerald-700';
-                        else if (k.status === 'ditolak') statusClass = 'bg-red-50 text-red-700';
-                        
-                        let poinHtml = k.poin > 0 ? '<p class="text-sm font-semibold text-emerald-600 mt-1">Poin: ' + k.poin + '</p>' : '';
-                        
-                        kegiatanHtml += `
-                            <div class="bg-white rounded-lg border border-indigo-100 p-4 hover:border-indigo-300 transition-colors">
-                                <div class="flex items-start gap-3">
-                                    <div class="w-2 h-2 mt-2 bg-indigo-500 rounded-full shrink-0"></div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="font-medium text-slate-800 truncate">${k.judul}</p>
-                                        <div class="flex flex-wrap gap-2 mt-1 text-xs">
-                                            ${k.bidang ? '<span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700">' + k.bidang + '</span>' : ''}
-                                            ${k.jenis_kegiatan ? '<span class="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700">' + k.jenis_kegiatan + '</span>' : ''}
-                                            <span class="px-2 py-0.5 rounded ' + statusClass + '">' + k.status.charAt(0).toUpperCase() + k.status.slice(1) + '</span>
-                                        </div>
-                                        ${poinHtml}
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    });
-                }
-                
-                let dosenName = data.dosen ? data.dosen.name : 'Belum memiliki dosen pembimbing';
-                let dosenHtml = data.dosen 
-                    ? '<p class="text-xl font-extrabold text-slate-800 truncate">' + data.dosen.name + '</p>'
-                    : '<p class="text-lg font-bold text-red-500 flex items-center gap-2"><i class="fas fa-exclamation-circle animate-pulse-soft"></i> Belum memiliki dosen pembimbing</p>';
-                
-                html += `
-                    <div class="relative bg-gradient-to-r from-indigo-50 to-white rounded-2xl shadow-sm border border-indigo-100 p-6 mb-6 flex flex-col md:flex-row md:items-start gap-5 hover:shadow-md transition-all duration-300 overflow-hidden group animate-fade-in-up">
-                        <div class="absolute right-0 top-0 w-32 h-32 bg-indigo-100/50 rounded-bl-full opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
-                        
-                        <div class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shrink-0 border border-indigo-100 shadow-sm relative z-10 group-hover:rotate-12 transition-transform duration-300">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-                                <path d="M11.7 2.805a.75.75 0 0 1 .6 0A60.65 60.65 0 0 1 22.83 8.72a.75.75 0 0 1-.231 1.337 49.948 49.948 0 0 0-9.902 3.912l-.003.002c-.114.06-.227.119-.34.18a.75.75 0 0 1-.707 0A50.88 50.88 0 0 0 7.5 12.173v-.224c0-.131.067-.248.172-.311a54.615 54.615 0 0 1 4.653-2.52.75.75 0 0 0-.65-1.352 56.123 56.123 0 0 0-4.78 2.589 1.858 1.858 0 0 0-.859 1.228 49.803 49.803 0 0 0-4.634-1.527.75.75 0 0 1-.231-1.337A60.653 60.653 0 0 1 11.7 2.805Z" />
-                                <path d="M13.06 15.473a48.45 48.45 0 0 1 7.666-3.282c.134 1.414.22 2.843.255 4.284a.75.75 0 0 1-.46.711 47.87 47.87 0 0 0-8.105 4.342.75.75 0 0 1-.832 0 47.87 47.87 0 0 0-8.104-4.342.75.75 0 0 1-.832 0 47.87 47.87 0 0 0-8.104-4.342.75.75 0 0 1-.461-.71c.035-1.442.121-2.87.255-4.286.921.304 1.83.634 2.726.99v1.27a1.5 1.5 0 0 0-.14 2.508c-.09.38-.222.753-.397 1.11.452.213.901.434 1.346.662a6.727 6.727 0 0 0 .551-1.607 1.5 1.5 0 0 0 .14-2.67v-.645a48.549 48.549 0 0 1 3.44 1.667 2.25 2.25 0 0 0 2.12 0Z" />
-                                <path d="M4.462 19.462c.42-.419.753-.89 1-1.395.453.214.902.435 1.347.662a6.742 6.742 0 0 1-1.286 1.794.75.75 0 0 1-1.06-1.06Z" />
-                            </svg>
-                        </div>
-                        <div class="relative z-10 min-w-0 w-full md:w-auto">
-                            <div class="flex items-center gap-3 mb-3">
-                                <h2 class="text-xs font-bold text-indigo-400 uppercase tracking-widest">Dosen Pembimbing</h2>
-                                ${data.dosen ? '<p class="text-xl font-extrabold text-slate-800 truncate">' + data.dosen.name + '</p>' : '<p class="text-lg font-bold text-red-500 flex items-center gap-2"><i class="fas fa-exclamation-circle animate-pulse-soft"></i> Belum memiliki dosen pembimbing</p>'}
-                            </div>
-                            
-                            <div class="flex flex-wrap gap-4 mb-4">
-                                <span class="px-3 py-1 text-xs font-medium rounded-full bg-indigo-100 text-indigo-700">
-                                    ${data.total_kegiatan} Kegiatan
-                                </span>
-                                <span class="px-3 py-1 text-xs font-medium rounded-full bg-emerald-100 text-emerald-700">
-                                    Total Poin: ${data.total_poin}
-                                </span>
-                            </div>
-                            
-                            <div class="space-y-2">
-                                ${data.kegiatan.map(function(k) {
-                                    let statusClass = 'bg-amber-50 text-amber-700';
-                                    if (k.status === 'disetujui') statusClass = 'bg-emerald-50 text-emerald-700';
-                                    else if (k.status === 'ditolak') statusClass = 'bg-red-50 text-red-700';
-                                    
-                                    let poinHtml = k.poin > 0 ? '<p class="text-sm font-semibold text-emerald-600 mt-1">Poin: ' + k.poin + '</p>' : '';
-                                    
-                                    return \`
-                                        <div class="bg-white rounded-lg border border-indigo-100 p-4 hover:border-indigo-300 transition-colors">
-                                            <div class="flex items-start gap-3">
-                                                <div class="w-2 h-2 mt-2 bg-indigo-500 rounded-full shrink-0"></div>
-                                                <div class="flex-1 min-w-0">
-                                                    <p class="font-medium text-slate-800 truncate">${k.judul}</p>
-                                                    <div class="flex flex-wrap gap-2 mt-1 text-xs">
-                                                        ${k.bidang ? '<span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700">' + k.bidang + '</span>' : ''}
-                                                        ${k.jenis_kegiatan ? '<span class="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700">' + k.jenis_kegiatan + '</span>' : ''}
-                                                        <span class="px-2 py-0.5 rounded ${statusClass}">${k.status.charAt(0).toUpperCase() + k.status.slice(1)}</span>
-                                                    </div>
-                                                    ${k.poin > 0 ? '<p class="text-sm font-semibold text-emerald-600 mt-1">Poin: ' + k.poin + '</p>' : ''}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    \`;
-                                }).join('')}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            });
-
-            document.getElementById('dosen-pembimbing-container').innerHTML = html;
-        } else {
-            document.getElementById('dosen-pembimbing-container').innerHTML = \`
-                <div class="relative bg-gradient-to-r from-indigo-50 to-white rounded-2xl shadow-sm border border-indigo-100 p-6 mb-8 flex items-center gap-5 hover:shadow-md transition-all duration-300 overflow-hidden group animate-fade-in-up">
-                    <div class="absolute right-0 top-0 w-32 h-32 bg-indigo-100/50 rounded-bl-full opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
-                    
-                    <div class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shrink-0 border border-indigo-100 shadow-sm relative z-10 group-hover:rotate-12 transition-transform duration-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-                            <path d="M11.7 2.805a.75.75 0 0 1 .6 0A60.65 60.65 0 0 1 22.83 8.72a.75.75 0 0 1-.231 1.337 49.948 49.948 0 0 0-9.902 3.912l-.003.002c-.114.06-.227.119-.34.18a.75.75 0 0 1-.707 0A50.88 50.88 0 0 0 7.5 12.173v-.224c0-.131.067-.248.172-.311a54.615 54.615 0 0 1 4.653-2.52.75.75 0 0 0-.65-1.352 56.123 56.123 0 0 0-4.78 2.589 1.858 1.858 0 0 0-.859 1.228 49.803 49.803 0 0 0-4.634-1.527.75.75 0 0 1-.231-1.337A60.653 60.653 0 0 1 11.7 2.805Z" />
-                            <path d="M13.06 15.473a48.45 48.45 0 0 1 7.666-3.282c.134 1.414.22 2.843.255 4.284a.75.75 0 0 1-.46.711 47.87 47.87 0 0 0-8.105 4.342.75.75 0 0 1-.832 0 47.87 47.87 0 0 0-8.104-4.342.75.75 0 0 1-.832 0 47.87 47.87 0 0 0-8.104-4.342.75.75 0 0 1-.461-.71c.035-1.442.121-2.87.255-4.286.921.304 1.83.634 2.726.99v1.27a1.5 1.5 0 0 0-.14 2.508c-.09.38-.222.753-.397 1.11.452.213.901.434 1.346.662a6.742 6.742 0 0 1-1.286 1.794.75.75 0 0 1-1.06-1.06Z" />
-                        </svg>
-                    </div>
-                    <div class="relative z-10 min-w-0">
-                        <h2 class="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1">Dosen Pembimbing</h2>
-                        <p class="text-lg font-bold text-red-500 flex items-center gap-2">
-                            <i class="fas fa-exclamation-circle animate-pulse-soft"></i> Belum memiliki dosen pembimbing
-                        </p>
-                    </div>
-                </div>
-            \`;
-        }
-    }
-
     function setChartData(id, data, labels) {
         if (typeof Chart === 'undefined') return;
         const chart = Chart.getChart(id);
@@ -456,9 +299,7 @@
                 setChartData('pieChart', [s.draft, s.disetujui, s.ditolak]);
                 if (data.tingkat) { const tLabels = Object.keys(data.tingkat); const tData = Object.values(data.tingkat); setChartData('barChart', tData, tLabels); }
                 if (data.kategori) setChartData('donutChart', data.kategori.kategoriData, data.kategori.kategoriLabels);
-                if (data.dosenKegiatan) {
-                    updateDosenKegiatan(data.dosenKegiatan);
-                }
+                if (data.bulanan) setChartData('lineChart', data.bulanan.bulanData, data.bulanan.bulanLabels);
             })
             .catch(function () {});
     }
