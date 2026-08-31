@@ -386,6 +386,51 @@ class DashboardService
         return compact('bulanLabels', 'bulanData');
     }
 
+    public function getMahasiswaDosenKegiatan($userId)
+    {
+        // Ambil semua kegiatan user dengan relasi RPK → dosen pembimbing
+        $kegiatanList = Kegiatan::whereHas('rpk', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            })
+            ->with(['rpk.dosenPembimbing', 'kkmRule', 'spks'])
+            ->latest()
+            ->get();
+
+        // Group by dosen pembimbing
+        return $kegiatanList->groupBy(function ($kegiatan) {
+            return $kegiatan->rpk?->dosenPembimbing?->id ?? 'tanpa_dosen';
+        })->map(function ($kegiatanList, $dosenId) {
+            $firstKegiatan = $kegiatanList->first();
+            $dosen = $firstKegiatan->rpk?->dosenPembimbing;
+            
+            // Hitung poin total dari kegiatan dosen ini
+            $totalPoin = $kegiatanList->sum(function ($k) {
+                return $k->spks->where('status', 'disetujui')->sum('poin');
+            });
+
+            return [
+                'dosen' => $dosen,
+                'kegiatan' => $kegiatanList->map(function ($k) {
+                    $spkDisetujui = $k->spks->where('status', 'disetujui')->first();
+                    return [
+                        'id' => $k->id,
+                        'judul' => $k->judul_kegiatan ?? $k->kegiatan,
+                        'bidang' => $k->kkmRule?->bidang,
+                        'jenis_kegiatan' => $k->kkmRule?->jenis_kegiatan,
+                        'status' => $k->spks->where('status', 'disetujui')->count() > 0 ? 'disetujui' : 
+                                   ($k->spks->where('status', 'ditolak')->count() > 0 ? 'ditolak' : 'draft'),
+                        'poin' => $spkDisetujui?->poin ?? 0,
+                        'spk_status' => $k->spks->first()?->status ?? 'draft',
+                    ];
+                }),
+                'total_kegiatan' => $kegiatanList->count(),
+                'total_poin' => $totalPoin,
+            ];
+        })->filter(function ($data) {
+            return $data['dosen'] !== null;
+        });
+    }
+
     public function getMahasiswaKegiatanTerbaru($userId)
     {
         return Kegiatan::whereHas('rpk', function ($q) use ($userId) {
