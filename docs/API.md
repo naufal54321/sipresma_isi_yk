@@ -1260,9 +1260,157 @@ GET /dosen/laporan/export-pdf
 
 ---
 
-## 9. Mahasiswa Routes
+## 6. Dashboard Routes
 
-**Middleware:** `auth`, `verified`, `role:Mahasiswa`
+### 6.1 Dashboard Index
+
+```
+GET /dashboard
+```
+
+**Middleware:** `auth`, `verified`
+**Name:** `dashboard`
+
+**Deskripsi:** Dashboard utama per role (Admin/Dosen/Mahasiswa). Redirect otomatis ke view yang sesuai.
+
+**Response:** HTML View (`dashboard.admin` / `dashboard.dosen` / `dashboard.mahasiswa`)
+
+**Data yang dikirim ke view (Mahasiswa):**
+
+| Variable | Type | Deskripsi |
+|----------|------|-----------|
+| `dosenPembimbing` | User|null | Dosen pembimbing dari RPK terbaru |
+| `dosenKegiatan` | Collection | Kegiatan grouped by dosen pembimbing |
+| `rpkDraft` | int | Jumlah RPK draft |
+| `rpkDisetujui` | int | Jumlah RPK disetujui |
+| `spkDraft` | int | Jumlah SPK draft |
+| `spkDisetujui` | int | Jumlah SPK disetujui |
+| `totalPoin` | int | Total poin (owner + anggota) |
+| `poinProfesional` | int | Poin Bidang Profesional |
+| `poinKepribadian` | int | Poin Bidang Kepribadian & Sosial |
+| `syaratTerpenuhi` | bool | Apakah syarat minimal terpenuhi |
+| `predikat` | string | Predikat (Unggul/Sangat Baik/Baik/Cukup/Belum Memenuhi Syarat) |
+| `predikatColor` | string | Warna Tailwind (emerald/blue/amber/orange/red) |
+| `totalKegiatan` | int | Total RPK+SPK disetujui |
+| `persentase` | int | Persentase disetujui |
+| `jumlahDitolak` | int | Jumlah ditolak |
+| `kegiatanTerbaru` | Collection | 5 kegiatan terbaru |
+| `tingkat` | Collection | Chart tingkat prestasi |
+| `kategoriLabels` | array | Label chart kategori |
+| `kategoriData` | array | Data chart kategori |
+| `bulanLabels` | array | Label chart bulanan |
+| `bulanData` | array | Data chart bulanan |
+
+**Struktur `dosenKegiatan`:**
+```json
+[
+    {
+        "dosen": { "id": 1, "name": "Dr. John Doe", ... },
+        "kegiatans": [
+            {
+                "id": 1,
+                "judul_kegiatan": "Kompetisi Desain",
+                "kegiatan": "Kompetisi Desain Interior",
+                "status": "disetujui",
+                "kkmRule": {
+                    "bidang": "Bidang Orientasi Kompetensi Profesional",
+                    "jenis_kegiatan": "Kompetisi sesuai dengan bidang keilmuan"
+                }
+            }
+        ]
+    }
+]
+```
+
+### 6.2 Dashboard Realtime
+
+```
+GET /dashboard/realtime
+```
+
+**Middleware:** `auth`, `verified`
+**Name:** `dashboard.realtime`
+
+**Deskripsi:** Endpoint AJAX untuk realtime polling dashboard (30 detik interval). Mengembalikan JSON stats terbaru.
+
+**Response (Mahasiswa):**
+```json
+{
+    "role": "Mahasiswa",
+    "stats": {
+        "rpkDraft": 2,
+        "rpkDisetujui": 5,
+        "spkDraft": 1,
+        "spkDisetujui": 3,
+        "totalPoin": 85,
+        "poinProfesional": 45,
+        "poinKepribadian": 40,
+        "syaratTerpenuhi": true,
+        "predikat": "Baik",
+        "predikatColor": "amber",
+        "totalKegiatan": 8,
+        "persentase": 80,
+        "jumlahDitolak": 2,
+        "draft": 3,
+        "disetujui": 8,
+        "ditolak": 2
+    },
+    "tingkat": { "Universitas": 5, "Regional": 3 },
+    "kategori": { "kategoriLabels": [...], "kategoriData": [...] },
+    "bulanan": { "bulanLabels": [...], "bulanData": [...] }
+}
+```
+
+**Response (Admin):**
+```json
+{
+    "role": "Admin",
+    "stats": { ... },
+    "tingkat": { ... },
+    "kategori": { ... },
+    "aktivitasTerbaru": [ ... ]
+}
+```
+
+**Response (Dosen):**
+```json
+{
+    "role": "Dosen",
+    "stats": { ... }
+}
+```
+
+---
+
+## 6.3 Dashboard Service Endpoints (Internal)
+
+### 6.3.1 Get Mahasiswa Dosen Kegiatan
+
+```
+GET /dashboard/dosen-kegiatan (Internal Service Method)
+```
+
+**Method:** `DashboardService::getMahasiswaDosenKegiatan($userId)`
+
+**Deskripsi:** Mengambil semua kegiatan mahasiswa grouped by dosen pembimbing.
+
+**Return:** `Collection<['dosen' => User, 'kegiatans' => Collection]>`
+
+**Query:**
+```php
+Kegiatan::whereHas('rpk', fn($q) => $q->where('user_id', $userId))
+    ->with(['rpk.dosenPembimbing', 'kkmRule'])
+    ->latest()
+    ->get()
+    ->groupBy(fn($k) => $k->rpk?->dosenPembimbing?->id ?? 'tanpa-dosen')
+    ->map(fn($k, $id) => ['dosen' => $k->first()?->rpk?->dosenPembimbing, 'kegiatans' => $k])
+    ->filter(fn($v) => $v['dosen'] !== null)
+    ->values();
+```
+
+---
+
+## 9. Mahasiswa Routes
 
 ### 9.1 RPK (Mahasiswa)
 
@@ -1517,11 +1665,29 @@ POST /spks
 | `foto_penyerahan` | file | ✅ | required, mimes:jpg,jpeg,png, max:5120 |
 | `laporan` | file | ✅ | required, mimes:pdf, max:5120 |
 
-**Response (AJAX):**
+**Response (AJAX Success):**
 ```json
 {
     "success": true,
     "message": "SPK berhasil ditambahkan"
+}
+```
+
+**Response (AJAX Error - Duplikasi):**
+```json
+{
+    "success": false,
+    "message": "Anda sudah menginput maksimal 4 kegiatan dengan jenis yang sama (Kompetisi sesuai dengan bidang keilmuan) di bidang ini."
+}
+```
+
+**Response (AJAX Error - File Wajib):**
+```json
+{
+    "message": "The given data was invalid.",
+    "errors": {
+        "surat_tugas": ["File Makalah wajib diupload untuk peran/sifat ini."]
+    }
 }
 ```
 
@@ -1670,6 +1836,8 @@ Semua endpoint AJAX yang berhasil mengembalikan response dengan pola berikut:
   - Ukuran file melebihi 5MB
   - URL tidak valid
   - Data tidak ditemukan di database (foreign key)
+  - **Duplikasi kegiatan**: Melebihi maksimal 4 kegiatan sama (same `jenis_kegiatan` + `bidang`) per mahasiswa
+  - **File wajib hilang**: File yang diperlukan berdasarkan `bidang` + `jenis_kegiatan` + `peran` tidak diupload
 
 ### 11.3 Rate Limiting
 

@@ -423,6 +423,8 @@ protected $appends = ['is_active', 'status_badge'];
 | `getMahasiswaKategoriChart($userId)` | Mahasiswa | Chart kategori kegiatan pribadi |
 | `getMahasiswaBulananChart($userId)` | Mahasiswa | Chart aktivitas bulanan (12 bulan) |
 | `getMahasiswaKegiatanTerbaru($userId)` | Mahasiswa | 5 kegiatan terbaru |
+| `getMahasiswaDosenKegiatan($userId)` | Mahasiswa | Kegiatan grouped by dosen pembimbing (dosen + kegiatans) |
+| `getMahasiswaStats($userId)` | Mahasiswa | Statistik pribadi (RPK/SPK, poin, persentase, predikat, syaratTerpenuhi, poinProfesional, poinKepribadian) |
 
 **Caching:**
 - `admin.stats` — 300 detik (5 menit)
@@ -836,6 +838,227 @@ resources/views/
     ├── edit.blade.php
     └── update.blade.php
 ```
+
+---
+
+## 5.3 FileRequirementService
+
+**File:** `app/Services/FileRequirementService.php`
+
+**Deskripsi:** Service untuk mengelola validasi file upload dinamis berdasarkan Bidang, Jenis Kegiatan, dan Peran.
+
+**Struktur Data:**
+
+```php
+protected $requirements = [
+    'Bidang Orientasi Kompetensi Profesional' => [
+        'Kompetisi sesuai dengan bidang keilmuan' => [
+            'Peserta' => [['col' => 'surat_tugas', 'label' => 'Surat Tugas'], ...],
+            'Juara I/II/III' => [['col' => 'sertifikat', 'label' => 'Sertifikat'], ...],
+        ],
+        // ... jenis kegiatan lain
+    ],
+    'Bidang Kompetensi Kepribadian dan Sosial' => [
+        'Kerohanian' => [
+            'Peserta' => [['col' => 'surat_tugas', 'label' => 'Surat Tugas'], ...],
+        ],
+        // ... jenis kegiatan lain
+    ],
+];
+```
+
+**Methods:**
+
+| Method | Deskripsi |
+|--------|-----------|
+| `getRequiredFileCols($bidang, $jenisKegiatan, $peran)` | Return array kolom file yang wajib (string) |
+| `getRequiredFiles($bidang, $jenisKegiatan, $peran)` | Return array file dengan label per peran |
+| `getFileLabels($bidang, $jenisKegiatan, $peran)` | Return label untuk error message |
+| `getFileMimes($col)` | Return mime types per kolom file |
+
+**Validasi di SpkController:**
+- Dynamic validation di `Mahasiswa\SpkController::store()`
+- Cek file wajib berdasarkan `bidang`, `jenis_kegiatan`, `peran_sifat`
+- Return error spesifik per file yang kurang
+
+---
+
+## 6. Sistem Poin & Predikat Mahasiswa
+
+### 6.1 Business Logic
+
+**File:** `app/Services/DashboardService.php` — Method `getMahasiswaStats()`
+
+**Ketentuan Poin Minimal:**
+| Kriteria | Minimum |
+|----------|---------|
+| Total Poin | 50 |
+| Bidang Orientasi Kompetensi Profesional | 25 |
+| Bidang Kompetensi Kepribadian dan Sosial | 25 |
+
+**Penentuan Predikat (Jika Syarat Terpenuhi):**
+
+| Predikat | Rentang Poin | Warna |
+|----------|--------------|-------|
+| Unggul | > 150 | Emerald |
+| Sangat Baik | 100 – 149 | Blue |
+| Baik | 75 – 99 | Amber |
+| Cukup | 50 – 74 | Orange |
+
+**Status "Belum Memenuhi Syarat":**
+- Jika Total Poin < 50 ATAU Bidang Profesional < 25 ATAU Bidang Kepribadian < 25
+- Tampil: "Belum Memenuhi Syarat" + icon ⚠️ (fa-exclamation-triangle) warna merah
+- **Tidak ada predikat kualitatif** meski total poin > 50
+
+**Sumber Poin:**
+- **Poin Diri (Owner):** SPK milik mahasiswa (user_id = mahasiswa, status disetujui)
+- **Poin Anggota:** SPK di mana mahasiswa adalah anggota (via pivot `kegiatan_user`), bukan owner
+- **Total Poin = Poin Diri + Poin Anggota**
+
+**Penetapan Poin Otomatis (Admin/Dosen Approve SPK):**
+1. Lookup `KkmRule` by exact `peran` string match (case sensitive)
+2. Assign `poin = kkmRule->poin` (fallback 0 jika tidak ketemu)
+3. Record `poin_added_at`, `poin_added_by`, `verified_by`, `verified_at`
+
+**Perhitungan Poin per Bidang (DashboardService::getMahasiswaStats):**
+```php
+$poinProfesional = Spk::where('status', 'disetujui')
+    ->join('kegiatans', 'spks.kegiatan_id', '=', 'kegiatans.id')
+    ->join('kkm_rules', 'kegiatans.kkm_rule_id', '=', 'kkm_rules.id')
+    ->where('kkm_rules.bidang', 'Bidang Orientasi Kompetensi Profesional')
+    ->where(function ($q) use ($userId) {
+        $q->where('spks.user_id', $userId)
+           ->orWhere(function ($q2) use ($userId) {
+               $q2->where('spks.user_id', '!=', $userId)
+                  ->whereHas('kegiatan.anggota', fn($a) => $a->where('user_id', $userId));
+           });
+    })
+    ->sum('spks.poin');
+
+// Sama untuk poinKepribadian dengan bidang 'Bidang Kompetensi Kepribadian dan Sosial'
+```
+
+**Return Value `getMahasiswaStats`:**
+```php
+return [
+    'totalPoin' => $totalPoin,
+    'poinProfesional' => $poinProfesional,
+    'poinKepribadian' => $poinKepribadian,
+    'syaratTerpenuhi' => $syaratTerpenuhi,
+    'predikat' => $predikat,
+    'predikatColor' => $predikatColor,
+    // ... stats lain
+];
+```
+
+---
+
+## 12. Debugging & Common Issues
+
+### 12.1 Common Issues & Solutions
+
+| Issue | Penyebab | Solusi |
+|-------|----------|--------|
+| **Error 500 Dashboard Mahasiswa** | `getMahasiswaDosenKegiatan` return integer ID bukan User object | Fix `groupBy` return User object + Blade loop fix |
+| **Dosen Pembimbing Tidak Tampil** | `$dosenKegiatan` tidak dikirim ke view / empty | Pastikan `$dosenKegiatan` dikirim dari Controller |
+| **Predikat Tidak Muncul** | `$syaratTerpenuhi` false / data poin 0 | Cek poin per bidang >= 25 & total >= 50 |
+| **Chart.js Blank** | CSP block / Chart instance leak | `Chart.getChart(canvasId)?.destroy()` sebelum create baru |
+| **SweetAlert2 Tidak Muncul** | Belum re-init setelah AJAX content swap | Call `Swal.bindClickHandler()` setelah content swap |
+| **File Upload Gagal** | Permission / php.ini limit | `chmod 775 storage/app/public`, `php.ini` upload_max_filesize |
+| **Chart.js Tidak Update Realtime** | Instance lama tidak di-destroy | `Chart.getChart(canvasId)?.destroy()` sebelum create baru |
+| **SPA Script Tidak Jalan** | Script tidak idempotent | Gunakan `if (window.xxxInitialized) return` pattern |
+| **SweetAlert2 Double Bind** | Multiple bind tanpa destroy | `Swal.close()` sebelum `Swal.fire()` |
+
+### 12.2 Debugging Checklist
+
+**Error 500:**
+1. Cek `storage/logs/laravel.log`
+2. Cek Network tab → XHR → Response body
+3. Cek `php artisan route:list` route accessible
+
+**AJAX Error:**
+1. Network tab → XHR → Response body (biasanya validation error)
+2. Cek CSRF token di header
+3. Cek `Accept: application/json` header
+
+**Chart.js Issues:**
+```javascript
+// Destroy sebelum create baru
+const existingChart = Chart.getChart(canvasId);
+if (existingChart) existingChart.destroy();
+
+// Re-init setelah AJAX content swap
+window.dispatchEvent(new Event('chart-reinit'));
+```
+
+**SweetAlert2 Re-init:**
+```javascript
+// Setelah AJAX content swap
+Swal.bindClickHandler();
+Swal.close(); // Tutup instance lama sebelum baru
+```
+
+**File Upload Issues:**
+```bash
+# Permission
+chmod -R 775 storage/app/public
+chown -R www-data:www-data storage/app/public
+
+# php.ini
+upload_max_filesize = 10M
+post_max_size = 10M
+```
+
+### 12.3 Performance Optimization
+
+**Chart.js Memory Leak Prevention:**
+```javascript
+const existingChart = Chart.getChart(canvasId);
+if (existingChart) existingChart.destroy();
+new Chart(ctx, config);
+```
+
+**Cache Invalidation:**
+```php
+// Clear cache after data changes
+DashboardService::clearAdminCache();
+```
+
+**Query Optimization:**
+```php
+// Eager loading untuk N+1 prevention
+Kegiatan::with(['rpk.dosenPembimbing', 'kkmRule'])->get();
+```
+
+---
+
+## 13. Extension Points (Untuk Pengembangan Lanjutan)
+
+| Kebutuhan | Cara Extend |
+|-----------|-------------|
+| **Tambah Bidang Baru** | Migration `kkm_rules.bidang` enum + `FileRequirementService` + Views |
+| **Tambah Role Baru** | Spatie Permission seeder + Middleware + Views + Routes |
+| **Tambah Chart Baru** | Method di `DashboardService` + Canvas di Blade + Chart.js config |
+| **Tambah Notifikasi** | Buat Mailable baru + trigger di Controller + Queue |
+| **Tambah Export Format** | Method di `LaporanController` + Package `maatwebsite/excel` |
+| **Custom Bidang/Jenis** | Edit `kkm_rules` via Admin UI + sync `FileRequirementService` |
+| **Tambah Role Baru** | Spatie Permission seeder + Middleware + Views + Routes |
+| **Tambah Notifikasi Real-time** | Laravel Echo + Pusher / Laravel Echo Server |
+
+---
+
+## 13. Testing Checklist (Untuk QA)
+
+- [ ] Mahasiswa: Create RPK → add kegiatan → submit → verifikasi dosen
+- [ ] Mahasiswa: Create SPK → upload file → submit → verifikasi dosen/admin
+- [ ] Mahasiswa: Duplikasi >4 kegiatan sama/bidang → reject
+- [ ] Mahasiswa: Poin <25 per bidang → predikat "Belum Memenuhi Syarat"
+- [ ] Dosen: Approve/Tolak RPK/SPK → email terkirim
+- [ ] Admin: Override verifikasi → poin manual entry
+- [ ] Admin: Master KKM Rules CRUD → validasi duplikasi combo
+- [ ] Export Laporan: CSV/Excel/PDF → data lengkap & format benar
+- [ ] Realtime polling: 30 detik update stats + predikat + charts
+- [ ] File upload: PDF/JPG/PNG max 5MB, format validasi
 
 ---
 
