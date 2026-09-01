@@ -595,10 +595,9 @@ window.updateGayaTab = function(index) {
 
 window.approveSpk = function(id) {
     Swal.fire({
-        title: 'Setujui SPK', input: 'textarea', inputLabel: 'Catatan Dosen',
-        inputPlaceholder: 'Alasan persetujuan...', showCancelButton: true,
-        confirmButtonText: 'Setujui', confirmButtonColor: '#16a34a',
-        inputValidator: (value) => { if (!value) return 'Alasan wajib diisi'; }
+        title: 'Setujui SPK', input: 'textarea', inputLabel: 'Catatan Dosen (Opsional)',
+        inputPlaceholder: 'Catatan persetujuan (opsional)...', showCancelButton: true,
+        confirmButtonText: 'Setujui', confirmButtonColor: '#16a34a'
     }).then((result) => {
         if (!result.isConfirmed) return;
 

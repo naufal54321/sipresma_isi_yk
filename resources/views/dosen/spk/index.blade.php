@@ -197,15 +197,9 @@ function approveSpk(id)
         title: 'Alasan Persetujuan',
         input: 'textarea',
         inputLabel: 'Catatan Dosen',
-        inputPlaceholder: 'Masukkan alasan disetujui...',
+        inputPlaceholder: 'Catatan persetujuan (opsional)...',
         showCancelButton: true,
-        confirmButtonText: 'Setujui',
-
-        inputValidator: (value) => {
-            if (!value) {
-                return 'Alasan wajib diisi';
-            }
-        }
+        confirmButtonText: 'Setujui'
 
     }).then((result) => {
 
