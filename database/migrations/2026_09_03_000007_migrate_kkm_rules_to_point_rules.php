@@ -30,6 +30,7 @@ return new class extends Migration
         ];
 
         $roleCache = [];
+        $oldToNewId = [];
 
         $rules = DB::table('kkm_rules')->where('is_active', true)->get();
 
@@ -88,7 +89,7 @@ return new class extends Migration
                 ->exists();
 
             if (!$exists) {
-                DB::table('point_rules')->insert([
+                $newId = DB::table('point_rules')->insertGetId([
                     'competency_field_id' => $competencyFieldId,
                     'activity_type_id' => $activityType->id,
                     'scope_id' => $scopeId,
@@ -100,14 +101,47 @@ return new class extends Migration
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
+                $oldToNewId[$rule->id] = $newId;
+            } else {
+                $newRow = DB::table('point_rules')
+                    ->where('competency_field_id', $competencyFieldId)
+                    ->where('activity_type_id', $activityType->id)
+                    ->where('scope_id', $scopeId)
+                    ->where('role_id', $roleId)
+                    ->where('achievement_id', $achievementId)
+                    ->first();
+                $oldToNewId[$rule->id] = $newRow->id;
             }
         }
 
-        Schema::table('kegiatans', function (Blueprint $table) {
-            $table->dropForeign(['kkm_rule_id']);
-            $table->renameColumn('kkm_rule_id', 'point_rule_id');
-            $table->foreign('point_rule_id')->references('id')->on('point_rules')->nullOnDelete();
-        });
+        // Map old kkm_rule_id values to new point_rules IDs
+        if (!empty($oldToNewId)) {
+            foreach ($oldToNewId as $oldId => $newId) {
+                DB::table('kegiatans')
+                    ->where('point_rule_id', $oldId)
+                    ->update(['point_rule_id' => $newId]);
+            }
+        }
+
+        // Handle column rename (idempotent)
+        if (Schema::hasColumn('kegiatans', 'kkm_rule_id')) {
+            Schema::table('kegiatans', function (Blueprint $table) {
+                $table->dropForeign(['kkm_rule_id']);
+                $table->renameColumn('kkm_rule_id', 'point_rule_id');
+            });
+        }
+
+        // Add FK if not already present
+        $hasFk = Schema::getColumns('kegiatans')
+            && collect(Schema::getColumns('kegiatans'))->contains('point_rule_id');
+        if ($hasFk) {
+            $fkName = DB::select("SELECT CONSTRAINT_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA = '" . DB::getDatabaseName() . "' AND TABLE_NAME = 'kegiatans' AND COLUMN_NAME = 'point_rule_id' AND REFERENCED_TABLE_NAME = 'point_rules' LIMIT 1");
+            if (empty($fkName)) {
+                Schema::table('kegiatans', function (Blueprint $table) {
+                    $table->foreign('point_rule_id')->references('id')->on('point_rules')->nullOnDelete();
+                });
+            }
+        }
 
         if (Schema::hasColumn('kegiatans', 'master_kegiatan_id')) {
             Schema::table('kegiatans', function (Blueprint $table) {

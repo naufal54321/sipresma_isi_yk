@@ -187,9 +187,13 @@
             <span x-show="!collapsed" class="font-medium text-sm whitespace-nowrap">Daftar Pengguna</span>
         </a>
 
-        <div x-data="{ open: {{ request()->routeIs('admin.point-rules.*') || request()->routeIs('admin.competency-fields.*') || request()->routeIs('admin.activity-types.*') || request()->routeIs('admin.activity-scopes.*') || request()->routeIs('admin.activity-roles.*') || request()->routeIs('admin.achievement-types.*') || request()->routeIs('admin.kkm-rules.*') ? 'true' : 'false' } }">
+        @php
+            $rulesActive = request()->routeIs('admin.point-rules.*') || request()->routeIs('admin.competency-fields.*') || request()->routeIs('admin.activity-types.*') || request()->routeIs('admin.activity-scopes.*') || request()->routeIs('admin.activity-roles.*') || request()->routeIs('admin.achievement-types.*') || request()->routeIs('admin.kkm-rules.*');
+            $rulesBtnClass = $rulesActive ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200';
+        @endphp
+        <div x-data="{ open: {{ $rulesActive ? 'true' : 'false' }} }">
             <button @click="open = !open" title="Rules KKM"
-               class="w-full flex items-center rounded-xl transform ease-out active:scale-95 {{ request()->routeIs('admin.point-rules.*') || request()->routeIs('admin.competency-fields.*') || request()->routeIs('admin.activity-types.*') || request()->routeIs('admin.activity-scopes.*') || request()->routeIs('admin.activity-roles.*') || request()->routeIs('admin.achievement-types.*') ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"
+               class="w-full flex items-center rounded-xl transform ease-out active:scale-95 {{ $rulesBtnClass }}"
                :class="{
                    'justify-center p-3': collapsed,
                    'gap-3 px-3 py-2.5 hover:translate-x-1.5': !collapsed,
