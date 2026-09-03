@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\KkmRule;
+use App\Models\PointRule;
 use Illuminate\Http\Request;
 
 class KkmRuleController extends Controller
@@ -217,32 +218,29 @@ class KkmRuleController extends Controller
 
     public function options(Request $request)
     {
-        $query = KkmRule::active();
+        $query = PointRule::with(['competencyField', 'activityType', 'scope', 'role', 'achievementType'])
+            ->where('is_active', true);
 
         if ($request->filled('bidang')) {
-            $query->where('bidang', $request->bidang);
+            $query->where('competency_field_id', $request->bidang);
         }
-
         if ($request->filled('jenis_kegiatan')) {
-            $query->where('jenis_kegiatan', $request->jenis_kegiatan);
+            $query->where('activity_type_id', $request->jenis_kegiatan);
         }
-
         if ($request->filled('ruang_lingkup')) {
-            $query->where('ruang_lingkup', $request->ruang_lingkup);
+            $query->where('scope_id', $request->ruang_lingkup);
         }
-
         if ($request->filled('peran')) {
-            $query->where('peran', $request->peran);
+            $query->where('role_id', $request->peran);
         }
-
         if ($request->filled('hasil')) {
-            $query->where('hasil', $request->hasil);
+            $query->where('achievement_type_id', $request->hasil);
         }
 
         $rules = $query->get();
 
         $result = [
-            'bidang' => KkmRule::active()->distinct()->pluck('bidang')->filter()->values(),
+            'bidang' => PointRule::where('is_active', true)->pluck('competency_field_id')->filter()->unique()->values(),
             'jenis_kegiatan' => collect(),
             'ruang_lingkup' => collect(),
             'peran' => collect(),
@@ -251,33 +249,30 @@ class KkmRuleController extends Controller
         ];
 
         if ($request->filled('bidang')) {
-            $result['jenis_kegiatan'] = $rules->pluck('jenis_kegiatan')->filter()->unique()->values();
+            $result['jenis_kegiatan'] = $rules->pluck('activity_type_id')->filter()->unique()->values();
         }
 
         if ($request->filled('bidang') && $request->filled('jenis_kegiatan')) {
-            $result['ruang_lingkup'] = $rules->pluck('ruang_lingkup')->filter()->unique()->values();
+            $result['ruang_lingkup'] = $rules->pluck('scope_id')->filter()->unique()->values();
+            $result['peran'] = $rules->pluck('role_id')->filter()->unique()->values();
         }
 
-        if ($request->filled('bidang') && $request->filled('jenis_kegiatan')) {
-            $result['peran'] = $rules->pluck('peran')->filter()->unique()->values();
-        }
-
-        $hasHasil = $rules->whereNotNull('hasil')->isNotEmpty();
+        $hasHasil = $rules->whereNotNull('achievement_type_id')->isNotEmpty();
         if ($hasHasil) {
-            $result['hasil'] = $rules->pluck('hasil')->filter()->unique()->values();
+            $result['hasil'] = $rules->pluck('achievement_type_id')->filter()->unique()->values();
         }
 
         if ($rules->count() === 1) {
             $rule = $rules->first();
             $result['preview'] = [
                 'kkm_rule_id' => $rule->id,
-                'poin' => $rule->poin,
+                'poin' => $rule->points,
             ];
         } elseif ($rules->count() > 1 && !$hasHasil) {
             $rule = $rules->first();
             $result['preview'] = [
                 'kkm_rule_id' => $rule->id,
-                'poin' => $rule->poin,
+                'poin' => $rule->points,
             ];
         }
 
