@@ -219,7 +219,7 @@
                             {{-- Bidang --}}
                             <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-50 transition-all duration-300 md:col-span-2">
                                 <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Bidang</p>
-                                <p class="text-sm font-semibold text-gray-800 leading-relaxed">{{ $spk->kegiatan->kkmRule->bidang ?? '-' }}</p>
+                                <p class="text-sm font-semibold text-gray-800 leading-relaxed">{{ $spk->kegiatan->pointRule->competencyField->name ?? '-' }}</p>
                             </div>
 
                             {{-- Nama Kegiatan --}}
@@ -262,9 +262,9 @@
                                     <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Ruang Lingkup</p>
                                 </div>
                                 <div>
-                                    @if($spk->kegiatan?->kkmRule?->ruang_lingkup)
+                                    @if($spk->kegiatan?->pointRule?->scope?->name)
                                         <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100">
-                                            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>{{ $spk->kegiatan->kkmRule->ruang_lingkup }}
+                                            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>{{ $spk->kegiatan->pointRule->scope->name }}
                                         </span>
                                     @else
                                         <span class="text-sm text-gray-400">-</span>

@@ -149,7 +149,7 @@
                             </td>
                             {{-- 🔧 RUANG LINGKUP DARI KKM RULE --}}
                             <td class="px-6 py-4">
-                                <span class="text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">{{ $item->kegiatan?->kkmRule?->ruang_lingkup ?? '-' }}</span>
+                                <span class="text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">{{ $item->kegiatan?->pointRule?->scope?->name ?? '-' }}</span>
                             </td>
                             {{-- 🔧 PERAN/SIFAT DARI SPK --}}
                             <td class="px-6 py-4">

@@ -160,7 +160,7 @@
                             </td>
                             {{-- ⚡ RUANG LINGKUP DARI KKM RULE --}}
                             <td class="px-6 py-4">
-                                <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">{{ $item->kegiatan?->kkmRule?->ruang_lingkup ?? '-' }}</span>
+                                <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">{{ $item->kegiatan?->pointRule?->scope?->name ?? '-' }}</span>
                             </td>
                             <td class="px-6 py-4">
                                 @if($item->peran_sifat)

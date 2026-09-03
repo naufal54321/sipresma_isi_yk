@@ -44,8 +44,8 @@ class LaporanService
         }
 
         if ($request->filled('ruang_lingkup')) {
-            $query->whereHas('kegiatan.kkmRule', function ($q) use ($request) {
-                $q->where('ruang_lingkup', $request->ruang_lingkup);
+            $query->whereHas('kegiatan.pointRule.scope', function ($q) use ($request) {
+                $q->where('name', $request->ruang_lingkup);
             });
         }
 
@@ -250,7 +250,7 @@ class LaporanService
 
             $namaKegiatan = $item->kegiatan?->kegiatan ?? '-';
             $penyelenggara = $item->penyelenggara ?? '-';
-            $tingkat = $item->kegiatan?->kkmRule?->ruang_lingkup ?? '-';
+            $tingkat = $item->kegiatan?->pointRule?->scope?->name ?? '-';
             $hasil = $item->peran_sifat ?? '-';
 
             $tanggal = $this->getTanggalSelesai($item);

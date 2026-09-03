@@ -120,7 +120,7 @@
                 $judulKegiatan = $item->judul_kegiatan ?? $item->kegiatan->judul_kegiatan ?? $item->kegiatan->kegiatan ?? '-';
                 $namaKegiatan = $item->kegiatan->kegiatan ?? '-';
                 $penyelenggara = $item->penyelenggara ?? '-';
-                $tingkat = $item->kegiatan?->kkmRule?->ruang_lingkup ?? '-';
+                $tingkat = $item->kegiatan?->pointRule?->scope?->name ?? '-';
                 $hasil = $item->peran_sifat ?? '-';
                 $poin = $item->poin ?? 0;
                 

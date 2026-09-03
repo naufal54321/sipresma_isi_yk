@@ -32,12 +32,13 @@ class LaporanController extends Controller
         $prodis = ProgramStudi::where('status', 'aktif')->orderBy('nama_prodi')->get();
 
         $ruangLingkupList = Spk::join('kegiatans', 'spks.kegiatan_id', '=', 'kegiatans.id')
-            ->join('kkm_rules', 'kegiatans.kkm_rule_id', '=', 'kkm_rules.id')
-            ->select('kkm_rules.ruang_lingkup')
+            ->join('point_rules', 'kegiatans.point_rule_id', '=', 'point_rules.id')
+            ->join('activity_scopes', 'point_rules.scope_id', '=', 'activity_scopes.id')
+            ->select('activity_scopes.name as ruang_lingkup')
             ->distinct()
-            ->whereNotNull('kkm_rules.ruang_lingkup')
-            ->orderBy('kkm_rules.ruang_lingkup')
-            ->pluck('kkm_rules.ruang_lingkup');
+            ->whereNotNull('activity_scopes.name')
+            ->orderBy('activity_scopes.name')
+            ->pluck('activity_scopes.name');
 
         return view('admin.laporan.index', array_merge(
             compact('laporan', 'prodis', 'ruangLingkupList'),
@@ -78,7 +79,7 @@ class LaporanController extends Controller
                 $item->judul_kegiatan ?? $item->kegiatan->judul_kegiatan ?? $item->kegiatan->kegiatan ?? '',
                 $item->kegiatan->kegiatan ?? '',
                 $item->penyelenggara ?? '',
-                $item->kegiatan?->kkmRule?->ruang_lingkup ?? '',
+                $item->kegiatan?->pointRule?->scope?->name ?? '',
                 $item->peran_sifat ?? '',
                 $item->poin ?? 0,
                 $this->laporanService->getTanggalSelesai($item),

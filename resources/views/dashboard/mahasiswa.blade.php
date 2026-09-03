@@ -59,8 +59,8 @@
                         <div class="flex items-center gap-2 text-xs text-slate-600 px-2 py-1 rounded bg-white border border-indigo-50">
                             <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0"></span>
                             <span class="font-medium truncate">{{ $kegiatan->judul_kegiatan ?? $kegiatan->kegiatan }}</span>
-                            <span class="text-indigo-500 px-1.5 py-0.5 rounded text-[9px] font-medium">{{ $kegiatan->kkmRule?->bidang }}</span>
-                            <span class="text-slate-400 px-1.5 py-0.5 rounded text-[9px]">{{ $kegiatan->kkmRule?->jenis_kegiatan }}</span>
+                            <span class="text-indigo-500 px-1.5 py-0.5 rounded text-[9px] font-medium">{{ $kegiatan->pointRule?->competencyField?->name }}</span>
+                            <span class="text-slate-400 px-1.5 py-0.5 rounded text-[9px]">{{ $kegiatan->pointRule?->activityType?->name }}</span>
                             <span class="px-1.5 py-0.5 rounded text-[9px] font-medium
                                 @if($kegiatan->status === 'disetujui') bg-emerald-50 text-emerald-600
                                 @elseif($kegiatan->status === 'ditolak') bg-red-50 text-red-600

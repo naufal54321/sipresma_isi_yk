@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class KkmRule extends Model
+class PointRule extends Model
 {
     protected $table = 'point_rules';
 
@@ -21,6 +21,8 @@ class KkmRule extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'points' => 'integer',
+        'max_usage' => 'integer',
     ];
 
     public function competencyField()
@@ -56,5 +58,16 @@ class KkmRule extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    public function getFullPathAttribute(): string
+    {
+        $parts = [
+            $this->competencyField->name ?? '-',
+            $this->activityType->name ?? '-',
+            $this->scope->name ?? '-',
+            $this->role->name ?? '-',
+        ];
+        return implode(' → ', $parts);
     }
 }

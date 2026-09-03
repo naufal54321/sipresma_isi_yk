@@ -1,0 +1,29 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class CompetencyField extends Model
+{
+    protected $fillable = ['name', 'description', 'is_active'];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
+    public function activityTypes()
+    {
+        return $this->hasMany(ActivityType::class);
+    }
+
+    public function pointRules()
+    {
+        return $this->hasMany(PointRule::class);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+}

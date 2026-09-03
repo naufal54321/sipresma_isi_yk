@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Rpk;
 use App\Models\Kegiatan;
-use App\Models\KkmRule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Mail\RpkSubmitted;
@@ -41,7 +40,7 @@ class KegiatanController extends Controller
         }
 
         $request->validate([
-            'kkm_rule_id' => 'required|exists:kkm_rules,id',
+            'kkm_rule_id' => 'required|exists:point_rules,id',
             'judul_kegiatan' => 'required|string|max:255',
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
@@ -57,16 +56,16 @@ class KegiatanController extends Controller
             'tanggal_selesai.after_or_equal' => 'Tanggal selesai harus setelah atau sama dengan tanggal mulai',
         ]);
 
-        $kkmRule = KkmRule::findOrFail($request->kkm_rule_id);
+        $kkmRule = \App\Models\PointRule::with('activityType')->findOrFail($request->kkm_rule_id);
 
-        $count = Kegiatan::whereHas('kkmRule', function ($q) use ($kkmRule) {
-            $q->where('jenis_kegiatan', $kkmRule->jenis_kegiatan);
+        $count = Kegiatan::whereHas('pointRule.activityType', function ($q) use ($kkmRule) {
+            $q->where('name', $kkmRule->activityType->name);
         })->whereHas('rpk', function ($q) {
             $q->where('user_id', Auth::id());
         })->count();
 
         if ($count >= 4) {
-            $message = "Batas maksimal 4 kegiatan untuk jenis \"{$kkmRule->jenis_kegiatan}\" sudah tercapai.";
+            $message = "Batas maksimal 4 kegiatan untuk jenis \"{$kkmRule->activityType->name}\" sudah tercapai.";
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['success' => false, 'message' => $message], 422);
             }
@@ -75,8 +74,8 @@ class KegiatanController extends Controller
 
         $kegiatan = Kegiatan::create([
             'rpk_id' => $rpk->id,
-            'kkm_rule_id' => $kkmRule->id,
-            'kegiatan' => $kkmRule->jenis_kegiatan,
+            'point_rule_id' => $kkmRule->id,
+            'kegiatan' => $kkmRule->activityType->name,
             'judul_kegiatan' => $request->judul_kegiatan,
             'tanggal_mulai' => $request->tanggal_mulai,
             'tanggal_selesai' => $request->tanggal_selesai,
@@ -151,7 +150,7 @@ class KegiatanController extends Controller
         }
 
         $request->validate([
-            'kkm_rule_id' => 'required|exists:kkm_rules,id',
+            'kkm_rule_id' => 'required|exists:point_rules,id',
             'judul_kegiatan' => 'required|string|max:255',
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
@@ -167,11 +166,11 @@ class KegiatanController extends Controller
             'tanggal_selesai.after_or_equal' => 'Tanggal selesai harus setelah atau sama dengan tanggal mulai',
         ]);
 
-        $kkmRule = KkmRule::findOrFail($request->kkm_rule_id);
+        $kkmRule = \App\Models\PointRule::with('activityType')->findOrFail($request->kkm_rule_id);
 
         $kegiatan->update([
-            'kkm_rule_id' => $kkmRule->id,
-            'kegiatan' => $kkmRule->jenis_kegiatan,
+            'point_rule_id' => $kkmRule->id,
+            'kegiatan' => $kkmRule->activityType->name,
             'judul_kegiatan' => $request->judul_kegiatan,
             'tanggal_mulai' => $request->tanggal_mulai,
             'tanggal_selesai' => $request->tanggal_selesai,
@@ -202,7 +201,7 @@ class KegiatanController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Kegiatan berhasil diperbarui',
-                'data' => $kegiatan->fresh()->load('kkmRule')
+                'data' => $kegiatan->fresh()->load('pointRule')
             ]);
         }
 

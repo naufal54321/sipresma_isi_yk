@@ -136,8 +136,8 @@
                                                 data-tahun="{{ $spk->tahun }}"
                                                 data-rpk="{{ $spk->rpk_id }}"
                                                 data-kegiatan="{{ $spk->kegiatan_id }}"
-                                                data-bidang="{{ $spk->kegiatan->kkmRule->bidang ?? '' }}"
-                                                data-jenis="{{ $spk->kegiatan->kkmRule->jenis_kegiatan ?? '' }}"
+                                                data-bidang="{{ $spk->kegiatan->pointRule->competencyField->name ?? '' }}"
+                                                data-jenis="{{ $spk->kegiatan->pointRule->activityType->name ?? '' }}"
                                                 data-tanggal="{{ $spk->tanggal_kegiatan }}"
                                                 data-penyelenggara="{{ e($spk->penyelenggara) }}"
                                                 data-kategori="{{ $spk->kategori }}"
@@ -558,9 +558,9 @@ function generateSpkFormHTML(prefix) {
                         data-kegiatan-tanggal-mulai="{{ $firstKeg->tanggal_mulai ?? '' }}"
                         data-kegiatan-tanggal-selesai="{{ $firstKeg->tanggal_selesai ?? '' }}"
                         data-kegiatan-kategori="{{ $firstKeg->kategori ?? '' }}"
-                        data-bidang="{{ $firstKeg->kkmRule->bidang ?? '' }}"
-                        data-jenis="{{ $firstKeg->kkmRule->jenis_kegiatan ?? '' }}"
-                        data-ruang="{{ $firstKeg->kkmRule->ruang_lingkup ?? '' }}">{{ $rpk->tahun }} - {{ ucfirst($rpk->semester) }} - {{ $firstKeg->kkmRule->jenis_kegiatan ?? '-' }} ({{ $rpk->user->name ?? '' }})</option>
+                        data-bidang="{{ $firstKeg->pointRule->competencyField->name ?? '' }}"
+                        data-jenis="{{ $firstKeg->pointRule->activityType->name ?? '' }}"
+                        data-ruang="{{ $firstKeg->pointRule->scope->name ?? '' }}">{{ $rpk->tahun }} - {{ ucfirst($rpk->semester) }} - {{ $firstKeg->pointRule->activityType->name ?? '-' }} ({{ $rpk->user->name ?? '' }})</option>
                 @endforeach
             </select>
         </div>

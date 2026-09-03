@@ -12,6 +12,13 @@ use App\Http\Controllers\Admin\ProgramStudiController;
 use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\RpkController as AdminRpkController;
 use App\Http\Controllers\Admin\SpkController as AdminSpkController;
+use App\Http\Controllers\Admin\CompetencyFieldController;
+use App\Http\Controllers\Admin\ActivityTypeController;
+use App\Http\Controllers\Admin\ActivityScopeController;
+use App\Http\Controllers\Admin\ActivityRoleController;
+use App\Http\Controllers\Admin\AchievementTypeController;
+use App\Http\Controllers\Admin\PointRuleController;
+use App\Http\Controllers\Admin\Api\RuleOptionsController;
 use App\Http\Controllers\Dosen\RpkController as DosenRpkController;
 use App\Http\Controllers\Dosen\SpkController as DosenSpkController;
 use App\Http\Controllers\Dosen\MahasiswaController;
@@ -68,10 +75,11 @@ Route::get('/statistik', function () {
     $chartData = $prodiData->pluck('total')->toArray();
 
     $tingkatData = Spk::join('kegiatans', 'spks.kegiatan_id', '=', 'kegiatans.id')
-        ->join('kkm_rules', 'kegiatans.kkm_rule_id', '=', 'kkm_rules.id')
-        ->selectRaw('COALESCE(kkm_rules.ruang_lingkup, "Lainnya") as ruang_lingkup, COUNT(*) as total')
+        ->join('point_rules', 'kegiatans.point_rule_id', '=', 'point_rules.id')
+        ->join('activity_scopes', 'point_rules.scope_id', '=', 'activity_scopes.id')
+        ->selectRaw('COALESCE(activity_scopes.name, "Lainnya") as ruang_lingkup, COUNT(*) as total')
         ->where('spks.status', 'disetujui')
-        ->groupBy('kkm_rules.ruang_lingkup')
+        ->groupBy('activity_scopes.name')
         ->get();
     $tingkatLabels = $tingkatData->pluck('ruang_lingkup')->toArray();
     $tingkatData = $tingkatData->pluck('total')->toArray();
@@ -128,6 +136,13 @@ Route::middleware('auth')->group(function () {
 
     /* KKM Rules Cascade API */
     Route::get('/kkm-rules/options', [KkmRuleController::class, 'options'])->name('kkm-rules.options');
+
+    /* Rules Options API (for cascade dropdowns) */
+    Route::get('/api/admin/competency-fields', [RuleOptionsController::class, 'competencyFields']);
+    Route::get('/api/admin/activity-types', [RuleOptionsController::class, 'activityTypes']);
+    Route::get('/api/admin/activity-scopes', [RuleOptionsController::class, 'activityScopes']);
+    Route::get('/api/admin/activity-roles', [RuleOptionsController::class, 'activityRoles']);
+    Route::get('/api/admin/point-rules/preview', [RuleOptionsController::class, 'preview']);
 });
 
 /*
@@ -149,7 +164,15 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/rpk/{rpk}/set-pembimbing', [AdminRpkController::class, 'setPembimbing'])->name('rpk.set-pembimbing');
     Route::get('/dosen-list', [AdminRpkController::class, 'dosenList'])->name('dosen-list');
 
-    /* Aturan KKM */
+    /* Rules Kredit Keaktifan - Master Tables */
+    Route::resource('competency-fields', CompetencyFieldController::class)->except(['create', 'edit', 'show']);
+    Route::resource('activity-types', ActivityTypeController::class)->except(['create', 'edit', 'show']);
+    Route::resource('activity-scopes', ActivityScopeController::class)->except(['create', 'edit', 'show']);
+    Route::resource('activity-roles', ActivityRoleController::class)->except(['create', 'edit', 'show']);
+    Route::resource('achievement-types', AchievementTypeController::class)->except(['create', 'edit', 'show']);
+    Route::resource('point-rules', PointRuleController::class)->except(['create', 'edit', 'show']);
+
+    /* Backward compatibility - old kkm-rules route */
     Route::resource('kkm-rules', KkmRuleController::class)->except(['create', 'edit', 'show']);
 
     /* Program Studi */

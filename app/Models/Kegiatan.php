@@ -8,7 +8,7 @@ class Kegiatan extends Model
 {
     protected $fillable = [
         'rpk_id',
-        'kkm_rule_id',
+        'point_rule_id',
         'poin_kkm',
         'kegiatan',
         'judul_kegiatan',
@@ -17,6 +17,8 @@ class Kegiatan extends Model
         'kategori',
         'peran',
         'jumlah_anggota',
+        'user_id',
+        'catatan_dosen',
     ];
 
     /**
@@ -76,9 +78,14 @@ class Kegiatan extends Model
         return $this->hasMany(Spk::class);
     }
 
+    public function pointRule()
+    {
+        return $this->belongsTo(PointRule::class, 'point_rule_id');
+    }
+
     public function kkmRule()
     {
-        return $this->belongsTo(KkmRule::class);
+        return $this->pointRule();
     }
 
     public function anggota()

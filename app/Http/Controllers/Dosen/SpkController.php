@@ -82,8 +82,8 @@ class SpkController extends Controller
             abort(403, 'SPK yang sudah diproses tidak dapat disetujui ulang.');
         }
 
-        $kkmRule = KkmRule::where('peran', $spk->peran_sifat)->first();
-        $poin = $kkmRule ? $kkmRule->poin : 0;
+        $kkmRule = $spk->kegiatan->pointRule;
+        $poin = $kkmRule ? $kkmRule->points : 0;
 
         $spk->update([
             'status' => 'disetujui',
@@ -158,12 +158,12 @@ class SpkController extends Controller
             abort(403, 'Anda tidak memiliki akses.');
         }
 
-        $spk->load(['verifiedBy', 'kegiatan.kkmRule']);
+        $spk->load(['verifiedBy', 'kegiatan.pointRule', 'kegiatan.pointRule.competencyField', 'kegiatan.pointRule.activityType']);
 
         $fileRequirements = [];
-        if ($spk->kegiatan && $spk->kegiatan->kkmRule) {
-            $kkm = $spk->kegiatan->kkmRule;
-            $fileRequirements = \App\Services\FileRequirementService::getRequiredFiles($kkm->bidang, $kkm->jenis_kegiatan, $spk->peran_sifat);
+        if ($spk->kegiatan && $spk->kegiatan->pointRule) {
+            $pr = $spk->kegiatan->pointRule;
+            $fileRequirements = \App\Services\FileRequirementService::getRequiredFiles($pr->competencyField->name, $pr->activityType->name, $spk->peran_sifat);
         }
 
         return view('dosen.spk.show', compact('spk', 'fileRequirements'));

@@ -187,18 +187,61 @@
             <span x-show="!collapsed" class="font-medium text-sm whitespace-nowrap">Daftar Pengguna</span>
         </a>
 
-        <a href="{{ route('admin.kkm-rules.index') }}" title="Poin Kegiatan"
-           class="flex items-center rounded-xl transform ease-out active:scale-95 {{ request()->routeIs('admin.kkm-rules.*') ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"
-           :class="{
-               'justify-center p-3': collapsed,
-               'gap-3 px-3 py-2.5 hover:translate-x-1.5': !collapsed,
-               'transition-all duration-300': siapAnimasi
-           }">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 shrink-0">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
-            </svg>
-            <span x-show="!collapsed" class="font-medium text-sm whitespace-nowrap">Poin Kegiatan</span>
-        </a>
+        <div x-data="{ open: {{ request()->routeIs('admin.point-rules.*') || request()->routeIs('admin.competency-fields.*') || request()->routeIs('admin.activity-types.*') || request()->routeIs('admin.activity-scopes.*') || request()->routeIs('admin.activity-roles.*') || request()->routeIs('admin.achievement-types.*') || request()->routeIs('admin.kkm-rules.*') ? 'true' : 'false' } }">
+            <button @click="open = !open" title="Rules KKM"
+               class="w-full flex items-center rounded-xl transform ease-out active:scale-95 {{ request()->routeIs('admin.point-rules.*') || request()->routeIs('admin.competency-fields.*') || request()->routeIs('admin.activity-types.*') || request()->routeIs('admin.activity-scopes.*') || request()->routeIs('admin.activity-roles.*') || request()->routeIs('admin.achievement-types.*') ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"
+               :class="{
+                   'justify-center p-3': collapsed,
+                   'gap-3 px-3 py-2.5 hover:translate-x-1.5': !collapsed,
+                   'transition-all duration-300': siapAnimasi
+               }">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 shrink-0">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+                </svg>
+                <span x-show="!collapsed" class="font-medium text-sm whitespace-nowrap flex-1 text-left">Rules KKM</span>
+                <svg x-show="!collapsed" x-transition :class="{ 'rotate-90': open }" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 shrink-0">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </button>
+            <div x-show="open && !collapsed" x-collapse>
+                <a href="{{ route('admin.point-rules.index') }}" title="Rules Poin"
+                   class="flex items-center rounded-xl transform ease-out active:scale-95 ml-4 {{ request()->routeIs('admin.point-rules.*') ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"
+                   :class="{ 'gap-3 px-3 py-2 hover:translate-x-1.5': !collapsed, 'transition-all duration-300': siapAnimasi }">
+                    <span class="w-2 h-2 rounded-full bg-blue-400 shrink-0"></span>
+                    <span class="font-medium text-sm whitespace-nowrap">Rules Poin</span>
+                </a>
+                <a href="{{ route('admin.competency-fields.index') }}" title="Bidang Kompetensi"
+                   class="flex items-center rounded-xl transform ease-out active:scale-95 ml-4 {{ request()->routeIs('admin.competency-fields.*') ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"
+                   :class="{ 'gap-3 px-3 py-2 hover:translate-x-1.5': !collapsed, 'transition-all duration-300': siapAnimasi }">
+                    <span class="w-2 h-2 rounded-full bg-green-400 shrink-0"></span>
+                    <span class="font-medium text-sm whitespace-nowrap">Bidang Kompetensi</span>
+                </a>
+                <a href="{{ route('admin.activity-types.index') }}" title="Jenis Kegiatan"
+                   class="flex items-center rounded-xl transform ease-out active:scale-95 ml-4 {{ request()->routeIs('admin.activity-types.*') ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"
+                   :class="{ 'gap-3 px-3 py-2 hover:translate-x-1.5': !collapsed, 'transition-all duration-300': siapAnimasi }">
+                    <span class="w-2 h-2 rounded-full bg-yellow-400 shrink-0"></span>
+                    <span class="font-medium text-sm whitespace-nowrap">Jenis Kegiatan</span>
+                </a>
+                <a href="{{ route('admin.activity-scopes.index') }}" title="Ruang Lingkup"
+                   class="flex items-center rounded-xl transform ease-out active:scale-95 ml-4 {{ request()->routeIs('admin.activity-scopes.*') ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"
+                   :class="{ 'gap-3 px-3 py-2 hover:translate-x-1.5': !collapsed, 'transition-all duration-300': siapAnimasi }">
+                    <span class="w-2 h-2 rounded-full bg-purple-400 shrink-0"></span>
+                    <span class="font-medium text-sm whitespace-nowrap">Ruang Lingkup</span>
+                </a>
+                <a href="{{ route('admin.activity-roles.index') }}" title="Peran/Sifat"
+                   class="flex items-center rounded-xl transform ease-out active:scale-95 ml-4 {{ request()->routeIs('admin.activity-roles.*') ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"
+                   :class="{ 'gap-3 px-3 py-2 hover:translate-x-1.5': !collapsed, 'transition-all duration-300': siapAnimasi }">
+                    <span class="w-2 h-2 rounded-full bg-red-400 shrink-0"></span>
+                    <span class="font-medium text-sm whitespace-nowrap">Peran/Sifat</span>
+                </a>
+                <a href="{{ route('admin.achievement-types.index') }}" title="Hasil/Prestasi"
+                   class="flex items-center rounded-xl transform ease-out active:scale-95 ml-4 {{ request()->routeIs('admin.achievement-types.*') ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"
+                   :class="{ 'gap-3 px-3 py-2 hover:translate-x-1.5': !collapsed, 'transition-all duration-300': siapAnimasi }">
+                    <span class="w-2 h-2 rounded-full bg-orange-400 shrink-0"></span>
+                    <span class="font-medium text-sm whitespace-nowrap">Hasil/Prestasi</span>
+                </a>
+            </div>
+        </div>
 
         <a href="{{ route('admin.prodi.index') }}" title="Master Prodi"
            class="flex items-center rounded-xl transform ease-out active:scale-95 {{ request()->routeIs('admin.prodi.*') ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"

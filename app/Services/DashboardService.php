@@ -47,9 +47,10 @@ class DashboardService
         return Cache::remember('admin.ruangLingkup', 300, function () {
             $data = Spk::where('status', 'disetujui')
                 ->join('kegiatans', 'spks.kegiatan_id', '=', 'kegiatans.id')
-                ->join('kkm_rules', 'kegiatans.kkm_rule_id', '=', 'kkm_rules.id')
-                ->selectRaw("kkm_rules.ruang_lingkup, COUNT(*) as total")
-                ->groupBy('kkm_rules.ruang_lingkup')
+                ->join('point_rules', 'kegiatans.point_rule_id', '=', 'point_rules.id')
+                ->join('activity_scopes', 'point_rules.scope_id', '=', 'activity_scopes.id')
+                ->selectRaw("activity_scopes.name as ruang_lingkup, COUNT(*) as total")
+                ->groupBy('activity_scopes.name')
                 ->pluck('total', 'ruang_lingkup');
 
             return $data;
@@ -269,8 +270,9 @@ class DashboardService
 
         $poinProfesional = Spk::where('status', 'disetujui')
             ->join('kegiatans', 'spks.kegiatan_id', '=', 'kegiatans.id')
-            ->join('kkm_rules', 'kegiatans.kkm_rule_id', '=', 'kkm_rules.id')
-            ->where('kkm_rules.bidang', 'Bidang Orientasi Kompetensi Profesional')
+            ->join('point_rules', 'kegiatans.point_rule_id', '=', 'point_rules.id')
+            ->join('competency_fields', 'point_rules.competency_field_id', '=', 'competency_fields.id')
+            ->where('competency_fields.name', 'Kompetensi Profesional')
             ->where(function ($q) use ($userId) {
                 $q->where('spks.user_id', $userId)
                    ->orWhere(function ($q2) use ($userId) {
@@ -282,8 +284,9 @@ class DashboardService
 
         $poinKepribadian = Spk::where('status', 'disetujui')
             ->join('kegiatans', 'spks.kegiatan_id', '=', 'kegiatans.id')
-            ->join('kkm_rules', 'kegiatans.kkm_rule_id', '=', 'kkm_rules.id')
-            ->where('kkm_rules.bidang', 'Bidang Kompetensi Kepribadian dan Sosial')
+            ->join('point_rules', 'kegiatans.point_rule_id', '=', 'point_rules.id')
+            ->join('competency_fields', 'point_rules.competency_field_id', '=', 'competency_fields.id')
+            ->where('competency_fields.name', 'Kompetensi Kepribadian dan Sosial')
             ->where(function ($q) use ($userId) {
                 $q->where('spks.user_id', $userId)
                    ->orWhere(function ($q2) use ($userId) {
@@ -345,9 +348,10 @@ class DashboardService
     {
         $data = Spk::where('spks.user_id', $userId)->where('spks.status', 'disetujui')
             ->join('kegiatans', 'spks.kegiatan_id', '=', 'kegiatans.id')
-            ->join('kkm_rules', 'kegiatans.kkm_rule_id', '=', 'kkm_rules.id')
-            ->selectRaw("kkm_rules.ruang_lingkup, COUNT(*) as total")
-            ->groupBy('kkm_rules.ruang_lingkup')
+            ->join('point_rules', 'kegiatans.point_rule_id', '=', 'point_rules.id')
+            ->join('activity_scopes', 'point_rules.scope_id', '=', 'activity_scopes.id')
+            ->selectRaw("activity_scopes.name as ruang_lingkup, COUNT(*) as total")
+            ->groupBy('activity_scopes.name')
             ->pluck('total', 'ruang_lingkup');
 
         return $data;
@@ -398,7 +402,7 @@ class DashboardService
         $kegiatans = Kegiatan::whereHas('rpk', function ($q) use ($userId) {
                 $q->where('user_id', $userId);
             })
-            ->with(['rpk.dosenPembimbing', 'kkmRule'])
+            ->with(['rpk.dosenPembimbing', 'pointRule'])
             ->latest()
             ->get();
 

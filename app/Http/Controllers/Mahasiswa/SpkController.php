@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Spk;
 use App\Models\Rpk;
 use App\Models\Kegiatan;
-use App\Models\KkmRule;
 use App\Services\DashboardService;
 use App\Mail\SpkSubmitted;
 use Illuminate\Http\Request;
@@ -54,12 +53,13 @@ class SpkController extends Controller
         $kegiatans = Kegiatan::whereHas('rpk', function ($q) use ($user) {
                 $q->where('user_id', $user->id)->where('status', 'disetujui');
             })
-            ->select('id', 'rpk_id', 'kegiatan', 'judul_kegiatan', 'tanggal_mulai', 'tanggal_selesai', 'kategori', 'kkm_rule_id')
-            ->with(['rpk', 'kkmRule'])
+            ->select('id', 'rpk_id', 'kegiatan', 'judul_kegiatan', 'tanggal_mulai', 'tanggal_selesai', 'kategori', 'point_rule_id')
+            ->with(['rpk', 'pointRule'])
             ->get();
 
-        $kkmRules = KkmRule::where('is_active', true)
-            ->select('id', 'bidang', 'jenis_kegiatan', 'peran', 'poin')
+        $kkmRules = \App\Models\PointRule::with(['competencyField', 'activityType', 'scope', 'role'])
+            ->where('is_active', true)
+            ->select('id', 'competency_field_id', 'activity_type_id', 'scope_id', 'role_id', 'points')
             ->get();
 
         return view('mahasiswa.spks.index', compact('spks', 'rpks', 'kegiatans', 'kkmRules'));
@@ -145,25 +145,25 @@ class SpkController extends Controller
             ])->withInput();
         }
 
-        $kkmRule = $kegiatan->kkmRule;
+        $kkmRule = $kegiatan->pointRule;
 
         if ($kkmRule) {
             $sameJenisCount = Spk::where('user_id', Auth::id())
-                ->whereHas('kegiatan.kkmRule', function ($q) use ($kkmRule) {
-                    $q->where('bidang', $kkmRule->bidang)
-                      ->where('jenis_kegiatan', $kkmRule->jenis_kegiatan);
+                ->whereHas('kegiatan.pointRule', function ($q) use ($kkmRule) {
+                    $q->where('competency_field_id', $kkmRule->competency_field_id)
+                      ->where('activity_type_id', $kkmRule->activity_type_id);
                 })
                 ->count();
 
             if ($sameJenisCount >= 4) {
-                $msg = "Anda sudah menginput maksimal 4 kegiatan dengan jenis yang sama ({$kkmRule->jenis_kegiatan}) di bidang ini.";
+                $msg = "Anda sudah menginput maksimal 4 kegiatan dengan jenis yang sama ({$kkmRule->activityType->name}) di bidang ini.";
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json(['success' => false, 'message' => $msg], 422);
                 }
                 return back()->withErrors(['kegiatan_id' => $msg])->withInput();
             }
 
-            $required = \App\Services\FileRequirementService::getRequiredFileCols($kkmRule->bidang, $kkmRule->jenis_kegiatan, $request->peran_sifat);
+            $required = \App\Services\FileRequirementService::getRequiredFileCols($kkmRule->competencyField->name, $kkmRule->activityType->name, $request->peran_sifat);
             $fileLabels = [
                 'surat_tugas' => 'Surat Tugas',
                 'sertifikat' => 'Sertifikat',
@@ -258,12 +258,12 @@ class SpkController extends Controller
             abort(403, 'Anda tidak memiliki akses ke SPK ini.');
         }
 
-        $spk->load(['verifiedBy', 'kegiatan.kkmRule']);
+        $spk->load(['verifiedBy', 'kegiatan.pointRule', 'kegiatan.pointRule.competencyField', 'kegiatan.pointRule.activityType']);
 
         $fileRequirements = [];
-        if ($spk->kegiatan && $spk->kegiatan->kkmRule) {
-            $kkm = $spk->kegiatan->kkmRule;
-            $fileRequirements = \App\Services\FileRequirementService::getRequiredFiles($kkm->bidang, $kkm->jenis_kegiatan, $spk->peran_sifat);
+        if ($spk->kegiatan && $spk->kegiatan->pointRule) {
+            $pr = $spk->kegiatan->pointRule;
+            $fileRequirements = \App\Services\FileRequirementService::getRequiredFiles($pr->competencyField->name, $pr->activityType->name, $spk->peran_sifat);
         }
 
         return view('mahasiswa.spks.show', compact('spk', 'fileRequirements'));
@@ -341,9 +341,9 @@ class SpkController extends Controller
             ])->withInput();
         }
 
-        $kkmRule = $kegiatan->kkmRule;
+        $kkmRule = $kegiatan->pointRule;
         if ($kkmRule) {
-            $required = \App\Services\FileRequirementService::getRequiredFileCols($kkmRule->bidang, $kkmRule->jenis_kegiatan, $request->peran_sifat);
+            $required = \App\Services\FileRequirementService::getRequiredFileCols($kkmRule->competencyField->name, $kkmRule->activityType->name, $request->peran_sifat);
             $fileLabels = [
                 'surat_tugas' => 'Surat Tugas',
                 'sertifikat' => 'Sertifikat',
