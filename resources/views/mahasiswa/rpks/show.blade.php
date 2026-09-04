@@ -227,9 +227,9 @@
                         <button onclick="bukaModalEditKegiatan(this)"
                             data-id="{{ $kegiatan->id }}"
                             data-kkm-rule-id="{{ $kegiatan->point_rule_id ?? '' }}"
-                            data-bidang="{{ e($kegiatan->pointRule->competencyField->name ?? '') }}"
-                            data-jenis="{{ e($kegiatan->pointRule->activityType->name ?? '') }}"
-                            data-ruang="{{ e($kegiatan->pointRule->scope->name ?? '') }}"
+                            data-field-id="{{ $kegiatan->pointRule->competency_field_id ?? '' }}"
+                            data-type-id="{{ $kegiatan->pointRule->activity_type_id ?? '' }}"
+                            data-scope-id="{{ $kegiatan->pointRule->scope_id ?? '' }}"
                             data-judul="{{ $kegiatan->judul_kegiatan }}"
                             data-tanggal-mulai="{{ $kegiatan->tanggal_mulai ? \Carbon\Carbon::parse($kegiatan->tanggal_mulai)->format('Y-m-d') : '' }}"
                             data-tanggal-selesai="{{ $kegiatan->tanggal_selesai ? \Carbon\Carbon::parse($kegiatan->tanggal_selesai)->format('Y-m-d') : '' }}"
@@ -848,7 +848,7 @@ window.generateFormHTML = function(prefix) {
         </div>`;
 };
 
-// ⚡ KKM CASCADE LOGIC (MATCHES ADMIN: Bidang → Jenis → Peran → Ruang → Poin)
+// ⚡ KKM CASCADE LOGIC (MATCHES ADMIN: Bidang → Jenis → Ruang → Poin)
 window.fetchKKMOptions = async function(params = {}) {
     const qs = new URLSearchParams(params).toString();
     const url = '{{ route("kkm-rules.options") }}?' + qs;
@@ -862,49 +862,64 @@ window.initKKMCascade = async function(prefix) {
     if (!bidangSelect) return;
     bidangSelect.innerHTML = '<option value="">Pilih Bidang</option>';
     data.bidang.forEach(b => {
-        bidangSelect.innerHTML += `<option value="${b}">${b}</option>`;
+        bidangSelect.innerHTML += `<option value="${b.id}">${b.name}</option>`;
     });
     bidangSelect.disabled = false;
 };
 
 window.onBidangChange = async function(prefix) {
-    const bidang = document.getElementById(`${prefix}_bidang`).value;
+    const bidangId = document.getElementById(`${prefix}_bidang`).value;
     const jenisSelect = document.getElementById(`${prefix}_jenis`);
     const ruangSelect = document.getElementById(`${prefix}_ruang`);
-    
+
     jenisSelect.innerHTML = '<option value="">Pilih Jenis Kegiatan</option>';
     jenisSelect.disabled = true;
     ruangSelect.innerHTML = '<option value="">-- Pilih Jenis Terlebih Dahulu --</option>';
     ruangSelect.disabled = true;
     document.getElementById(`${prefix}_kkm_rule_id`).value = '';
 
-    if (!bidang) return;
-    const data = await window.fetchKKMOptions({ bidang });
+    if (!bidangId) return;
+    const data = await window.fetchKKMOptions({ competency_field_id: bidangId });
     data.jenis_kegiatan.forEach(j => {
-        jenisSelect.innerHTML += `<option value="${j}">${j}</option>`;
+        jenisSelect.innerHTML += `<option value="${j.id}">${j.name}</option>`;
     });
     jenisSelect.disabled = false;
 };
 
 window.onJenisChange = async function(prefix) {
-    const bidang = document.getElementById(`${prefix}_bidang`).value;
-    const jenis = document.getElementById(`${prefix}_jenis`).value;
+    const bidangId = document.getElementById(`${prefix}_bidang`).value;
+    const jenisId = document.getElementById(`${prefix}_jenis`).value;
     const ruangSelect = document.getElementById(`${prefix}_ruang`);
 
     ruangSelect.innerHTML = '<option value="">-- Pilih Ruang Lingkup --</option>';
     ruangSelect.disabled = true;
     document.getElementById(`${prefix}_kkm_rule_id`).value = '';
 
-    if (!bidang || !jenis) return;
-    const data = await window.fetchKKMOptions({ bidang, jenis_kegiatan: jenis });
+    if (!bidangId || !jenisId) return;
+    const data = await window.fetchKKMOptions({ competency_field_id: bidangId, activity_type_id: jenisId });
 
-    ruangSelect.innerHTML += '<option value="Tidak Ada / Statis">Tidak Ada / Statis</option>';
+    ruangSelect.innerHTML += '<option value="">-- Pilih Ruang Lingkup --</option>';
     if (data.ruang_lingkup.length > 0) {
         data.ruang_lingkup.forEach(r => {
-            ruangSelect.innerHTML += `<option value="${r}">${r}</option>`;
+            ruangSelect.innerHTML += `<option value="${r.id}">${r.name}</option>`;
         });
     }
     ruangSelect.disabled = false;
+
+    if (data.preview) {
+        document.getElementById(`${prefix}_kkm_rule_id`).value = data.preview.kkm_rule_id;
+    }
+};
+
+window.onRuangChange = async function(prefix) {
+    const bidangId = document.getElementById(`${prefix}_bidang`).value;
+    const jenisId = document.getElementById(`${prefix}_jenis`).value;
+    const ruangId = document.getElementById(`${prefix}_ruang`).value;
+
+    document.getElementById(`${prefix}_kkm_rule_id`).value = '';
+
+    if (!bidangId || !jenisId || !ruangId) return;
+    const data = await window.fetchKKMOptions({ competency_field_id: bidangId, activity_type_id: jenisId, scope_id: ruangId });
 
     if (data.preview) {
         document.getElementById(`${prefix}_kkm_rule_id`).value = data.preview.kkm_rule_id;
@@ -970,9 +985,9 @@ window.bukaModalEditKegiatan = function(button) {
     var tMulai = button.getAttribute('data-tanggal-mulai') || '';
     var tSelesai = button.getAttribute('data-tanggal-selesai') || '';
 
-    var editBidang = button.getAttribute('data-bidang') || '';
-    var editJenis = button.getAttribute('data-jenis') || '';
-    var editRuang = button.getAttribute('data-ruang') || '';
+    var editFieldId = button.getAttribute('data-field-id') || '';
+    var editTypeId = button.getAttribute('data-type-id') || '';
+    var editScopeId = button.getAttribute('data-scope-id') || '';
 
     Swal.fire({
         title: '<h2 class="text-2xl font-bold text-gray-800 text-left">Edit Kegiatan</h2>',
@@ -1001,20 +1016,21 @@ window.bukaModalEditKegiatan = function(button) {
             }
 
             // ⚡ Reconstruct KKM cascade from data attributes
-            if (editBidang) {
+            if (editFieldId) {
                 await window.initKKMCascade('edit');
-                document.getElementById('edit_bidang').value = editBidang;
+                document.getElementById('edit_bidang').value = editFieldId;
                 await window.onBidangChange('edit');
             }
-            if (editJenis) {
-                document.getElementById('edit_jenis').value = editJenis;
+            if (editTypeId) {
+                await new Promise(r => setTimeout(r, 100));
+                document.getElementById('edit_jenis').value = editTypeId;
                 await window.onJenisChange('edit');
             }
-            if (editRuang) {
+            if (editScopeId) {
                 await new Promise(r => setTimeout(r, 100));
-                var ruangOpt = document.querySelector('#edit_ruang option[value="' + editRuang + '"]');
+                var ruangOpt = document.querySelector('#edit_ruang option[value="' + editScopeId + '"]');
                 if (ruangOpt) {
-                    document.getElementById('edit_ruang').value = editRuang;
+                    document.getElementById('edit_ruang').value = editScopeId;
                     await window.onRuangChange('edit');
                 }
             }

@@ -124,13 +124,18 @@
                                     {{ ($types->currentPage() - 1) * $types->perPage() + $loop->iteration }}
                                 </td>
                                 <td class="px-4 py-4">
-                                    @if($type->competencyField && $type->competencyField->type === 'Profesional')
-                                        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-sm font-semibold text-blue-700">
-                                            {{ e($type->competencyField->name) }}
+                                    @php $bidangName = $type->competencyField->name ?? '-'; @endphp
+                                    @if(str_contains($bidangName, 'Profesional'))
+                                        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-sm font-semibold text-blue-600">
+                                            {{ $bidangName }}
+                                        </span>
+                                    @elseif(str_contains($bidangName, 'Kepribadian'))
+                                        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-sm font-semibold text-purple-600">
+                                            {{ $bidangName }}
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-sm font-semibold text-purple-700">
-                                            {{ e($type->competencyField->name ?? '-') }}
+                                        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-sm font-semibold text-gray-600">
+                                            {{ $bidangName }}
                                         </span>
                                     @endif
                                 </td>
@@ -200,10 +205,10 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-    const csrfToken = '{{ csrf_token() }}';
-    const baseUrl = '{{ route("admin.activity-types.index") }}';
+    var csrfToken = '{{ csrf_token() }}';
+    var baseUrl = '{{ route("admin.activity-types.index") }}';
 
-    const fieldsData = @json($fields);
+    var fieldsData = @json($fields);
 
     function generateFormHTML(data = {}) {
         let optionsHTML = '<option value="">-- Pilih Bidang Kompetensi --</option>';

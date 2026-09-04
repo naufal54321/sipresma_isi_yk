@@ -10,6 +10,7 @@ class Spk extends Model
         'user_id',
         'rpk_id',
         'kegiatan_id',
+        'point_rule_id',
         'tahun',
         'tanggal_kegiatan',
         'penyelenggara',
@@ -55,6 +56,11 @@ class Spk extends Model
     public function kegiatan()
     {
         return $this->belongsTo(Kegiatan::class);
+    }
+
+    public function pointRule()
+    {
+        return $this->belongsTo(PointRule::class);
     }
 
     // Relasi ke user yang menambahkan poin

@@ -211,37 +211,37 @@
                 <a href="{{ route('admin.point-rules.index') }}" title="Rules Poin"
                    class="flex items-center rounded-xl transform ease-out active:scale-95 ml-4 {{ request()->routeIs('admin.point-rules.*') ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"
                    :class="{ 'gap-3 px-3 py-2 hover:translate-x-1.5': !collapsed, 'transition-all duration-300': siapAnimasi }">
-                    <span class="w-2 h-2 rounded-full bg-blue-400 shrink-0"></span>
+                    <i class="fas fa-shield-halved shrink-0 w-5 text-center text-slate-400 text-sm"></i>
                     <span class="font-medium text-sm whitespace-nowrap">Rules Poin</span>
                 </a>
                 <a href="{{ route('admin.competency-fields.index') }}" title="Bidang Kompetensi"
                    class="flex items-center rounded-xl transform ease-out active:scale-95 ml-4 {{ request()->routeIs('admin.competency-fields.*') ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"
                    :class="{ 'gap-3 px-3 py-2 hover:translate-x-1.5': !collapsed, 'transition-all duration-300': siapAnimasi }">
-                    <span class="w-2 h-2 rounded-full bg-green-400 shrink-0"></span>
+                    <i class="fas fa-layer-group shrink-0 w-5 text-center text-slate-400 text-sm"></i>
                     <span class="font-medium text-sm whitespace-nowrap">Bidang Kompetensi</span>
                 </a>
                 <a href="{{ route('admin.activity-types.index') }}" title="Jenis Kegiatan"
                    class="flex items-center rounded-xl transform ease-out active:scale-95 ml-4 {{ request()->routeIs('admin.activity-types.*') ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"
                    :class="{ 'gap-3 px-3 py-2 hover:translate-x-1.5': !collapsed, 'transition-all duration-300': siapAnimasi }">
-                    <span class="w-2 h-2 rounded-full bg-yellow-400 shrink-0"></span>
+                    <i class="fas fa-tag shrink-0 w-5 text-center text-slate-400 text-sm"></i>
                     <span class="font-medium text-sm whitespace-nowrap">Jenis Kegiatan</span>
                 </a>
                 <a href="{{ route('admin.activity-scopes.index') }}" title="Ruang Lingkup"
                    class="flex items-center rounded-xl transform ease-out active:scale-95 ml-4 {{ request()->routeIs('admin.activity-scopes.*') ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"
                    :class="{ 'gap-3 px-3 py-2 hover:translate-x-1.5': !collapsed, 'transition-all duration-300': siapAnimasi }">
-                    <span class="w-2 h-2 rounded-full bg-purple-400 shrink-0"></span>
+                    <i class="fas fa-globe shrink-0 w-5 text-center text-slate-400 text-sm"></i>
                     <span class="font-medium text-sm whitespace-nowrap">Ruang Lingkup</span>
                 </a>
                 <a href="{{ route('admin.activity-roles.index') }}" title="Peran/Sifat"
                    class="flex items-center rounded-xl transform ease-out active:scale-95 ml-4 {{ request()->routeIs('admin.activity-roles.*') ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"
                    :class="{ 'gap-3 px-3 py-2 hover:translate-x-1.5': !collapsed, 'transition-all duration-300': siapAnimasi }">
-                    <span class="w-2 h-2 rounded-full bg-red-400 shrink-0"></span>
+                    <i class="fas fa-user-tag shrink-0 w-5 text-center text-slate-400 text-sm"></i>
                     <span class="font-medium text-sm whitespace-nowrap">Peran/Sifat</span>
                 </a>
                 <a href="{{ route('admin.achievement-types.index') }}" title="Hasil/Prestasi"
                    class="flex items-center rounded-xl transform ease-out active:scale-95 ml-4 {{ request()->routeIs('admin.achievement-types.*') ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"
                    :class="{ 'gap-3 px-3 py-2 hover:translate-x-1.5': !collapsed, 'transition-all duration-300': siapAnimasi }">
-                    <span class="w-2 h-2 rounded-full bg-orange-400 shrink-0"></span>
+                    <i class="fas fa-trophy shrink-0 w-5 text-center text-slate-400 text-sm"></i>
                     <span class="font-medium text-sm whitespace-nowrap">Hasil/Prestasi</span>
                 </a>
             </div>

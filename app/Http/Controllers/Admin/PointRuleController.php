@@ -15,7 +15,7 @@ class PointRuleController extends Controller
 {
     public function index(Request $request)
     {
-        $query = PointRule::with(['competencyField', 'activityType', 'scope', 'role', 'achievement']);
+        $query = PointRule::with(['competencyField', 'activityType', 'scope', 'role', 'achievement', 'fileRequirements']);
 
         if ($request->competency_field_id) {
             $query->where('competency_field_id', $request->competency_field_id);
@@ -55,8 +55,9 @@ class PointRuleController extends Controller
         $types = ActivityType::active()->get();
         $scopes = ActivityScope::active()->get();
         $roles = ActivityRole::active()->get();
+        $achievements = AchievementType::active()->get();
 
-        return view('admin.point-rules.index', compact('rules', 'stats', 'fields', 'types', 'scopes', 'roles'));
+        return view('admin.point-rules.index', compact('rules', 'stats', 'fields', 'types', 'scopes', 'roles', 'achievements'));
     }
 
     public function store(Request $request)
@@ -70,6 +71,11 @@ class PointRuleController extends Controller
             'points' => 'required|integer|min:1|max:100',
             'max_usage' => 'nullable|integer|min:1',
             'is_active' => 'boolean',
+            'file_requirements' => 'nullable|array',
+            'file_requirements.*.file_column' => 'required|string|max:50',
+            'file_requirements.*.label' => 'required|string|max:255',
+            'file_requirements.*.accept' => 'nullable|string|max:255',
+            'file_requirements.*.is_required' => 'nullable|boolean',
         ]);
 
         $exists = PointRule::where('competency_field_id', $request->competency_field_id)
@@ -87,10 +93,21 @@ class PointRuleController extends Controller
             return back()->with('error', $msg);
         }
 
-        PointRule::create($request->only(
+        $pointRule = PointRule::create($request->only(
             'competency_field_id', 'activity_type_id', 'scope_id',
             'role_id', 'achievement_id', 'points', 'max_usage', 'is_active'
         ));
+
+        if ($request->has('file_requirements')) {
+            foreach ($request->file_requirements as $file) {
+                $pointRule->fileRequirements()->create([
+                    'file_column' => $file['file_column'],
+                    'label' => $file['label'],
+                    'accept' => $file['accept'] ?? '.pdf',
+                    'is_required' => $file['is_required'] ?? 1,
+                ]);
+            }
+        }
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json(['success' => true, 'message' => 'Rule poin berhasil ditambahkan']);
@@ -110,6 +127,11 @@ class PointRuleController extends Controller
             'points' => 'required|integer|min:1|max:100',
             'max_usage' => 'nullable|integer|min:1',
             'is_active' => 'boolean',
+            'file_requirements' => 'nullable|array',
+            'file_requirements.*.file_column' => 'required|string|max:50',
+            'file_requirements.*.label' => 'required|string|max:255',
+            'file_requirements.*.accept' => 'nullable|string|max:255',
+            'file_requirements.*.is_required' => 'nullable|boolean',
         ]);
 
         $exists = PointRule::where('competency_field_id', $request->competency_field_id)
@@ -132,6 +154,18 @@ class PointRuleController extends Controller
             'competency_field_id', 'activity_type_id', 'scope_id',
             'role_id', 'achievement_id', 'points', 'max_usage', 'is_active'
         ));
+
+        if ($request->has('file_requirements')) {
+            $pointRule->fileRequirements()->delete();
+            foreach ($request->file_requirements as $file) {
+                $pointRule->fileRequirements()->create([
+                    'file_column' => $file['file_column'],
+                    'label' => $file['label'],
+                    'accept' => $file['accept'] ?? '.pdf',
+                    'is_required' => $file['is_required'] ?? 1,
+                ]);
+            }
+        }
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json(['success' => true, 'message' => 'Rule poin berhasil diperbarui']);

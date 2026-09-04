@@ -157,12 +157,23 @@ class SpkController extends Controller
             abort(403, 'Anda tidak memiliki akses.');
         }
 
-        $spk->load(['verifiedBy', 'kegiatan.pointRule', 'kegiatan.pointRule.competencyField', 'kegiatan.pointRule.activityType']);
+        $spk->load(['verifiedBy', 'kegiatan.pointRule', 'kegiatan.pointRule.competencyField', 'kegiatan.pointRule.activityType', 'pointRule.fileRequirements']);
 
         $fileRequirements = [];
-        if ($spk->kegiatan && $spk->kegiatan->pointRule) {
-            $pr = $spk->kegiatan->pointRule;
-            $fileRequirements = \App\Services\FileRequirementService::getRequiredFiles($pr->competencyField->name, $pr->activityType->name, $spk->peran_sifat);
+        if ($spk->pointRule) {
+            $fileRequirements = $spk->pointRule->fileRequirements->map(fn($f) => [
+                'col' => $f->file_column,
+                'label' => $f->label,
+                'accept' => $f->accept,
+                'required' => $f->is_required,
+            ])->toArray();
+        } elseif ($spk->kegiatan && $spk->kegiatan->pointRule) {
+            $fileRequirements = $spk->kegiatan->pointRule->fileRequirements->map(fn($f) => [
+                'col' => $f->file_column,
+                'label' => $f->label,
+                'accept' => $f->accept,
+                'required' => $f->is_required,
+            ])->toArray();
         }
 
         return view('dosen.spk.show', compact('spk', 'fileRequirements'));

@@ -97,27 +97,11 @@
                         @endforeach
                     </select>
 
-                    <select name="activity_type_id"
-                            class="w-full md:w-56 border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer transition">
-                        <option value="">Semua Jenis</option>
-                        @foreach($types as $type)
-                            <option value="{{ $type->id }}" {{ request('activity_type_id') == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
-                        @endforeach
-                    </select>
-
                     <select name="scope_id"
                             class="w-full md:w-48 border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer transition">
                         <option value="">Semua Ruang</option>
                         @foreach($scopes as $scope)
                             <option value="{{ $scope->id }}" {{ request('scope_id') == $scope->id ? 'selected' : '' }}>{{ $scope->name }}</option>
-                        @endforeach
-                    </select>
-
-                    <select name="role_id"
-                            class="w-full md:w-48 border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer transition">
-                        <option value="">Semua Peran</option>
-                        @foreach($roles as $role)
-                            <option value="{{ $role->id }}" {{ request('role_id') == $role->id ? 'selected' : '' }}>{{ $role->name }}</option>
                         @endforeach
                     </select>
 
@@ -136,7 +120,7 @@
                             </svg>
                             Cari
                         </button>
-                        @if(request('search') || request('competency_field_id') || request('activity_type_id') || request('scope_id') || request('role_id') || request('status'))
+                        @if(request('search') || request('competency_field_id') || request('scope_id') || request('status'))
                             <a href="{{ route('admin.point-rules.index') }}"
                                class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-xl text-sm font-semibold transition duration-150 flex items-center justify-center w-full md:w-auto whitespace-nowrap gap-2">
                                 Reset
@@ -223,6 +207,7 @@
                                                 data-points="{{ $rule->points }}"
                                                 data-max-usage="{{ $rule->max_usage ?? '' }}"
                                                 data-active="{{ $rule->is_active ? '1' : '0' }}"
+                                                data-file-requirements="{{ json_encode($rule->fileRequirements->map(fn($f) => ['file_column' => $f->file_column, 'label' => $f->label, 'accept' => $f->accept, 'is_required' => $f->is_required])) }}"
                                                 title="Edit Rule"
                                                 class="flex items-center justify-center w-9 h-9 bg-yellow-500 hover:bg-yellow-400 text-white rounded-lg transition shadow-sm">
                                             <i class="fas fa-pen"></i>
@@ -265,15 +250,23 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-    const csrfToken = '{{ csrf_token() }}';
-    const baseUrl = '{{ route("admin.point-rules.index") }}';
-    const apiActivityTypes = '/api/admin/activity-types';
-    const apiActivityRoles = '/api/admin/activity-roles';
-    const apiPreview = '/api/admin/point-rules/preview';
+    var csrfToken = '{{ csrf_token() }}';
+    var baseUrl = '{{ route("admin.point-rules.index") }}';
+    var apiActivityTypes = '/api/admin/activity-types';
+    var apiActivityRoles = '/api/admin/activity-roles';
+    var apiPreview = '/api/admin/point-rules/preview';
 
-    const fieldsOptions = @json($fields->map(fn($f) => ['id' => $f->id, 'name' => $f->name]));
-    const scopesOptions = @json($scopes->map(fn($s) => ['id' => $s->id, 'name' => $s->name]));
-    const rolesOptions = @json($roles->map(fn($r) => ['id' => $r->id, 'name' => $r->name]));
+    var fieldsOptions = @json($fields->map(fn($f) => ['id' => $f->id, 'name' => $f->name]));
+    var scopesOptions = @json($scopes->map(fn($s) => ['id' => $s->id, 'name' => $s->name]));
+    var rolesOptions = @json($roles->map(fn($r) => ['id' => $r->id, 'name' => $r->name]));
+    var achievementsOptions = @json($achievements->map(fn($a) => ['id' => $a->id, 'name' => $a->name]));
+
+    var fileColumns = [
+        { value: 'surat_tugas', label: 'Surat Tugas' },
+        { value: 'sertifikat', label: 'Sertifikat' },
+        { value: 'foto_penyerahan', label: 'Foto Penyerahan' },
+        { value: 'laporan', label: 'Laporan' },
+    ];
 
     function escapeHtml(value) {
         return String(value == null ? '' : value)
@@ -322,7 +315,10 @@
         });
 
         let achievementOpts = '<option value="">-- Tidak Ada --</option>';
-        achievementOpts += `<option value="">-</option>`;
+        achievementsOptions.forEach(a => {
+            const sel = (data.achievement_id == a.id) ? 'selected' : '';
+            achievementOpts += `<option value="${a.id}" ${sel}>${escapeHtml(a.name)}</option>`;
+        });
 
         const isEdit = !!data.id;
         const prefix = isEdit ? 'edit' : 'add';
@@ -352,9 +348,50 @@
                 </div>
                 <div id="${prefix}_preview" class="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700 hidden">
                 </div>
+                <div class="mb-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="block text-sm font-semibold text-gray-700">Dokumen yang Diperlukan</label>
+                        <button type="button" onclick="addFileEntry('${prefix}')" class="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg transition">+ Tambah File</button>
+                    </div>
+                    <div id="${prefix}_file_entries" class="space-y-2"></div>
+                </div>
             </div>`;
 
+        if (data.file_requirements && data.file_requirements.length > 0) {
+            data.file_requirements.forEach(f => {
+                setTimeout(() => addFileEntry(prefix, f), 0);
+            });
+        }
+
         return html;
+    }
+
+    function addFileEntry(prefix, data = {}) {
+        const container = document.getElementById(`${prefix}_file_entries`);
+        if (!container) return;
+        const idx = container.children.length;
+        let colOpts = '';
+        fileColumns.forEach(c => {
+            const sel = (data.file_column === c.value) ? 'selected' : '';
+            colOpts += `<option value="${c.value}" ${sel}>${c.label}</option>`;
+        });
+        const html = `
+            <div class="flex gap-2 items-center ${prefix}_file_entry bg-gray-50 rounded-lg p-2 border border-gray-200">
+                <select class="file-col border border-gray-300 rounded px-2 py-1.5 text-xs flex-shrink-0 w-36">
+                    ${colOpts}
+                </select>
+                <input type="text" class="file-label border border-gray-300 rounded px-2 py-1.5 text-xs flex-1" placeholder="Label file" value="${escapeHtml(data.label || '')}">
+                <input type="text" class="file-accept border border-gray-300 rounded px-2 py-1.5 text-xs flex-shrink-0 w-28" placeholder=".pdf" value="${escapeHtml(data.accept || '.pdf')}">
+                <label class="flex items-center gap-1 text-xs flex-shrink-0 whitespace-nowrap">
+                    <input type="checkbox" class="file-required" ${data.is_required == 1 || data.is_required === undefined ? 'checked' : ''}> Wajib
+                </label>
+                <button type="button" onclick="removeFileEntry(this)" class="text-red-400 hover:text-red-600 flex-shrink-0"><i class="fas fa-trash text-xs"></i></button>
+            </div>`;
+        container.insertAdjacentHTML('beforeend', html);
+    }
+
+    function removeFileEntry(btn) {
+        btn.closest('.flex').remove();
     }
 
     function fetchActivityTypes(fieldId, prefix, selectedTypeId) {
@@ -502,6 +539,21 @@
     }
 
     function collectFormData(prefix) {
+        const fileReqs = [];
+        const entries = document.querySelectorAll(`.${prefix}_file_entry`);
+        entries.forEach(entry => {
+            const col = entry.querySelector('.file-col')?.value;
+            const label = entry.querySelector('.file-label')?.value;
+            if (col && label) {
+                fileReqs.push({
+                    file_column: col,
+                    label: label,
+                    accept: entry.querySelector('.file-accept')?.value || '.pdf',
+                    is_required: entry.querySelector('.file-required')?.checked ? 1 : 0,
+                });
+            }
+        });
+
         return {
             competency_field_id: document.getElementById(`${prefix}_competency_field_id`)?.value,
             activity_type_id: document.getElementById(`${prefix}_activity_type_id`)?.value,
@@ -511,6 +563,7 @@
             points: parseInt(document.getElementById(`${prefix}_points`)?.value),
             max_usage: document.getElementById(`${prefix}_max_usage`)?.value || null,
             is_active: document.getElementById(`${prefix}_is_active`)?.value === '1' ? 1 : 0,
+            file_requirements: fileReqs,
         };
     }
 
@@ -562,6 +615,7 @@
             points: button.getAttribute('data-points'),
             max_usage: button.getAttribute('data-max-usage'),
             is_active: button.getAttribute('data-active'),
+            file_requirements: JSON.parse(button.getAttribute('data-file-requirements') || '[]'),
         };
         const id = data.id;
 
@@ -622,7 +676,7 @@
                 Swal.fire({ title: 'Menghapus...', allowOutsideClick: false, showConfirmButton: false, didOpen: () => Swal.showLoading() });
                 fetch(`${baseUrl}/${id}`, {
                     method: 'DELETE',
-                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
+                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json', 'Content-Type': 'application/json' }
                 }).then(res => res.json()).then(data => {
                     if (data.success) {
                         const row = document.getElementById(`row-${id}`);

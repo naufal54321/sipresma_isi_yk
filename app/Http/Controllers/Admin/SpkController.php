@@ -47,16 +47,27 @@ class SpkController extends Controller
     
     public function show(Spk $spk)
     {
-        $spk->load(['user', 'rpk', 'kegiatan', 'kegiatan.anggota', 'kegiatan.pointRule', 'kegiatan.pointRule.competencyField', 'kegiatan.pointRule.activityType', 'poinAddedBy', 'verifiedBy']);
+        $spk->load(['user', 'rpk', 'kegiatan', 'kegiatan.anggota', 'kegiatan.pointRule', 'kegiatan.pointRule.competencyField', 'kegiatan.pointRule.activityType', 'pointRule.fileRequirements', 'poinAddedBy', 'verifiedBy']);
         
         $totalSpkDisetujui = Spk::where('user_id', $spk->user_id)->where('status', 'disetujui')->count();
         $totalPoin = Spk::where('user_id', $spk->user_id)->where('status', 'disetujui')->sum('poin');
         $riwayatSpk = Spk::where('user_id', $spk->user_id)->where('status', 'disetujui')->where('id', '!=', $spk->id)->latest()->take(5)->get();
 
         $fileRequirements = [];
-        if ($spk->kegiatan && $spk->kegiatan->pointRule) {
-            $pr = $spk->kegiatan->pointRule;
-            $fileRequirements = \App\Services\FileRequirementService::getRequiredFiles($pr->competencyField->name, $pr->activityType->name, $spk->peran_sifat);
+        if ($spk->pointRule) {
+            $fileRequirements = $spk->pointRule->fileRequirements->map(fn($f) => [
+                'col' => $f->file_column,
+                'label' => $f->label,
+                'accept' => $f->accept,
+                'required' => $f->is_required,
+            ])->toArray();
+        } elseif ($spk->kegiatan && $spk->kegiatan->pointRule) {
+            $fileRequirements = $spk->kegiatan->pointRule->fileRequirements->map(fn($f) => [
+                'col' => $f->file_column,
+                'label' => $f->label,
+                'accept' => $f->accept,
+                'required' => $f->is_required,
+            ])->toArray();
         }
         
         return view('admin.spk.show', compact('spk', 'totalSpkDisetujui', 'totalPoin', 'riwayatSpk', 'fileRequirements'));

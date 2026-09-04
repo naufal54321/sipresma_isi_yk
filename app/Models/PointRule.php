@@ -55,6 +55,16 @@ class PointRule extends Model
         return $this->hasMany(Kegiatan::class, 'point_rule_id');
     }
 
+    public function fileRequirements()
+    {
+        return $this->hasMany(FileRequirement::class)->orderBy('sort_order');
+    }
+
+    public function spks()
+    {
+        return $this->hasMany(Spk::class);
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

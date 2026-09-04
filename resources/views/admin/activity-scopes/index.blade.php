@@ -172,8 +172,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-    const csrfToken = '{{ csrf_token() }}';
-    const baseUrl = '{{ route("admin.activity-scopes.index") }}';
+    var csrfToken = '{{ csrf_token() }}';
+    var baseUrl = '{{ route("admin.activity-scopes.index") }}';
 
     function generateFormHTML(data = {}) {
         return `

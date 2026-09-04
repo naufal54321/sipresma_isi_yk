@@ -165,8 +165,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-    const csrfToken = '{{ csrf_token() }}';
-    const baseUrl = '{{ route("admin.achievement-types.index") }}';
+    var csrfToken = '{{ csrf_token() }}';
+    var baseUrl = '{{ route("admin.achievement-types.index") }}';
 
     function generateFormHTML(data = {}) {
         return `

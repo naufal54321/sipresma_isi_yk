@@ -168,8 +168,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-    const csrfToken = '{{ csrf_token() }}';
-    const baseUrl = '{{ route("admin.competency-fields.index") }}';
+    var csrfToken = '{{ csrf_token() }}';
+    var baseUrl = '{{ route("admin.competency-fields.index") }}';
 
     function generateFormHTML(data = {}) {
         return `

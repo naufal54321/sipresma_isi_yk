@@ -57,12 +57,7 @@ class SpkController extends Controller
             ->with(['rpk', 'pointRule'])
             ->get();
 
-        $kkmRules = \App\Models\PointRule::with(['competencyField', 'activityType', 'scope', 'role'])
-            ->where('is_active', true)
-            ->select('id', 'competency_field_id', 'activity_type_id', 'scope_id', 'role_id', 'points')
-            ->get();
-
-        return view('mahasiswa.spks.index', compact('spks', 'rpks', 'kegiatans', 'kkmRules'));
+        return view('mahasiswa.spks.index', compact('spks', 'rpks', 'kegiatans'));
     }
 
     /**
@@ -105,6 +100,7 @@ class SpkController extends Controller
             'tahun' => 'required',
             'rpk_id' => 'required',
             'kegiatan_id' => 'required',
+            'point_rule_id' => 'required|exists:point_rules,id',
             'penyelenggara' => 'required',
             'kategori' => 'required',
             'peran_sifat' => 'required|string|max:255',
@@ -124,6 +120,8 @@ class SpkController extends Controller
             'link_drive.required' => 'Link Google Drive wajib diisi',
             'link_drive.url' => 'Link Google Drive harus berupa URL yang valid',
             'judul_karya.required' => 'Judul Karya/Inovasi/Riset/Prestasi wajib diisi',
+            'point_rule_id.required' => 'Peran/Sifat Kegiatan wajib dipilih',
+            'point_rule_id.exists' => 'Aturan poin tidak valid',
         ]);
 
         $kegiatan = Kegiatan::where('id', $request->kegiatan_id)
@@ -145,6 +143,7 @@ class SpkController extends Controller
             ])->withInput();
         }
 
+        $pointRule = \App\Models\PointRule::with('fileRequirements')->find($request->point_rule_id);
         $kkmRule = $kegiatan->pointRule;
 
         if ($kkmRule) {
@@ -162,23 +161,12 @@ class SpkController extends Controller
                 }
                 return back()->withErrors(['kegiatan_id' => $msg])->withInput();
             }
+        }
 
-            $required = \App\Services\FileRequirementService::getRequiredFileCols($kkmRule->competencyField->name, $kkmRule->activityType->name, $request->peran_sifat);
-            $fileLabels = [
-                'surat_tugas' => 'Surat Tugas',
-                'sertifikat' => 'Sertifikat',
-                'foto_penyerahan' => 'Foto Penyerahan',
-                'laporan' => 'Laporan',
-            ];
-            $mimes = [
-                'surat_tugas' => 'pdf',
-                'sertifikat' => 'pdf,jpg,jpeg,png',
-                'foto_penyerahan' => 'pdf,jpg,jpeg,png',
-                'laporan' => 'pdf',
-            ];
-            foreach ($required as $col) {
+        if ($pointRule) {
+            $required = $pointRule->fileRequirements->where('is_required', true)->pluck('label', 'file_column');
+            foreach ($required as $col => $label) {
                 if (!$request->hasFile($col)) {
-                    $label = $fileLabels[$col] ?? $col;
                     $validator = \Validator::make([], []);
                     $validator->errors()->add($col, "File {$label} wajib diupload untuk peran/sifat ini.");
                     return redirect()->back()->withErrors($validator)->withInput();
@@ -203,13 +191,14 @@ class SpkController extends Controller
             'user_id' => Auth::id(),
             'rpk_id' => $request->rpk_id,
             'kegiatan_id' => $request->kegiatan_id,
+            'point_rule_id' => $pointRule?->id,
             'tahun' => $request->tahun,
             'tanggal_kegiatan' => $tanggalKegiatan,
             'penyelenggara' => $request->penyelenggara,
             'kategori' => $request->kategori,
             'peran_sifat' => $request->peran_sifat,
             'judul_kegiatan' => $kegiatan->judul_kegiatan ?? $kegiatan->kegiatan,
-            'poin' => 0,
+            'poin' => $pointRule?->points ?? 0,
             'judul_karya' => $request->judul_karya,
             'biografi' => $request->biografi,
             'rincian' => $request->rincian,
@@ -258,12 +247,23 @@ class SpkController extends Controller
             abort(403, 'Anda tidak memiliki akses ke SPK ini.');
         }
 
-        $spk->load(['verifiedBy', 'kegiatan.pointRule', 'kegiatan.pointRule.competencyField', 'kegiatan.pointRule.activityType']);
+        $spk->load(['verifiedBy', 'kegiatan.pointRule', 'kegiatan.pointRule.competencyField', 'kegiatan.pointRule.activityType', 'pointRule.fileRequirements']);
 
         $fileRequirements = [];
-        if ($spk->kegiatan && $spk->kegiatan->pointRule) {
-            $pr = $spk->kegiatan->pointRule;
-            $fileRequirements = \App\Services\FileRequirementService::getRequiredFiles($pr->competencyField->name, $pr->activityType->name, $spk->peran_sifat);
+        if ($spk->pointRule) {
+            $fileRequirements = $spk->pointRule->fileRequirements->map(fn($f) => [
+                'col' => $f->file_column,
+                'label' => $f->label,
+                'accept' => $f->accept,
+                'required' => $f->is_required,
+            ])->toArray();
+        } elseif ($spk->kegiatan && $spk->kegiatan->pointRule) {
+            $fileRequirements = $spk->kegiatan->pointRule->fileRequirements->map(fn($f) => [
+                'col' => $f->file_column,
+                'label' => $f->label,
+                'accept' => $f->accept,
+                'required' => $f->is_required,
+            ])->toArray();
         }
 
         return view('mahasiswa.spks.show', compact('spk', 'fileRequirements'));
@@ -303,6 +303,7 @@ class SpkController extends Controller
             'tahun' => 'required',
             'rpk_id' => 'required',
             'kegiatan_id' => 'required',
+            'point_rule_id' => 'required|exists:point_rules,id',
             'penyelenggara' => 'required',
             'kategori' => 'required',
             'peran_sifat' => 'required|string|max:255',
@@ -320,6 +321,8 @@ class SpkController extends Controller
             'url_kegiatan.required' => 'URL Kegiatan wajib diisi',
             'link_drive.required' => 'Link Google Drive wajib diisi',
             'judul_karya.required' => 'Judul Karya/Inovasi/Riset/Prestasi wajib diisi',
+            'point_rule_id.required' => 'Peran/Sifat Kegiatan wajib dipilih',
+            'point_rule_id.exists' => 'Aturan poin tidak valid',
         ]);
 
         $kegiatan = Kegiatan::where('id', $request->kegiatan_id)
@@ -341,18 +344,12 @@ class SpkController extends Controller
             ])->withInput();
         }
 
-        $kkmRule = $kegiatan->pointRule;
-        if ($kkmRule) {
-            $required = \App\Services\FileRequirementService::getRequiredFileCols($kkmRule->competencyField->name, $kkmRule->activityType->name, $request->peran_sifat);
-            $fileLabels = [
-                'surat_tugas' => 'Surat Tugas',
-                'sertifikat' => 'Sertifikat',
-                'foto_penyerahan' => 'Foto Penyerahan',
-                'laporan' => 'Laporan',
-            ];
-            foreach ($required as $col) {
+        $pointRule = \App\Models\PointRule::with('fileRequirements')->find($request->point_rule_id);
+
+        if ($pointRule) {
+            $required = $pointRule->fileRequirements->where('is_required', true)->pluck('label', 'file_column');
+            foreach ($required as $col => $label) {
                 if (!$request->hasFile($col) && !$spk->$col) {
-                    $label = $fileLabels[$col] ?? $col;
                     $validator = \Validator::make([], []);
                     $validator->errors()->add($col, "File {$label} wajib diupload untuk peran/sifat ini.");
                     return redirect()->back()->withErrors($validator)->withInput();
@@ -366,11 +363,13 @@ class SpkController extends Controller
             'tahun' => $request->tahun,
             'rpk_id' => $request->rpk_id,
             'kegiatan_id' => $request->kegiatan_id,
+            'point_rule_id' => $pointRule?->id,
             'tanggal_kegiatan' => $tanggalKegiatan,
             'penyelenggara' => $request->penyelenggara,
             'kategori' => $request->kategori,
             'peran_sifat' => $request->peran_sifat,
             'judul_kegiatan' => $kegiatan->judul_kegiatan ?? $kegiatan->kegiatan,
+            'poin' => $pointRule?->points ?? $spk->poin,
             'judul_karya' => $request->judul_karya,
             'biografi' => $request->biografi,
             'rincian' => $request->rincian,

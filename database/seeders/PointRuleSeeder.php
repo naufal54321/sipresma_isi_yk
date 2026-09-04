@@ -67,8 +67,7 @@ class PointRuleSeeder extends Seeder
             ['code' => '-', 'name' => 'Tidak Ada / Statis'],
             ['code' => 'PS', 'name' => 'Program Studi'],
             ['code' => 'F', 'name' => 'Fakultas'],
-            ['code' => 'K', 'name' => 'Kampus'],
-            ['code' => 'I', 'name' => 'Institut'],
+            ['code' => 'K', 'name' => 'Institut/Kampus'],
             ['code' => 'L', 'name' => 'Lokal (DIY & Sekitar)'],
             ['code' => 'N', 'name' => 'Nasional'],
             ['code' => 'IN', 'name' => 'Internasional'],
@@ -281,7 +280,7 @@ class PointRuleSeeder extends Seeder
         ];
         $rules[] = [
             'competency_field_id' => $sosId, 'activity_type_id' => $kepId,
-            'scope_id' => $sc('Institut'), 'role_id' => $rl('Peserta Pelatihan'),
+            'scope_id' => $sc('Institut/Kampus'), 'role_id' => $rl('Peserta Pelatihan'),
             'achievement_id' => null, 'points' => 20, 'max_usage' => null, 'is_active' => true,
         ];
         $rules[] = [
@@ -296,7 +295,7 @@ class PointRuleSeeder extends Seeder
         ];
         $rules[] = [
             'competency_field_id' => $sosId, 'activity_type_id' => $kepId,
-            'scope_id' => $sc('Institut'), 'role_id' => $rl('Pemateri/Pelatih'),
+            'scope_id' => $sc('Institut/Kampus'), 'role_id' => $rl('Pemateri/Pelatih'),
             'achievement_id' => null, 'points' => 30, 'max_usage' => null, 'is_active' => true,
         ];
 
