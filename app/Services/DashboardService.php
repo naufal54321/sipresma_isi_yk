@@ -296,7 +296,7 @@ class DashboardService
             })
             ->sum('spks.poin');
 
-        $totalPoin = $poinProfesional + $poinKepribadian;
+        $totalPoin = $poinSendiri + $poinAnggota;
 
         if ($poinProfesional >= 25 && $poinKepribadian >= 25 && $totalPoin >= 50) {
             $syaratTerpenuhi = true;
