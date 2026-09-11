@@ -5,10 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Models\Concerns\HasActivity;
 
 class ProgramStudi extends Model
 {
-    use HasFactory;
+    use HasFactory, HasActivity;
+
+    public function getActivitylogOptions(): \Spatie\Activitylog\Support\LogOptions
+    {
+        return \Spatie\Activitylog\Support\LogOptions::defaults()
+            ->logOnly(['nama_prodi', 'fakultas', 'status'])
+            ->logOnlyDirty()
+            ->dontLogIfAttributesChangedOnly(['updated_at']);
+    }
+
     // Gunakan SoftDeletes jika ingin data tidak benar-benar terhapus (opsional)
     // use SoftDeletes;
 

@@ -3,9 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Models\Concerns\HasActivity;
 
 class Kegiatan extends Model
 {
+    use HasActivity;
+
+    public function getActivitylogOptions(): \Spatie\Activitylog\Support\LogOptions
+    {
+        return \Spatie\Activitylog\Support\LogOptions::defaults()
+            ->logOnly(['kegiatan', 'judul_kegiatan', 'kategori', 'status'])
+            ->logOnlyDirty()
+            ->dontLogIfAttributesChangedOnly(['updated_at']);
+    }
+
     protected $fillable = [
         'rpk_id',
         'point_rule_id',

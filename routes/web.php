@@ -204,13 +204,11 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
         // Delete
         Route::delete('/{spk}', [AdminSpkController::class, 'destroy'])->name('destroy');
     });
-});
 
-/*
-|--------------------------------------------------------------------------
-| ROLE: DOSEN
-|--------------------------------------------------------------------------
-*/
+    /* Log & Aktivitas */
+    Route::get('/logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('logs.index');
+    Route::delete('/logs/{activity}', [\App\Http\Controllers\Admin\ActivityLogController::class, 'destroy'])->name('logs.destroy');
+});
 Route::middleware(['auth', 'role:Dosen'])->prefix('dosen')->name('dosen.')->group(function () {
     Route::get('/rpk', [DosenRpkController::class, 'index'])->name('rpk.index');
     Route::get('/rpk/{rpk}', [DosenRpkController::class, 'show'])->name('rpk.show');

@@ -192,7 +192,7 @@
             $rulesBtnClass = $rulesActive ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200';
         @endphp
         <div x-data="{ open: {{ $rulesActive ? 'true' : 'false' }} }">
-            <button @click="open = !open" title="Rules KKM"
+            <button @click="open = !open" title="Kegiatan & Poin"
                class="w-full flex items-center rounded-xl transform ease-out active:scale-95 {{ $rulesBtnClass }}"
                :class="{
                    'justify-center p-3': collapsed,
@@ -202,7 +202,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 shrink-0">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
                 </svg>
-                <span x-show="!collapsed" class="font-medium text-sm whitespace-nowrap flex-1 text-left">Rules KKM</span>
+                <span x-show="!collapsed" class="font-medium text-sm whitespace-nowrap flex-1 text-left">Kegiatan & Poin</span>
                 <svg x-show="!collapsed" x-transition :class="{ 'rotate-90': open }" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 shrink-0">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                 </svg>
@@ -271,6 +271,17 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
             </svg>
             <span x-show="!collapsed" class="font-medium text-sm whitespace-nowrap">Laporan</span>
+        </a>
+
+        <a href="{{ route('admin.logs.index') }}" title="Log & Aktivitas"
+           class="flex items-center rounded-xl transform ease-out active:scale-95 {{ request()->routeIs('admin.logs.*') ? 'bg-blue-500/15 text-blue-400 font-semibold shadow-sm' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' }}"
+           :class="{
+               'justify-center p-3': collapsed,
+               'gap-3 px-3 py-2.5 hover:translate-x-1.5': !collapsed,
+               'transition-all duration-300': siapAnimasi
+           }">
+            <i class="fas fa-clock-rotate-left shrink-0 w-5 text-center text-sm"></i>
+            <span x-show="!collapsed" class="font-medium text-sm whitespace-nowrap">Log & Aktivitas</span>
         </a>
         @endrole
 

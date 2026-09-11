@@ -3,10 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Models\Concerns\HasActivity;
 
 class PointRule extends Model
 {
+    use HasActivity;
+
     protected $table = 'point_rules';
+
+    public function getActivitylogOptions(): \Spatie\Activitylog\Support\LogOptions
+    {
+        return \Spatie\Activitylog\Support\LogOptions::defaults()
+            ->logOnly(['competency_field_id', 'activity_type_id', 'scope_id', 'role_id', 'achievement_id', 'points', 'max_usage', 'is_active'])
+            ->logOnlyDirty()
+            ->dontLogIfAttributesChangedOnly(['updated_at']);
+    }
 
     protected $fillable = [
         'competency_field_id',
