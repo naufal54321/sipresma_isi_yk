@@ -272,7 +272,7 @@ class DashboardService
             ->join('kegiatans', 'spks.kegiatan_id', '=', 'kegiatans.id')
             ->join('point_rules', 'kegiatans.point_rule_id', '=', 'point_rules.id')
             ->join('competency_fields', 'point_rules.competency_field_id', '=', 'competency_fields.id')
-            ->where('competency_fields.name', 'Kompetensi Profesional')
+            ->where('competency_fields.name', 'Bidang Orientasi Kompetensi Profesional')
             ->where(function ($q) use ($userId) {
                 $q->where('spks.user_id', $userId)
                    ->orWhere(function ($q2) use ($userId) {
@@ -286,7 +286,7 @@ class DashboardService
             ->join('kegiatans', 'spks.kegiatan_id', '=', 'kegiatans.id')
             ->join('point_rules', 'kegiatans.point_rule_id', '=', 'point_rules.id')
             ->join('competency_fields', 'point_rules.competency_field_id', '=', 'competency_fields.id')
-            ->where('competency_fields.name', 'Kompetensi Kepribadian dan Sosial')
+            ->where('competency_fields.name', 'Bidang Kompetensi Kepribadian dan Sosial')
             ->where(function ($q) use ($userId) {
                 $q->where('spks.user_id', $userId)
                    ->orWhere(function ($q2) use ($userId) {

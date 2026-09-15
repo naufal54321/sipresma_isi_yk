@@ -129,7 +129,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
-                        @forelse($laporan ?? [] as $item)
+                        @forelse($laporan as $item)
                         <tr class="hover:bg-blue-50/50 transition duration-200">
                             <td class="px-6 py-4 text-center font-medium text-slate-900">
                                 {{ $loop->iteration + (($laporan->currentPage() - 1) * $laporan->perPage()) }}
@@ -141,7 +141,7 @@
                             <td class="px-6 py-4 text-slate-700">{{ $item->user->prodi ?? '-' }}</td>
                             {{-- 🔧 JUDUL KEGIATAN --}}
                             <td class="px-6 py-4 font-medium text-slate-800">
-                                {{ $item->judul_kegiatan ?? $item->kegiatan->judul_kegiatan ?? $item->kegiatan->kegiatan ?? '-' }}
+                                {{ $item->judul_kegiatan ?? $item->kegiatan?->judul_kegiatan ?? $item->kegiatan?->kegiatan ?? '-' }}
                             </td>
                             <td class="px-6 py-4">
                                 {{ $item->penyelenggara ?? '-' }}
@@ -188,19 +188,5 @@
         </div>
 
     </div>
-
-<script>
-function exportData(url) {
-    // Buka URL di tab baru
-    var newWindow = window.open(url, '_blank');
-    
-    // Tutup tab setelah file terdownload (untuk mencegah halaman putih)
-    setTimeout(function() {
-        if (newWindow) {
-            newWindow.close();
-        }
-    }, 1000);
-}
-</script>
 
 </x-app-layout>

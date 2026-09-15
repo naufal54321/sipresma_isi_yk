@@ -158,6 +158,51 @@
                                 <td class="px-4 py-4">
                                     @php $attrChanges = $activity->attribute_changes ?? collect(); @endphp
                                     @php $props = $activity->properties ?? collect(); @endphp
+                                    @php
+                                        $fieldLabels = [
+                                            'status' => 'Status',
+                                            'dosen_pembimbing_id' => 'Dosen Pembimbing',
+                                            'judul_kegiatan' => 'Judul Kegiatan',
+                                            'tanggal_mulai' => 'Tanggal Mulai',
+                                            'tanggal_selesai' => 'Tanggal Selesai',
+                                            'penyelenggara' => 'Penyelenggara',
+                                            'peran_sifat' => 'Peran/Sifat',
+                                            'bidang' => 'Bidang',
+                                            'point_rule_id' => 'Aturan Poin',
+                                            'poin' => 'Poin',
+                                            'catatan_dosen' => 'Catatan Dosen',
+                                            'catatan_admin' => 'Catatan Admin',
+                                            'verified_by' => 'Diverifikasi Oleh',
+                                            'verified_at' => 'Waktu Verifikasi',
+                                            'poin_added_at' => 'Waktu Poin Ditambahkan',
+                                            'poin_added_by' => 'Poin Ditambahkan Oleh',
+                                            'name' => 'Nama',
+                                            'email' => 'Email',
+                                            'nim' => 'NIM',
+                                            'angkatan' => 'Angkatan',
+                                            'semester' => 'Semester',
+                                            'is_active' => 'Status Aktif',
+                                            'points' => 'Poin',
+                                            'max_usage' => 'Maks Penggunaan',
+                                            'updated_at' => 'Terakhir Diperbarui',
+                                            'created_at' => 'Dibuat',
+                                            'ip' => 'IP Address',
+                                            'user_agent' => 'Browser',
+                                            'log_name' => 'Log Name',
+                                            'description' => 'Deskripsi',
+                                            'subject_type' => 'Tipe Subject',
+                                            'subject_id' => 'ID Subject',
+                                            'causer_type' => 'Tipe Pelaku',
+                                            'causer_id' => 'ID Pelaku',
+                                            'event' => 'Event',
+                                            'activity_type_id' => 'Tipe Aktivitas',
+                                            'scope_id' => 'Ruang Lingkup',
+                                            'role_id' => 'Peran',
+                                            'achievement_id' => 'Prestasi',
+                                            'competency_field_id' => 'Bidang Kompetensi',
+                                            'prodi' => 'Program Studi',
+                                        ];
+                                    @endphp
                                     @if($attrChanges->isNotEmpty())
                                         <button onclick="this.nextElementSibling.classList.toggle('hidden')" class="text-blue-500 hover:text-blue-700 transition" title="Lihat perubahan">
                                             <i class="fas fa-eye text-xs"></i>
@@ -168,7 +213,7 @@
                                                     <span class="font-semibold text-red-600">Sebelum:</span>
                                                     <ul class="list-disc pl-4 mt-1 space-y-0.5">
                                                         @foreach($attrChanges['old'] as $key => $val)
-                                                            <li><span class="text-gray-500">{{ $key }}:</span> <span class="text-red-600">{{ is_array($val) ? json_encode($val) : $val }}</span></li>
+                                                            <li><span class="text-gray-500">{{ $fieldLabels[$key] ?? str_replace('_', ' ', ucfirst($key)) }}:</span> <span class="text-red-600">{{ is_array($val) ? json_encode($val) : $val }}</span></li>
                                                         @endforeach
                                                     </ul>
                                                 </div>
@@ -178,7 +223,7 @@
                                                     <span class="font-semibold text-green-600">Sesudah:</span>
                                                     <ul class="list-disc pl-4 mt-1 space-y-0.5">
                                                         @foreach($attrChanges['attributes'] as $key => $val)
-                                                            <li><span class="text-gray-500">{{ $key }}:</span> <span class="text-green-600">{{ is_array($val) ? json_encode($val) : $val }}</span></li>
+                                                            <li><span class="text-gray-500">{{ $fieldLabels[$key] ?? str_replace('_', ' ', ucfirst($key)) }}:</span> <span class="text-green-600">{{ is_array($val) ? json_encode($val) : $val }}</span></li>
                                                         @endforeach
                                                     </ul>
                                                 </div>
@@ -190,7 +235,7 @@
                                         </button>
                                         <div class="hidden mt-2 bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs max-w-xs">
                                             @foreach($props->toArray() as $key => $val)
-                                                <div><span class="text-gray-500">{{ $key }}:</span> <span class="text-gray-700">{{ is_array($val) ? json_encode($val) : $val }}</span></div>
+                                                <div><span class="text-gray-500">{{ $fieldLabels[$key] ?? str_replace('_', ' ', ucfirst($key)) }}:</span> <span class="text-gray-700">{{ is_array($val) ? json_encode($val) : $val }}</span></div>
                                             @endforeach
                                         </div>
                                     @else

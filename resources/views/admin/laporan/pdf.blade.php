@@ -117,8 +117,8 @@
                 
                 $dosenPembimbing = $item->rpk?->dosenPembimbing?->name ?? '-';
                 
-                $judulKegiatan = $item->judul_kegiatan ?? $item->kegiatan->judul_kegiatan ?? $item->kegiatan->kegiatan ?? '-';
-                $namaKegiatan = $item->kegiatan->kegiatan ?? '-';
+                $judulKegiatan = $item->judul_kegiatan ?? $item->kegiatan?->judul_kegiatan ?? $item->kegiatan?->kegiatan ?? '-';
+                $namaKegiatan = $item->kegiatan?->kegiatan ?? '-';
                 $penyelenggara = $item->penyelenggara ?? '-';
                 $tingkat = $item->kegiatan?->pointRule?->scope?->name ?? '-';
                 $hasil = $item->peran_sifat ?? '-';
@@ -132,7 +132,7 @@
                     $tanggal = '-';
                 }
                 
-                $kategori = $item->kegiatan->kategori ?? 'Lainnya';
+                $kategori = $item->kegiatan?->kategori ?? 'Lainnya';
             @endphp
             <tr>
                 <td class="text-center">{{ $loop->iteration }}</td>
