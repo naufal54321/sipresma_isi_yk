@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-09-17T00:00:00.000Z" agent="PRATAMA" version="24.0.0" type="device">
+  <diagram id="pratama-rpk-spk" name="RPK-SPK Flow">
+    <mxGraphModel dx="1800" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- TITLE -->
+        <mxCell id="title" value="PRATAMA — Diagram Alur RPK &amp; SPK" style="text;html=1;fontSize=20;fontStyle=1;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#1E293B;" vertex="1" parent="1">
+          <mxGeometry x="400" y="10" width="500" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- SWIMLANES -->
+        <!-- Mahasiswa Lane -->
+        <mxCell id="lane_mahasiswa" value="MAHASISWA" style="swimlane;startSize=30;fillColor=#EFF6FF;strokeColor=#3B82F6;swimlaneLine=1;rounded=1;arcSize=8;fontStyle=1;fontSize=13;fontColor=#1E40AF;" vertex="1" parent="1">
+          <mxGeometry x="30" y="60" width="380" height="900" as="geometry" />
+        </mxCell>
+
+        <!-- Dosen/Admin Lane -->
+        <mxCell id="lane_dosen" value="DOSEN / ADMIN" style="swimlane;startSize=30;fillColor=#F0FDF4;strokeColor=#22C55E;swimlaneLine=1;rounded=1;arcSize=8;fontStyle=1;fontSize=13;fontColor=#166534;" vertex="1" parent="1">
+          <mxGeometry x="440" y="60" width="380" height="900" as="geometry" />
+        </mxCell>
+
+        <!-- Sistem Lane -->
+        <mxCell id="lane_sistem" value="SISTEM" style="swimlane;startSize=30;fillColor=#F8FAFC;strokeColor=#64748B;swimlaneLine=1;rounded=1;arcSize=8;fontStyle=1;fontSize=13;fontColor=#334155;" vertex="1" parent="1">
+          <mxGeometry x="850" y="60" width="380" height="900" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== -->
+        <!-- RPK FLOW            -->
+        <!-- ==================== -->
+
+        <!-- START -->
+        <mxCell id="start" value="Mulai" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;fontColor=#FFFFFF;strokeColor=none;fontSize=11;fontStyle=1;arcSize=50;" vertex="1" parent="lane_mahasiswa">
+          <mxGeometry x="130" y="40" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Buat RPK -->
+        <mxCell id="buat_rpk" value="&lt;b&gt;Buat RPK&lt;/b&gt;&lt;br&gt;Isi Tahun &amp;amp; Semester" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DBEAFE;strokeColor=#3B82F6;fontSize=11;" vertex="1" parent="lane_mahasiswa">
+          <mxGeometry x="100" y="110" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e_start_rpk" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" edge="1" source="start" target="buat_rpk" parent="lane_mahasiswa">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Status DRAFT -->
+        <mxCell id="draft_rpk" value="status = DRAFT" style="text;html=1;fontSize=10;fontStyle=2;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#64748B;" vertex="1" parent="lane_mahasiswa">
+          <mxGeometry x="290" y="120" width="80" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Tambah Kegiatan -->
+        <mxCell id="tambah_kegiatan" value="&lt;b&gt;Tambah Kegiatan&lt;/b&gt;&lt;br&gt;Pilih Aturan Poin&lt;br&gt;Isi Judul, Tanggal, Kategori&lt;br&gt;Pilih Anggota (Kelompok)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DBEAFE;strokeColor=#3B82F6;fontSize=11;" vertex="1" parent="lane_mahasiswa">
+          <mxGeometry x="80" y="190" width="220" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e_rpk_kegiatan" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" edge="1" source="buat_rpk" target="tambah_kegiatan" parent="lane_mahasiswa">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Validasi Duplikasi -->
+        <mxCell id="validasi_duplikasi" value="&lt;b&gt;Validasi Duplikasi&lt;/b&gt;&lt;br&gt;Max 4 per jenis aktivitas" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#F59E0B;fontSize=10;" vertex="1" parent="lane_sistem">
+          <mxGeometry x="130" y="195" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e_kegiatan_validasi" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;strokeColor=#F59E0B;" edge="1" source="tambah_kegiatan" target="validasi_duplikasi" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Valid OK? -->
+        <mxCell id="valid_ok" value="Valid?" style="text;html=1;fontSize=10;fontStyle=2;align=center;fillColor=none;strokeColor=none;fontColor=#F59E0B;" vertex="1" parent="lane_sistem">
+          <mxGeometry x="255" y="210" width="40" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Error -->
+        <mxCell id="error_duplikasi" value="&lt;b&gt;TOLAK&lt;/b&gt;&lt;br&gt;Batas maksimal tercapai" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#EF4444;fontSize=10;fontColor=#991B1B;" vertex="1" parent="lane_sistem">
+          <mxGeometry x="120" y="280" width="140" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e_valid_no" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#EF4444;fontColor=#EF4444;fontSize=9;" edge="1" source="validasi_duplikasi" target="error_duplikasi" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_error_back" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;strokeColor=#EF4444;" edge="1" source="error_duplikasi" target="tambah_kegiatan" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Log created Kegiatan -->
+        <mxCell id="log_kegiatan" value="Log (created, Kegiatan)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#64748B;fontSize=10;fontColor=#334155;" vertex="1" parent="lane_sistem">
+          <mxGeometry x="120" y="340" width="140" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="e_valid_yes_log" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#22C55E;fontColor=#22C55E;fontSize=9;" edge="1" source="validasi_duplikasi" target="log_kegiatan" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Submit RPK -->
+        <mxCell id="submit_rpk" value="&lt;b&gt;Submit RPK&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DBEAFE;strokeColor=#3B82F6;fontSize=11;" vertex="1" parent="lane_mahasiswa">
+          <mxGeometry x="110" y="340" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e_log_submit" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;strokeColor=#3B82F6;" edge="1" source="log_kegiatan" target="submit_rpk" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Email Notif -->
+        <mxCell id="email_rpk" value="&lt;b&gt;Email Notifikasi&lt;/b&gt;&lt;br&gt;→ Semua Admin&lt;br&gt;→ Dosen Pembimbing" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#64748B;fontSize=10;" vertex="1" parent="lane_sistem">
+          <mxGeometry x="110" y="400" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e_submit_email" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" edge="1" source="submit_rpk" target="email_rpk" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== -->
+        <!-- ASSIGN DOSEN         -->
+        <!-- ==================== -->
+
+        <!-- Admin: Assign Dosen -->
+        <mxCell id="assign_dosen" value="&lt;b&gt;Assign Dosen Pembimbing&lt;/b&gt;&lt;br&gt;Pilih RPK → Pilih Dosen" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF7ED;strokeColor=#F97316;fontSize=11;" vertex="1" parent="lane_dosen">
+          <mxGeometry x="100" y="480" width="200" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Log updated RPK -->
+        <mxCell id="log_assign" value="Log (updated, Rpk)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#64748B;fontSize=10;fontColor=#334155;" vertex="1" parent="lane_sistem">
+          <mxGeometry x="110" y="480" width="140" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="e_assign_log" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;strokeColor=#64748B;" edge="1" source="assign_dosen" target="log_assign" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Email Dosen -->
+        <mxCell id="email_dosen" value="Email PlottingMahasiswa → Dosen" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#64748B;fontSize=10;" vertex="1" parent="lane_sistem">
+          <mxGeometry x="100" y="530" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="e_log_email_dosen" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" edge="1" source="log_assign" target="email_dosen" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== -->
+        <!-- REVIEW RPK           -->
+        <!-- ==================== -->
+
+        <!-- Dosen: Review RPK -->
+        <mxCell id="review_rpk" value="&lt;b&gt;Review RPK&lt;/b&gt;&lt;br&gt;Lihat Kegiatan&lt;br&gt;Verifikasi Kesesuaian" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#22C55E;fontSize=11;" vertex="1" parent="lane_dosen">
+          <mxGeometry x="100" y="590" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Decision: Approve? -->
+        <mxCell id="decision_rpk" value="Approve?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#F59E0B;fontSize=11;fontStyle=1;" vertex="1" parent="lane_dosen">
+          <mxGeometry x="140" y="680" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e_review_decision" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" edge="1" source="review_rpk" target="decision_rpk" parent="lane_dosen">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Approve RPK -->
+        <mxCell id="approve_rpk" value="&lt;b&gt;SETUJUI RPK&lt;/b&gt;&lt;br&gt;status = DISETUJUI" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#22C55E;fontSize=11;fontColor=#166534;" vertex="1" parent="lane_dosen">
+          <mxGeometry x="40" y="770" width="140" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e_decision_yes" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#22C55E;fontColor=#22C55E;fontSize=9;" edge="1" source="decision_rpk" target="approve_rpk" parent="lane_dosen">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Reject RPK -->
+        <mxCell id="reject_rpk" value="&lt;b&gt;TOLAK RPK&lt;/b&gt;&lt;br&gt;status = DITOLAK&lt;br&gt;Catatan wajib" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#EF4444;fontSize=11;fontColor=#991B1B;" vertex="1" parent="lane_dosen">
+          <mxGeometry x="220" y="770" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e_decision_no" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#EF4444;fontColor=#EF4444;fontSize=9;" edge="1" source="decision_rpk" target="reject_rpk" parent="lane_dosen">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Log + Email Approve -->
+        <mxCell id="log_rpk_approve" value="Log (updated, Rpk)&lt;br&gt;Email → Mahasiswa: disetujui" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#64748B;fontSize=10;" vertex="1" parent="lane_sistem">
+          <mxGeometry x="100" y="775" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e_approve_log" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;" edge="1" source="approve_rpk" target="log_rpk_approve" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Log + Email Reject -->
+        <mxCell id="log_rpk_reject" value="Log (updated, Rpk)&lt;br&gt;Email → Mahasiswa: ditolak" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#64748B;fontSize=10;" vertex="1" parent="lane_sistem">
+          <mxGeometry x="100" y="840" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e_reject_log" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;" edge="1" source="reject_rpk" target="log_rpk_reject" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Revisi -->
+        <mxCell id="revisi_rpk" value="&lt;b&gt;Revisi RPK&lt;/b&gt;&lt;br&gt;Edit / Tambah Kegiatan&lt;br&gt;Resubmit" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DBEAFE;strokeColor=#3B82F6;fontSize=10;" vertex="1" parent="lane_mahasiswa">
+          <mxGeometry x="100" y="840" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e_reject_revisi" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;strokeColor=#3B82F6;" edge="1" source="log_rpk_reject" target="revisi_rpk" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== -->
+        <!-- SPK FLOW            -->
+        <!-- ==================== -->
+
+        <!-- Divider -->
+        <mxCell id="divider_spk" value="━━━━━━━━━ TRANSISI KE SPK ━━━━━━━━━" style="text;html=1;fontSize=13;fontStyle=1;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#64748B;" vertex="1" parent="1">
+          <mxGeometry x="350" y="950" width="300" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Mahasiswa: Buat SPK -->
+        <mxCell id="buat_spk" value="&lt;b&gt;Buat SPK&lt;/b&gt;&lt;br&gt;Pilih RPK → Pilih Kegiatan&lt;br&gt;Isi form SPK&lt;br&gt;Upload Dokumen Wajib&lt;br&gt;(Surat Tugas, Sertifikat,&lt;br&gt;Foto, Laporan)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DBEAFE;strokeColor=#3B82F6;fontSize=11;" vertex="1" parent="lane_mahasiswa">
+          <mxGeometry x="80" y="1000" width="220" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Validasi File -->
+        <mxCell id="validasi_file" value="&lt;b&gt;Validasi&lt;br&gt;File Requirements&lt;/b&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#F59E0B;fontSize=10;" vertex="1" parent="lane_sistem">
+          <mxGeometry x="130" y="1015" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e_spk_validasi" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;strokeColor=#F59E0B;" edge="1" source="buat_spk" target="validasi_file" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- File Valid? -->
+        <mxCell id="file_valid" value="Valid?" style="text;html=1;fontSize=10;fontStyle=2;fillColor=none;strokeColor=none;fontColor=#F59E0B;" vertex="1" parent="lane_sistem">
+          <mxGeometry x="255" y="1030" width="40" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Simpan SPK -->
+        <mxCell id="simpan_spk" value="Simpan file &amp;amp; buat SPK&lt;br&gt;status = DRAFT&lt;br&gt;poin = PointRule.points" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#64748B;fontSize=10;" vertex="1" parent="lane_sistem">
+          <mxGeometry x="110" y="1100" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e_file_yes" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#22C55E;fontColor=#22C55E;fontSize=9;" edge="1" source="validasi_file" target="simpan_spk" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Error File -->
+        <mxCell id="error_file" value="&lt;b&gt;TOLAK&lt;/b&gt;&lt;br&gt;File tidak valid" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#EF4444;fontSize=10;fontColor=#991B1B;" vertex="1" parent="lane_sistem">
+          <mxGeometry x="120" y="1090" width="130" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="e_file_no" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#EF4444;fontColor=#EF4444;fontSize=9;" edge="1" source="validasi_file" target="error_file" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Log + Email SPK -->
+        <mxCell id="log_spk" value="Log (created, Spk)&lt;br&gt;Email → Dosen: SpkSubmitted" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#64748B;fontSize=10;" vertex="1" parent="lane_sistem">
+          <mxGeometry x="100" y="1170" width="180" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="e_simpan_log" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" edge="1" source="simpan_spk" target="log_spk" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Review SPK Dosen -->
+        <mxCell id="review_spk" value="&lt;b&gt;Review SPK&lt;/b&gt;&lt;br&gt;Cek Dokumen &amp;amp; Data" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#22C55E;fontSize=11;" vertex="1" parent="lane_dosen">
+          <mxGeometry x="100" y="1230" width="200" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Decision: Approve SPK? -->
+        <mxCell id="decision_spk" value="Approve?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#F59E0B;fontSize=11;fontStyle=1;" vertex="1" parent="lane_dosen">
+          <mxGeometry x="140" y="1310" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e_review_spk_decision" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" edge="1" source="review_spk" target="decision_spk" parent="lane_dosen">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Approve SPK -->
+        <mxCell id="approve_spk" value="&lt;b&gt;SETUJUI SPK&lt;/b&gt;&lt;br&gt;status = DISETUJUI&lt;br&gt;poin = final value" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#22C55E;fontSize=11;fontColor=#166534;" vertex="1" parent="lane_dosen">
+          <mxGeometry x="40" y="1400" width="150" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e_spk_yes" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#22C55E;fontColor=#22C55E;fontSize=9;" edge="1" source="decision_spk" target="approve_spk" parent="lane_dosen">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Reject SPK -->
+        <mxCell id="reject_spk" value="&lt;b&gt;TOLAK SPK&lt;/b&gt;&lt;br&gt;status = DITOLAK&lt;br&gt;Catatan wajib" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#EF4444;fontSize=11;fontColor=#991B1B;" vertex="1" parent="lane_dosen">
+          <mxGeometry x="220" y="1400" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e_spk_no" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#EF4444;fontColor=#EF4444;fontSize=9;" edge="1" source="decision_spk" target="reject_spk" parent="lane_dosen">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Log Approve SPK -->
+        <mxCell id="log_spk_approve" value="Log (updated, Spk)&lt;br&gt;Email → Mahasiswa: disetujui" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#64748B;fontSize=10;" vertex="1" parent="lane_sistem">
+          <mxGeometry x="100" y="1405" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e_spk_approve_log" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;" edge="1" source="approve_spk" target="log_spk_approve" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Log Reject SPK -->
+        <mxCell id="log_spk_reject" value="Log (updated, Spk)&lt;br&gt;Email → Mahasiswa: ditolak" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#64748B;fontSize=10;" vertex="1" parent="lane_sistem">
+          <mxGeometry x="100" y="1470" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e_spk_reject_log" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;" edge="1" source="reject_spk" target="log_spk_reject" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Poin Ditambahkan -->
+        <mxCell id="poin_added" value="&lt;b&gt;POIN DITAMBAHKAN&lt;/b&gt;&lt;br&gt;poin_added_at = now&lt;br&gt;poin_added_by = reviewer" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ECFDF5;strokeColor=#10B981;fontSize=11;fontColor=#065F46;" vertex="1" parent="lane_sistem">
+          <mxGeometry x="100" y="1530" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e_approve_poin" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" edge="1" source="log_spk_approve" target="poin_added" parent="lane_sistem">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Dashboard Update -->
+        <mxCell id="dashboard_update" value="&lt;b&gt;Poin muncul di Dashboard&lt;/b&gt;&lt;br&gt;Kalkulasi Predikat" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DBEAFE;strokeColor=#3B82F6;fontSize=11;" vertex="1" parent="lane_mahasiswa">
+          <mxGeometry x="100" y="1535" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e_poin_dashboard" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;" edge="1" source="poin_added" target="dashboard_update" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- END -->
+        <mxCell id="end_spk" value="Selesai" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;fontColor=#FFFFFF;strokeColor=none;fontSize=11;fontStyle=1;arcSize=50;" vertex="1" parent="lane_mahasiswa">
+          <mxGeometry x="130" y="1600" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e_dashboard_end" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" edge="1" source="dashboard_update" target="end_spk" parent="lane_mahasiswa">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- LEGEND -->
+        <mxCell id="legend_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="60" width="200" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_title" value="&lt;b&gt;LEGENDA&lt;/b&gt;" style="text;html=1;fontSize=12;fontStyle=1;align=center;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="65" width="200" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_mahasiswa" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DBEAFE;strokeColor=#3B82F6;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1275" y="95" width="16" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_mahasiswa_text" value="Mahasiswa" style="text;html=1;fontSize=10;align=left;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="1295" y="93" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_dosen" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#22C55E;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1275" y="118" width="16" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_dosen_text" value="Dosen / Admin" style="text;html=1;fontSize=10;align=left;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="1295" y="116" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_sistem" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#64748B;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1275" y="141" width="16" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_sistem_text" value="Sistem / Log" style="text;html=1;fontSize=10;align=left;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="1295" y="139" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_decision" value="" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#F59E0B;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1275" y="164" width="16" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_decision_text" value="Keputusan" style="text;html=1;fontSize=10;align=left;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="1295" y="162" width="80" height="20" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
