@@ -1,0 +1,76 @@
+@startuml PRATAMA - Overview
+
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activityBackgroundColor #F8FAFC
+skinparam activityBorderColor #94A3B8
+skinparam activityFontColor #1E293B
+skinparam arrowColor #64748B
+skinparam noteBackgroundColor #FFFBEB
+skinparam noteBorderColor #F59E0B
+skinparam swimlaneFontSize 13
+skinparam swimlaneFontStyle bold
+skinparam defaultFontSize 11
+
+title **PRATAMA - Overview End-to-End**
+
+|Mahasiswa|
+start
+
+:Registrasi & Login;
+
+partition "**RPK**" {
+    :Buat RPK (draft);
+    :Tambah Kegiatan;
+}
+
+|Admin|
+:Assign Dosen Pembimbing;
+
+|Dosen|
+:Review RPK;
+
+if (RPK?) then (Disetujui)
+else (Ditolak)
+    |Mahasiswa|
+    :Revisi & Resubmit;
+    |Dosen|
+    :Review Ulang;
+endif
+
+|Mahasiswa|
+partition "**SPK**" {
+    :Buat SPK (draft);
+    :Upload Dokumen;
+}
+
+|Dosen|
+:Review SPK;
+
+if (SPK?) then (Disetujui)
+    |Sistem|
+    :Poin ditambahkan;
+    |Mahasiswa|
+    :Lihat Poin di Dashboard;
+else (Ditolak)
+    |Mahasiswa|
+    :Revisi & Resubmit;
+    |Dosen|
+    :Review Ulang;
+endif
+
+|Admin|
+:Monitoring & Laporan;
+:Export CSV / PDF / Excel;
+
+stop
+
+legend bottom left
+    |= Warna |= Keterangan |
+    | Blue | Mahasiswa |
+    | Green | Dosen |
+    | Orange | Admin |
+    | Gray | Sistem |
+endlegend
+
+@enduml

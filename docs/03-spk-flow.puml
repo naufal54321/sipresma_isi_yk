@@ -1,0 +1,114 @@
+@startuml PRATAMA - SPK Flow
+
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activityBackgroundColor #F8FAFC
+skinparam activityBorderColor #94A3B8
+skinparam activityFontColor #1E293B
+skinparam arrowColor #64748B
+skinparam noteBackgroundColor #FFFBEB
+skinparam noteBorderColor #F59E0B
+skinparam swimlaneFontSize 13
+skinparam swimlaneFontStyle bold
+skinparam defaultFontSize 11
+
+title **PRATAMA - Alur SPK (Surat Pernyataan Kerja)**
+
+|Mahasiswa|
+start
+
+partition "**Buat SPK**" {
+    :Pastikan RPK sudah **disetujui**;
+    :Klik "Buat SPK";
+    :Pilih RPK → Pilih Kegiatan;
+    :Isi form SPK;
+    note right
+        Penyelenggara, Peran/Sifat
+        Judul Karya, URL, Link Drive
+    end note
+
+    :Upload Dokumen;
+    note right
+        Sesuai FileRequirement:
+        - Surat Tugas (PDF)
+        - Sertifikat (PDF/JPG/PNG)
+        - Foto Penyerahan (PDF/JPG/PNG)
+        - Laporan (PDF)
+    end note
+
+    :Submit;
+
+    |Sistem|
+    :Validasi file requirements;
+    if (Valid?) then (Ya)
+        :Simpan file ke Storage;
+        :Buat SPK record;
+        note right
+            status = **draft**
+            poin = PointRule.points
+        end note
+
+        :Log (created, Spk);
+        :Email ke Dosen\n(SpkSubmitted);
+    else (Tidak)
+        :Tampilkan error;
+        |Mahasiswa|
+        :Upload ulang;
+    endif
+}
+
+partition "**Review oleh Dosen**" {
+    |Dosen|
+    :Lihat daftar SPK Bimbingan;
+    :Buka detail → Review Dokumen;
+
+    if (Keputusan?) then (Approve)
+        :Klik "Setujui";
+        :Isi Catatan (opsional);
+        :Submit;
+
+        |Sistem|
+        :Update SPK\nstatus = **disetujui**;
+        :Set poin = PointRule.points;
+        :Set poin_added_at, poin_added_by;
+        :Log (updated, Spk);
+        :Email ke Mahasiswa\n(SpkStatusNotification: disetujui);
+
+        |Mahasiswa|
+        :Terima notifikasi Disetujui;
+        :Poin bertambah di Dashboard;
+
+    else (Reject)
+        |Dosen|
+        :Klik "Tolak";
+        :Isi Catatan (wajib);
+        :Submit;
+
+        |Sistem|
+        :Update SPK\nstatus = **ditolak**;
+        :Log (updated, Spk);
+        :Email ke Mahasiswa\n(SpkStatusNotification: ditolak);
+
+        |Mahasiswa|
+        :Terima notifikasi Ditolak;
+        :Edit SPK & Upload Ulang;
+        :Resubmit;
+        note right: status → **draft**
+    endif
+}
+
+partition "**Review oleh Admin**" {
+    |Admin|
+    :Lihat daftar SPK;
+    :Buka detail → Review;
+    :Approve / Reject (sama seperti Dosen);
+
+    |Sistem|
+    :Update SPK;
+    :Log (updated, Spk);
+    :Email ke Mahasiswa;
+}
+
+stop
+
+@enduml

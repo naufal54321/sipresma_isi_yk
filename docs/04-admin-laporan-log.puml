@@ -1,0 +1,88 @@
+@startuml PRATAMA - Admin, Laporan & Log
+
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activityBackgroundColor #F8FAFC
+skinparam activityBorderColor #94A3B8
+skinparam activityFontColor #1E293B
+skinparam arrowColor #64748B
+skinparam noteBackgroundColor #FFFBEB
+skinparam noteBorderColor #F59E0B
+skinparam swimlaneFontSize 13
+skinparam swimlaneFontStyle bold
+skinparam defaultFontSize 11
+
+title **PRATAMA - Alur Admin CRUD, Laporan & Activity Log**
+
+|Admin|
+start
+
+partition "**Kelola Master Data**" {
+    split
+        :Kelola Users;
+        note right: CRUD + Change Role
+    split again
+        :Kelola Bidang Kompetensi;
+        note right: CompetencyField
+    split again
+        :Kelola Jenis Kegiatan;
+        note right: ActivityType
+    split again
+        :Kelola Ruang Lingkup;
+        note right: ActivityScope
+    split again
+        :Kelola Peran Kegiatan;
+        note right: ActivityRole
+    split again
+        :Kelola Jenis Prestasi;
+        note right: AchievementType
+    split again
+        :Kelola Aturan Poin;
+        note right: PointRule + FileRequirements
+    split again
+        :Kelola Program Studi;
+        note right: ProgramStudi
+    end split
+
+    |Sistem|
+    :Log activity untuk setiap CRUD;
+}
+
+|Admin|
+partition "**Laporan & Export**" {
+    :Buka halaman Laporan;
+    :Filter: Tahun, Prodi, Ruang Lingkup;
+
+    if (Export?) then (CSV)
+        :Download CSV;
+    elseif (PDF) then
+        :Download PDF;
+    else (Excel)
+        :Download Excel (per Fakultas);
+    endif
+}
+
+|Dosen|
+partition "**Laporan Dosen**" {
+    :Buka Laporan (hanya bimbingan);
+    :Export CSV / PDF / Excel;
+}
+
+|Admin|
+partition "**Activity Log**" {
+    :Buka Log & Aktivitas;
+    :Filter: User, Model, Event, Tanggal;
+    :Lihat Detail;
+
+    note right
+        **Model Events**: diff perubahan
+        (Sebelum → Sesudah)
+        **Auth Events**: IP, Browser
+    end note
+
+    :Hapus log (opsional);
+}
+
+stop
+
+@enduml

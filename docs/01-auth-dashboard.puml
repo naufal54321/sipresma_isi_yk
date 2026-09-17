@@ -1,0 +1,101 @@
+@startuml PRATAMA - Auth & Dashboard
+
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activityBackgroundColor #F8FAFC
+skinparam activityBorderColor #94A3B8
+skinparam activityFontColor #1E293B
+skinparam arrowColor #64748B
+skinparam noteBackgroundColor #FFFBEB
+skinparam noteBorderColor #F59E0B
+skinparam swimlaneFontSize 13
+skinparam swimlaneFontStyle bold
+skinparam defaultFontSize 11
+
+title **PRATAMA - Alur Registrasi, Login & Dashboard**
+
+|Mahasiswa|
+start
+
+partition "**Registrasi**" {
+    :Buka /register;
+    :Isi form (NIM, Nama, Prodi,\nAngkatan, Semester, Email, Password);
+    :Submit;
+
+    |Sistem|
+    :Buat User baru\nrole = Mahasiswa;
+    :Log auth (event: registered);
+    :Kirim email verifikasi;
+
+    |Mahasiswa|
+    :Buka email → Klik link verifikasi;
+}
+
+partition "**Login**" {
+    |Mahasiswa|
+    :Buka /login;
+    :Isi Email & Password;
+    :Submit;
+
+    |Sistem|
+    if (Valid?) then (Ya)
+        :Log auth (event: login,\nip + user_agent);
+        |Mahasiswa|
+        :Redirect ke /dashboard;
+    else (Tidak)
+        :Log auth (event: login_failed,\nemail + ip);
+        |Mahasiswa|
+        :Tampilkan error;
+        stop
+    endif
+}
+
+partition "**Dashboard Mahasiswa**" {
+    |Mahasiswa|
+    :Lihat Statistik;
+    note right
+        **Poin Profesional**: Bidang Orientasi\nKompetensi Profesional
+        **Poin Kepribadian**: Bidang\nKompetensi Kepribadian dan Sosial
+        **Total Poin**: Poin Sendiri + Poin Anggota
+    end note
+
+    if (Predikat?) then (>= Syarat)
+        if (Total Poin?) then (> 150)
+            :**Unggul**;
+        elseif (>= 100) then
+            :**Sangat Baik**;
+        elseif (>= 75) then
+            :**Baik**;
+        else
+            :**Cukup**;
+        endif
+    else
+        :**Belum Memenuhi Syarat**;
+    endif
+}
+
+partition "**Dashboard Dosen**" {
+    |Dosen|
+    :Lihat jumlah RPK & SPK Bimbingan;
+    :Lihat Daftar Mahasiswa Bimbingan;
+}
+
+partition "**Dashboard Admin**" {
+    |Admin|
+    :Lihat Total Mahasiswa, Dosen, RPK, SPK;
+    :Lihat Chart Ruang Lingkup & Kategori;
+    :Lihat Top 5 Mahasiswa;
+    :Lihat Aktivitas Terbaru;
+}
+
+partition "**Logout**" {
+    |Sistem|
+    :Klik Logout;
+    :Log auth (event: logout);
+    :Invalidate session;
+    :Redirect ke /;
+}
+
+stop
+
+@enduml

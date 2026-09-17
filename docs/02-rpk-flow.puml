@@ -1,0 +1,112 @@
+@startuml PRATAMA - RPK Flow
+
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam activityBackgroundColor #F8FAFC
+skinparam activityBorderColor #94A3B8
+skinparam activityFontColor #1E293B
+skinparam arrowColor #64748B
+skinparam noteBackgroundColor #FFFBEB
+skinparam noteBorderColor #F59E0B
+skinparam swimlaneFontSize 13
+skinparam swimlaneFontStyle bold
+skinparam defaultFontSize 11
+
+title **PRATAMA - Alur RPK (Rencana Pelaksanaan Kegiatan)**
+
+|Mahasiswa|
+start
+
+partition "**Buat RPK**" {
+    :Klik "Tambah RPK";
+    :Isi Tahun & Semester;
+    :Submit;
+    note right: status = **draft**
+
+    |Sistem|
+    :Log (created, Rpk);
+    :Email ke Semua Admin\n(RpkSubmitted);
+
+    |Mahasiswa|
+}
+
+partition "**Tambah Kegiatan**" {
+    |Mahasiswa|
+    :Buka detail RPK;
+    :Klik "Tambah Kegiatan";
+    :Pilih Aturan Poin;
+    :Isi Judul, Tanggal, Kategori;
+    :Pilih Anggota (jika Kelompok);
+    :Submit;
+    note right: Batas: max 4 per jenis
+
+    |Sistem|
+    :Log (created, Kegiatan);
+    :Reset RPK → draft;
+    :Email ke Dosen Pembimbing\n(jika sudah diassign);
+}
+
+|Admin|
+partition "**Assign Dosen**" {
+    :Lihat RPK tanpa Dosen;
+    :Pilih RPK → Pilih Dosen;
+    :Submit;
+
+    |Sistem|
+    :Update RPK\n(dosen_pembimbing_id);
+    :Log (updated, Rpk);
+    :Email ke Dosen\n(PlottingMahasiswa);
+}
+
+|Dosen|
+partition "**Review RPK**" {
+    :Lihat daftar RPK Bimbingan;
+    :Buka detail → Review Kegiatan;
+
+    if (Keputusan?) then (Approve)
+        :Klik "Setujui";
+        :Isi Catatan (opsional);
+        :Submit;
+
+        |Sistem|
+        :Update RPK\nstatus = **disetujui**;
+        :Log (updated, Rpk);
+        :Email ke Mahasiswa\n(RpkStatusNotification: disetujui);
+
+        |Mahasiswa|
+        :Terima notifikasi Disetujui;
+
+    else (Reject)
+        |Dosen|
+        :Klik "Tolak";
+        :Isi Catatan (wajib);
+        :Submit;
+
+        |Sistem|
+        :Update RPK\nstatus = **ditolak**;
+        :Log (updated, Rpk);
+        :Email ke Mahasiswa\n(RpkStatusNotification: ditolak);
+
+        |Mahasiswa|
+        :Terima notifikasi Ditolak;
+        :Edit RPK / Tambah Kegiatan;
+        :Resubmit;
+        note right: status → **draft**
+    endif
+}
+
+|Admin|
+partition "**Override Status (Admin)**" {
+    :Buka detail RPK;
+    :Ganti Status (disetujui/ditolak/draft);
+    :Submit;
+
+    |Sistem|
+    :Update RPK;
+    :Log (updated, Rpk);
+    :Email ke Mahasiswa;
+}
+
+stop
+
+@enduml
